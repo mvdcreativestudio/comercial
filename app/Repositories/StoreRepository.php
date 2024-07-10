@@ -74,12 +74,14 @@ class StoreRepository
       try {
           $store = Store::findOrFail($id);
           $store->closed = !$store->closed;
+          $store->manual_override_at = now();
           $store->save();
           return true;
       } catch (\Exception $e) {
           return false;
       }
   }
+
 
 
   /**

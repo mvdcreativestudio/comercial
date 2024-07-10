@@ -28,7 +28,8 @@ use App\Http\Controllers\{
     EmailTemplateController,
     NotificationController,
     OrderPdfController,
-    ProductionController
+    ProductionController,
+    PointOfSaleController,
 };
 
 // Middleware de autenticación y verificación de email

@@ -21,6 +21,7 @@ class Store extends Model
         'status',
         'slug',
         'closed',
+        'manual_override_at',
     ];
 
     /**

@@ -44,6 +44,13 @@
       ]
     },
     {
+      "id": "tour-punto-de-venta",
+      "name": "Punto de Venta",
+      "icon": "menu-icon tf-icons bx bx-home-circle",
+      "slug": "point-of-sale",
+      "url": "/admin/punto-de-venta"
+    },
+    {
       "id": "tour-contabilidad",
       "name": "Contabilidad",
       "icon": "menu-icon tf-icons bx bx-dollar",
