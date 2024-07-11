@@ -18,6 +18,7 @@ class Store extends Model
         'address',
         'email',
         'rut',
+        'ecommerce',
         'status',
         'slug',
         'closed',

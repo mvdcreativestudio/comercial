@@ -57,31 +57,33 @@
       <div class="d-flex justify-content-center">
         <div class="row gy-3 mt-0 col-12 col-md-8 justify-content-center">
             @foreach ($stores as $store)
-              @if ($store->closed != 1)
-              <div class="col-xl-3 col-md-5 col-sm-6 col-6">
-                <div class="form-check custom-option custom-option-icon">
-                  <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
-                    <span class="custom-option-body">
-                      <i class="fa-solid fa-store"></i>
-                      <span class="custom-option-title">{{$store->name}}</span>
-                      <small class="text-success">Tienda abierta</small>
-                    </span>
-                    <input name="slug" class="form-check-input" type="radio" value="{{ $store->slug }}" id="store{{ $store->id }}" {{ $loop->first ? 'checked' : '' }} />
-                  </label>
+              @if ($store->ecommerce == 1)
+                @if ($store->closed != 1)
+                <div class="col-xl-3 col-md-5 col-sm-6 col-6">
+                  <div class="form-check custom-option custom-option-icon">
+                    <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
+                      <span class="custom-option-body">
+                        <i class="fa-solid fa-store"></i>
+                        <span class="custom-option-title">{{$store->name}}</span>
+                        <small class="text-success">Tienda abierta</small>
+                      </span>
+                      <input name="slug" class="form-check-input" type="radio" value="{{ $store->slug }}" id="store{{ $store->id }}" {{ $loop->first ? 'checked' : '' }} />
+                    </label>
+                  </div>
                 </div>
-              </div>
-              @else
-              <div class="col-xl-3 col-md-5 col-sm-6 col-6">
-                <div class="form-check custom-option custom-option-icon">
-                  <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
-                    <span class="custom-option-body">
-                      <i class="fa-solid fa-store"></i>
-                      <span class="custom-option-title">{{$store->name}}</span>
-                      <small class="text-danger">Tienda cerrada</small>
-                    </span>
-                  </label>
+                @else
+                <div class="col-xl-3 col-md-5 col-sm-6 col-6">
+                  <div class="form-check custom-option custom-option-icon">
+                    <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
+                      <span class="custom-option-body">
+                        <i class="fa-solid fa-store"></i>
+                        <span class="custom-option-title">{{$store->name}}</span>
+                        <small class="text-danger">Tienda cerrada</small>
+                      </span>
+                    </label>
+                  </div>
                 </div>
-              </div>
+                @endif
               @endif
             @endforeach
         </div>
