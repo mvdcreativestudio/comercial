@@ -214,8 +214,6 @@ class CheckoutRepository
             throw new \Exception('No se encontraron las credenciales de MercadoPago para la tienda asociada al pedido.');
         }
 
-        Log::info('Credenciales de MercadoPago obtenidas:', $mercadoPagoAccount->toArray());
-
         // Configurar el SDK de MercadoPago con las credenciales de la tienda
         $mercadoPagoService->setCredentials($mercadoPagoAccount->public_key, $mercadoPagoAccount->access_token);
 
@@ -229,13 +227,10 @@ class CheckoutRepository
           ]
         ];
 
-        Log::info('Creando preferencia de pago con los siguientes datos:', $preferenceData);
 
         $preference = $mercadoPagoService->createPreference($preferenceData, $order);
         $order->preference_id = $preference->id;
         $order->save();
-
-        Log::info('Preferencia de pago creada:', $preference->toArray());
 
         return "https://www.mercadopago.com.uy/checkout/v1/payment/redirect/?preference-id={$preference->id}";
     }

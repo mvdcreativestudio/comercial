@@ -28,7 +28,10 @@ use App\Http\Controllers\{
     EmailTemplateController,
     NotificationController,
     OrderPdfController,
-    ProductionController
+    ProductionController,
+    CashRegisterController,
+    CashRegisterLogController,
+    PosOrderController
 };
 
 // Middleware de autenticación y verificación de email
@@ -68,7 +71,26 @@ Route::middleware([
         'company-settings' => CompanySettingsController::class,
         'clients' => ClientController::class,
         'productions' => ProductionController::class,
+        'points-of-sales' => CashRegisterController::class,
+        'pos-orders' => PosOrderController::class,
     ]);
+
+
+    // Point of service
+
+    Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
+    Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister'])->name('points-of-sales.close');
+
+    // Point of service 
+
+    Route::get('/pdv', [CashRegisterLogController::class, 'index'])->middleware('check.open.cash.register')->name('pdv.index');
+
+    // Productos para caja registradora
+
+    Route::get('/pdv/products/{id}', [CashRegisterLogController::class, 'getProductsByCashRegister']);
+    Route::get('/pdv/flavors', [CashRegisterLogController::class, 'getFlavorsForCashRegister']);
+    Route::get('/pdv/categories', [CashRegisterLogController::class, 'getFathersCategories']);
+
 
 
     // Datacenter

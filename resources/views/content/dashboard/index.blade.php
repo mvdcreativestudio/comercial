@@ -33,11 +33,12 @@
 @endif
 
 <div class="row">
+
   <!-- Botón de Modo Ayuda -->
   <div class="col-2">
     <button id="help-mode-toggle" class="btn btn-primary">Activar Modo Ayuda</button>
   </div>
-
+  
   <!-- Abierto / Cerrado Stores -->
   @if(Auth::user()->hasPermissionTo('access_open_close_stores'))
     <div class="row g-4 mt-0 pt-0 mb-4" id="">

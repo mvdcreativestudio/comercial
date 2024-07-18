@@ -84,4 +84,16 @@ class Store extends Model
     {
         return $this->hasMany(StoreHours::class);
     }
+
+
+    /**
+     * Obtiene las cajas registradoras asociadas a la tienda.
+     *
+     * @return HasMany
+     */
+    public function cashRegisters(): HasMany
+    {
+        return $this->hasMany(CashRegister::class);
+    }
+
 }

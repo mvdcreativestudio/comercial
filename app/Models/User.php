@@ -72,4 +72,15 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Store::class);
     }
+
+    /**
+     * Obtiene las cajas registradoras asociadas al usuario.
+     *
+     * @return HasMany
+     */
+    public function cashRegisters(): HasMany
+    {
+        return $this->hasMany(CashRegister::class);
+    }
+
 }
