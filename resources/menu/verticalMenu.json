@@ -193,7 +193,7 @@
           "name": "Cuentas",
           "icon": "menu-icon tf-icons bx bx-user",
           "slug": "user-accounts",
-          "url": "/admin/users/accounts"
+          "url": "/admin/users"
         },
         {
           "id": "tour-roles",

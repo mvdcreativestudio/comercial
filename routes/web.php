@@ -30,6 +30,7 @@ use App\Http\Controllers\{
     OrderPdfController,
     ProductionController,
     PointOfSaleController,
+    UserController,
 };
 
 // Middleware de autenticación y verificación de email
@@ -51,12 +52,15 @@ Route::middleware([
     Route::get('/marketing/coupons/datatable', [CouponController::class, 'datatable'])->name('coupons.datatable');
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
+    Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
+
 
 
     // Recursos con acceso autenticado
     Route::resources([
         'stores' => StoreController::class,
         'roles' => RoleController::class,
+        'users' => UserController::class,
         'raw-materials' => RawMaterialController::class,
         'suppliers' => SupplierController::class,
         'supplier-orders' => SupplierOrderController::class,
