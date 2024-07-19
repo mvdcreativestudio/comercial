@@ -135,7 +135,8 @@ class CreatePermissions extends Command
                     'view_all' => false,
                 ],
                 [
-                    'slug' => 'points-of-sales',
+
+                    'slug' => 'point-of-sale',
                     'view_all' => false,
                 ],
             ]

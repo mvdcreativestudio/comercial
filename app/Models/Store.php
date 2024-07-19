@@ -18,9 +18,11 @@ class Store extends Model
         'address',
         'email',
         'rut',
+        'ecommerce',
         'status',
         'slug',
         'closed',
+        'manual_override_at',
     ];
 
     /**

@@ -36,4 +36,5 @@ return [
   'access_bypass_raw_material_check' => 'Saltar verificación de materia prima para producciones',
   'access_raw-materials-management' => 'Acceder a gestión de materias primas',
   'access_points-of-sales' => 'Acceso a los puntos de venta',
+
 ];
