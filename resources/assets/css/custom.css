@@ -585,3 +585,82 @@ tr.odd {
   max-height: 50vh;
   width: 100%;
 }
+
+/** Punto de venta */
+
+.search-bar-section {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.search-bar-section .input-group {
+  border-radius: 5px;
+}
+
+.search-bar-section .input-group .form-control {
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #ced4da;
+}
+
+.search-bar-section .input-group .btn {
+  border-radius: 0 5px 5px 0;
+  border: 1px solid #ced4da;
+  border-left: none;
+}
+
+.search-bar-section .btn-group .dropdown-toggle {
+  border-radius: 5px;
+}
+
+.search-bar-section .btn {
+  margin-left: 10px;
+}
+
+.card-product-pos {
+  position: relative;
+  overflow: hidden; /* Asegura que el contenido no se desborde */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top-product-pos {
+  width: 100%;
+  height: auto;
+  transition: transform 0.2s; /* Transición suave para el zoom */
+}
+
+.card-product-pos:hover .card-img-top-product-pos {
+  transform: scale(1.1); /* Zoom al pasar el ratón */
+}
+
+.card-img-overlay-product-pos {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+  color: white;
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.card-title-product-pos, .card-text-product-pos {
+  margin: 0;
+}
+
+.card-text-product-pos del {
+  color: #ccc; /* Color gris para el precio anterior */
+}
+
+.img-thumbnail {
+  border: none;
+  border-radius: 5px;
+}
+
+.icono-trash {
+  border: solid 1px #18181859;
+  border-radius: 3px;
+}

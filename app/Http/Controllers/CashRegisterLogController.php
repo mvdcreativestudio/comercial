@@ -21,13 +21,23 @@ class CashRegisterLogController extends Controller
         Log::info('CashRegisterLogRepository inyectado correctamente.');
         $this->cashRegisterLogRepository = $cashRegisterLogRepository;
     }
-    
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         return view('pdv.index');
+    }
+
+    public function front()
+    {
+      return view('pdv.front');
+    }
+
+    public function front2()
+    {
+      return view('pdv.front2');
     }
 
     /**
@@ -40,7 +50,7 @@ class CashRegisterLogController extends Controller
 
     /**
      * Agrega un log de caja registradora a la base de datos.
-     * La función del método es abrir la caja registradora ese día. 
+     * La función del método es abrir la caja registradora ese día.
      *
      * @param StoreCashRegisterLogRequest $request
      * @param JsonResponse
@@ -49,7 +59,7 @@ class CashRegisterLogController extends Controller
     {
 
         $cashRegisterId = $request->input('cash_register_id');
-    
+
         // Verificar si hay un log existente sin fecha de cierre
         if ($this->cashRegisterLogRepository->hasOpenLog()) {
             return response()->json(['message' => 'Ya existe una caja registradora abierta.'], 400);
@@ -63,7 +73,7 @@ class CashRegisterLogController extends Controller
         return response()->json($cashRegisterLog, 201);
     }
 
-    
+
 
     /**
      * Display the specified resource.
@@ -135,7 +145,7 @@ class CashRegisterLogController extends Controller
 
     /**
      * Toma los productos de la tienda de la caja registradora.
-     * 
+     *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -147,7 +157,7 @@ class CashRegisterLogController extends Controller
 
     /**
      * Toma los productos de la tienda de la caja registradora.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getFlavorsForCashRegister()
@@ -156,17 +166,17 @@ class CashRegisterLogController extends Controller
             $flavors = $this->cashRegisterLogRepository->getFlavors();
             Log::info('Productos obtenidos:', $flavors->toArray());
             return response()->json(['flavors' => $flavors]);
-    
+
         } catch (\Exception $e) {
             Log::error('Error al obtener los productos:', ['error' => $e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 404);
         }
     }
-    
+
 
     /**
      * Toma las categorías padres.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getFathersCategories()

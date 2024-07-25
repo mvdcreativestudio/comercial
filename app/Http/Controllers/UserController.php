@@ -7,6 +7,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -79,13 +80,14 @@ class UserController extends Controller
    * Almacena un nuevo usuario en la base de datos.
    *
    * @param StoreUserRequest $request
-   * @return JsonResponse
-  */
-  public function store(StoreUserRequest $request): JsonResponse
+   * @return RedirectResponse
+   */
+  public function store(StoreUserRequest $request): RedirectResponse
   {
-    $result = $this->userRepository->createUser($request->validated());
-    return response()->json($result);
+      $this->userRepository->createUser($request->validated());
+      return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
   }
+
 
   /**
    * Muestra el formulario para editar un usuario existente.
