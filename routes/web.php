@@ -145,6 +145,10 @@ Route::middleware([
     Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
 
+    Route::get('/accounting/settings', [AccountingController::class, 'settings'])->name('accounting.settings');
+    Route::post('/accounting/save-rut', [AccountingController::class, 'saveRut'])->name('accounting.saveRut');
+    Route::post('/accounting/upload-logo', [AccountingController::class, 'uploadLogo'])->name('accounting.uploadLogo');
+
     // Ajustes de Comercio Electrónico
     Route::get('/ecommerce/marketing', [EcommerceController::class, 'marketing'])->name('marketing');
     Route::get('/ecommerce/settings', [EcommerceController::class, 'settings'])->name('settings');

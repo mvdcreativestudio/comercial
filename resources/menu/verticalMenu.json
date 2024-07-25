@@ -60,7 +60,7 @@
           "id": "tour-punto-de-venta",
           "name": "Punto de Venta",
           "icon": "menu-icon tf-icons bx bx-home-circle",
-          "slug": "point-of-sale",
+          "slug": "points-of-sale",
           "url": "/admin/punto-de-venta"
         }
       ]
@@ -69,7 +69,7 @@
       "id": "tour-gestion-proveedores",
       "name": "Fabricación",
       "icon": "menu-icon tf-icons bx bx-briefcase",
-      "slug": "manufacturing",
+      "slug": "raw-materials-management",
       "submenu": [
         {
           "id": "tour-sabores",
@@ -112,8 +112,8 @@
       "id": "tour-puntos-de-ventas",
       "name": "Puntos de ventas",
       "icon": "menu-icon tf-icons bx bx-money-withdraw",
-      "slug": "points-of-sales",
-      "url": "/admin/points-of-sales"
+      "slug": "points-of-sale",
+      "url": "/admin/points-of-sale"
     },
     {
       "id": "tour-contabilidad",
@@ -142,6 +142,13 @@
           "icon": "menu-icon tf-icons bx bx-book",
           "slug": "entries",
           "url": "/admin/entries"
+        },
+        {
+          "id": "tour-configuracion-contabilidad",
+          "name": "Configuración",
+          "icon": "menu-icon tf-icons bx bx-cog",
+          "slug": "accounting-settings",
+          "url": "/admin/accounting/settings"
         }
       ]
     },
@@ -211,7 +218,6 @@
         }
       ]
     },
-
     {
       "id": "tour-configuracion",
       "name": "Configuración",
