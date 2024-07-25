@@ -1,4 +1,4 @@
-@extends('layouts.blankLayout')
+@extends('layouts.layoutMaster')
 
 @section('title', 'Pago - MVD')
 
@@ -17,14 +17,7 @@
 <div class="container-fluid p-4">
   <div class="row">
     <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mb-0"><button class="btn m-0 p-0"><i class="bx bx-chevron-left fs-2"></i></button> Vender <span class="text-secondary fs-4">$1,300.00</span></h2>
-      <div class="d-flex align-items-center">
-        <button class="btn btn-light me-2"><i class="bx bx-help-circle"></i> Ayuda</button>
-        <div class="d-flex align-items-center">
-          <span class="me-2">Martín Santamaría</span>
-          <img src="https://via.placeholder.com/40" class="rounded-circle" alt="User">
-        </div>
-      </div>
+      <h2 class="mb-0"><button class="btn m-0 p-0"><a href="{{ route('pdv.front') }}"><i class="bx bx-chevron-left fs-2"></i></a></button> Vender <span class="text-secondary fs-4">$1,300.00</span></h2>
     </div>
 
     <div class="col-md-8">
@@ -107,7 +100,7 @@
         <h5>Seleccione el método de pago</h5>
         <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="cash" checked>
-          <label class="form-check-label" for="cash">Efectivo</label>
+          <label class="form-check-label" for="cash">Efectivo - Vuelto: $700</label>
           <input type="text" class="form-control mt-2" placeholder="Valor recibido">
         </div>
         <div class="form-check mb-2">
@@ -127,87 +120,16 @@
           <label class="form-check-label" for="creditSale">Venta a crédito</label>
         </div>
       </div>
-      <div class="d-flex justify-content-between mt-3">
-        <button class="btn btn-light col-4"><i class="bx bx-x"></i> Descartar venta</button>
-        <button class="btn btn-secondary col-4"><i class="bx bx-save"></i> Guardar pedido</button>
-        <button class="btn btn-success col-4"><i class="bx bx-check"></i> Finalizar venta</button>
+      <div class="demo-inline-spacing d-flex justify-content-between">
+        <button class="btn btn-light"><i class="bx bx-x"></i> Descartar venta</button>
+        <button class="btn btn-secondary"><i class="bx bx-save"></i> Guardar pedido</button>
+        <button class="btn btn-success"><i class="bx bx-check"></i> Finalizar venta</button>
       </div>
     </div>
   </div>
 </div>
 
-<style>
-  .card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
 
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-light {
-  background-color: #f8f9fa;
-  border-color: #f8f9fa;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-success {
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.form-check-label {
-  margin-left: 10px;
-}
-
-.form-control {
-  border-radius: 5px;
-  border: 1px solid #ced4da;
-  margin-top: 10px;
-}
-
-textarea.form-control {
-  height: 100px;
-}
-
-.form-check-input:checked {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.text-secondary {
-  color: #6c757d !important;
-}
-
-.rounded-circle {
-  border-radius: 50%;
-}
-
-.badge.bg-primary {
-  background-color: #007bff;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.justify-content-between {
-  justify-content: space-between;
-}
-
-.align-items-center {
-  align-items: center;
-}
-
-</style>
 @endsection
 
 @section('vendor-script')

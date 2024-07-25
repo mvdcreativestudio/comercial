@@ -223,11 +223,12 @@
             </button>
           </div>
           <div class="col-11">
-            <button class="btn btn-primary btn-block mx-1 col-12 d-flex justify-content-between align-items-center">
-              <span class="mx-auto">Ir al pago</span>
+            <button class="btn btn-primary btn-block mx-1 col-12 d-flex justify-content-between align-items-center" onclick="window.location.href='{{ route('pdv.front2') }}'">
+              <span class="mx-auto text-white">Ir al pago</span>
               <span class="tf-icons bx bx-chevron-right fs-2"></span>
             </button>
           </div>
+
         </div>
       </div>
     </div>
