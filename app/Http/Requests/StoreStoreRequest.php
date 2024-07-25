@@ -30,6 +30,7 @@ class StoreStoreRequest extends FormRequest
             'address' => 'string|max:255',
             'email' => 'required|email|unique:stores,email',
             'rut' => 'required|string|max:255|unique:stores,rut',
+            'ecommerce' => 'required|boolean',
             'status' => 'required|boolean',
             'accepts_mercadopago' => 'required|boolean',
         ];

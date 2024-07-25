@@ -45,9 +45,25 @@ class ClientController extends Controller
   */
   public function store(StoreClientRequest $request): RedirectResponse
   {
-    $validatedData = $request->validated();
-    $this->clientRepository->createClient($validatedData);
-    return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente.');
+    try {
+      $validatedData = $request->validated();
+
+      // Establecer valores predeterminados si no están presentes en la solicitud
+      $validatedData['address'] = $validatedData['address'] ?? 'FÍSICO';
+      $validatedData['city'] = $validatedData['city'] ?? 'FÍSICO';
+      $validatedData['state'] = $validatedData['state'] ?? 'FÍSICO';
+      $validatedData['country'] = $validatedData['country'] ?? 'FÍSICO';
+      $validatedData['phone'] = $validatedData['phone'] ?? 'FÍSICO';
+      
+
+      // Crear el nuevo cliente
+      $this->clientRepository->createClient($validatedData);
+
+      return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente.');
+    } catch (\Exception $e) {
+        // Permitir continuar en caso de error
+        return redirect()->route('clients.index')->with('warning', 'Ocurrió un error, pero puedes continuar con la operación.');
+    }
   }
 
   /**
