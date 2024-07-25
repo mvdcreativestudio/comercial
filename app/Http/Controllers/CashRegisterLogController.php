@@ -9,6 +9,9 @@ use App\Http\Requests\StoreCashRegisterLogRequest;
 use App\Http\Requests\UpdateCashRegisterLogRequest;
 use App\Repositories\CashRegisterLogRepository;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
+use App\Http\Requests\StoreClientRequest;
+
 
 
 class CashRegisterLogController extends Controller
@@ -18,7 +21,6 @@ class CashRegisterLogController extends Controller
 
     public function __construct(CashRegisterLogRepository $cashRegisterLogRepository)
     {
-        Log::info('CashRegisterLogRepository inyectado correctamente.');
         $this->cashRegisterLogRepository = $cashRegisterLogRepository;
     }
 
@@ -164,11 +166,9 @@ class CashRegisterLogController extends Controller
     {
         try {
             $flavors = $this->cashRegisterLogRepository->getFlavors();
-            Log::info('Productos obtenidos:', $flavors->toArray());
             return response()->json(['flavors' => $flavors]);
 
         } catch (\Exception $e) {
-            Log::error('Error al obtener los productos:', ['error' => $e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 404);
         }
     }
@@ -186,6 +186,55 @@ class CashRegisterLogController extends Controller
             return response()->json(['categories' => $categories]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+
+    /**
+   * Almacena un nuevo cliente en la base de datos.
+   *
+   * @param StoreClientRequest $request
+   * @return JsonResponse
+  */
+  public function storeClient(StoreClientRequest $request): JsonResponse
+  {
+    try {
+      $validatedData = $request->validated();
+
+      // Establecer valores predeterminados si no están presentes en la solicitud
+      $validatedData['address'] = $validatedData['address'] ?? 'FÍSICO';
+      $validatedData['city'] = $validatedData['city'] ?? 'FÍSICO';
+      $validatedData['state'] = $validatedData['state'] ?? 'FÍSICO';
+      $validatedData['country'] = $validatedData['country'] ?? 'FÍSICO';
+      $validatedData['phone'] = $validatedData['phone'] ?? 'FÍSICO';
+      
+
+      // Crear el nuevo cliente
+      $this->cashRegisterLogRepository->createClient($validatedData);
+
+      return response()->json(['success' => true, 'message' => 'Cliente creado correctamente.']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Ocurrió un error al crear el cliente.']);
+    }
+  }
+
+    /**
+     * Busca el id del cashregister log dado un id de caja registradora.
+     * 
+     *  @param string $id
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCashRegisterLog(string $id)
+    {
+        try {
+            $cashRegisterLogId = $this->cashRegisterLogRepository->getCashRegisterLog($id);
+            if ($cashRegisterLogId === null) {
+                return response()->json(['error' => 'No open log found'], 404);
+            }
+            return response()->json(['cash_register_log_id' => $cashRegisterLogId]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

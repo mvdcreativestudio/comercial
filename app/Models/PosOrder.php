@@ -18,6 +18,9 @@ class PosOrder extends Model
         'pos_sales',
         'discount',
         'client_type',
+        'products',
+        'subtotal',
+        'total'
     ];
     
     /**
@@ -25,7 +28,7 @@ class PosOrder extends Model
      *
      * @return BelongsTo
      */
-    public function cashRegisterLogId(): BelongsTo
+    public function cashRegisterLog(): BelongsTo
     {
         return $this->belongsTo(CashRegisterLog::class);
     }
