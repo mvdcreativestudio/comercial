@@ -84,18 +84,17 @@ Route::middleware([
     // Point of service
 
     Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
-    Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister'])->name('points-of-sales.close');
+    Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister']);
 
     // Point of service 
 
     Route::get('/pdv', [CashRegisterLogController::class, 'index'])->middleware('check.open.cash.register')->name('pdv.index');
-
-    // Productos para caja registradora
-
     Route::get('/pdv/products/{id}', [CashRegisterLogController::class, 'getProductsByCashRegister']);
     Route::get('/pdv/flavors', [CashRegisterLogController::class, 'getFlavorsForCashRegister']);
     Route::get('/pdv/categories', [CashRegisterLogController::class, 'getFathersCategories']);
-
+    Route::post('/pdv/client', [CashRegisterLogController::class, 'storeClient']);
+    Route::get('/pdv/log/{id}', [CashRegisterLogController::class, 'getCashRegisterLog']);
+  
 
 
     // Datacenter

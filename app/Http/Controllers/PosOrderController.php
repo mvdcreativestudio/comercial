@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Repositories\PosOrderRepository;
 use Illuminate\View\View;
+use App\Http\Requests\StorePosOrderRequest;
 
 class PosOrderController extends Controller
 {

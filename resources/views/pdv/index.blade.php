@@ -105,6 +105,12 @@
                     <tbody>
                         <!-- Productos seleccionados se agregarán aquí -->
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="text-end">Total:</th>
+                            <th id="totalOrdenValor">0.00</th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="modal-footer">
@@ -210,6 +216,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="calcularCambio">Calcular</button>
+                <button type="button" class="btn btn-primary" id="finalizarOrden">Finalizar</button>
             </div>
         </div>
     </div>
@@ -222,8 +229,97 @@
 @parent
 <script>
     $(document).ready(function() {
-    let categories = [];
+        let categories = [];
     let flavors = [];
+
+    let openCashRegisterId = $('#btn-agregar-productos').data('id'); // Obtener el ID de la caja registradora abierta
+    let cashRegisterLogId = null; // Variable para guardar el ID de cash register log
+
+    // Función para obtener el ID del registro de caja
+    function obtenerCashRegisterLogId() {
+        if (openCashRegisterId) {
+            $.ajax({
+                url: `pdv/log/${openCashRegisterId}`,
+                type: 'GET',
+                success: function(response) {
+                    cashRegisterLogId = response.cash_register_log_id; // Guardar el ID devuelto
+                },
+                error: function(xhr, status, error) {
+                    alert('Error al obtener el ID de cash register log: ' + xhr.responseText);
+                }
+            });
+        } else {
+            console.error('ID de caja registradora no definido');
+        }
+    }
+
+    // Llamar a la función para obtener el ID cuando se carga la página
+    obtenerCashRegisterLogId();
+
+
+    $('#cancelarDetallesCliente').click(function() {
+        $('#detallesClienteModal').modal('hide');
+
+        // Calcular el total de la orden
+        var totalOrden = calcularTotalOrden();
+
+        // Actualizar el valor del campo 'totalOrden' en el modal de "Calcular Cambio"
+        $('#totalOrden').val(totalOrden);
+
+        // Mostrar el modal de "Calcular Cambio"
+        $('#calcularCambioModal').modal('show');
+    });
+
+     // Finalizar la orden
+     $('#finalizarOrden').click(function() {
+        var totalOrden = parseFloat($('#totalOrden').val());
+        var montoPagado = parseFloat($('#montoPagado').val());
+        var cambio = parseFloat($('#cambio').val());
+
+        // Recuperar datos de tipo de cliente y forma de pago
+        var tipoCliente = $('#tipoCliente').val();
+        var formaPago = $('#formaPago').val();
+
+        // Recuperar las órdenes existentes del localStorage
+        var ordenes = JSON.parse(localStorage.getItem('ordenes')) || [];
+
+        const now = new Date();
+        const date = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        const hour = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+
+
+        // Construir los datos de la orden
+        var ordenData = {
+            date: date,
+            hour: hour,
+            cash_register_log_id: cashRegisterLogId,
+            cash_sales: formaPago === 'efectivo' ? totalOrden : 0,
+            pos_sales: formaPago === 'pos' ? totalOrden : 0,
+            discount: 0,
+            client_type: tipoCliente,
+            products: JSON.stringify(ordenes[0]), 
+            subtotal: (formaPago === 'efectivo' ? totalOrden : 0) + (formaPago === 'pos' ? totalOrden : 0),
+            total: ((formaPago === 'efectivo' ? totalOrden : 0) + (formaPago === 'pos' ? totalOrden : 0)) - 0, // Resta 0 para acordarnos después de que debemos ver la lógica del tema descuentos.
+            _token: $('meta[name="csrf-token"]').attr('content')
+        };
+
+        $.ajax({
+            url: 'pos-orders',
+            type: 'POST',
+            data: ordenData,
+            success: function(response) {
+                alert('Orden finalizada correctamente.');
+                // Limpiar datos y cerrar modal
+                localStorage.removeItem('ordenes');
+                $('#calcularCambioModal').modal('hide');
+                location.reload(); // Recargar la página para reflejar los cambios
+            },
+            error: function(xhr, status, error) {
+                alert('Error al finalizar la orden: ' + xhr.responseText);
+            }
+        });
+    });
+    
 
     // Cargar categorías desde el backend
     function cargarCategorias() {
@@ -320,47 +416,21 @@
 
     // Abrir el modal de agregar productos
     $('#btn-agregar-productos').click(function() {
+
+        //Limpieza entre orden y orden.
+        localStorage.removeItem('ordenes');
+        $('#productosTable tbody').empty();
+        $('#totalOrdenValor').text('0.00');
+
+        $('#tipoClienteForm')[0].reset();
+        $('#detallesClienteForm')[0].reset();
+        $('#montoPagado').val('');
+        $('#totalOrden').val('');
+        $('#cambio').val('');
+
         var cashRegisterId = $(this).data('id'); // Obtener el ID de la caja registradora abierta
         cargarProductos(cashRegisterId);
         $('#agregarProductosModal').modal('show');
-    });
-
-    // Agregar un nuevo producto a la tabla cuando se selecciona en el dropdown
-    $('#productosSelect').change(function() {
-        var selectedOption = $(this).find('option:selected');
-        var id = selectedOption.val();
-        var name = selectedOption.data('name');
-        var price = selectedOption.data('price');
-        var image = selectedOption.data('image');
-        var type = selectedOption.data('type');
-        var maxFlavors = selectedOption.data('max-flavors');
-
-        if (id) {
-            var tr = `
-                <tr data-id="${id}" data-image="${image}" data-type="${type}">
-                    <td>${name}</td>
-                    <td class="product-price">${price}</td>
-                    <td><input type="number" class="form-control cantidad" value="1"></td>
-                    <td class="total-price">${price}</td>
-                    <td><button class="btn btn-danger btn-eliminar-producto">Eliminar</button></td>
-                </tr>
-            `;
-            
-            if (type === 'configurable') {
-                tr += `<tr class="flavor-row" data-id="${id}">
-                            <td colspan="5">
-                                <select class="form-control flavor-select" multiple>
-                                    ${flavors.map(flavor => `<option value="${flavor.id}">${flavor.name}</option>`).join('')}
-                                </select>
-                            </td>
-                        </tr>`;
-            }
-
-            $('#productosTable tbody').append(tr);
-
-            // Resetear el select después de agregar el producto
-            $(this).val('');
-        }
     });
 
     // Actualizar el precio total cuando cambia la cantidad
@@ -369,6 +439,7 @@
         var price = $(this).closest('tr').find('.product-price').text();
         var total = cantidad * price;
         $(this).closest('tr').find('.total-price').text(total);
+        actualizarTotalOrden();
     });
 
     // Eliminar un producto de la tabla
@@ -376,7 +447,67 @@
         var id = $(this).closest('tr').data('id');
         $(this).closest('tr').remove();
         $('.flavor-row[data-id="' + id + '"]').remove();
+        actualizarTotalOrden();
     });
+
+    // Función para actualizar el total de la orden
+    function actualizarTotalOrden() {
+        var total = 0;
+        $('#productosTable tbody tr').each(function() {
+            // Verifica que no sea una fila de sabores
+            if (!$(this).hasClass('flavor-row')) {
+                var price = parseFloat($(this).data('price')) || 0;
+                var quantity = parseInt($(this).find('.cantidad').val()) || 0;
+                var totalPrice = price * quantity;
+                $(this).find('.total-price').text(totalPrice.toFixed(2));
+                total += totalPrice;
+            }
+        });
+        $('#totalOrdenValor').text(total.toFixed(2));
+    }
+
+
+
+    // Agregar un nuevo producto a la tabla cuando se selecciona en el dropdown
+$('#productosSelect').change(function() {
+    var selectedOption = $(this).find('option:selected');
+    var id = selectedOption.val();
+    var name = selectedOption.data('name');
+    var price = selectedOption.data('price');
+    var image = selectedOption.data('image');
+    var type = selectedOption.data('type');
+    var maxFlavors = selectedOption.data('max-flavors');
+
+    if (id) {
+        var tr = `
+            <tr data-id="${id}" data-image="${image}" data-type="${type}" data-price="${price}">
+                <td>${name}</td>
+                <td class="product-price">${price}</td>
+                <td><input type="number" class="form-control cantidad" value="1"></td>
+                <td class="total-price">${price}</td>
+                <td><button class="btn btn-danger btn-eliminar-producto">Eliminar</button></td>
+            </tr>
+        `;
+        
+        if (type === 'configurable') {
+            tr += `<tr class="flavor-row" data-id="${id}">
+                    <td colspan="5">
+                        <select class="form-control flavor-select" multiple>
+                            ${flavors.map(flavor => `<option value="${flavor.id}">${flavor.name}</option>`).join('')}
+                        </select>
+                    </td>
+                </tr>`;
+         }
+
+        $('#productosTable tbody').append(tr);
+
+        // Resetear el select después de agregar el producto
+        $(this).val('');
+
+        // Actualizar el total de la orden después de agregar el producto
+        actualizarTotalOrden();
+    }
+});
 
     // Guardar los productos seleccionados en localStorage
     $('#guardar-productos').click(function() {
@@ -401,15 +532,18 @@
             var category = categories.find(category => category.product_id == id);
             var category_id = category ? category.category_id : null;
 
-            productosSeleccionados.push({
-                id: id,
-                name: name,
-                image: image,
-                price: parseFloat(price),
-                flavors: productFlavors, // Asigna los sabores seleccionados
-                quantity: parseInt(quantity),
-                category_id: category_id // Asigna la categoría correspondiente
-            });
+            // Evitar agregar productos con valores nulos
+            if (id && name && price && quantity) {
+                productosSeleccionados.push({
+                    id: id,
+                    name: name.trim(),  // Eliminar espacios en blanco adicionales
+                    image: image,
+                    price: parseFloat(price),
+                    flavors: productFlavors,
+                    quantity: parseInt(quantity),
+                    category_id: category_id
+                });
+            }
         });
 
         // Recuperar las órdenes existentes del localStorage o crear una nueva lista si no existen
@@ -446,45 +580,43 @@
 
     // Manejar el guardado de los detalles del cliente y abrir el modal de calcular cambio
     $('#guardarCliente').click(function() {
-    var nombreCliente = $('#nombreCliente').val();
-    var apellidoCliente = $('#apellidoCliente').val();
-    var emailCliente = $('#emailCliente').val();
-    var tipoCliente = $('#tipoCliente').val(); // Obtenido del modal anterior
+        var nombreCliente = $('#nombreCliente').val();
+        var apellidoCliente = $('#apellidoCliente').val();
+        var emailCliente = $('#emailCliente').val();
+        var tipoCliente = $('#tipoCliente').val(); // Obtenido del modal anterior
 
-    if (nombreCliente && apellidoCliente && emailCliente) {
-        // Simulación de la solicitud POST para crear el cliente
-        var csrfToken = $('meta[name="csrf-token"]').attr('content');
-        $.ajax({
-            url: 'clients',
-            type: 'POST',
-            data: {
-                _token: csrfToken,
-                name: nombreCliente,
-                lastname: apellidoCliente,
-                type: tipoCliente,
-                email: emailCliente
-            },
-            success: function(response) {
-                if (response.success) {
-                    alert('Cliente creado correctamente.');
-                    $('#detallesClienteModal').modal('hide');
-                    
-                    // Mostrar el modal para calcular el cambio
-                    var totalOrden = calcularTotalOrden();
-                    $('#totalOrden').val(totalOrden);
-                    $('#calcularCambioModal').modal('show');
-                } else {
-                    alert('Error: ' + response.message);
+        if (nombreCliente && apellidoCliente && emailCliente) {
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+            $.ajax({
+                url: 'pdv/client',
+                type: 'POST',
+                data: {
+                    _token: csrfToken,
+                    name: nombreCliente,
+                    lastname: apellidoCliente,
+                    type: tipoCliente,
+                    email: emailCliente
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Cliente creado correctamente.');
+                        $('#detallesClienteModal').modal('hide');
+                        var totalOrden = calcularTotalOrden();
+                        $('#totalOrden').val(totalOrden);
+                        $('#calcularCambioModal').modal('show');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error al crear el cliente: ' + xhr.responseText);
                 }
-            },
-            error: function(xhr, status, error) {
-                alert('Error al crear el cliente: ' + xhr.responseText);
-            }
-        });
-    } else {
-        alert('Por favor, completa todos los campos.');
-    }
-});
+            });
+        } else {
+            alert('Por favor, completa todos los campos.');
+        }
+    });
+
 
 
     // Calcular el total de la orden sumando los precios de los productos seleccionados
@@ -496,7 +628,6 @@
                 total += producto.price * producto.quantity; // Aquí se suma correctamente price * quantity
             });
         });
-        console.log(total);
         return total;
     }
 
@@ -541,20 +672,11 @@
             name: name,
             image: image,
             price: parseFloat(price),
-            flavors: productFlavors, // Asigna los sabores seleccionados
+            flavors: productFlavors, 
             quantity: parseInt(quantity),
-            category_id: category_id // Asigna la categoría correspondiente
+            category_id: category_id 
         });
     });
-
-    $('#cancelarDetallesCliente').click(function() {
-        $('#detallesClienteModal').modal('hide');
-        
-        var totalOrden = calcularTotalOrden();
-        $('#totalOrden').val(totalOrden);
-        $('#calcularCambioModal').modal('show');
-    });
-
     // Recuperar las órdenes existentes del localStorage o crear una nueva lista si no existen
     var ordenes = JSON.parse(localStorage.getItem('ordenes')) || [];
 
