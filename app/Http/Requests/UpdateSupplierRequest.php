@@ -31,7 +31,7 @@ class UpdateSupplierRequest extends FormRequest
             'state' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:suppliers,email,' . $this->supplier->id,
-            'doc_type' => 'required|in:DNI,PASSPORT,OTHER',
+            'doc_type' => 'required|in:DNI,PASSPORT,RUT,OTHER',
             'doc_number' => 'required|numeric',
         ];
     }

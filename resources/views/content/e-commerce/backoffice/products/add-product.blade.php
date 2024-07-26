@@ -132,10 +132,13 @@
               </div>
             </div>
             <div id="flavorsContainer" class="mb-3 col-8">
-              <label class="form-label">Sabores disponibles</label>
+              <div class="d-flex justify-content-between">
+                <label class="form-label">Sabores disponibles</label>
+                <label class="form-label" id="selectAllFlavorsButton">Seleccionar todos</label>
+              </div>
               <select class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
                 @foreach ($flavors as $flavor)
-                  <option value="{{ $flavor->id }}">Balde de {{ $flavor->name }}</option>
+                  <option value="{{ $flavor->id }}">{{ $flavor->name }}</option>
                 @endforeach
               </select>
             </div>

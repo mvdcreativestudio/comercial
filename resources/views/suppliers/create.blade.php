@@ -61,6 +61,7 @@
                 <option value="">Seleccione un tipo de documento</option>
                 <option value="DNI">DNI</option>
                 <option value="PASSPORT">Pasaporte</option>
+                <option value="RUT">RUT</option>
                 <option value="OTHER">Otro</option>
               </select>
             </div>
