@@ -63,6 +63,7 @@
                 <option value="">Seleccione un tipo de documento</option>
                 <option value="DNI" {{ $supplier->doc_type == 'DNI' ? 'selected' : '' }}>DNI</option>
                 <option value="PASSPORT" {{ $supplier->doc_type == 'PASSPORT' ? 'selected' : '' }}>Pasaporte</option>
+                <option value="RUT" {{ $supplier->doc_type == 'RUT' ? 'selected' : ''}}>RUT</option>
                 <option value="OTHER" {{ $supplier->doc_type == 'OTHER' ? 'selected' : '' }}>Otro</option>
               </select>
             </div>
