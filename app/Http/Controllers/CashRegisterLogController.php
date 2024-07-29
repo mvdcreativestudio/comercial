@@ -237,4 +237,18 @@ class CashRegisterLogController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Obtiene todos los clientes en formato JSON.
+     *
+     * @return JsonResponse
+     */
+    public function getAllClients(): JsonResponse
+    {
+        $clients = $this->cashRegisterLogRepository->getAllClients();
+        return response()->json([
+            'clients' => $clients,
+            'count' => $clients->count()
+        ]);
+    }
 }

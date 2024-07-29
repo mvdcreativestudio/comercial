@@ -241,5 +241,20 @@ class CashRegisterLogRepository
         return $openLog ? $openLog->id : null;
     }
 
+    /**
+     * Obtiene todos los clientes.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllClients(): \Illuminate\Database\Eloquent\Collection
+    {
+        $clients = Client::select('id', 'name', 'ci')
+                     ->get()
+                     ->map(function ($client) {
+                         $client->ci = $client->ci ?? 'No CI';
+                         return $client;
+                     });
 
+        return $clients;
+    }
 }
