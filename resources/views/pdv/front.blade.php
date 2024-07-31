@@ -45,30 +45,10 @@
                 {{-- Buscador de categorías --}}
                 <div class="mb-3">
                   <label for="categorySearchInput" class="form-label"><h5>Filtrar por categoría</h5></label>
-                  <input type="text" class="form-control" id="categorySearchInput" placeholder="Buscar categoría">
                 </div>
                 {{-- Opciones de categorías --}}
-                <div class="mb-3">
-                  <div class="form-check form-check-primary mt-1">
-                    <input class="form-check-input" type="checkbox" value="" id="customCheckPrimary1" checked />
-                    <label class="form-check-label" for="customCheckPrimary1">Helado</label>
-                  </div>
-                  <div class="form-check form-check-primary mt-1">
-                    <input class="form-check-input" type="checkbox" value="" id="customCheckPrimary2"/>
-                    <label class="form-check-label" for="customCheckPrimary2">Paleta</label>
-                  </div>
-                  <div class="form-check form-check-primary mt-1">
-                    <input class="form-check-input" type="checkbox" value="" id="customCheckPrimary3"/>
-                    <label class="form-check-label" for="customCheckPrimary3">Torta</label>
-                  </div>
-                  <div class="form-check form-check-primary mt-1">
-                    <input class="form-check-input" type="checkbox" value="" id="customCheckPrimary4"/>
-                    <label class="form-check-label" for="customCheckPrimary4">Zero</label>
-                  </div>
-                  <div class="form-check form-check-primary mt-1">
-                    <input class="form-check-input" type="checkbox" value="" id="customCheckPrimary5"/>
-                    <label class="form-check-label" for="customCheckPrimary5">Adicionales</label>
-                  </div>
+                <div class="mb-3" id="category-container">
+                  {{-- Aquí se cargarán las categorías dinámicamente --}}
                 </div>
               </form>
             </div>
@@ -187,19 +167,29 @@
 </div>
 
 <!-- Modal para seleccionar sabores -->
-<div class="modal fade" id="flavorsModal" tabindex="-1" aria-labelledby="flavorsModalLabel" aria-hidden="true">
+<div class="modal fade" id="flavorModal" tabindex="-1" aria-labelledby="flavorModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="flavorsModalLabel">Seleccionar Sabores</h5>
+                <h5 class="modal-title" id="flavorModalLabel">Seleccionar Sabores</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="flavors-modal-body">
-                <!-- Aquí se cargarán los sabores disponibles -->
+            <div class="modal-body">
+                <div id="flavorsContainer" class="mb-3 col-12">
+                    <label class="form-label">Sabores disponibles</label>
+                    <select id="flavorsSelect" class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
+                        <!-- Opciones de sabores serán añadidas dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" id="saveFlavors" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>
 </div>
+
 
 
 @endsection

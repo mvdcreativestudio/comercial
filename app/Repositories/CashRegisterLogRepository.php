@@ -208,9 +208,19 @@ class CashRegisterLogRepository
      * 
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getCategories()
+    public function getFathersCategories()
     {
         return DB::table('category_product')->get();
+    }
+
+    /**
+     * Toma las categorías padres.
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCategories()
+    {
+        return DB::table('product_categories')->get();
     }
 
     /**

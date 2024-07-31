@@ -182,8 +182,23 @@ class CashRegisterLogController extends Controller
     public function getFathersCategories()
     {
         try {
-            $categories = $this->cashRegisterLogRepository->getCategories();
+            $categories = $this->cashRegisterLogRepository->getFathersCategories();
             return response()->json(['categories' => $categories]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    /**
+     * Toma las categorías padres.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCategories()
+    {
+        try {
+            $productCategories = $this->cashRegisterLogRepository->getCategories();
+            return response()->json($productCategories);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }
