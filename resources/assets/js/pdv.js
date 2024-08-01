@@ -47,13 +47,21 @@ $(document).ready(function() {
         });
     }
 
+    // Evento de entrada para el campo de búsqueda de categorías
+    $('#category-search-input').on('input', function() {
+        const query = $(this).val();
+        searchCategories(query);
+    });
+
+    
+
     // Función para actualizar el menú desplegable de categorías en la vista
-    function actualizarCategoriasEnVista() {
+    function actualizarCategoriasEnVista(categoriesToDisplay = productCategory) {
         let categoryHtml = '';
-        productCategory.forEach(category => {
+        categoriesToDisplay.forEach(category => {
             categoryHtml += `
                 <div class="form-check form-check-primary mt-1">
-                    <input class="form-check-input" type="checkbox" value="${category.id}" id="category-${category.category_id}">
+                    <input class="form-check-input" type="checkbox" value="${category.id}" id="category-${category.category_id}" checked>
                     <label class="form-check-label" for="category-${category.category_id}">${category.name}</label>
                 </div>
             `;
@@ -63,28 +71,31 @@ $(document).ready(function() {
 
     // Escuchar cambios en los checkboxes de las categorías
     $(document).on('change', '.form-check-input', function() {
-        //filterProductsByCategory();
+        filterProductsByCategory();
     });
 
     // Función para filtrar productos por categorías seleccionadas
     function filterProductsByCategory() {
         const selectedCategories = [];
         $('.form-check-input:checked').each(function() {
-            selectedCategories.push(($(this).val()));
+            selectedCategories.push(parseInt($(this).val()));
         });
-        
-        let filteredProducts=[];
-
-        products.forEach(function(product) {
-            productCategory.forEach(function(category) {
-                if (category.product_id == product.id) {
-                    selectedCategories.forEach(function(selectedCategory) {
-                        if (category.category_id == parseInt(selectedCategory)) {
-                            filteredProducts.push(product);
-                        }
-                    });
-                }
-            });
+    
+        console.log("Selected Categories: ", selectedCategories);
+    
+        let filteredProducts = [];
+    
+        products.forEach(function(product) {    
+            const productCategories = categories.filter(category => category.product_id === product.id);
+    
+            const hasCategory = productCategories.some(category =>
+                selectedCategories.includes(category.category_id)
+            );
+    
+    
+            if (hasCategory) {
+                filteredProducts.push(product);
+            }
         });
         
         if (isListView) {
@@ -93,6 +104,7 @@ $(document).ready(function() {
             displayProducts(filteredProducts);
         }
     }
+    
 
 
     // Función para cargar productos

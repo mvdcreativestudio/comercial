@@ -24,7 +24,6 @@
     <div class="col-12">
       <h2 class="mb-4">Punto de Venta</h2>
     </div>
-
     <div class="col-md-8">
       <div class="row d-flex search-bar-section align-items-center p-3 mb-4">
         {{-- Buscador de productos --}}
@@ -45,7 +44,7 @@
                 {{-- Buscador de categorías --}}
                 <div class="mb-3">
                   <label for="categorySearchInput" class="form-label"><h5>Filtrar por categoría</h5></label>
-                </div>
+                  </div>
                 {{-- Opciones de categorías --}}
                 <div class="mb-3" id="category-container">
                   {{-- Aquí se cargarán las categorías dinámicamente --}}
