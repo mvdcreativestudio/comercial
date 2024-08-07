@@ -73,6 +73,18 @@
               <input type="text" class="form-control" id="supplier-doc_number" name="doc_number" required placeholder="Número de documento del proveedor" value="{{ $supplier->doc_number }}">
             </div>
 
+            <div class="mb-3">
+              <label class="form-label" for="supplier-default_payment_method">Método de pago predefinido</label>
+              <select class="form-select" id="supplier-default_payment_method" name="default_payment_method" required>
+                <option value="">Seleccione un método de pago</option>
+                <option value="cash" {{ $supplier->default_payment_method == 'cash' ? 'selected' : '' }}>Efectivo</option>
+                <option value="credit" {{ $supplier->default_payment_method == 'credit' ? 'selected' : '' }}>Crédito</option>
+                <option value="debit" {{ $supplier->default_payment_method == 'debit' ? 'selected' : '' }}>Débito</option>
+                <option value="check" {{ $supplier->default_payment_method == 'check' ? 'selected' : '' }}>Cheque</option>
+              </select>
+            </div>
+
+
             @if ($errors->any())
               @foreach ($errors->all() as $error)
                 <div class="alert alert-danger">

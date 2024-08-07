@@ -11,6 +11,7 @@ use App\Repositories\CashRegisterLogRepository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreClientRequest;
+use App\Models\Product;
 
 
 
@@ -34,8 +35,10 @@ class CashRegisterLogController extends Controller
 
     public function front()
     {
-      return view('pdv.front');
+      $products = Product::all();
+      return view('pdv.front', compact('products'));
     }
+
 
     public function front2()
     {
@@ -222,7 +225,7 @@ class CashRegisterLogController extends Controller
       $validatedData['state'] = $validatedData['state'] ?? 'FÍSICO';
       $validatedData['country'] = $validatedData['country'] ?? 'FÍSICO';
       $validatedData['phone'] = $validatedData['phone'] ?? 'FÍSICO';
-      
+
 
       // Crear el nuevo cliente
       $this->cashRegisterLogRepository->createClient($validatedData);
@@ -235,9 +238,9 @@ class CashRegisterLogController extends Controller
 
     /**
      * Busca el id del cashregister log dado un id de caja registradora.
-     * 
+     *
      *  @param string $id
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getCashRegisterLog(string $id)

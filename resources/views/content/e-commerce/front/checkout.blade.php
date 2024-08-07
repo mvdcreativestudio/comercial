@@ -148,7 +148,7 @@ $configData = Helper::appClasses();
 
                 <div class="col-12 mt-3" id="address-container">
                   <label class="form-label" for="address">Dirección</label>
-                  <input id="address" name="address" class="form-control" placeholder="Calle, esquina, número de puerta" onFocus="geolocate()" role="presentation" autocomplete="off" required>
+                  <input id="address" name="address" class="form-control" placeholder="Calle, esquina, número de puerta" onFocus="geolocate()" role="presentation" autocomplete="off">
                 </div>
 
                 <div class="col-12 col-md-6 mt-3">

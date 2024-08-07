@@ -11,7 +11,7 @@ class Supplier extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'phone', 'address', 'city', 'state', 'country', 'email', 'doc_type', 'doc_number', 'store_id'];
+    protected $fillable = ['name', 'phone', 'address', 'city', 'state', 'country', 'email', 'doc_type', 'doc_number', 'default_payment_method', 'store_id'];
 
     /**
      * Obtiene la tienda a la que pertenece el proveedor.}
