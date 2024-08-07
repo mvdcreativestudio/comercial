@@ -266,4 +266,30 @@ class CashRegisterLogController extends Controller
             'count' => $clients->count()
         ]);
     }
+
+    public function saveCart(Request $request)
+    {
+        $cart = $request->input('cart');
+        session(['cart' => $cart]);
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getCart()
+    {
+        $cart = session('cart', []);
+        return response()->json(['cart' => $cart]);
+    }
+
+    public function saveClient(Request $request)
+    {
+        $client = $request->input('client');
+        session(['client' => $client]);
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getClient()
+    {
+        $client = session('client', []);
+        return response()->json(['client' => $client]);
+    }
 }

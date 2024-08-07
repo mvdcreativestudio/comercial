@@ -83,7 +83,7 @@
                 
                 <!-- Contenedor de la barra de búsqueda -->
                 <div class="mb-3" id="search-client-container" style="display: none;">
-                    <input type="search" class="form-control" id="search-client" placeholder="Buscar por nombre o CI">
+                    <input type="search" class="form-control" id="search-client" placeholder="Buscar por nombre o CI/RUT">
                 </div>
                 
                 <!-- Lista de clientes -->
@@ -92,40 +92,41 @@
                 </ul>
             </div>
         </div>
-        <table class="table table-hover">
-  <thead>
-    <tr>
-      <th class="col-4">Producto</th>
-      <th class="col-3">Cantidad</th>
-      <th class="col-1">Unidad</th>
-      <th class="col-1">Total</th>
-      <th class="col-1"></th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Aquí se agregarán los productos del carrito -->
-  </tbody>
-  <tfoot>
-    <tr>
-      <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
-      <td class="subtotal">$0.00</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td colspan="3" class="text-right"><strong>Envío:</strong></td>
-      <td>$0.00</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td colspan="3" class="text-right"><strong>Total:</strong></td>
-      <td class="total">$0.00</td>
-      <td></td>
-    </tr>
-  </tfoot>
-</table>
+        <table class="table table-hover" id="cart">
+            <thead>
+              <tr>
+                <th class="col-4">Producto</th>
+                <th class="col-3">Cantidad</th>
+                <th class="col-1">Unidad</th>
+                <th class="col-1">Total</th>
+                <th class="col-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Aquí se agregarán los productos del carrito -->
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                <td class="subtotal">$0.00</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-right"><strong>Envío:</strong></td>
+                <td>$0.00</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                <td class="total">$0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+
         <div class="row">
           <div class="col-md-12 mt-2">
-            <button class="btn btn-primary btn-lg d-grid w-100">Pagar</button>
+            <a href="{{ route('pdv.front2') }}" class="btn btn-primary btn-lg d-grid w-100">Pagar</a>
           </div>
         </div>
       </div>
@@ -155,6 +156,14 @@
           <option value="individual">Individual</option>
           <option value="company">Compañía</option>
         </select>
+      </div>
+      <div class="mb-3" id="ciField">
+        <label for="ciCliente" class="form-label">CI</label>
+        <input type="text" class="form-control" id="ciCliente">
+      </div>
+      <div class="mb-3" id="rutField" style="display: none;">
+        <label for="rutCliente" class="form-label">RUT</label>
+        <input type="text" class="form-control" id="rutCliente">
       </div>
       <div class="mb-3">
         <label for="emailCliente" class="form-label">Correo Electrónico</label>

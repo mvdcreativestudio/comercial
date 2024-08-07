@@ -3,11 +3,52 @@ $(document).ready(function() {
     const baseUrl = window.baseUrl;
     const url = `${baseUrl}products/${cashRegisterId}`;
     let products = [];
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = [];
     let isListView = false;
     let categories = [];
     let flavors = [];
     let productCategory = [];
+
+
+
+     // Cargar el carrito desde el servidor
+     function loadCart() {
+        $.ajax({
+            url: `cart`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response && response.cart) {
+                    cart = response.cart;
+                    console.log(cart);
+                    updateCart();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al obtener el carrito:', error);
+            }
+        });
+    }
+
+    // Guardar el carrito en el servidor
+    function saveCart() {
+        $.ajax({
+            url: `cart`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ cart: cart }),
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                console.log('Carrito guardado con éxito');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al guardar el carrito:', error);
+            }
+        });
+    }
+
 
     // Cargar las categorías y sus relaciones con los productos desde el backend
     function cargarCategorias() {
@@ -251,11 +292,11 @@ $(document).ready(function() {
     function updateCart() {
         let cartHtml = '';
         let subtotal = 0;
-
+    
         cart.forEach(item => {
             const itemTotal = item.price * item.quantity;
             subtotal += itemTotal;
-
+    
             cartHtml += `
                 <tr>
                     <td>
@@ -268,31 +309,36 @@ $(document).ready(function() {
                                 <li class="page-item">
                                     <a class="page-link decrease-quantity" href="javascript:void(0);" data-id="${item.id}"><i class="tf-icon bx bx-minus"></i></a>
                                 </li>
-                                <li class="page-item">
-                                    <span class="page-link">${item.quantity}</span>
-                                </li>
+                                <li class="page-item active"><a class="page-link">${item.quantity}</a></li>
                                 <li class="page-item">
                                     <a class="page-link increase-quantity" href="javascript:void(0);" data-id="${item.id}"><i class="tf-icon bx bx-plus"></i></a>
                                 </li>
                             </ul>
                         </nav>
                     </td>
-                    <td>$${item.price.toFixed(2)}</td>
-                    <td>$${itemTotal.toFixed(2)}</td>
                     <td>
-                        <button class="btn btn-sm btn-danger remove-from-cart" data-id="${item.id}"><i class="fa fa-times"></i></button>
+                        $${item.price}
+                    </td>
+                    <td>
+                        $${itemTotal.toFixed(2)}
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">Eliminar</button>
                     </td>
                 </tr>
             `;
         });
 
         const total = subtotal;
-
+    
         $('#cart tbody').html(cartHtml);
-        $('#cart tfoot .subtotal').text(`$${subtotal.toFixed(2)}`);
-        $('#cart tfoot .total').text(`$${total.toFixed(2)}`);
-        localStorage.setItem('cart', JSON.stringify(cart));
+        $('.subtotal').text(`$${subtotal.toFixed(2)}`);
+        $('.total').text(`$${total.toFixed(2)}`);
+    
+        // Guardar el carrito en el servidor
+        saveCart();
     }
+    
 
     // Manejar el clic en el botón "Agregar al carrito"
     $(document).on('click', '.add-to-cart', function() {
@@ -354,10 +400,42 @@ $(document).ready(function() {
         const clientList = $('#client-list');
         clientList.empty();
         clients.forEach(client => {
-            const clientItem = `<li class="list-group-item">${client.name} (${client.ci})</li>`;
+            const clientItem = `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        ${client.name}, CI: ${client.ci}, RUT: ${client.rut}
+                    </div>
+                    <button class="btn btn-primary btn-sm add-client" data-client='${JSON.stringify(client)}'>+</button>
+                </li>
+            `;
             clientList.append(clientItem);
         });
+    
+        
+        $('.add-client').on('click', function() {
+            const client = $(this).data('client');
+            saveClientToSession(client);
+        });
     }
+
+    
+    function saveClientToSession(client) {
+        $.ajax({
+            url: 'client-session',
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                client: client
+            },
+            success: function(response) {
+                console.log('Cliente guardado en la sesión:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al guardar el cliente en la sesión:', error);
+            }
+        });
+    }
+    
 
     // Filtrar clientes por búsqueda
     $('#search-client').on('input', function() {
@@ -374,34 +452,57 @@ $(document).ready(function() {
 
     //Cargar cliente
 
+    //Guardar cliente en base de datos
     document.getElementById('guardarCliente').addEventListener('click', function () {
         let nombre = document.getElementById('nombreCliente').value;
         let apellido = document.getElementById('apellidoCliente').value;
         let tipo = document.getElementById('tipoCliente').value;
         let email = document.getElementById('emailCliente').value;
-
+        let ci = document.getElementById('ciCliente').value;
+        let rut = document.getElementById('rutCliente').value;
+      
+        let data = {
+          name: nombre,
+          lastname: apellido,
+          type: tipo,
+          email: email
+        };
+      
+        if (tipo === 'individual') {
+          data.ci = ci;
+        } else if (tipo === 'company') {
+          data.rut = rut;
+        }
+      
         fetch('client', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({
-                name: nombre,
-                lastname: apellido,
-                type: tipo,
-                email: email
-            })
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          },
+          body: JSON.stringify(data)
         })
         .then(response => response.json())
         .then(data => {
-            let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('crearClienteOffcanvas'));
-            offcanvas.hide();
+          let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('crearClienteOffcanvas'));
+          offcanvas.hide();
+          document.getElementById('formCrearCliente').reset();
         })
         .catch((error) => {
-            console.error('Error:', error);
+          console.error('Error:', error);
         });
     });
+
+    document.getElementById('tipoCliente').addEventListener('change', function() {
+        let tipo = this.value;
+        if (tipo === 'individual') {
+          document.getElementById('ciField').style.display = 'block';
+          document.getElementById('rutField').style.display = 'none';
+        } else if (tipo === 'company') {
+          document.getElementById('ciField').style.display = 'none';
+          document.getElementById('rutField').style.display = 'block';
+        }
+      });
 
     // Manejar el cambio de vista de productos (tarjeta/lista)
     $('#toggle-view-btn').on('click', function() {
@@ -467,5 +568,5 @@ $(document).ready(function() {
     cargarCategorias();
     cargarSabores();
     cargarCategoriaProducto();
-    updateCart();
+    loadCart();
 });

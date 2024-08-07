@@ -102,7 +102,10 @@ Route::middleware([
     Route::post('/pdv/client', [CashRegisterLogController::class, 'storeClient']);
     Route::get('/pdv/log/{id}', [CashRegisterLogController::class, 'getCashRegisterLog']);
     Route::get('/pdv/product-categories', [CashRegisterLogController::class, 'getCategories']);
-
+    Route::post('/pdv/cart', [CashRegisterLogController::class, 'saveCart']);
+    Route::get('/pdv/cart', [CashRegisterLogController::class, 'getCart']);
+    Route::post('/pdv/client-session', [CashRegisterLogController::class, 'saveClient']);
+    Route::get('/pdv/client-session', [CashRegisterLogController::class, 'getClient']);
 
 
     // Datacenter
