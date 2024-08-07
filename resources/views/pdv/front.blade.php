@@ -83,18 +83,17 @@
       </div>
 
       <div class="row d-flex flex-wrap">
-        @for ($i = 1; $i <= 12; $i++)
+        @foreach ($products as $product)
         <div class="col-md-3 mb-2 card-product-pos d-flex align-items-stretch">
           <div class="card-product-pos w-100 mb-3 position-relative">
-            <img src="https://via.placeholder.com/150" class="card-img-top-product-pos" alt="Producto {{ $i }}">
+            <img src="{{ asset($product->image) }}" class="card-img-top-product-pos" alt="{{ $product->name }}">
             <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
-              <h5 class="card-title-product-pos">Producto {{ $i }}</h5>
-              <p class="card-text-product-pos">${{ rand(5, 50) }}</p>
-              <p class="card-text-product-pos"><del>${{ rand(51, 100) }}</del></p>
+              <h5 class="card-title-product-pos">{{ $product->name }}</h5>
+              <p class="card-text-product-pos">${{ $product->old_price }}</p>
             </div>
           </div>
         </div>
-        @endfor
+        @endforeach
       </div>
     </div>
 
@@ -116,8 +115,8 @@
           <tbody>
             <tr>
               <td>
-                <img src="https://via.placeholder.com/75" alt="Producto 1" class="img-thumbnail me-2">
-                Producto 1
+                <img src="{{ asset($product->image) }}" alt="Producto 1" class="img-thumbnail me-2">
+                Paleta Chanchito
               </td>
               <td>
                 <nav aria-label="Page navigation">
@@ -134,60 +133,8 @@
                   </ul>
                 </nav>
               </td>
-              <td>$10</td>
-              <td>$10</td>
-              <td>
-                <button class="btn btn-sm"><i class="fa fa-x"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <img src="https://via.placeholder.com/75" alt="Producto 2" class="img-thumbnail me-2">
-                Producto 2
-              </td>
-              <td>
-                <nav aria-label="Page navigation">
-                  <ul class="pagination">
-                    <li class="page-item">
-                      <a class="page-link" href="javascript:void(0);"><i class="tf-icon bx bx-minus"></i></a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="javascript:void(0);">2</a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="javascript:void(0);"><i class="tf-icon bx bx-plus"></i></a>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-              <td>$20</td>
-              <td>$40</td>
-              <td>
-                <button class="btn btn-sm"><i class="fa fa-x"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <img src="https://via.placeholder.com/75" alt="Producto 3" class="img-thumbnail me-2">
-                Producto 3
-              </td>
-              <td>
-                <nav aria-label="Page navigation">
-                  <ul class="pagination">
-                    <li class="page-item">
-                      <a class="page-link" href="javascript:void(0);"><i class="tf-icon bx bx-minus"></i></a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="javascript:void(0);">1</a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="javascript:void(0);"><i class="tf-icon bx bx-plus"></i></a>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-              <td>$5</td>
-              <td>$5</td>
+              <td>$200</td>
+              <td>$200</td>
               <td>
                 <button class="btn btn-sm"><i class="fa fa-x"></i></button>
               </td>
@@ -196,12 +143,12 @@
           <tfoot>
             <tr>
               <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
-              <td>$55</td>
+              <td>$200</td>
               <td></td>
             </tr>
             <tr>
               <td colspan="3" class="text-right"><strong>Envío:</strong></td>
-              <td>$5</td>
+              <td>$60</td>
               <td></td>
             </tr>
             <tr>
@@ -211,7 +158,7 @@
             </tr>
             <tr>
               <td colspan="3" class="text-right"><strong>Total:</strong></td>
-              <td><b>$60</b></td>
+              <td><b>$260</b></td>
               <td></td>
             </tr>
           </tfoot>

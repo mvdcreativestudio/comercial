@@ -33,6 +33,7 @@ class StoreSupplierRequest extends FormRequest
             'email' => 'required|email|max:255|unique:suppliers',
             'doc_type' => 'required|in:DNI,PASSPORT,RUT,OTHER',
             'doc_number' => 'required|numeric',
+            'default_payment_method' => 'required|string|max:255',
         ];
     }
 }

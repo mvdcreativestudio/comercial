@@ -99,7 +99,7 @@ Route::middleware([
     Route::get('/pdv/categories', [CashRegisterLogController::class, 'getFathersCategories']);
     Route::post('/pdv/client', [CashRegisterLogController::class, 'storeClient']);
     Route::get('/pdv/log/{id}', [CashRegisterLogController::class, 'getCashRegisterLog']);
-  
+
 
 
     // Datacenter
