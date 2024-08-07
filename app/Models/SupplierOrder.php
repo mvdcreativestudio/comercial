@@ -35,13 +35,15 @@ class SupplierOrder extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+
     /**
-     * Obtiene la tienda a la que pertenece la orden.
+     * Obtiene la tienda a la que pertenece la orden de compra.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
     */
     public function store()
     {
-      return $this->belongsTo(Store::class);
+        return $this->belongsTo(Store::class);
     }
+
 }
