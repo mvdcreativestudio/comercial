@@ -12,17 +12,19 @@ class RawMaterial extends Model
 {
   use HasFactory;
 
-  protected $fillable = ['name', 'description', 'image_url', 'unit_of_measure', 'store_id', 'stock'];
+  protected $fillable = ['name', 'description', 'image_url', 'unit_of_measure'];
 
   /**
    * Obtiene la tienda a la que pertenece la materia prima.
    *
-   * @return BelongsTo
+   * @return BelongsToMany
   */
-  public function store(): BelongsTo
+  public function stores()
   {
-    return $this->belongsTo(Store::class);
+      return $this->belongsToMany(Store::class, 'raw_material_store', 'raw_material_id', 'store_id')
+                  ->withPivot('stock');
   }
+
 
   /**
    * Obtiene las ordenes de compra asociadas a la materia prima.
