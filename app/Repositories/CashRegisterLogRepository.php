@@ -25,10 +25,10 @@ class CashRegisterLogRepository
                 $query->where('user_id', $userId);
             })
             ->first();
-    
+
         return $openLog ? $openLog->cash_register_id : null;
     }
-    
+
 
     /**
      * Obtiene todos los registros del log de una caja dado su ID.
@@ -154,7 +154,7 @@ class CashRegisterLogRepository
             return false;
         }
     }
-    
+
 
 
 
@@ -172,14 +172,14 @@ class CashRegisterLogRepository
 
     /**
      * Toma los productos de la tienda de la caja registradora.
-     * 
+     *
      * @param int $id
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllProductsForPOS(int $id)
     {
         $cashRegister = CashRegister::find($id);
-        
+
         if (!$cashRegister) {
             throw new \Exception('Cash register not found');
         }
@@ -193,7 +193,7 @@ class CashRegisterLogRepository
 
     /**
      * Toma los sabores para crear los productos con varios sabores.
-     * 
+     *
      * @return Flavor
      */
     public function getFlavors()
@@ -201,11 +201,11 @@ class CashRegisterLogRepository
         $flavors = Flavor::all();
         return $flavors;
     }
-    
+
 
     /**
      * Toma las categorías padres.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getFathersCategories()
@@ -215,7 +215,7 @@ class CashRegisterLogRepository
 
     /**
      * Toma las categorías padres.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getCategories()
@@ -236,9 +236,9 @@ class CashRegisterLogRepository
 
     /**
      * Busca el ID del registro de caja dado un ID de caja registradora.
-     * 
+     *
      * @param string $id
-     * 
+     *
      * @return int|null
      */
     public function getCashRegisterLog(string $id)
@@ -258,7 +258,7 @@ class CashRegisterLogRepository
      */
     public function getAllClients(): \Illuminate\Database\Eloquent\Collection
     {
-        $clients = Client::select('id', 'name', 'ci', 'rut','type')
+        $clients = Client::select('id', 'name', 'lastname', 'ci', 'rut','type')
                      ->get()
                      ->map(function ($client) {
                          $client->ci = $client->ci ?? 'No CI';
@@ -268,5 +268,5 @@ class CashRegisterLogRepository
 
         return $clients;
     }
-    
+
 }

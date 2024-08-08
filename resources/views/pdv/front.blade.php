@@ -13,6 +13,15 @@
 ])
 @endsection
 
+@section('vendor-script')
+@vite([
+    'resources/assets/vendor/libs/select2/select2.min.js',
+    'resources/assets/vendor/libs/bootstrap/bootstrap.bundle.min.js',
+    'resources/assets/vendor/libs/fontawesome/fontawesome.min.js',
+    'resources/assets/vendor/libs/select2/select2.js',
+
+])
+
 <script>
     window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
     window.baseUrl = "{{ url('') }}/";
@@ -22,29 +31,29 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <h2 class="mb-4">Punto de Venta</h2>
+      <h2 class="mb-4 text-center text-md-start">Punto de Venta</h2>
     </div>
-    <div class="col-md-8">
+    <div class="col-12 col-md-8">
       <div class="row d-flex search-bar-section align-items-center p-3 mb-4">
         {{-- Buscador de productos --}}
-        <div class="col-md-4">
+        <div class="col-12 col-md-4 mb-3 mb-md-0">
           <div class="input-group">
             <input class="form-control" type="search" placeholder="Nombre o código" id="html5-search-input" />
             <button class="btn btn-primary"><i class="bx bx-search-alt"></i></button>
           </div>
         </div>
         {{-- Fin buscador de productos --}}
-        <div class="col-md-4">
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <div class="col-12 col-md-4 mb-3 mb-md-0">
+          <div class="btn-group w-100">
+            <button type="button" class="btn btn-primary dropdown-toggle w-100" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Categorías
             </button>
-            <div class="dropdown-menu dropdown-menu-end w-px-300">
+            <div class="dropdown-menu dropdown-menu-end w-100">
               <form class="p-4" onsubmit="return false">
                 {{-- Buscador de categorías --}}
                 <div class="mb-3">
                   <label for="categorySearchInput" class="form-label"><h5>Filtrar por categoría</h5></label>
-                  </div>
+                </div>
                 {{-- Opciones de categorías --}}
                 <div class="mb-3" id="category-container">
                   {{-- Aquí se cargarán las categorías dinámicamente --}}
@@ -53,11 +62,11 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 d-flex justify-content-end">
-        <button type="button" id="submit-cerrar-caja" class="btn btn-primary">Cerrar Caja</button>
-        <button id="toggle-view-btn" class="btn btn-light" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="<span>Ver productos en lista</span>">
-          <i class="bx bx-list-ul fs-2"></i>
-        </button>
+        <div class="col-12 col-md-4 d-flex justify-content-end mb-3 mb-md-0">
+          <button type="button" id="submit-cerrar-caja" class="btn btn-primary me-2 w-100">Cerrar Caja</button>
+          <button id="toggle-view-btn" class="btn btn-light w-100" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="<span>Ver productos en lista</span>">
+            <i class="bx bx-list-ul fs-2"></i>
+          </button>
         </div>
       </div>
       <div class="row d-flex flex-wrap" id="products-container">
@@ -80,12 +89,12 @@
                 <!-- Contenido del off-canvas -->
                 <p class="text-center">Selecciona un cliente o crea uno nuevo.</p>
                 <button type="button" class="btn btn-primary mb-2 d-grid w-100" data-bs-toggle="offcanvas" data-bs-target="#crearClienteOffcanvas">Crear Cliente</button>
-                
+
                 <!-- Contenedor de la barra de búsqueda -->
                 <div class="mb-3" id="search-client-container" style="display: none;">
                     <input type="search" class="form-control" id="search-client" placeholder="Buscar por nombre o CI/RUT">
                 </div>
-                
+
                 <!-- Lista de clientes -->
                 <ul id="client-list" class="list-group">
                     <!-- Aquí se cargarán los clientes -->
@@ -176,27 +185,28 @@
 
 <!-- Modal para seleccionar sabores -->
 <div class="modal fade" id="flavorModal" tabindex="-1" aria-labelledby="flavorModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="flavorModalLabel">Seleccionar Sabores</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="flavorModalLabel">Seleccionar Sabores</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div id="flavorsContainer" class="mb-3 col-12">
+                <label class="form-label">Sabores disponibles</label>
+                <select id="flavorsSelect" class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
+                    <!-- Opciones de sabores serán añadidas dinámicamente -->
+                </select>
             </div>
-            <div class="modal-body">
-                <div id="flavorsContainer" class="mb-3 col-12">
-                    <label class="form-label">Sabores disponibles</label>
-                    <select id="flavorsSelect" class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
-                        <!-- Opciones de sabores serán añadidas dinámicamente -->
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" id="saveFlavors" class="btn btn-primary">Guardar</button>
-            </div>
-        </div>
-    </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              <button type="button" id="saveFlavors" class="btn btn-primary">Guardar</button>
+          </div>
+      </div>
+  </div>
 </div>
+
 
 
 
