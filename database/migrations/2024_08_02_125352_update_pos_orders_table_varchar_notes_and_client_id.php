@@ -20,8 +20,8 @@ class UpdatePosOrdersTableVarcharNotesAndClientId  extends Migration
         });
 
         Schema::table('pos_orders', function (Blueprint $table) {
-            // Cambiar la columna 'notes' a varchar
-            $table->string('notes', 255)->nullable()->change();
+            // Crear columna notes
+            $table->string('notes', 255)->nullable()->after('total');
 
             // Asegurarse de que 'client_id' sea una clave foránea que referencie el 'id' de 'clients'
             $table->unsignedBigInteger('client_id')->nullable()->change();

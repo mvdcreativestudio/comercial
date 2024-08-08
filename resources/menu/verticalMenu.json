@@ -61,7 +61,7 @@
           "name": "Punto de Venta",
           "icon": "menu-icon tf-icons bx bx-home-circle",
           "slug": "point-of-sale",
-          "url": "/admin/punto-de-venta"
+          "url": "/admin/points-of-sales"
         }
       ]
     },
@@ -107,13 +107,6 @@
           "url": "/admin/supplier-orders"
         }
       ]
-    },
-    {
-      "id": "tour-puntos-de-ventas",
-      "name": "Puntos de ventas",
-      "icon": "menu-icon tf-icons bx bx-money-withdraw",
-      "slug": "points-of-sales",
-      "url": "/admin/points-of-sales"
     },
     {
       "id": "tour-contabilidad",
