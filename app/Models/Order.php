@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Ramsey\Uuid\Uuid;
 
 
@@ -96,6 +97,13 @@ class Order extends Model
       return $this->hasMany(OrderStatusChange::class);
     }
 
-
-
+    /**
+     * Obtiene los recibos asociados a la orden.
+     *
+     * @return HasMany
+    */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
 }

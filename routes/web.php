@@ -56,7 +56,7 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-
+    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
 
 
     // Recursos con acceso autenticado
@@ -71,7 +71,6 @@ Route::middleware([
         'products' => ProductController::class,
         'product-categories' => ProductCategoryController::class,
         'orders' => OrderController::class,
-        'invoices' => InvoiceController::class,
         'marketing/coupons' => CouponController::class,
         'company-settings' => CompanySettingsController::class,
         'clients' => ClientController::class,
@@ -86,7 +85,7 @@ Route::middleware([
     Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
     Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister'])->name('points-of-sales.close');
 
-    // Point of service 
+    // Point of service
 
     Route::get('/pdv', [CashRegisterLogController::class, 'index'])->middleware('check.open.cash.register')->name('pdv.index');
 
@@ -144,6 +143,7 @@ Route::middleware([
     Route::get('receipts', [AccountingController::class, 'receipts'])->name('receipts');
     Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
+    Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
 
     Route::get('/accounting/settings', [AccountingController::class, 'settings'])->name('accounting.settings');
     Route::post('/accounting/save-rut', [AccountingController::class, 'saveRut'])->name('accounting.saveRut');

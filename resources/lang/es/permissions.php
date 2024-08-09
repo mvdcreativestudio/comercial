@@ -34,7 +34,9 @@ return [
   'access_productions' => 'Acceder a producciones',
   'view_all_productions' => 'Ver todas las producciones',
   'access_bypass_raw_material_check' => 'Saltar verificación de materia prima para producciones',
-  'access_raw-materials-management' => 'Acceder a gestión de materias primas',
-  'access_accounting-settings' => 'Acceder a la configuración de contabilidad / PYMO',
-  'access_points-of-sale' => 'Acceso a los puntos de venta',
+  'access_manufacturing' => 'Acceder a gestión fabricación',
+  'access_point-of-sale' => 'Acceder a Puntos de Venta',
+  'access_user-accounts' => 'Acceder a Cuentas de Usuario',
+  'access_users' => 'Acceder a Usuarios',
+  'access_accounting-settings' => 'Acceder a configuración de contabilidad',
 ];

@@ -39,7 +39,7 @@ class CreatePermissions extends Command
                     'view_all' => false,
                 ],
                 [
-                  'slug' => 'raw-materials-management',
+                  'slug' => 'manufacturing',
                   'view_all' => false,
                 ],
                 [
@@ -136,8 +136,19 @@ class CreatePermissions extends Command
                     'view_all' => false,
                 ],
                 [
-
-                    'slug' => 'points-of-sale',
+                    'slug' => 'point-of-sale',
+                    'view_all' => false,
+                ],
+                [
+                    'slug' => 'sales-commerce',
+                    'view_all' => false,
+                ],
+                [
+                    'slug' => 'users',
+                    'view_all' => false,
+                ],
+                [
+                    'slug' => 'user-accounts',
                     'view_all' => false,
                 ],
             ]

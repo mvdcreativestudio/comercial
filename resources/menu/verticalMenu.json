@@ -60,7 +60,7 @@
           "id": "tour-punto-de-venta",
           "name": "Punto de Venta",
           "icon": "menu-icon tf-icons bx bx-home-circle",
-          "slug": "points-of-sale",
+          "slug": "point-of-sale",
           "url": "/admin/punto-de-venta"
         }
       ]
@@ -69,7 +69,7 @@
       "id": "tour-gestion-proveedores",
       "name": "Fabricación",
       "icon": "menu-icon tf-icons bx bx-briefcase",
-      "slug": "raw-materials-management",
+      "slug": "manufacturing",
       "submenu": [
         {
           "id": "tour-sabores",
@@ -112,8 +112,8 @@
       "id": "tour-puntos-de-ventas",
       "name": "Puntos de ventas",
       "icon": "menu-icon tf-icons bx bx-money-withdraw",
-      "slug": "points-of-sale",
-      "url": "/admin/points-of-sale"
+      "slug": "points-of-sales",
+      "url": "/admin/points-of-sales"
     },
     {
       "id": "tour-contabilidad",

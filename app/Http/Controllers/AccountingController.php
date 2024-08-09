@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Http;
 use App\Models\PymoSetting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use App\Models\Receipt;
+use Yajra\DataTables\DataTables;
 
 class AccountingController extends Controller
 {
@@ -38,6 +40,93 @@ class AccountingController extends Controller
     public function entrie()
     {
         return view('content.accounting.entrie');
+    }
+
+    /**
+     * Obtiene y devuelve los sobres enviados.
+     *
+     * @return \Illuminate\View\View
+    */
+    public function getSentCfes()
+    {
+        // Obtener los recibos con la información relacionada
+        $receipts = Receipt::with('order.client', 'order.store')->get();
+
+        // Calcular el total de facturas emitidas
+        $totalReceipts = $receipts->count();
+
+        // Calcular el ingreso total de todas las facturas
+        $totalIncome = $receipts->sum('total');
+
+        // Identificar la tienda con más emisiones
+        $storeWithMostReceipts = $receipts->groupBy('store_id')
+            ->sortByDesc(function ($group) {
+                return $group->count();
+            })->first();
+
+        // Nombre de la tienda con más emisiones, si existe
+        $storeNameWithMostReceipts = $storeWithMostReceipts ? $storeWithMostReceipts->first()->order->store->name : 'N/A';
+
+        return view('content.accounting.receipts.index', compact('receipts', 'totalReceipts', 'totalIncome', 'storeNameWithMostReceipts'));
+    }
+
+    /**
+     * Obtiene los datos para la tabla de recibos en formato JSON.
+     *
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function getReceiptsData()
+    {
+        // Obtener todos los recibos con la información relacionada
+        $receipts = Receipt::with('order.store', 'order.client')->get();
+
+        // Transformar los datos para DataTables
+        $receiptsData = $receipts->map(function ($receipt) {
+          return [
+              'id' => $receipt->id,
+              'store_name' => $receipt->order->store->name ?? 'N/A',
+              'client_name' => $receipt->order->client->name ?? 'N/A',
+              'client_email' => $receipt->order->client->email ?? 'N/A',
+              'client_lastname' => $receipt->order->client->lastname ?? 'N/A',
+              'date' => $receipt->emitionDate,
+              'type' => $receipt->type == 101 ? 'eTicket' : 'eFactura',
+              'currency' => $receipt->order->currency ?? 'UYU',
+              'total' => $receipt->total,
+              'qrUrl' => $receipt->qrUrl,
+              'order_uuid' => $receipt->order->uuid,
+              'serie' => $receipt->serie,
+              'cfeId' => $receipt->cfeId,
+              'nro' => $receipt->nro,
+              'caeNumber' => $receipt->caeNumber,
+              'caeRange' => $receipt->caeRange,
+              'caeExpirationDate' => $receipt->caeExpirationDate,
+              'sentXmlHash' => $receipt->sentXmlHash,
+              'securityCode' => $receipt->securityCode,
+          ];
+      });
+
+        // Retornar la respuesta en formato JSON
+        return DataTables::of($receiptsData)->make(true);
+    }
+
+
+    /**
+     * Obtiene los sobres enviados de la empresa.
+     *
+     * @param string $rut
+     * @param array $cookies
+     * @return array|null
+    */
+    private function getCompanySentCfes(string $rut, array $cookies): ?array
+    {
+        $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+            ->get(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sentCfes');
+
+        if ($response->failed() || !isset($response->json()['payload']['companySentCfes'])) {
+            return null;
+        }
+
+        return $response->json()['payload']['companySentCfes'];
     }
 
     /**

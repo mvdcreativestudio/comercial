@@ -98,4 +98,14 @@ class Store extends Model
         return $this->hasMany(CashRegister::class);
     }
 
+    /**
+     * Obtiene los recibos asociados a la tienda.
+     *
+     * @return HasMany
+    */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
+
 }
