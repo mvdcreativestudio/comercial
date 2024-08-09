@@ -337,6 +337,12 @@
           quantityIndividualInput.val('');
         }
       });
+
+      // Agregar evento para el botón "Seleccionar todos"
+      $('#selectAllFlavorsButton').on('click', function () {
+        var flavorsSelect = $('.variationOptions');
+        flavorsSelect.find('option').prop('selected', true).trigger('change');
+      });
     });
 
     document.addEventListener('DOMContentLoaded', function () {

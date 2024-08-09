@@ -45,7 +45,7 @@
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Materias Primas</h6>
-              <h4 class="mb-2">{{ isset($rawMaterials) ? $rawMaterials->count() : 0 }}</h4>
+              {{-- <h4 class="mb-2">{{ isset($rawMaterials) ? $rawMaterials->count() : 0 }}</h4> --}}
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
             <div class="avatar me-sm-4">
@@ -195,7 +195,7 @@
       </div>
     </div>
   </div>
-  
+
   <div id="dataTableInit"
      data-base-url="{{ asset('storage/assets/img/raw_materials/') }}"
      data-raw-material-add="{{ route('raw-materials.create') }}"

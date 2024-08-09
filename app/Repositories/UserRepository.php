@@ -26,7 +26,7 @@ class UserRepository
   */
   public function getUserById(int $id): ?User
   {
-    return User::find($id);
+    return User::with('roles')->find($id);
   }
 
   /**
@@ -48,20 +48,27 @@ class UserRepository
    * @param array $data
    * @return bool
   */
-  public function updateUser(int $id, array $data): bool
+  public function updateUser(int $id, array $data, ?string $role = null): bool
   {
-    $user = $this->getUserById($id);
+      $user = $this->getUserById($id);
 
-    // Solo hashear la contraseña si está presente en los datos
-    if (!empty($data['password'])) {
-      $data['password'] = Hash::make($data['password']);
-    } else {
-      // Si no hay contraseña en los datos, no actualizar el campo 'password'
-      unset($data['password']);
-    }
+      // Solo hashear la contraseña si está presente en los datos
+      if (!empty($data['password'])) {
+          $data['password'] = Hash::make($data['password']);
+      } else {
+          // Si no hay contraseña en los datos, no actualizar el campo 'password'
+          unset($data['password']);
+      }
 
-    return $user ? $user->update($data) : false;
+      $updated = $user ? $user->update($data) : false;
+
+      if ($updated && $role) {
+          $user->syncRoles($role);
+      }
+
+      return $updated;
   }
+
 
   /**
    * Elimina un usuario por su ID.

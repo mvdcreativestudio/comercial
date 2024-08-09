@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Store;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Repositories\UserRepository;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -51,18 +53,11 @@ class UserController extends Controller
   public function index(): View
   {
     $users = $this->userRepository->getAllUsers();
-    return view('users.index', compact('users'));
+    $roles = Role::all();
+    $stores = Store::all();
+    return view('users.index', compact('users', 'roles', 'stores'));
   }
 
-  /**
-   * Muestra el formulario para crear un nuevo usuario.
-   *
-   * @return View
-  */
-  public function create(): View
-  {
-    return view('users.create');
-  }
 
   /**
    * Muestra los detalles de un usuario específico.
@@ -76,18 +71,40 @@ class UserController extends Controller
     return response()->json($user);
   }
 
-  /**
-   * Almacena un nuevo usuario en la base de datos.
-   *
-   * @param StoreUserRequest $request
-   * @return RedirectResponse
-   */
-  public function store(StoreUserRequest $request): RedirectResponse
-  {
-      $this->userRepository->createUser($request->validated());
-      return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
-  }
+/**
+ * Almacena un nuevo usuario en la base de datos.
+ *
+ * @param StoreUserRequest $request
+ * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+ */
+public function store(StoreUserRequest $request)
+{
+    try {
+        $user = $this->userRepository->createUser($request->validated());
+        $user->syncRoles($request->input('role'));
 
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario creado exitosamente.',
+                'data' => $user
+            ], 201); // Devuelve un código de estado 201 para creación exitosa
+        }
+
+        return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
+    } catch (\Exception $e) {
+        \Log::error('Error creating user: ' . $e->getMessage());
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pudo crear el usuario.'
+            ], 500); // Devuelve un código de estado 500 para error del servidor
+        }
+
+        return redirect()->route('users.index')->with('error', 'No se pudo crear el usuario.');
+    }
+}
 
   /**
    * Muestra el formulario para editar un usuario existente.
@@ -98,7 +115,8 @@ class UserController extends Controller
   public function edit(int $id): View
   {
     $user = $this->userRepository->getUserById($id);
-    return view('users.edit', compact('user'));
+    $roles = Role::all();
+    return view('users.edit', compact('user', 'roles'));
   }
 
   /**
@@ -117,9 +135,22 @@ class UserController extends Controller
           unset($data['password']);
       }
 
-      $result = $this->userRepository->updateUser($id, $data);
-      return response()->json($result);
+      try {
+          $result = $this->userRepository->updateUser($id, $data, $request->input('role'));
+
+          return response()->json([
+              'success' => $result,
+              'message' => $result ? 'Usuario actualizado con éxito.' : 'No se pudo actualizar el usuario.',
+          ]);
+      } catch (\Exception $e) {
+          \Log::error('Error updating user: ' . $e->getMessage());
+          return response()->json([
+              'success' => false,
+              'message' => 'No se pudo actualizar el usuario.'
+          ], 500);
+      }
   }
+
 
 
 
