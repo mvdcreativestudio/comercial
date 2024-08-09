@@ -1,11 +1,8 @@
 <?php
-
 namespace App\Console\Commands;
-
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
 class CreatePermissions extends Command
 {
     /**
@@ -14,19 +11,16 @@ class CreatePermissions extends Command
      * @var string
      */
     protected $signature = 'create:modules-permissions';
-
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Crea permisos basados en los módulos del CRM - MVD';
-
     public function __construct()
     {
         parent::__construct();
     }
-
     /**
      * Execute the console command.
      */
@@ -135,36 +129,29 @@ class CreatePermissions extends Command
                     'view_all' => false,
                 ],
                 [
-
                     'slug' => 'point-of-sale',
                     'view_all' => false,
                 ],
             ]
         ];
-
         // Asegurar que el rol de administrador existe
         $adminRole = Role::firstOrCreate(['name' => 'Administrador']);
-
         foreach ($modulesJson['menu'] as $module) {
             $this->createPermission($module['slug'], $module['view_all'], $adminRole);
-
             if (array_key_exists('submenus', $module)) {
                 foreach ($module['submenus'] as $submenuSlug) {
                     $this->createPermission($submenuSlug, false, $adminRole);
                 }
             }
         }
-
         $this->info('Todos los permisos han sido creados y asignados al rol Administrador.');
     }
-
     private function createPermission($slug, $viewAll, $adminRole)
     {
         $permissionName = 'access_' . $slug;
         $permission = Permission::firstOrCreate(['name' => $permissionName]);
         $adminRole->givePermissionTo($permission);
         $this->info('Permiso creado y asignado al rol Administrador: ' . $permissionName);
-
         if ($viewAll) {
             $viewAllPermissionName = 'view_all_' . $slug;
             $viewAllPermission = Permission::firstOrCreate(['name' => $viewAllPermissionName]);
