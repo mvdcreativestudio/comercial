@@ -46,7 +46,6 @@ class CashRegisterController extends Controller
     }
 
 
-
     /**
      * Agrega una caja registradora a la base de datos.
      *
@@ -111,5 +110,14 @@ class CashRegisterController extends Controller
         } else {
             return response()->json(['message' => 'No se pudo encontrar la caja registradora que se deseó borrar.'], 404);
         }
+    }
+
+    /**
+     * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
+     */
+    public function storesForCashRegister()
+    {
+        $stores = $this->cashRegisterRepository->storesForCashRegister();
+        return response()->json($stores, 201);
     }
 }

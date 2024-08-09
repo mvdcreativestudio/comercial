@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories;
+use App\Models\Store;
 
 use App\Models\CashRegister;
 use Yajra\DataTables\DataTables;
@@ -86,5 +87,17 @@ class CashRegisterRepository
             return $cashRegister->delete();
         }
         return false;
+    }
+
+    /**
+     * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
+     */
+    public function storesForCashRegister()
+    {
+        if (!Auth::user()->hasRole('Administrador')) {
+            return auth()->user()->store_id;
+        } else {
+            return Store::pluck('id');
+        }
     }
 }

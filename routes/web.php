@@ -79,7 +79,8 @@ Route::middleware([
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
     ]);
-
+    
+    Route::get('/point-of-sale/stores', [CashRegisterController::class, 'storesForCashRegister']);
 
     // Point of service
 
