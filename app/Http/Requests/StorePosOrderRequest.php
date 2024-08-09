@@ -20,10 +20,12 @@ class StorePosOrderRequest extends FormRequest
             'cash_sales' => 'required|int',
             'pos_sales' => 'required|int',
             'discount' => 'required|int',
+            'client_id' => 'nullable|int',
             'client_type' => 'required|string',
             'products' => 'required',
             'subtotal' => 'required|int',
-            'total' => 'required|int'
+            'total' => 'required|int',
+            'notes' => 'nullable|string'
         ];
     }
 

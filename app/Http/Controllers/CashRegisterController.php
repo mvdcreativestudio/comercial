@@ -37,14 +37,13 @@ class CashRegisterController extends Controller
 
         if ($openCashRegisterId) {
             Session::put('open_cash_register_id', $openCashRegisterId);
-            return redirect()->route('pdv.index');
+            return redirect()->route('pdv.front');
         } else {
             Session::forget('open_cash_register_id'); 
             $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
             return view('points-of-sales.index', compact('cajas', 'userId'));
         }
     }
-
 
 
     /**
@@ -111,5 +110,14 @@ class CashRegisterController extends Controller
         } else {
             return response()->json(['message' => 'No se pudo encontrar la caja registradora que se deseó borrar.'], 404);
         }
+    }
+
+    /**
+     * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
+     */
+    public function storesForCashRegister()
+    {
+        $stores = $this->cashRegisterRepository->storesForCashRegister();
+        return response()->json($stores, 201);
     }
 }
