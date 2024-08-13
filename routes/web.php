@@ -79,18 +79,13 @@ Route::middleware([
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
     ]);
-    
+
+
+    // Puntos de venta
     Route::get('/point-of-sale/stores', [CashRegisterController::class, 'storesForCashRegister']);
-
-    // Point of service
-
     Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
     Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister']);
     Route::get('/pdv/clients/json', [CashRegisterLogController::class, 'getAllClients']);
-
-
-    // Point of service
-
     Route::get('/pdv', [CashRegisterLogController::class, 'index'])->middleware('check.open.cash.register')->name('pdv.index');
     Route::get('/pdv/front', [CashRegisterLogController::class, 'front'])->middleware('check.open.cash.register')->name('pdv.front');
     Route::get('/pdv/front2', [CashRegisterLogController::class, 'front2'])->middleware('check.open.cash.register')->name('pdv.front2');

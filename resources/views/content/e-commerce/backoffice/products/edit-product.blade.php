@@ -206,13 +206,17 @@
               Local
             </label>
             <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
-              <option value="">Seleccionar local</option>
-              @foreach ($stores as $store)
-                <option value="{{ $store->id }}" {{ $product->store_id == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-              @endforeach
-
+              @if(auth()->user()->hasPermissionTo('access_global_products'))
+                <option value="">Seleccionar local</option>
+                @foreach ($stores as $store)
+                  <option value="{{ $store->id }}" {{ $product->store_id == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
+                @endforeach
+              @else
+                <option value="{{ auth()->user()->store_id }}" selected>{{ auth()->user()->store->name }}</option>
+              @endif
             </select>
           </div>
+
           <!-- Category -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <select id="category-org" class="select2 form-select" data-placeholder="Seleccione la categoría" name="categories[]" multiple data-selected="{{ json_encode($product->categories->pluck('id')->toArray()) }}">

@@ -18,7 +18,7 @@ class CashRegisterLog extends Model
         'pos_sales',
         'cash_float',
     ];
-    
+
     /**
      * Obtiene la caja registradora asociada al log.
      *
@@ -26,7 +26,7 @@ class CashRegisterLog extends Model
      */
     public function cashRegister(): BelongsTo
     {
-        return $this->belongsTo(cashRegister::class);
+        return $this->belongsTo(CashRegister::class);
     }
 
     /**
