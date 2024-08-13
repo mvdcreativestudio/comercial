@@ -83,9 +83,6 @@
                                     <button class="dropdown-item btn-open" data-id="{{ $caja->id }}">Abrir caja</button>
                                 </li>
                                 <li>
-                                    <button class="dropdown-item btn-closed" data-id="{{ $caja->id }}">Cerrar Caja</button>
-                                </li>
-                                <li>
                                     <button class="dropdown-item btn-view" data-id="{{ $caja->id }}" data-store="{{ $caja->store_id }}" data-user="{{ $caja->user_id }}">Ver Detalles</button>
                                 </li>
                                 <li>
@@ -198,27 +195,6 @@
     </div>
 </div>
 
-<!-- Modal para cerrar la caja registradora -->
-<div class="modal fade" id="cerrarCajaModal" tabindex="-1" aria-labelledby="cerrarCajaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cerrarCajaLabel">Cerrar Caja Registradora</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="cash_register_id_close" name="cash_register_id_close">
-                <p>¿Estás seguro de que deseas cerrar esta caja registradora?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="submit-cerrar-caja" class="btn btn-primary">Cerrar Caja</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery -->
 <script>
     $(document).ready(function() {
@@ -234,8 +210,61 @@
         $('#crearCajaModal').modal('show');
     });
 
+    // Obtener los IDs de las tiendas para la caja registradora
+    $.ajax({
+        url: 'point-of-sale/stores',
+        type: 'GET',
+        success: function(response) {
+            var storeIds = response; // Array con los IDs de las tiendas
+
+            if (storeIds.length === 0) {
+                // Si el array está vacío, ocultar el botón de crear caja
+                $('#crear-caja-btn').hide();
+            } else {
+                // Si hay IDs, crear un select con las opciones
+                var select = $('<select>', {
+                    class: 'form-control',
+                    id: 'store_id',
+                    name: 'store_id',
+                    required: true // Asegurar que el campo sea requerido
+                });
+
+                // Opción por defecto para invitar a seleccionar una tienda
+                select.append($('<option>', {
+                    value: '',
+                    text: 'Seleccione una tienda...',
+                    disabled: true,
+                    selected: true
+                }));
+
+                $.each(storeIds, function(index, value) {
+                    select.append($('<option>', {
+                        value: value,
+                        text: 'Tienda ' + value
+                    }));
+                });
+
+                $('#crearCajaModal .modal-body .mb-3').html(select);
+
+                $('#crear-caja-btn').click(function() {
+                    $('#crearCajaModal').modal('show');
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('Error al obtener las tiendas: ' + xhr.responseText);
+        }
+    });
+
     // Enviar los datos de la nueva caja registradora al servidor
     $('#submit-crear-caja').click(function() {
+
+        var storeId = $('#store_id').val();
+        if (!storeId) {
+            alert('Por favor, seleccione una tienda.');
+            return;
+        }
+
         var storeId = $('#store_id').val();
         var csrfToken = $('meta[name="csrf-token"]').attr('content');
 
@@ -360,27 +389,6 @@
         var cashRegisterId = $(this).data('id');
         $('#cash_register_id_close').val(cashRegisterId);
         $('#cerrarCajaModal').modal('show');
-    });
-
-    // Enviar los datos para cerrar la caja registradora
-    $('#submit-cerrar-caja').click(function() {
-        var cashRegisterId = $('#cash_register_id_close').val();
-        var csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-        $.ajax({
-            url: 'pdv/close/' + cashRegisterId,
-            type: 'POST',
-            data: {
-                _token: csrfToken
-            },
-            success: function(response) {
-                $('#cerrarCajaModal').modal('hide');
-                location.reload(); // Recargar la página para reflejar los cambios
-            },
-            error: function(xhr, status, error) {
-                alert('Error al cerrar la caja registradora: ' + xhr.responseText);
-            }
-        });
     });
 });  
 </script>

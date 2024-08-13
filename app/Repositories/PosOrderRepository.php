@@ -20,13 +20,13 @@ class PosOrderRepository
     */
     public function getPosOrdersForDatatable($userId): mixed
     {
-        
-        $query = PosOrder::select(['pos_orders.id', 'pos_orders.date', 'pos_orders.hour', 'pos_orders.cash_register_log_id', 'pos_orders.cash_sales', 'pos_orders.pos_sales', 'pos_orders.discount', 'pos_orders.client_type'])
+
+        $query = PosOrder::select(['pos_orders.id', 'pos_orders.date', 'pos_orders.hour', 'pos_orders.cash_register_log_id', 'pos_orders.cash_sales', 'pos_orders.pos_sales', 'pos_orders.discount', 'client_id'])
                      ->join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
                      ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
                      ->where('cash_registers.user_id', $userId)
                      ->get();
-                     
+
          return $query;
     }
 
@@ -60,10 +60,10 @@ class PosOrderRepository
         return PosOrder::create($data);
     }
 
-    
+
     /**
      * Actualiza un registro en la base de datos dado un ID.
-     * 
+     *
      * @param  $id
      * @param array $data
      * @return bool
@@ -80,7 +80,7 @@ class PosOrderRepository
 
     /**
      * Borra un registro de la base de datos dado un ID.
-     * 
+     *
      * @param  $id
      * @param array $data
      *
@@ -105,7 +105,7 @@ class PosOrderRepository
     public function percentageDiscount($price, $percentage)
     {
         if ($percentage >= 100) {
-            return 0; 
+            return 0;
         }
         $discount = ($price * $percentage) / 100;
         return $price - $discount;
@@ -121,7 +121,7 @@ class PosOrderRepository
     public function fixedDiscount($price, $discount)
     {
         if ($discount >= $price) {
-            return 0; 
+            return 0;
         }
         return $price - $discount;
     }
@@ -136,7 +136,7 @@ class PosOrderRepository
     public function calculateDifference($total, $money)
     {
         if ($money < $total) {
-            return 0; 
+            return 0;
         }
         return $money - $total;
     }

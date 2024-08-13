@@ -32,4 +32,14 @@ class Client extends Model
         return $this->orders()->count();
     }
 
+    /**
+     * Obtiene las ordenes del cliente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function posorders()
+    {
+        return $this->hasMany(PosOrder::class);
+    }
+
 }

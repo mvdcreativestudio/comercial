@@ -185,8 +185,23 @@ class CashRegisterLogController extends Controller
     public function getFathersCategories()
     {
         try {
-            $categories = $this->cashRegisterLogRepository->getCategories();
+            $categories = $this->cashRegisterLogRepository->getFathersCategories();
             return response()->json(['categories' => $categories]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+    /**
+     * Toma las categorías padres.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCategories()
+    {
+        try {
+            $productCategories = $this->cashRegisterLogRepository->getCategories();
+            return response()->json($productCategories);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }
@@ -239,5 +254,45 @@ class CashRegisterLogController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Obtiene todos los clientes en formato JSON.
+     *
+     * @return JsonResponse
+     */
+    public function getAllClients(): JsonResponse
+    {
+        $clients = $this->cashRegisterLogRepository->getAllClients();
+        return response()->json([
+            'clients' => $clients,
+            'count' => $clients->count()
+        ]);
+    }
+
+    public function saveCart(Request $request)
+    {
+        $cart = $request->input('cart');
+        session(['cart' => $cart]);
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getCart()
+    {
+        $cart = session('cart', []);
+        return response()->json(['cart' => $cart]);
+    }
+
+    public function saveClient(Request $request)
+    {
+        $client = $request->input('client');
+        session(['client' => $client]);
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getClient()
+    {
+        $client = session('client', []);
+        return response()->json(['client' => $client]);
     }
 }
