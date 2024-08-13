@@ -23,6 +23,7 @@ return [
   'access_clients' => 'Acceder a Clientes',
   'access_orders' => 'Acceder a Pedidos',
   'access_products' => 'Acceder a Productos',
+  'access_global_products' => 'Acceder a Productos de todas las Tiendas',
   'access_product-categories' => 'Acceder a Categorías de Productos',
   'access_marketing' => 'Acceder a Marketing',
   'access_settings' => 'Acceder a Configuración',

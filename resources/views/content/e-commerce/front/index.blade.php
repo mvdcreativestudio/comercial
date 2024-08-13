@@ -102,38 +102,42 @@
   </div>
   @endif
 
-  <div class="d-flex quienes-somos-home container-fluid mt-3">
-    <div class="col-6 text-center quienes-somos-container container">
-      <h2>¿Quiénes somos?</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
-    </div>
-
-    <div class="col-6 p-5 text-end homepage-img-container">
-      <img class="homepage-quienes-somos-img" src="{{ asset('assets\img\front-pages\homepage\img-01.svg') }}" alt="">
-    </div>
-  </div>
-
-  <div class="d-flex servicios-home container-fluid">
-    <div class="col-6 p-5 text-center">
-      <img class="homepage-servicios-img" src="{{ asset('assets\img\front-pages\homepage\eventos-1.jpg') }}" alt="">
-    </div>
-
-    <div class="col-6 text-center servicios-container container">
-      <h2>Servicios</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+  <div class="container-fluid mt-3">
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-md-12 text-center quienes-somos-container mb-3 mb-lg-0">
+        <h2>¿Quiénes somos?</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+      </div>
+      <div class="col-lg-6 col-md-12 p-5 text-end homepage-img-container">
+        <img class="img-fluid homepage-quienes-somos-img" src="{{ asset('assets/img/front-pages/homepage/img-01.svg') }}" alt="">
+      </div>
     </div>
   </div>
 
-  <div class="d-flex quienes-somos-home container-fluid">
-    <div class="col-6 text-center quienes-somos-container container">
-      <h2>Locales</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
-    </div>
-
-    <div class="col-6 p-5 text-end homepage-img-container">
-      <img class="homepage-quienes-somos-img" src="{{ asset('assets\img\front-pages\homepage\locales-1.jpg') }}" alt="">
+  <div class="container-fluid">
+    <div class="row align-items-center my-5">
+      <div class="col-lg-6 col-md-12 p-5 text-center mb-3 mb-lg-0">
+        <img class="img-fluid homepage-servicios-img" src="{{ asset('assets/img/front-pages/homepage/eventos-1.jpg') }}" alt="">
+      </div>
+      <div class="col-lg-6 col-md-12 text-center servicios-container">
+        <h2>Servicios</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+      </div>
     </div>
   </div>
+
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-md-12 text-center quienes-somos-container mb-3 mb-lg-0">
+        <h2>Locales</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+      </div>
+      <div class="col-lg-6 col-md-12 p-5 text-end homepage-img-container">
+        <img class="img-fluid homepage-quienes-somos-img" src="{{ asset('assets/img/front-pages/homepage/locales-1.jpg') }}" alt="">
+      </div>
+    </div>
+  </div>
+
 
 
 </div>
