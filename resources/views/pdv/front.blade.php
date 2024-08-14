@@ -19,8 +19,12 @@
     'resources/assets/vendor/libs/bootstrap/bootstrap.bundle.min.js',
     'resources/assets/vendor/libs/fontawesome/fontawesome.min.js',
     'resources/assets/vendor/libs/select2/select2.js',
+    'resources/assets/js/pdv.js'
+
 
 ])
+
+
 
 <script>
     window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
@@ -212,11 +216,3 @@
 
 @endsection
 
-@section('vendor-script')
-@vite([
-    'resources/assets/vendor/libs/jquery/jquery.min.js',
-    'resources/assets/vendor/libs/popper/popper.min.js',
-    'resources/assets/vendor/libs/bootstrap/bootstrap.min.js',
-    'resources/assets/js/pdv.js'
-])
-@endsection
