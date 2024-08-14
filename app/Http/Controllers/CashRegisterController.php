@@ -114,10 +114,36 @@ class CashRegisterController extends Controller
 
     /**
      * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
+     * 
+     * @return JsonResponse
      */
     public function storesForCashRegister()
     {
         $stores = $this->cashRegisterRepository->storesForCashRegister();
         return response()->json($stores, 201);
+    }
+
+    /**
+     * Devuelve los balances y ventas de la caja registradora.
+     * 
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function getDetails(string $id){
+        $details = $this->cashRegisterRepository->getDetails($id);
+        $cashRegister = $this->cashRegisterRepository->getCashRegisterById($id);
+
+        return view('points-of-sales.details', compact('cashRegister','details'));
+    }
+
+    /**
+     * Devuelve las ventas realizadas por una caja registradora.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getSales($id){
+        $sales = $this->cashRegisterRepository->getSales($id);
+        return view('points-of-sales.sales', compact('sales'));
     }
 }

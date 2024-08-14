@@ -70,8 +70,8 @@
                 @foreach ($cajas as $caja)
                 <tr>
                     <td>{{ $caja->id }}</td>
-                    <td>{{ $caja->store_id }}</td>
-                    <td>{{ $caja->user_id }}</td>
+                    <td>{{ $caja->store_name }}</td>
+                    <td>{{ $caja->user_name }}</td>
                     <td>
                         <!-- Menú desplegable de tres puntos -->
                         <div class="dropdown">
@@ -118,31 +118,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="submit-crear-caja" class="btn btn-primary">Crear</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para ver detalles de la caja registradora -->
-<div class="modal fade" id="detallesCajaModal" tabindex="-1" aria-labelledby="detallesCajaLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="detallesCajaLabel">Detalles de la Caja Registradora</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="detalle_store_id" class="form-label">ID de Tienda:</label>
-                    <input type="text" id="detalle_store_id" class="form-control" disabled>
-                </div>
-                <div class="mb-3">
-                    <label for="detalle_user_id" class="form-label">ID de Usuario:</label>
-                    <input type="text" id="detalle_user_id" class="form-control" disabled>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -341,12 +316,9 @@
 
     // Mostrar el modal de detalles con la información de la caja
     $('.btn-view').click(function() {
-        var storeId = $(this).data('store');
-        var userId = $(this).data('user');
-
-        $('#detalle_store_id').val(storeId);
-        $('#detalle_user_id').val(userId);
-        $('#detallesCajaModal').modal('show');
+        var cashRegisterId = $(this).data('id');
+        var baseUrl = "{{ url('/admin/point-of-sale/details') }}"; // Esto generará la URL base
+        window.location.href = baseUrl + '/' + cashRegisterId;
     });
 
     // Mostrar el modal de edición con la información de la caja
