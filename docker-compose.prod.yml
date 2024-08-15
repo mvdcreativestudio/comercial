@@ -9,7 +9,7 @@ services:
         restart: unless-stopped
         tty: true
         ports:
-            - 80:80
+            # - 80:80
             - 5173:5173
         volumes:
             - .:/var/www:cached
@@ -43,7 +43,7 @@ services:
         restart: unless-stopped
         tty: true
         ports:
-            - 3306:3306
+            - 33306:3306
         volumes:
             - .docker/db/data:/var/lib/mysql
             - .docker/logs:/var/log/mysql
