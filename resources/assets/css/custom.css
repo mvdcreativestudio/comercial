@@ -1,6 +1,6 @@
 /* Generales */
 :root {
-  --primary-color: #181818;  /* Azul Bootstrap por defecto */
+  --primary-color: #181818; /* Azul Bootstrap por defecto */
 }
 
 /* Fonts */
@@ -22,7 +22,6 @@
 .font-white {
   color: white !important;
 }
-
 
 /* Spinner */
 
@@ -73,9 +72,8 @@
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
   background-color: var(--primary-color);
-  color: white!important;
+  color: white !important;
 }
-
 
 /* Home */
 
@@ -333,11 +331,9 @@
   margin-bottom: 5px;
 }
 
-
 tr.odd {
   border-bottom: 0.5px solid var(--bs-table-border-color);
 }
-
 
 /* Backoffice - Products */
 
@@ -347,7 +343,6 @@ tr.odd {
 }
 
 /* Homepage */
-
 
 .video-container {
   position: relative;
@@ -395,7 +390,6 @@ tr.odd {
   margin: -5vh auto 2vh; /* Ajusta los márgenes para acercar al título y proporcionar espacio abajo */
   animation: pulse 2s ease-in-out infinite;
 }
-
 
 .animated-text-container {
   margin-bottom: 5vh; /* Ajuste para levantar el texto 'Pedí Online' más cerca del logo */
@@ -445,7 +439,11 @@ tr.odd {
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -475,7 +473,6 @@ tr.odd {
   z-index: 10; /* Asegura que el texto esté sobre el video */
 }
 
-
 .header-title-store {
   font-size: 2em;
   font-family: 'Montserrat', sans-serif;
@@ -494,12 +491,12 @@ tr.odd {
 
 @keyframes slideIn {
   from {
-      opacity: 0;
-      transform: translateY(20px);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -513,11 +510,10 @@ tr.odd {
 
 .cart-product-item .btn-link {
   color: #dc3545;
-  font-size: 2em!important;
+  font-size: 2em !important;
   text-decoration: none;
-  margin: 0px!important;
+  margin: 0px !important;
 }
-
 
 /* Notificaciones */
 .notification-item {
@@ -584,4 +580,10 @@ tr.odd {
 #averageOrdersByHourChart {
   max-height: 50vh;
   width: 100%;
+}
+
+@media (min-width: 992px) {
+  .table-responsive {
+    overflow: visible;
+  }
 }

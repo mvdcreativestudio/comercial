@@ -113,7 +113,7 @@
         <!-- Selectores de columnas -->
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="1" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="1" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -123,7 +123,7 @@
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="2" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -133,7 +133,7 @@
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="3" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="3" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -143,7 +143,7 @@
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="4" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="4" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -153,7 +153,7 @@
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="5" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="5" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -163,7 +163,7 @@
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="6" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="6" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -173,7 +173,7 @@
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="8" checked> 
+            <input type="checkbox" class="toggle-column switch-input" data-column="8" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -187,14 +187,14 @@
     <table class="datatables-order table border-top" data-symbol="{{ $settings->currency_symbol }}">
       <thead>
         <tr>
-          <th></th>
+          <th>N°</th>
           <th>Fecha</th>
           <th>Cliente</th>
           <th>Local</th>
           <th>Importe</th>
           <th>Pago</th>
           <th>Envío</th>
-          <th></th>
+          <th>Facturado</th>
           <th>Acciones</th>
         </tr>
       </thead>

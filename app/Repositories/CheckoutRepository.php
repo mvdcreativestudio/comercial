@@ -21,31 +21,39 @@ use App\Models\PymoSetting;
 use Exception;
 use App\Models\Receipt;
 
-
 class CheckoutRepository
 {
     /**
      * Repositorio de notificaciones de correo electrónico.
      *
      * @var EmailNotificationsRepository
-     */
+    */
     protected $emailNotificationsRepository;
+
+    /**
+     * Repositorio de contabilidad.
+     *
+     * @var AccountingRepository
+    */
+    protected $accountingRepository;
 
     /**
      * Inicializa el repositorio de notificaciones de correo electrónico.
      *
      * @param EmailNotificationsRepository $emailNotificationsRepository
-     */
-    public function __construct(EmailNotificationsRepository $emailNotificationsRepository)
+     * @param AccountingRepository $accountingRepository
+    */
+    public function __construct(EmailNotificationsRepository $emailNotificationsRepository, AccountingRepository $accountingRepository)
     {
         $this->emailNotificationsRepository = $emailNotificationsRepository;
+        $this->accountingRepository = $accountingRepository;
     }
 
     /**
      * Obtiene los datos para mostrar en la página de checkout.
      *
      * @return array
-     */
+    */
     public function index(): array
     {
         $order = null;
@@ -73,7 +81,7 @@ class CheckoutRepository
      *
      * @param string $uuid
      * @return array
-     */
+    */
     public function success(string $uuid): array
     {
         $order = Order::with('client')->where('uuid', $uuid)->firstOrFail();
@@ -85,7 +93,7 @@ class CheckoutRepository
      *
      * @param string $uuid
      * @return array
-     */
+    */
     public function failure(string $uuid): array
     {
         $order = Order::with('client')->where('uuid', $uuid)->firstOrFail();
@@ -98,7 +106,7 @@ class CheckoutRepository
      * @param CheckoutStoreOrderRequest $request
      * @param MercadoPagoService $mercadoPagoService
      * @return RedirectResponse
-     */
+    */
     public function processOrder(CheckoutStoreOrderRequest $request, MercadoPagoService $mercadoPagoService): RedirectResponse
     {
         try {
@@ -111,12 +119,20 @@ class CheckoutRepository
             // Guardar la orden y los datos del cliente
             $order = $this->createOrder($clientData, $orderData);
 
-            // Emitir CFE (eFactura o eTicket)
-            $tipoCFE = $request->input('tipo_cfe', 'eTicket');
+            $store = $order->store;
 
-            Log::info('Emitiendo CFE:', ['tipo' => $tipoCFE]);
+            if ($store->automatic_billing) {
+                // Emitir CFE (eFactura o eTicket)
+                $tipoCFE = $request->input('tipo_cfe', 'eTicket');
 
-            $this->emitirCFE($order, $tipoCFE);
+                $this->accountingRepository->emitirCFE($order, $tipoCFE);
+
+                // Marcar la orden como facturada
+                $order->update(['is_billed' => true]);
+            } else {
+                // Marcar la orden como no facturada
+                $order->update(['is_billed' => false]);
+            }
 
             if ($request->payment_method === 'card') {
                 $redirectUrl = $this->processCardPayment($request, $order, $mercadoPagoService, $storeId);
@@ -167,13 +183,14 @@ class CheckoutRepository
         }
     }
 
+
     /**
      * Crea una orden y un cliente en la base de datos.
      *
      * @param array $clientData
      * @param array $orderData
      * @return Order
-     */
+    */
     private function createOrder(array $clientData, array $orderData): Order
     {
         // Crear y guardar el cliente
@@ -204,7 +221,7 @@ class CheckoutRepository
      * @param MercadoPagoService $mercadoPagoService
      * @param int $storeId
      * @return string
-     */
+    */
     private function processCardPayment(Request $request, Order $order, MercadoPagoService $mercadoPagoService, int $storeId): string
     {
         $cartItems = session('cart', []);
@@ -250,7 +267,7 @@ class CheckoutRepository
      * @param string $couponCode
      * @return array
      * @throws \Exception
-     */
+    */
     public function applyCoupon(string $couponCode): array
     {
         $subtotal = session('subtotal', 0);
@@ -267,7 +284,7 @@ class CheckoutRepository
      *
      * @param Request $request
      * @return array
-     */
+    */
     private function getClientData(Request $request): array
     {
         return [
@@ -355,7 +372,6 @@ class CheckoutRepository
         return $orderData;
     }
 
-
     /**
      * Aplica un cupón a la sesión.
      *
@@ -397,177 +413,4 @@ class CheckoutRepository
 
         return ['code' => $coupon->code, 'discount' => $discount];
     }
-
-    /**
-     * Emite un CFE (eFactura o eTicket) para una orden.
-     *
-     * @param Order $order
-     * @param string $tipoCFE
-     * @return void
-    */
-    private function emitirCFE(Order $order, string $tipoCFE): void
-    {
-        $cookies = $this->login();
-
-        if (!$cookies) {
-            Log::error('No se pudo iniciar sesión para emitir el CFE.');
-            return;
-        }
-
-        $rutSetting = PymoSetting::where('settingKey', 'rut')->first();
-        if ($rutSetting) {
-          $rut = $rutSetting->settingValue;
-          $cfeType = $tipoCFE === 'eFactura' ? '111' : '101';
-          $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/1';
-          $cfeData = $this->prepararCFEData($order, $cfeType);
-
-          try {
-              $payloadArray = [
-                  'emailsToNotify' => [],
-                  $cfeType => [$cfeData],
-              ];
-
-              $payload = (object)$payloadArray;
-
-              $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
-                ->asJson()
-                ->post($url, $payload);
-
-              if ($response->successful()) {
-                Log::info('CFE emitido correctamente: ' . $response->body());
-
-                // Guardar recibo en la base de datos
-                $responseData = $response->json();
-
-                foreach ($responseData['payload']['cfesIds'] as $cfe) {
-                  try {
-                    $receipt = Receipt::create([
-                        'order_id' => $order->id,
-                        'store_id' => $order->store_id,
-                        'type' => $cfeType,
-                        'serie' => $cfe['serie'],
-                        'nro' => $cfe['nro'],
-                        'caeNumber' => $cfe['caeNumber'],
-                        'caeRange' => json_encode($cfe['caeRange']),
-                        'caeExpirationDate' => $cfe['caeExpirationDate'],
-                        'total' => $cfe['total'],
-                        'emitionDate' => $cfe['emitionDate'],
-                        'sentXmlHash' => $cfe['sentXmlHash'],
-                        'securityCode' => $cfe['securityCode'],
-                        'qrUrl' => $cfe['qrUrl'],
-                        'cfeId' => $cfe['id'],
-                    ]);
-
-                    Log::info('Receipt creado correctamente:', $receipt->toArray());
-                  } catch (\Exception $e) {
-                    Log::error('Error al crear Receipt: ' . $e->getMessage());
-                  }
-                }
-              } else {
-                  Log::error('Error al emitir CFE: ' . $response->body());
-              }
-          } catch (\Exception $e) {
-              Log::error('Excepción al emitir CFE: ' . $e->getMessage());
-          }
-        } else {
-            Log::error('No se encontró el RUT de la empresa para emitir el CFE.');
-        }
-    }
-
-    /**
-     * Prepara los datos necesarios para emitir el CFE.
-     *
-     * @param Order $order
-     * @param string $cfeType
-     * @return array
-    */
-    private function prepararCFEData(Order $order, string $cfeType): array
-    {
-        $client = $order->client;
-
-        Log::info('Preparando datos para emitir CFE:', [
-            'order' => $order->toArray(),
-            'client' => $client->toArray(),
-        ]);
-
-        $products = json_decode($order->products, true);
-
-        $items = array_map(function ($product, $index) {
-            return [
-                'NroLinDet' => $index + 1,
-                'IndFact' => 1,
-                'NomItem' => $product['name'],
-                'Cantidad' => $product['quantity'],
-                'UniMed' => 'N/A',
-                'PrecioUnitario' => $product['price'],
-                'MontoItem' => $product['price'] * $product['quantity'],
-            ];
-        }, $products, array_keys($products));
-
-        $cfeData = [
-            'clientEmissionId' => $order->uuid,
-            'adenda' => 'Emitido automáticamente por sistema.',
-            'IdDoc' => [
-                'MntBruto' => 1,
-                'FmaPago' => $order->payment_method == 'cash' ? 1 : 2,
-            ],
-            'Receptor' => [
-                'TipoDocRecep' => '2',
-                'CodPaisRecep' => 'UY',
-                'DocRecep' => $client->document_number ?? '123456789012',
-                'RznSocRecep' => $client->name . ' ' . $client->lastname,
-                'DirRecep' => $client->address,
-                'CiudadRecep' => $client->state,
-                'DeptoRecep' => $client->country,
-            ],
-            'Totales' => [
-                'TpoMoneda' => 'UYU',
-                'MntNoGrv' => 0,
-                'MntNetoIvaTasaMin' => 0,
-                'MntNetoIVATasaBasica' => $order->subtotal,
-                'IVATasaMin' => 10,
-                'IVATasaBasica' => 22,
-                'MntIVATasaMin' => 0,
-                'MntIVATasaBasica' => $order->subtotal * 0.22,
-                'MntTotal' => $order->total,
-                'CantLinDet' => count($items),
-                'MntPagar' => $order->total,
-            ],
-            'Items' => $items,
-        ];
-
-        if ($cfeType === '101') {
-            $cfeData['IdDoc']['FchEmis'] = now()->toIso8601String();
-        }
-
-        return $cfeData;
-    }
-
-    /**
-     * Realiza el login y devuelve las cookies de la sesión.
-     *
-     * @return array|null
-    */
-    private function login(): ?array
-    {
-        $loginResponse = Http::post(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/login', [
-            'email' => env('PYMO_USER'),
-            'password' => env('PYMO_PASSWORD'),
-        ]);
-
-        if ($loginResponse->failed()) {
-            Log::error('Error al iniciar sesión: ' . $loginResponse->body());
-            return null;
-        }
-
-        $cookies = $loginResponse->cookies();
-        $cookieJar = [];
-
-        foreach ($cookies as $cookie) {
-            $cookieJar[$cookie->getName()] = $cookie->getValue();
-        }
-
-        return $cookieJar;
-    }
-
 }

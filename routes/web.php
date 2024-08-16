@@ -118,6 +118,7 @@ Route::middleware([
         Route::post('save-hours', [StoreController::class, 'saveHours'])->name('saveHours');
         Route::post('toggle-store-status', [StoreController::class, 'toggleStoreStatus'])->name('toggle-status');
         Route::post('toggle-store-status-closed', [StoreController::class, 'toggleStoreStatusClosed'])->name('toggleStoreStatusClosed');
+        Route::post('toggle-billing', [StoreController::class, 'toggleAutomaticBilling'])->name('toggleAutomaticBilling');
       });
 
     // Gestión de Roles
@@ -162,6 +163,7 @@ Route::middleware([
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'generatePdf'])->name('orders.pdf');
+    Route::post('/orders/{order}/emit-cfe', [OrderController::class, 'emitirCFE'])->name('orders.emitCFE');
 
     // Gestión de Cupones
     Route::post('marketing/coupons/delete-selected', [CouponController::class, 'deleteSelected'])->name('coupons.deleteSelected');

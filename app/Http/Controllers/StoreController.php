@@ -167,7 +167,7 @@ class StoreController extends Controller
       }
   }
 
-  
+
 
   /**
    * Muestra la página para administrar usuarios asociados a una tienda.
@@ -264,5 +264,17 @@ class StoreController extends Controller
     });
 
     return response()->json($storeStatuses);
+  }
+
+  /**
+   * Cambia el estado de la facturación automática de la tienda.
+   *
+   * @param Store $store
+   * @return RedirectResponse
+  */
+  public function toggleAutomaticBilling(Store $store): RedirectResponse
+  {
+    $this->storeRepository->toggleAutomaticBilling($store);
+    return redirect()->route('stores.index')->with('success', 'Estado de facturación automática cambiado con éxito.');
   }
 }

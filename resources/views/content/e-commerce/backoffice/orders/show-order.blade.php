@@ -98,14 +98,22 @@ $changeTypeTranslations = [
         <span class="badge bg-label-info">Entregado</span>
       @endif
     </h6>
-    <h6 class="card-title mb-1">Tienda:
+    <h6 class="card-title mb-1 mt-1">Tienda:
       <span class="mb-1 me-2 ms-2">{{ $order->store->name }}</span>
     </h6>
-    <h6 class="card-title mt-1">Método de pago:
+    <h6 class="card-title mb-1 mt-1">Método de pago:
       @if($order->payment_method === 'card')
         <span class="badge bg-label-primary me-2 ms-2">MercadoPago</span>
       @elseif($order->payment_method === 'efectivo')
         <span class="me-2 ms-2">Efectivo</span>
+      @endif
+    </h6>
+    <!-- Mostrar si el pedido ha sido facturado -->
+    <h6 class="card-title mb-1 mt-1">Estado de la Facturación:
+      @if($order->is_billed)
+        <span class="badge bg-label-success me-2 ms-2">Facturado</span>
+      @else
+        <span class="badge bg-label-danger me-2 ms-2">No Facturado</span>
       @endif
     </h6>
     <p class="text-body mb-1">{{ date('d/m/Y', strtotime($order->date)) }} - {{ $order->time }}</p>
@@ -115,6 +123,11 @@ $changeTypeTranslations = [
     <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=print" target="_blank" onclick="window.open(this.href, 'print_window', 'left=100,top=100,width=800,height=600').print(); return false;">
         <button class="btn btn-primary">Imprimir</button>
     </a>
+    @if(!$order->is_billed)
+      <button type="button" class="btn btn-label-info" data-bs-toggle="modal" data-bs-target="#emitirFacturaModal">
+        Emitir Factura
+      </button>
+    @endif
     <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=download" class="btn btn-label-primary">Descargar PDF</a>
     <button class="btn btn-label-danger delete-order">Eliminar</button>
   </div>
@@ -335,7 +348,6 @@ $changeTypeTranslations = [
         </div>
         <div class="d-flex justify-content-between">
           <h6>Información de contacto</h6>
-          <h6><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#editUser">Editar</a></h6>
         </div>
         <p class=" mb-1">Email: {{ $order->client->email }}</p>
         <p class=" mb-0">Teléfono: {{ $order->client->phone }}</p>
@@ -373,7 +385,6 @@ $changeTypeTranslations = [
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between">
         <h6 class="card-title m-0">Dirección de envío</h6>
-        <h6 class="m-0"><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#addNewAddress">Editar</a></h6>
       </div>
       <div class="card-body">
         <p class="mb-0">{{ $order->client->address }}</p>
@@ -382,7 +393,6 @@ $changeTypeTranslations = [
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between">
         <h6 class="card-title m-0">Dirección de facturación</h6>
-        <h6 class="m-0"><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#addNewAddress">Editar</a></h6>
       </div>
       <div class="card-body">
         <p class="mb-4">{{ $order->client->address }}</p>
@@ -392,7 +402,6 @@ $changeTypeTranslations = [
 </div>
 
 <!-- Modals -->
-@include('_partials/_modals/modal-edit-user')
-@include('_partials/_modals/modal-add-new-address')
+@include('content/e-commerce/backoffice/orders/bill-order')
 
 @endsection

@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreOrderRequest;
 use Illuminate\Http\Request;
+use App\Repositories\AccountingRepository;
 
 class OrderController extends Controller
 {
@@ -21,11 +22,19 @@ class OrderController extends Controller
   protected $orderRepository;
 
   /**
+   * El repositorio para las operaciones de contabilidad.
+   *
+   * @var AccountingRepository
+  */
+  protected $accountingRepository;
+
+  /**
    * Inyecta el repositorio en el controlador y los middleware.
    *
    * @param  OrderRepository  $orderRepository
+   * @param  AccountingRepository  $accountingRepository
   */
-  public function __construct(OrderRepository $orderRepository)
+  public function __construct(OrderRepository $orderRepository, AccountingRepository $accountingRepository)
   {
       $this->middleware(['check_permission:access_orders', 'user_has_store'])->only(
           [
@@ -37,7 +46,9 @@ class OrderController extends Controller
               'orderProductsDatatable'
           ]
       );
+
       $this->orderRepository = $orderRepository;
+      $this->accountingRepository = $accountingRepository;
   }
 
   /**
@@ -156,5 +167,21 @@ class OrderController extends Controller
       }
   }
 
-
+    /**
+     * Maneja la emisión de la factura (CFE).
+     *
+     * @param Request $request
+     * @param int $orderId
+     * @return RedirectResponse
+    */
+    public function emitirCFE(Request $request, int $orderId): RedirectResponse
+    {
+      try {
+          $this->orderRepository->emitirCFE($orderId, $request->input('monto_factura'));
+          return redirect()->back()->with('success', 'Factura emitida correctamente.');
+      } catch (\Exception $e) {
+          Log::error("Error al emitir CFE para la orden {$orderId}: {$e->getMessage()}");
+          return redirect()->back()->with('error', 'Error al emitir la factura. Por favor, intente nuevamente.');
+      }
+    }
 }
