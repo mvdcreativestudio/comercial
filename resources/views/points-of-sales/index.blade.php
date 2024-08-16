@@ -82,9 +82,11 @@
                                 <li>
                                     <button class="dropdown-item btn-open" data-id="{{ $caja->id }}">Abrir caja</button>
                                 </li>
+                                @hasrole('Administrador')
                                 <li>
                                     <button class="dropdown-item btn-view" data-id="{{ $caja->id }}" data-store="{{ $caja->store_id }}" data-user="{{ $caja->user_id }}">Ver Detalles</button>
                                 </li>
+                                @endhasrole
                                 <li>
                                     <button class="dropdown-item btn-edit" data-id="{{ $caja->id }}" data-store="{{ $caja->store_id }}" data-user="{{ $caja->user_id }}">Editar</button>
                                 </li>

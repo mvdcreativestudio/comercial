@@ -85,6 +85,7 @@ Route::middleware([
     Route::get('/point-of-sale/stores', [CashRegisterController::class, 'storesForCashRegister']);
     Route::get('/point-of-sale/details/{id}', [CashRegisterController::class, 'getDetails']);
     Route::get('/point-of-sale/details/sales/{id}', [CashRegisterController::class, 'getSales']);
+    Route::get('/point-of-sale/details/sales/pdf/{id}', [CashRegisterController::class, 'getSalesPdf']);
 
     // Point of service
 
