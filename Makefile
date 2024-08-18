@@ -67,7 +67,7 @@ prod_vite:
 
 # Comandos para despliegue manual en CPanel
 build_vite:
-	docker compose -f docker-compose.prod.yml exec $(APP_NAME) npm run build
+	docker compose -f docker-compose.manual.yml run --rm vite-build
 
 # Comandos para los contenedores
 
