@@ -14,7 +14,7 @@
 .env
 
 # htaccess
-.htaccess
+# .htaccess
 
 docker-compose.override.yml
 
