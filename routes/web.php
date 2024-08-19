@@ -56,7 +56,7 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-
+    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
 
 
     // Recursos con acceso autenticado
@@ -71,7 +71,6 @@ Route::middleware([
         'products' => ProductController::class,
         'product-categories' => ProductCategoryController::class,
         'orders' => OrderController::class,
-        'invoices' => InvoiceController::class,
         'marketing/coupons' => CouponController::class,
         'company-settings' => CompanySettingsController::class,
         'clients' => ClientController::class,
@@ -84,6 +83,10 @@ Route::middleware([
     // Puntos de venta
     Route::get('/point-of-sale/stores', [CashRegisterController::class, 'storesForCashRegister']);
     Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
+    Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister'])->name('points-of-sales.close');
+
+    // Point of service
+
     Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister']);
     Route::get('/pdv/clients/json', [CashRegisterLogController::class, 'getAllClients']);
     Route::get('/pdv', [CashRegisterLogController::class, 'index'])->middleware('check.open.cash.register')->name('pdv.index');
@@ -126,6 +129,7 @@ Route::middleware([
         Route::post('save-hours', [StoreController::class, 'saveHours'])->name('saveHours');
         Route::post('toggle-store-status', [StoreController::class, 'toggleStoreStatus'])->name('toggle-status');
         Route::post('toggle-store-status-closed', [StoreController::class, 'toggleStoreStatusClosed'])->name('toggleStoreStatusClosed');
+        Route::post('toggle-billing', [StoreController::class, 'toggleAutomaticBilling'])->name('toggleAutomaticBilling');
       });
 
     // Gestión de Roles
@@ -151,6 +155,11 @@ Route::middleware([
     Route::get('receipts', [AccountingController::class, 'receipts'])->name('receipts');
     Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
+    Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
+
+    Route::get('/accounting/settings', [AccountingController::class, 'settings'])->name('accounting.settings');
+    Route::post('/accounting/save-rut', [AccountingController::class, 'saveRut'])->name('accounting.saveRut');
+    Route::post('/accounting/upload-logo', [AccountingController::class, 'uploadLogo'])->name('accounting.uploadLogo');
 
     // Ajustes de Comercio Electrónico
     Route::get('/ecommerce/marketing', [EcommerceController::class, 'marketing'])->name('marketing');
@@ -165,6 +174,7 @@ Route::middleware([
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'generatePdf'])->name('orders.pdf');
+    Route::post('/orders/{order}/emit-cfe', [OrderController::class, 'emitirCFE'])->name('orders.emitCFE');
 
     // Gestión de Cupones
     Route::post('marketing/coupons/delete-selected', [CouponController::class, 'deleteSelected'])->name('coupons.deleteSelected');

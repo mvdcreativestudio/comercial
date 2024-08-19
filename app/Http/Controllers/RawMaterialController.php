@@ -124,7 +124,7 @@ class RawMaterialController extends Controller
      *
      * @param  RawMaterial  $rawMaterial
      * @return RedirectResponse
-     */
+    */
     public function destroy(RawMaterial $rawMaterial): RedirectResponse
     {
         $this->rawMaterialRepository->delete($rawMaterial);
