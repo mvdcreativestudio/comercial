@@ -8,8 +8,8 @@
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
 'resources/assets/vendor/libs/select2/select2.scss',
-'resources/assets/vendor/libs/bootstrap/bootstrap.min.css', // Bootstrap CSS
-'resources/assets/vendor/libs/fontawesome/fontawesome.min.css' // FontAwesome CSS
+// 'resources/assets/vendor/libs/bootstrap/bootstrap.min.css', // Bootstrap CSS
+// 'resources/assets/vendor/libs/fontawesome/fontawesome.min.css' // FontAwesome CSS
 ])
 @endsection
 
