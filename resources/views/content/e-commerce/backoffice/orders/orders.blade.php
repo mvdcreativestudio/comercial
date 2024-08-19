@@ -189,14 +189,14 @@
     <table class="datatables-order table border-top" data-symbol="{{ $settings->currency_symbol }}">
       <thead>
         <tr>
-          <th></th>
+          <th>N°</th>
           <th>Fecha</th>
           <th>Cliente</th>
           <th>Local</th>
           <th>Importe</th>
           <th>Pago</th>
           <th>Envío</th>
-          <th></th>
+          <th>Facturado</th>
           <th>Acciones</th>
         </tr>
       </thead>

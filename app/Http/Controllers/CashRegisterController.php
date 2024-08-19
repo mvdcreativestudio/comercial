@@ -11,7 +11,8 @@ use Illuminate\View\View;
 use App\Repositories\CashRegisterRepository;
 use App\Repositories\CashRegisterLogRepository;
 use Illuminate\Support\Facades\Session;
-
+use Illuminate\Support\Facades\Auth;
+use PDF;
 
 
 class CashRegisterController extends Controller
@@ -114,10 +115,66 @@ class CashRegisterController extends Controller
 
     /**
      * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
+     * 
+     * @return JsonResponse
      */
     public function storesForCashRegister()
     {
         $stores = $this->cashRegisterRepository->storesForCashRegister();
         return response()->json($stores, 201);
+    }
+
+    /**
+     * Devuelve los balances y ventas de la caja registradora.
+     * 
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function getDetails(string $id){
+
+        if (!Auth::user()->hasRole('Administrador')) {
+            abort(403, 'No tienes permiso para ver los logs de la caja registradora.');
+        }
+
+        $details = $this->cashRegisterRepository->getDetails($id);
+        $cashRegister = $this->cashRegisterRepository->getCashRegisterById($id);
+        $openCount = $details->whereNull('close_time')->count();
+        $closedCount = $details->whereNotNull('close_time')->count();
+        
+        return view('points-of-sales.details', compact('cashRegister','details','openCount','closedCount'));
+    }
+
+    /**
+     * Devuelve las ventas realizadas por una caja registradora.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getSales($id){
+        if (!Auth::user()->hasRole('Administrador')) {
+            abort(403, 'No tienes permiso para ver las ventas de la caja registradora.');
+        }
+        $sales = $this->cashRegisterRepository->getSales($id);
+        $totalSales = $sales->count();
+        $cashSales = $sales->sum('cash_sales');
+        $posSales = $sales->sum('pos_sales');
+        
+        return view('points-of-sales.sales', compact('sales', 'totalSales', 'cashSales', 'posSales','id'));
+    }
+
+    /**
+     * Devuelve las ventas realizadas por una caja registradora.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getSalesPdf($id){
+        if (!Auth::user()->hasRole('Administrador')) {
+            abort(403, 'No tienes permiso para ver las ventas de la caja registradora.');
+        }
+        $sales = $this->cashRegisterRepository->getSales($id);
+        $pdf = PDF::loadView('points-of-sales.exportSales', compact('sales','id'));
+
+        return $pdf->stream('cash_register_sales.pdf');
     }
 }

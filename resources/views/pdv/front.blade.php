@@ -20,7 +20,6 @@
     // 'resources/assets/vendor/libs/fontawesome/fontawesome.min.js',
     'resources/assets/vendor/libs/select2/select2.js',
     'resources/assets/js/pdv.js'
-
 ])
 
 
@@ -208,9 +207,5 @@
       </div>
   </div>
 </div>
-
-
-
-
 @endsection
 

@@ -135,6 +135,13 @@
           "icon": "menu-icon tf-icons bx bx-book",
           "slug": "entries",
           "url": "/admin/entries"
+        },
+        {
+          "id": "tour-configuracion-contabilidad",
+          "name": "Configuración",
+          "icon": "menu-icon tf-icons bx bx-cog",
+          "slug": "accounting-settings",
+          "url": "/admin/accounting/settings"
         }
       ]
     },
@@ -204,7 +211,6 @@
         }
       ]
     },
-
     {
       "id": "tour-configuracion",
       "name": "Configuración",

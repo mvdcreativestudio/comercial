@@ -13,10 +13,28 @@ use App\Mail\AdminNewOrder;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-
+use App\Repositories\AccountingRepository;
+use Exception;
 
 class OrderRepository
 {
+  /**
+   * El repositorio de contabilidad.
+   *
+   * @var AccountingRepository
+  */
+  protected $accountingRepository;
+
+  /**
+   * Inyecta el repositorio de contabilidad.
+   *
+   * @param AccountingRepository $accountingRepository
+  */
+  public function __construct(AccountingRepository $accountingRepository)
+  {
+    $this->accountingRepository = $accountingRepository;
+  }
+
   /**
    * Obtiene todos los pedidos y las estadísticas necesarias para las cards.
    *
@@ -167,6 +185,7 @@ class OrderRepository
                 'orders.store_id',
                 'orders.subtotal',
                 'orders.tax',
+                'orders.is_billed',
                 'orders.shipping',
                 'orders.coupon_id',
                 'orders.coupon_amount',
@@ -183,12 +202,16 @@ class OrderRepository
                 DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name")
               ])
             ->join('clients', 'orders.client_id', '=', 'clients.id')
-            ->join('stores', 'orders.store_id', '=', 'stores.id');
+            ->join('stores', 'orders.store_id', '=', 'stores.id')
+            ->orderBy('orders.date', 'desc');
+
 
     // Verificar permisos del usuario
     if (!Auth::user()->can('view_all_ecommerce')) {
         $query->where('orders.store_id', Auth::user()->store_id);
     }
+
+    // Ordenar por fecha descendente
 
     $dataTable = DataTables::of($query)->make(true);
 
@@ -272,7 +295,7 @@ class OrderRepository
   }
 
 
-    /**
+  /**
    * Actualiza el estado del envío de un pedido.
    *
    * @param int $orderId
@@ -301,4 +324,26 @@ class OrderRepository
       return $order;
   }
 
+    /**
+     * Emite un CFE para una orden.
+     *
+     * @param int $orderId
+     * @param float|null $montoFactura
+     * @return void
+     * @throws Exception
+    */
+    public function emitirCFE(int $orderId, ?float $montoFactura = null): void
+    {
+      $order = Order::findOrFail($orderId);
+
+      $montoAFacturar = $montoFactura ?? $order->total;
+
+      if ($montoAFacturar > $order->total) {
+        throw new Exception('El monto a facturar no puede ser mayor que el total de la orden.');
+      }
+
+      $this->accountingRepository->emitirCFE($order, 'eTicket', $montoAFacturar);
+
+      $order->update(['is_billed' => true]);
+    }
 }
