@@ -44,7 +44,7 @@ prod_install:
 prod_setup:
 	docker compose -f docker-compose.prod.yml exec $(PHP_MY_ADMIN) chmod 777 /sessions
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) bash -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && chmod -R 775 /var/www/storage /var/www/bootstrap/cache"
-	docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql:3306 -- echo 'MySQL is up'"
+	docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_chelatoapp 3306 echo 'MySQL is up'"
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) composer install --no-dev
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) npm install
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan key:generate
