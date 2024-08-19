@@ -70,7 +70,8 @@ class CreatePermissions extends Command
                 'submenus' => [
                     'invoices',
                     'receipts',
-                    'entries'
+                    'entries',
+                    'accounting-settings'
                 ],
                 'view_all' => false,
             ],
