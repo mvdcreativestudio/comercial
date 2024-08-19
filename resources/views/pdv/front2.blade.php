@@ -8,8 +8,8 @@
     'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
     'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
     'resources/assets/vendor/libs/select2/select2.scss',
-    'resources/assets/vendor/libs/bootstrap/bootstrap.min.css',
-    'resources/assets/vendor/libs/fontawesome/fontawesome.min.css'
+    // 'resources/assets/vendor/libs/bootstrap/bootstrap.min.css',
+    // 'resources/assets/vendor/libs/fontawesome/fontawesome.min.css'
 ])
 @endsection
 
@@ -185,9 +185,9 @@
 
 @section('vendor-script')
 @vite([
-    'resources/assets/vendor/libs/jquery/jquery.min.js',
-    'resources/assets/vendor/libs/popper/popper.min.js',
-    'resources/assets/vendor/libs/bootstrap/bootstrap.min.js',
+    // 'resources/assets/vendor/libs/jquery/jquery.min.js',
+    // 'resources/assets/vendor/libs/popper/popper.min.js',
+    // 'resources/assets/vendor/libs/bootstrap/bootstrap.min.js',
     'resources/assets/js/pdvCheckout.js'
 ])
 @endsection
