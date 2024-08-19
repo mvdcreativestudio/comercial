@@ -4,6 +4,8 @@ namespace App\Repositories;
 use App\Models\Store;
 
 use App\Models\CashRegister;
+use App\Models\CashRegisterLog;
+use App\Models\PosOrder;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Flavor;
@@ -21,19 +23,38 @@ class CashRegisterRepository
     */
     public function getCashRegistersForDatatable($userId): mixed
     {
+        // Obtener solo los registros del usuario si no tiene el rol de 'Administrador'
         if (!Auth::user()->hasRole('Administrador')) {
-            $query = CashRegister::select(['id', 'store_id', 'user_id'])
-            ->where('user_id', $userId)
+            $query = CashRegister::select([
+                    'cash_registers.id',
+                    'cash_registers.store_id',
+                    'cash_registers.user_id',
+                    'stores.name as store_name',
+                    'users.name as user_name'
+                ])
+                ->join('stores', 'cash_registers.store_id', '=', 'stores.id')
+                ->join('users', 'cash_registers.user_id', '=', 'users.id')
+                ->where('cash_registers.user_id', $userId)
+                ->get();
+
+            return $query;
+        }
+
+        // Obtener todos los registros si es 'Administrador'
+        $query = CashRegister::select([
+                'cash_registers.id',
+                'cash_registers.store_id',
+                'cash_registers.user_id',
+                'stores.name as store_name',
+                'users.name as user_name'
+            ])
+            ->join('stores', 'cash_registers.store_id', '=', 'stores.id')
+            ->join('users', 'cash_registers.user_id', '=', 'users.id')
             ->get();
 
-           return $query;
-        }
-    
-        $query = CashRegister::select(['id', 'store_id', 'user_id'])
-                     ->get();
-        
         return $query;
     }
+
 
 
     /**
@@ -99,5 +120,26 @@ class CashRegisterRepository
         } else {
             return Store::pluck('id');
         }
+    }
+
+    /**
+     * Devuelve los balances y ventas de la caja registradora.
+     * 
+     * @param $cashRegisterId
+     */
+    public function getDetails($cashRegisterId){
+        return CashRegisterLog::where('cash_register_id', $cashRegisterId)
+                    ->orderBy('open_time', 'DESC')
+                      ->get();;
+    }
+
+    /**
+     * Devuelve las ventas realizadas por una caja registradora.
+     *
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getSales($id){
+        return PosOrder::where('cash_register_log_id', $id)->get();
     }
 }

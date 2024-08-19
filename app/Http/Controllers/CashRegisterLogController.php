@@ -270,6 +270,11 @@ class CashRegisterLogController extends Controller
         ]);
     }
 
+    /**
+     * Guarda el carrito del PDV de la session.
+     *
+     * @return JsonResponse
+     */
     public function saveCart(Request $request)
     {
         $cart = $request->input('cart');
@@ -277,12 +282,22 @@ class CashRegisterLogController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    /**
+     * Devuelve el carrito del PDV de la session.
+     *
+     * @return JsonResponse
+     */
     public function getCart()
     {
         $cart = session('cart', []);
         return response()->json(['cart' => $cart]);
     }
 
+     /**
+     * Guarda el cliente del PDV de la session.
+     *
+     * @return JsonResponse
+     */
     public function saveClient(Request $request)
     {
         $client = $request->input('client');
@@ -290,6 +305,11 @@ class CashRegisterLogController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    /**
+     * Devuelve el cliente del PDV de la session.
+     *
+     * @return JsonResponse
+     */
     public function getClient()
     {
         $client = session('client', []);

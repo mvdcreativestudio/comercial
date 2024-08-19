@@ -268,5 +268,4 @@ class CashRegisterLogRepository
 
         return $clients;
     }
-
 }

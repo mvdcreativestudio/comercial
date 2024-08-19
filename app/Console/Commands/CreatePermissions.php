@@ -217,5 +217,5 @@ class CreatePermissions extends Command
             $this->info('Permiso de vista total creado y asignado al rol Administrador: ' . $viewAllPermissionName);
         }
     }
-
 }
+
