@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
           text: '<i class="bx bx-plus me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Crear</span>',
           className: 'btn btn-primary ml-3',
           action: function () {
-            window.location.href = '/admin/productions/create';
+            window.location.href = 'admin/productions/create';
           }
         }
       ]

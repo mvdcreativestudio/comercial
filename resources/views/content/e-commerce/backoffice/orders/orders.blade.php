@@ -30,6 +30,7 @@
   <span class="text-muted fw-light">E-Commerce /</span> Pedidos
 </h4>
 
+@if (Auth::user()->can('access_datacenter'))
 <div class="card mb-4">
   <div class="card-widget-separator-wrapper">
     <div class="card-body card-widget-separator">
@@ -97,6 +98,7 @@
     </div>
   </div>
 </div>
+@endif
 
 <!-- Order List Table -->
 <div class="card">

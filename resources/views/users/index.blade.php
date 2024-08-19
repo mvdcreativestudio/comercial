@@ -1,3 +1,5 @@
+<!-- Blade View -->
+
 @extends('layouts/layoutMaster')
 
 @section('title', 'Usuarios')
@@ -33,6 +35,20 @@
 
 @section('content')
 
+@if (session('success'))
+<div class="alert alert-success mt-3 mb-3">
+  {{ session('success') }}
+</div>
+@endif
+
+@if ($errors->any())
+@foreach ($errors->all() as $error)
+  <div class="alert alert-danger">
+    {{ $error }}
+  </div>
+@endforeach
+@endif
+
 <div class="row g-4 mb-4">
   <!-- Summary cards omitted for brevity -->
 </div>
@@ -62,32 +78,96 @@
     </table>
   </div>
 
-  <!-- Offcanvas to add/edit user -->
+  <!-- Offcanvas to add user -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAddUser" aria-labelledby="offcanvasAddUserLabel">
     <div class="offcanvas-header">
-      <h5 id="offcanvasAddUserLabel" class="offcanvas-title">Agregar/Editar Usuario</h5>
+      <h5 id="offcanvasAddUserLabel" class="offcanvas-title">Agregar Usuario</h5>
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body mx-0 flex-grow-0">
-      <form class="add-new-user pt-0" id="addNewUserForm" action="{{ route('users.store') }}" method="POST">
+      <form id="addNewUserForm" action="{{ route('users.store') }}" method="POST">
         @csrf
         <div class="mb-3">
-          <label class="form-label" for="add-user-name">Nombre</label>
-          <input type="text" class="form-control" id="add-user-name" name="name" placeholder="Nombre y Apellido" required />
+            <label class="form-label" for="add-user-name">Nombre</label>
+            <input type="text" class="form-control" id="add-user-name" name="name" placeholder="Nombre y Apellido" required />
         </div>
         <div class="mb-3">
-          <label class="form-label" for="add-user-email">Email</label>
-          <input type="email" id="add-user-email" class="form-control" name="email" placeholder="nombre@empresa.com" required />
+            <label class="form-label" for="add-user-email">Email</label>
+            <input type="email" id="add-user-email" class="form-control" name="email" placeholder="nombre@empresa.com" required />
         </div>
         <div class="mb-3">
-          <label class="form-label" for="add-user-password">Contraseña</label>
-          <input type="password" id="add-user-password" class="form-control" name="password" placeholder="••••••••" />
+            <label class="form-label" for="add-user-password">Contraseña</label>
+            <input type="password" id="add-user-password" class="form-control" name="password" placeholder="••••••••" required />
         </div>
         <div class="mb-3">
-          <label class="form-label" for="add-user-password-confirmation">Confirmar Contraseña</label>
-          <input type="password" id="add-user-password-confirmation" class="form-control" name="password_confirmation" placeholder="••••••••" />
+            <label class="form-label" for="add-user-password-confirmation">Confirmar Contraseña</label>
+            <input type="password" id="add-user-password-confirmation" class="form-control" name="password_confirmation" placeholder="••••••••" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="add-user-role">Rol</label>
+            <select id="add-user-role" class="form-control select2" name="role" required>
+                @foreach($roles as $role)
+                    <option value="{{ $role->name }}">{{ $role->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="add-user-store">Tienda</label>
+            <select id="add-user-store" class="form-control select2" name="store_id" required>
+                @foreach($stores as $store)
+                    <option value="{{ $store->id }}">{{ $store->name }}</option>
+                @endforeach
+            </select>
         </div>
         <button type="submit" class="btn btn-primary me-sm-3 me-1">Crear Usuario</button>
+        <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="offcanvas">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Offcanvas to edit user -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEditUser" aria-labelledby="offcanvasEditUserLabel">
+    <div class="offcanvas-header">
+      <h5 id="offcanvasEditUserLabel" class="offcanvas-title">Editar Usuario</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body mx-0 flex-grow-0">
+      <form class="edit-user pt-0" id="editUserForm" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="mb-3">
+          <label class="form-label" for="edit-user-name">Nombre</label>
+          <input type="text" class="form-control" id="edit-user-name" name="name" placeholder="Nombre y Apellido" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="edit-user-email">Email</label>
+          <input type="email" id="edit-user-email" class="form-control" name="email" placeholder="nombre@empresa.com" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="edit-user-password">Contraseña</label>
+          <input type="password" id="edit-user-password" class="form-control" name="password" placeholder="••••••••" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="edit-user-password-confirmation">Confirmar Contraseña</label>
+          <input type="password" id="edit-user-password-confirmation" class="form-control" name="password_confirmation" placeholder="••••••••" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="edit-user-role">Rol</label>
+          <select id="edit-user-role" class="form-control select2" name="role" required>
+            @foreach($roles as $role)
+              <option value="{{ $role->name }}">{{ $role->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="edit-user-store">Tienda</label>
+          <select id="edit-user-store" class="form-control select2" name="store_id" required>
+            @foreach($stores as $store)
+              <option value="{{ $store->id }}">{{ $store->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary me-sm-3 me-1">Guardar Cambios</button>
         <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="offcanvas">Cancelar</button>
       </form>
     </div>

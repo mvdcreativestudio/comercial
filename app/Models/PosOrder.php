@@ -17,7 +17,11 @@ class PosOrder extends Model
         'cash_sales',
         'pos_sales',
         'discount',
-        'client_type',
+        'client_id',
+        'products',
+        'subtotal',
+        'total',
+        'notes'
     ];
     
     /**
@@ -25,8 +29,18 @@ class PosOrder extends Model
      *
      * @return BelongsTo
      */
-    public function cashRegisterLogId(): BelongsTo
+    public function cashRegisterLog(): BelongsTo
     {
         return $this->belongsTo(CashRegisterLog::class);
+    }
+
+    /**
+     * Obtiene la caja registradora asociada al log.
+     *
+     * @return BelongsTo
+     */
+    public function clientId(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
     }
 }

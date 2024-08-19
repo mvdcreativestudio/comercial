@@ -27,6 +27,18 @@ class Store extends Model
     ];
 
     /**
+     * Obtiene las materias primas asociadas a la tienda.
+     *
+     * @return BelongsToMany
+     */
+    public function rawMaterials()
+    {
+        return $this->belongsToMany(RawMaterial::class, 'raw_material_store', 'store_id', 'raw_material_id')
+                    ->withPivot('stock');
+    }
+
+
+    /**
      * Obtiene los usuarios asociados a la tienda.
      *
      * @return HasMany

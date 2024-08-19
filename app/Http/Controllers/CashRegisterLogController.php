@@ -9,6 +9,10 @@ use App\Http\Requests\StoreCashRegisterLogRequest;
 use App\Http\Requests\UpdateCashRegisterLogRequest;
 use App\Repositories\CashRegisterLogRepository;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
+use App\Http\Requests\StoreClientRequest;
+use App\Models\Product;
+
 
 
 class CashRegisterLogController extends Controller
@@ -18,16 +22,27 @@ class CashRegisterLogController extends Controller
 
     public function __construct(CashRegisterLogRepository $cashRegisterLogRepository)
     {
-        Log::info('CashRegisterLogRepository inyectado correctamente.');
         $this->cashRegisterLogRepository = $cashRegisterLogRepository;
     }
-    
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         return view('pdv.index');
+    }
+
+    public function front()
+    {
+      $products = Product::all();
+      return view('pdv.front', compact('products'));
+    }
+
+
+    public function front2()
+    {
+      return view('pdv.front2');
     }
 
     /**
@@ -40,7 +55,7 @@ class CashRegisterLogController extends Controller
 
     /**
      * Agrega un log de caja registradora a la base de datos.
-     * La función del método es abrir la caja registradora ese día. 
+     * La función del método es abrir la caja registradora ese día.
      *
      * @param StoreCashRegisterLogRequest $request
      * @param JsonResponse
@@ -49,7 +64,7 @@ class CashRegisterLogController extends Controller
     {
 
         $cashRegisterId = $request->input('cash_register_id');
-    
+
         // Verificar si hay un log existente sin fecha de cierre
         if ($this->cashRegisterLogRepository->hasOpenLog()) {
             return response()->json(['message' => 'Ya existe una caja registradora abierta.'], 400);
@@ -63,7 +78,7 @@ class CashRegisterLogController extends Controller
         return response()->json($cashRegisterLog, 201);
     }
 
-    
+
 
     /**
      * Display the specified resource.
@@ -135,7 +150,7 @@ class CashRegisterLogController extends Controller
 
     /**
      * Toma los productos de la tienda de la caja registradora.
-     * 
+     *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -147,35 +162,137 @@ class CashRegisterLogController extends Controller
 
     /**
      * Toma los productos de la tienda de la caja registradora.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getFlavorsForCashRegister()
     {
         try {
             $flavors = $this->cashRegisterLogRepository->getFlavors();
-            Log::info('Productos obtenidos:', $flavors->toArray());
             return response()->json(['flavors' => $flavors]);
-    
+
         } catch (\Exception $e) {
-            Log::error('Error al obtener los productos:', ['error' => $e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 404);
         }
     }
-    
+
 
     /**
      * Toma las categorías padres.
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getFathersCategories()
     {
         try {
-            $categories = $this->cashRegisterLogRepository->getCategories();
+            $categories = $this->cashRegisterLogRepository->getFathersCategories();
             return response()->json(['categories' => $categories]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }
+    }
+
+    /**
+     * Toma las categorías padres.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCategories()
+    {
+        try {
+            $productCategories = $this->cashRegisterLogRepository->getCategories();
+            return response()->json($productCategories);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
+    }
+
+
+    /**
+   * Almacena un nuevo cliente en la base de datos.
+   *
+   * @param StoreClientRequest $request
+   * @return JsonResponse
+  */
+  public function storeClient(StoreClientRequest $request): JsonResponse
+  {
+    try {
+      $validatedData = $request->validated();
+
+      // Establecer valores predeterminados si no están presentes en la solicitud
+      $validatedData['address'] = $validatedData['address'] ?? 'FÍSICO';
+      $validatedData['city'] = $validatedData['city'] ?? 'FÍSICO';
+      $validatedData['state'] = $validatedData['state'] ?? 'FÍSICO';
+      $validatedData['country'] = $validatedData['country'] ?? 'FÍSICO';
+      $validatedData['phone'] = $validatedData['phone'] ?? 'FÍSICO';
+
+
+      // Crear el nuevo cliente
+      $this->cashRegisterLogRepository->createClient($validatedData);
+
+      return response()->json(['success' => true, 'message' => 'Cliente creado correctamente.']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Ocurrió un error al crear el cliente.']);
+    }
+  }
+
+    /**
+     * Busca el id del cashregister log dado un id de caja registradora.
+     *
+     *  @param string $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCashRegisterLog(string $id)
+    {
+        try {
+            $cashRegisterLogId = $this->cashRegisterLogRepository->getCashRegisterLog($id);
+            if ($cashRegisterLogId === null) {
+                return response()->json(['error' => 'No open log found'], 404);
+            }
+            return response()->json(['cash_register_log_id' => $cashRegisterLogId]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Obtiene todos los clientes en formato JSON.
+     *
+     * @return JsonResponse
+     */
+    public function getAllClients(): JsonResponse
+    {
+        $clients = $this->cashRegisterLogRepository->getAllClients();
+        return response()->json([
+            'clients' => $clients,
+            'count' => $clients->count()
+        ]);
+    }
+
+    public function saveCart(Request $request)
+    {
+        $cart = $request->input('cart');
+        session(['cart' => $cart]);
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getCart()
+    {
+        $cart = session('cart', []);
+        return response()->json(['cart' => $cart]);
+    }
+
+    public function saveClient(Request $request)
+    {
+        $client = $request->input('client');
+        session(['client' => $client]);
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getClient()
+    {
+        $client = session('client', []);
+        return response()->json(['client' => $client]);
     }
 }

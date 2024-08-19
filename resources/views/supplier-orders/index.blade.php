@@ -189,6 +189,7 @@
           <th>ID</th>
           <th>Proveedor</th>
           <th>Fecha de Orden</th>
+          <th>Pago</th>
           <th>Estado de Envío</th>
           <th>Materias Primas</th>
           @if(auth()->user()->can('view_all_raw-materials'))
