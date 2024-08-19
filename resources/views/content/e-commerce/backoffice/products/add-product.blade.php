@@ -132,10 +132,13 @@
               </div>
             </div>
             <div id="flavorsContainer" class="mb-3 col-8">
-              <label class="form-label">Sabores disponibles</label>
+              <div class="d-flex justify-content-between">
+                <label class="form-label">Sabores disponibles</label>
+                <label class="form-label" id="selectAllFlavorsButton">Seleccionar todos</label>
+              </div>
               <select class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
                 @foreach ($flavors as $flavor)
-                  <option value="{{ $flavor->id }}">Balde de {{ $flavor->name }}</option>
+                  <option value="{{ $flavor->id }}">{{ $flavor->name }}</option>
                 @endforeach
               </select>
             </div>
@@ -248,13 +251,17 @@
               Local
             </label>
             <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
-              <option value="">Seleccionar local</option>
-              @foreach ($stores as $store)
-                <option value="{{ $store->id }}">{{ $store->name }}</option>
-              @endforeach
-
+              @if(auth()->user()->hasPermissionTo('access_global_products'))
+                <option value="">Seleccionar local</option>
+                @foreach ($stores as $store)
+                  <option value="{{ $store->id }}">{{ $store->name }}</option>
+                @endforeach
+              @else
+                <option value="{{ auth()->user()->store_id }}" selected>{{ auth()->user()->store->name }}</option>
+              @endif
             </select>
           </div>
+
           <!-- Category -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <label class="form-label mb-1 d-flex justify-content-between align-items-center" for="category-org">

@@ -31,6 +31,7 @@ class UpdateStoreRequest extends FormRequest
             'address' => 'sometimes|string|max:255',
             'email' => ['sometimes', 'email', Rule::unique('stores')->ignore($store->id)],
             'rut' => ['sometimes', 'string', Rule::unique('stores')->ignore($store->id)],
+            'ecommerce' => 'sometimes|boolean',
             'status' => 'sometimes|boolean',
             'accepts_mercadopago' => 'required|boolean',
         ];

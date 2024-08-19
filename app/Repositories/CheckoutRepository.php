@@ -7,8 +7,6 @@ use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\MercadoPagoAccount;
 use App\Models\EcommerceSetting;
-use App\Models\Notification;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -18,7 +16,10 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CheckoutStoreOrderRequest;
 use Illuminate\Http\RedirectResponse;
 use App\Events\OrderCreatedEvent;
-
+use Illuminate\Support\Facades\Http;
+use App\Models\PymoSetting;
+use Exception;
+use App\Models\Receipt;
 
 class CheckoutRepository
 {
@@ -26,24 +27,33 @@ class CheckoutRepository
      * Repositorio de notificaciones de correo electrónico.
      *
      * @var EmailNotificationsRepository
-     */
+    */
     protected $emailNotificationsRepository;
+
+    /**
+     * Repositorio de contabilidad.
+     *
+     * @var AccountingRepository
+    */
+    protected $accountingRepository;
 
     /**
      * Inicializa el repositorio de notificaciones de correo electrónico.
      *
      * @param EmailNotificationsRepository $emailNotificationsRepository
-     */
-    public function __construct(EmailNotificationsRepository $emailNotificationsRepository)
+     * @param AccountingRepository $accountingRepository
+    */
+    public function __construct(EmailNotificationsRepository $emailNotificationsRepository, AccountingRepository $accountingRepository)
     {
         $this->emailNotificationsRepository = $emailNotificationsRepository;
+        $this->accountingRepository = $accountingRepository;
     }
 
     /**
      * Obtiene los datos para mostrar en la página de checkout.
      *
      * @return array
-     */
+    */
     public function index(): array
     {
         $order = null;
@@ -71,7 +81,7 @@ class CheckoutRepository
      *
      * @param string $uuid
      * @return array
-     */
+    */
     public function success(string $uuid): array
     {
         $order = Order::with('client')->where('uuid', $uuid)->firstOrFail();
@@ -83,7 +93,7 @@ class CheckoutRepository
      *
      * @param string $uuid
      * @return array
-     */
+    */
     public function failure(string $uuid): array
     {
         $order = Order::with('client')->where('uuid', $uuid)->firstOrFail();
@@ -96,7 +106,7 @@ class CheckoutRepository
      * @param CheckoutStoreOrderRequest $request
      * @param MercadoPagoService $mercadoPagoService
      * @return RedirectResponse
-     */
+    */
     public function processOrder(CheckoutStoreOrderRequest $request, MercadoPagoService $mercadoPagoService): RedirectResponse
     {
         try {
@@ -108,6 +118,21 @@ class CheckoutRepository
 
             // Guardar la orden y los datos del cliente
             $order = $this->createOrder($clientData, $orderData);
+
+            $store = $order->store;
+
+            if ($store->automatic_billing) {
+                // Emitir CFE (eFactura o eTicket)
+                $tipoCFE = $request->input('tipo_cfe', 'eTicket');
+
+                $this->accountingRepository->emitirCFE($order, $tipoCFE);
+
+                // Marcar la orden como facturada
+                $order->update(['is_billed' => true]);
+            } else {
+                // Marcar la orden como no facturada
+                $order->update(['is_billed' => false]);
+            }
 
             if ($request->payment_method === 'card') {
                 $redirectUrl = $this->processCardPayment($request, $order, $mercadoPagoService, $storeId);
@@ -158,13 +183,14 @@ class CheckoutRepository
         }
     }
 
+
     /**
      * Crea una orden y un cliente en la base de datos.
      *
      * @param array $clientData
      * @param array $orderData
      * @return Order
-     */
+    */
     private function createOrder(array $clientData, array $orderData): Order
     {
         // Crear y guardar el cliente
@@ -195,7 +221,7 @@ class CheckoutRepository
      * @param MercadoPagoService $mercadoPagoService
      * @param int $storeId
      * @return string
-     */
+    */
     private function processCardPayment(Request $request, Order $order, MercadoPagoService $mercadoPagoService, int $storeId): string
     {
         $cartItems = session('cart', []);
@@ -214,8 +240,6 @@ class CheckoutRepository
             throw new \Exception('No se encontraron las credenciales de MercadoPago para la tienda asociada al pedido.');
         }
 
-        Log::info('Credenciales de MercadoPago obtenidas:', $mercadoPagoAccount->toArray());
-
         // Configurar el SDK de MercadoPago con las credenciales de la tienda
         $mercadoPagoService->setCredentials($mercadoPagoAccount->public_key, $mercadoPagoAccount->access_token);
 
@@ -229,13 +253,10 @@ class CheckoutRepository
           ]
         ];
 
-        Log::info('Creando preferencia de pago con los siguientes datos:', $preferenceData);
 
         $preference = $mercadoPagoService->createPreference($preferenceData, $order);
         $order->preference_id = $preference->id;
         $order->save();
-
-        Log::info('Preferencia de pago creada:', $preference->toArray());
 
         return "https://www.mercadopago.com.uy/checkout/v1/payment/redirect/?preference-id={$preference->id}";
     }
@@ -246,7 +267,7 @@ class CheckoutRepository
      * @param string $couponCode
      * @return array
      * @throws \Exception
-     */
+    */
     public function applyCoupon(string $couponCode): array
     {
         $subtotal = session('subtotal', 0);
@@ -263,7 +284,7 @@ class CheckoutRepository
      *
      * @param Request $request
      * @return array
-     */
+    */
     private function getClientData(Request $request): array
     {
         return [
@@ -284,7 +305,7 @@ class CheckoutRepository
      *
      * @param Request $request
      * @return array
-     */
+    */
     private function getOrderData(Request $request): array
     {
         $subtotal = 0;
@@ -302,12 +323,10 @@ class CheckoutRepository
                 }
             }
 
-            // Obtener el category_id de la tabla category_product
             $category = DB::table('category_product')
                 ->where('product_id', $item['id'])
                 ->first();
 
-            // Agregar log para depurar
             Log::info('Category data for product:', [
                 'product_id' => $item['id'],
                 'category' => $category
@@ -320,7 +339,7 @@ class CheckoutRepository
                 'quantity' => $item['quantity'],
                 'flavors' => implode(', ', $flavors),
                 'image' => $item['image'],
-                'category_id' => $category ? $category->category_id : null, // Añadir el category_id al JSON
+                'category_id' => $category ? $category->category_id : null,
             ];
         }
 
@@ -353,7 +372,6 @@ class CheckoutRepository
         return $orderData;
     }
 
-
     /**
      * Aplica un cupón a la sesión.
      *
@@ -361,7 +379,7 @@ class CheckoutRepository
      * @param float $subtotal
      * @return array
      * @throws \Exception
-     */
+    */
     public function applyCouponToSession(string $couponCode, float $subtotal): array
     {
         $coupon = Coupon::where('code', $couponCode)->first();
@@ -395,5 +413,4 @@ class CheckoutRepository
 
         return ['code' => $coupon->code, 'discount' => $discount];
     }
-
 }

@@ -26,6 +26,7 @@
     window.storeManageUsersTemplate = "{{ route('stores.manageUsers', ':id') }}";
     window.storeManageHours = "{{ route('stores.manageHours', ':id') }}";
     window.toggleStoreStatus= "{{ route('stores.toggle-status', ':id') }}";
+    window.storeChangeBilling = "{{ route('stores.toggleAutomaticBilling', ':id') }}";
     window.csrfToken = "{{ csrf_token() }}";
     var stores = @json($stores);
 </script>
@@ -212,6 +213,7 @@
           <th>Dirección</th>
           <th>RUT</th>
           <th>Estado</th>
+          <th>F. Automática</th>
           <th>Miembros</th>
           <th>Acciones</th>
         </tr>

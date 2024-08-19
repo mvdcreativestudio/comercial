@@ -86,5 +86,27 @@ class EmailService
             Log::error('El email del cliente no está definido en las variables.');
         }
     }
-}
 
+
+    public function sendCashRegisterOpenedEmail(array $variables)
+    {
+        try {
+            $ecommerceSettings = EcommerceSetting::firstOrFail();
+            $recipient = $ecommerceSettings->notifications_email;
+            $this->sendTemplateEmail('cash-register.open', $variables, $recipient);
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo: ' . $e->getMessage());
+        }
+    }
+
+    public function sendCashRegisterClosedEmail(array $variables)
+    {
+        try {
+            $ecommerceSettings = EcommerceSetting::firstOrFail();
+            $recipient = $ecommerceSettings->notifications_email;
+            $this->sendTemplateEmail('cash-register.close', $variables, $recipient);
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo: ' . $e->getMessage());
+        }
+    }
+}

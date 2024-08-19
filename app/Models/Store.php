@@ -18,10 +18,25 @@ class Store extends Model
         'address',
         'email',
         'rut',
+        'ecommerce',
         'status',
         'slug',
         'closed',
+        'manual_override_at',
+        'automatic_billing',
     ];
+
+    /**
+     * Obtiene las materias primas asociadas a la tienda.
+     *
+     * @return BelongsToMany
+     */
+    public function rawMaterials()
+    {
+        return $this->belongsToMany(RawMaterial::class, 'raw_material_store', 'store_id', 'raw_material_id')
+                    ->withPivot('stock');
+    }
+
 
     /**
      * Obtiene los usuarios asociados a la tienda.
@@ -84,4 +99,26 @@ class Store extends Model
     {
         return $this->hasMany(StoreHours::class);
     }
+
+
+    /**
+     * Obtiene las cajas registradoras asociadas a la tienda.
+     *
+     * @return HasMany
+     */
+    public function cashRegisters(): HasMany
+    {
+        return $this->hasMany(CashRegister::class);
+    }
+
+    /**
+     * Obtiene los recibos asociados a la tienda.
+     *
+     * @return HasMany
+    */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
+
 }

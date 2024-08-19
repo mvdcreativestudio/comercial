@@ -55,6 +55,15 @@ function libsWindowAssignment() {
 }
 
 export default defineConfig({
+  server: {
+    host: '0.0.0.0', // Permitir conexiones desde fuera del contenedor
+    hmr: {
+      host: 'localhost',
+    },
+    watch: {
+      usePolling: true, // Útil para entornos de Docker
+    },
+  },
   plugins: [
     laravel({
       input: [

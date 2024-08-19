@@ -57,11 +57,6 @@ $(function () {
               '/edit" class="btn btn-sm btn-icon edit-button"><i class="bx bx-edit"></i></a>' +
               '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded me-2"></i></button>' +
               '<div class="dropdown-menu dropdown-menu-end m-0">' +
-              '<a href="' +
-              baseUrl +
-              'admin/products/' +
-              full['id'] +
-              '/show" class="dropdown-item">Ver producto</a>' +
               '<a href="javascript:void(0);" class="dropdown-item switch-status" data-id="' +
               full['id'] +
               '">' +
@@ -73,7 +68,7 @@ $(function () {
               '</div>' +
               '</div>'
             );
-          }
+        }
         },
         {
           targets: 9,

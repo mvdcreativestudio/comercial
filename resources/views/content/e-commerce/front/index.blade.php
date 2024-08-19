@@ -57,31 +57,33 @@
       <div class="d-flex justify-content-center">
         <div class="row gy-3 mt-0 col-12 col-md-8 justify-content-center">
             @foreach ($stores as $store)
-              @if ($store->closed != 1)
-              <div class="col-xl-3 col-md-5 col-sm-6 col-6">
-                <div class="form-check custom-option custom-option-icon">
-                  <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
-                    <span class="custom-option-body">
-                      <i class="fa-solid fa-store"></i>
-                      <span class="custom-option-title">{{$store->name}}</span>
-                      <small class="text-success">Tienda abierta</small>
-                    </span>
-                    <input name="slug" class="form-check-input" type="radio" value="{{ $store->slug }}" id="store{{ $store->id }}" {{ $loop->first ? 'checked' : '' }} />
-                  </label>
+              @if ($store->ecommerce == 1)
+                @if ($store->closed != 1)
+                <div class="col-xl-3 col-md-5 col-sm-6 col-6">
+                  <div class="form-check custom-option custom-option-icon">
+                    <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
+                      <span class="custom-option-body">
+                        <i class="fa-solid fa-store"></i>
+                        <span class="custom-option-title">{{$store->name}}</span>
+                        <small class="text-success">Tienda abierta</small>
+                      </span>
+                      <input name="slug" class="form-check-input" type="radio" value="{{ $store->slug }}" id="store{{ $store->id }}" {{ $loop->first ? 'checked' : '' }} />
+                    </label>
+                  </div>
                 </div>
-              </div>
-              @else
-              <div class="col-xl-3 col-md-5 col-sm-6 col-6">
-                <div class="form-check custom-option custom-option-icon">
-                  <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
-                    <span class="custom-option-body">
-                      <i class="fa-solid fa-store"></i>
-                      <span class="custom-option-title">{{$store->name}}</span>
-                      <small class="text-danger">Tienda cerrada</small>
-                    </span>
-                  </label>
+                @else
+                <div class="col-xl-3 col-md-5 col-sm-6 col-6">
+                  <div class="form-check custom-option custom-option-icon">
+                    <label class="form-check-label custom-option-content" for="store{{ $store->id }}">
+                      <span class="custom-option-body">
+                        <i class="fa-solid fa-store"></i>
+                        <span class="custom-option-title">{{$store->name}}</span>
+                        <small class="text-danger">Tienda cerrada</small>
+                      </span>
+                    </label>
+                  </div>
                 </div>
-              </div>
+                @endif
               @endif
             @endforeach
         </div>
@@ -100,38 +102,42 @@
   </div>
   @endif
 
-  <div class="d-flex quienes-somos-home container-fluid mt-3">
-    <div class="col-6 text-center quienes-somos-container container">
-      <h2>¿Quiénes somos?</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
-    </div>
-
-    <div class="col-6 p-5 text-end homepage-img-container">
-      <img class="homepage-quienes-somos-img" src="{{ asset('assets\img\front-pages\homepage\img-01.svg') }}" alt="">
-    </div>
-  </div>
-
-  <div class="d-flex servicios-home container-fluid">
-    <div class="col-6 p-5 text-center">
-      <img class="homepage-servicios-img" src="{{ asset('assets\img\front-pages\homepage\eventos-1.jpg') }}" alt="">
-    </div>
-
-    <div class="col-6 text-center servicios-container container">
-      <h2>Servicios</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+  <div class="container-fluid mt-3">
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-md-12 text-center quienes-somos-container mb-3 mb-lg-0">
+        <h2>¿Quiénes somos?</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+      </div>
+      <div class="col-lg-6 col-md-12 p-5 text-end homepage-img-container">
+        <img class="img-fluid homepage-quienes-somos-img" src="{{ asset('assets/img/front-pages/homepage/img-01.svg') }}" alt="">
+      </div>
     </div>
   </div>
 
-  <div class="d-flex quienes-somos-home container-fluid">
-    <div class="col-6 text-center quienes-somos-container container">
-      <h2>Locales</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
-    </div>
-
-    <div class="col-6 p-5 text-end homepage-img-container">
-      <img class="homepage-quienes-somos-img" src="{{ asset('assets\img\front-pages\homepage\locales-1.jpg') }}" alt="">
+  <div class="container-fluid">
+    <div class="row align-items-center my-5">
+      <div class="col-lg-6 col-md-12 p-5 text-center mb-3 mb-lg-0">
+        <img class="img-fluid homepage-servicios-img" src="{{ asset('assets/img/front-pages/homepage/eventos-1.jpg') }}" alt="">
+      </div>
+      <div class="col-lg-6 col-md-12 text-center servicios-container">
+        <h2>Servicios</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+      </div>
     </div>
   </div>
+
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-md-12 text-center quienes-somos-container mb-3 mb-lg-0">
+        <h2>Locales</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
+      </div>
+      <div class="col-lg-6 col-md-12 p-5 text-end homepage-img-container">
+        <img class="img-fluid homepage-quienes-somos-img" src="{{ asset('assets/img/front-pages/homepage/locales-1.jpg') }}" alt="">
+      </div>
+    </div>
+  </div>
+
 
 
 </div>

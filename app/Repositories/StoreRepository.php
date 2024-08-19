@@ -74,12 +74,14 @@ class StoreRepository
       try {
           $store = Store::findOrFail($id);
           $store->closed = !$store->closed;
+          $store->manual_override_at = now();
           $store->save();
           return true;
       } catch (\Exception $e) {
           return false;
       }
   }
+
 
 
   /**
@@ -237,5 +239,22 @@ class StoreRepository
       }
 
       return $stores;
+  }
+
+  /**
+   * Cambia el estado de la facturación automática de la tienda.
+   *
+   * @param Store $store
+   * @return bool
+  */
+  public function toggleAutomaticBilling(Store $store): bool
+  {
+      try {
+          $store->automatic_billing = !$store->automatic_billing;
+          $store->save();
+          return true;
+      } catch (\Exception $e) {
+          return false;
+      }
   }
 }

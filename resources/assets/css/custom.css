@@ -1,6 +1,6 @@
 /* Generales */
 :root {
-  --primary-color: #181818;  /* Azul Bootstrap por defecto */
+  --primary-color: #181818; /* Azul Bootstrap por defecto */
 }
 
 /* Fonts */
@@ -22,7 +22,6 @@
 .font-white {
   color: white !important;
 }
-
 
 /* Spinner */
 
@@ -73,9 +72,8 @@
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
   background-color: var(--primary-color);
-  color: white!important;
+  color: white !important;
 }
-
 
 /* Home */
 
@@ -333,11 +331,9 @@
   margin-bottom: 5px;
 }
 
-
 tr.odd {
   border-bottom: 0.5px solid var(--bs-table-border-color);
 }
-
 
 /* Backoffice - Products */
 
@@ -347,7 +343,6 @@ tr.odd {
 }
 
 /* Homepage */
-
 
 .video-container {
   position: relative;
@@ -395,7 +390,6 @@ tr.odd {
   margin: -5vh auto 2vh; /* Ajusta los márgenes para acercar al título y proporcionar espacio abajo */
   animation: pulse 2s ease-in-out infinite;
 }
-
 
 .animated-text-container {
   margin-bottom: 5vh; /* Ajuste para levantar el texto 'Pedí Online' más cerca del logo */
@@ -445,7 +439,11 @@ tr.odd {
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
@@ -475,7 +473,6 @@ tr.odd {
   z-index: 10; /* Asegura que el texto esté sobre el video */
 }
 
-
 .header-title-store {
   font-size: 2em;
   font-family: 'Montserrat', sans-serif;
@@ -494,12 +491,12 @@ tr.odd {
 
 @keyframes slideIn {
   from {
-      opacity: 0;
-      transform: translateY(20px);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -513,11 +510,10 @@ tr.odd {
 
 .cart-product-item .btn-link {
   color: #dc3545;
-  font-size: 2em!important;
+  font-size: 2em !important;
   text-decoration: none;
-  margin: 0px!important;
+  margin: 0px !important;
 }
-
 
 /* Notificaciones */
 .notification-item {
@@ -584,4 +580,89 @@ tr.odd {
 #averageOrdersByHourChart {
   max-height: 50vh;
   width: 100%;
+}
+
+@media (min-width: 992px) {
+  .table-responsive {
+    overflow: visible;
+  }
+}
+/** Punto de venta */
+
+.search-bar-section {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.search-bar-section .input-group {
+  border-radius: 5px;
+}
+
+.search-bar-section .input-group .form-control {
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #ced4da;
+}
+
+.search-bar-section .input-group .btn {
+  border-radius: 0 5px 5px 0;
+  border: 1px solid #ced4da;
+  border-left: none;
+}
+
+.search-bar-section .btn-group .dropdown-toggle {
+  border-radius: 5px;
+}
+
+.search-bar-section .btn {
+  margin-left: 10px;
+}
+
+.card-product-pos {
+  position: relative;
+  overflow: hidden; /* Asegura que el contenido no se desborde */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top-product-pos {
+  width: 100%;
+  height: auto;
+  transition: transform 0.2s; /* Transición suave para el zoom */
+}
+
+.card-product-pos:hover .card-img-top-product-pos {
+  transform: scale(1.1); /* Zoom al pasar el ratón */
+}
+
+.card-img-overlay-product-pos {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+  color: white;
+  padding: 10px;
+  box-sizing: border-box;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.card-title-product-pos,
+.card-text-product-pos {
+  margin: 0;
+}
+
+.card-text-product-pos del {
+  color: #ccc; /* Color gris para el precio anterior */
+}
+
+.img-thumbnail {
+  border: none;
+  border-radius: 5px;
+}
+
+.icono-trash {
+  border: solid 1px #18181859;
+  border-radius: 3px;
 }

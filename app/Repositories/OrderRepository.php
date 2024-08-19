@@ -13,18 +13,45 @@ use App\Mail\AdminNewOrder;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-
+use App\Repositories\AccountingRepository;
+use Exception;
 
 class OrderRepository
 {
   /**
+   * El repositorio de contabilidad.
+   *
+   * @var AccountingRepository
+  */
+  protected $accountingRepository;
+
+  /**
+   * Inyecta el repositorio de contabilidad.
+   *
+   * @param AccountingRepository $accountingRepository
+  */
+  public function __construct(AccountingRepository $accountingRepository)
+  {
+    $this->accountingRepository = $accountingRepository;
+  }
+
+  /**
    * Obtiene todos los pedidos y las estadísticas necesarias para las cards.
    *
    * @return array
-  */
+   */
   public function getAllOrders(): array
   {
-    $orders = Order::all();
+    // Verificar si el usuario tiene permiso para ver todos los pedidos de la tienda
+    if (Auth::user()->can('view_all_ecommerce')) {
+        // Si tiene el permiso, obtenemos todos los pedidos
+        $orders = Order::all();
+    } else {
+        // Si no tiene el permiso, solo obtenemos los pedidos de su store_id
+        $orders = Order::where('store_id', Auth::user()->store_id)->get();
+    }
+
+    // Calcular las estadísticas basadas en los pedidos filtrados
     $totalOrders = $orders->count();
     $totalIncome = $orders->sum('total');
     $pendingOrders = $orders->where('shipping_status', 'pending')->count();
@@ -33,6 +60,7 @@ class OrderRepository
 
     return compact('orders', 'totalOrders', 'totalIncome', 'pendingOrders', 'shippedOrders', 'completedOrders');
   }
+
 
   /**
    * Almacena un nuevo pedido en la base de datos.
@@ -157,6 +185,7 @@ class OrderRepository
                 'orders.store_id',
                 'orders.subtotal',
                 'orders.tax',
+                'orders.is_billed',
                 'orders.shipping',
                 'orders.coupon_id',
                 'orders.coupon_amount',
@@ -173,17 +202,22 @@ class OrderRepository
                 DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name")
               ])
             ->join('clients', 'orders.client_id', '=', 'clients.id')
-            ->join('stores', 'orders.store_id', '=', 'stores.id');
+            ->join('stores', 'orders.store_id', '=', 'stores.id')
+            ->orderBy('orders.date', 'desc');
 
-    // Filtrar por rol del usuario
-    if (!Auth::user()->hasRole('Administrador')) {
+
+    // Verificar permisos del usuario
+    if (!Auth::user()->can('view_all_ecommerce')) {
         $query->where('orders.store_id', Auth::user()->store_id);
     }
+
+    // Ordenar por fecha descendente
 
     $dataTable = DataTables::of($query)->make(true);
 
     return $dataTable;
   }
+
 
   /**
    * Obtiene los productos de un pedido para la DataTable.
@@ -261,7 +295,7 @@ class OrderRepository
   }
 
 
-    /**
+  /**
    * Actualiza el estado del envío de un pedido.
    *
    * @param int $orderId
@@ -290,4 +324,26 @@ class OrderRepository
       return $order;
   }
 
+    /**
+     * Emite un CFE para una orden.
+     *
+     * @param int $orderId
+     * @param float|null $montoFactura
+     * @return void
+     * @throws Exception
+    */
+    public function emitirCFE(int $orderId, ?float $montoFactura = null): void
+    {
+      $order = Order::findOrFail($orderId);
+
+      $montoAFacturar = $montoFactura ?? $order->total;
+
+      if ($montoAFacturar > $order->total) {
+        throw new Exception('El monto a facturar no puede ser mayor que el total de la orden.');
+      }
+
+      $this->accountingRepository->emitirCFE($order, 'eTicket', $montoAFacturar);
+
+      $order->update(['is_billed' => true]);
+    }
 }

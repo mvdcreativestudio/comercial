@@ -68,12 +68,14 @@
 </div>
 
 <script>
-  function confirmChangeStore() {
-    $('#selectStoreModal').modal('show');
-  }
+  document.addEventListener('DOMContentLoaded', function() {
+    function confirmChangeStore() {
+      $('#selectStoreModal').modal('show');
+    }
 
-  // Reinicializar el formulario de cambio de tienda cada vez que se muestre el modal
-  $('#selectStoreModal').on('show.bs.modal', function () {
-    $('#changeStoreForm')[0].reset(); // Reiniciar el formulario
+    // Reinicializar el formulario de cambio de tienda cada vez que se muestre el modal
+    $('#selectStoreModal').on('show.bs.modal', function () {
+      $('#changeStoreForm')[0].reset(); // Reiniciar el formulario
+    });
   });
 </script>
