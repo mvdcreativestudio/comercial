@@ -23,6 +23,7 @@ class Store extends Model
         'slug',
         'closed',
         'manual_override_at',
+        'automatic_billing',
     ];
 
     /**
@@ -108,6 +109,16 @@ class Store extends Model
     public function cashRegisters(): HasMany
     {
         return $this->hasMany(CashRegister::class);
+    }
+
+    /**
+     * Obtiene los recibos asociados a la tienda.
+     *
+     * @return HasMany
+    */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
     }
 
 }

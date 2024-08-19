@@ -240,4 +240,21 @@ class StoreRepository
 
       return $stores;
   }
+
+  /**
+   * Cambia el estado de la facturación automática de la tienda.
+   *
+   * @param Store $store
+   * @return bool
+  */
+  public function toggleAutomaticBilling(Store $store): bool
+  {
+      try {
+          $store->automatic_billing = !$store->automatic_billing;
+          $store->save();
+          return true;
+      } catch (\Exception $e) {
+          return false;
+      }
+  }
 }

@@ -1,8 +1,11 @@
 <?php
+
 namespace App\Console\Commands;
+
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+
 class CreatePermissions extends Command
 {
     /**
@@ -11,16 +14,19 @@ class CreatePermissions extends Command
      * @var string
      */
     protected $signature = 'create:modules-permissions';
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Crea permisos basados en los módulos del CRM - MVD';
+
     public function __construct()
     {
         parent::__construct();
     }
+
     /**
      * Execute the console command.
      */
@@ -174,6 +180,7 @@ class CreatePermissions extends Command
 
         // Asegurar que el rol de administrador existe
         $adminRole = Role::firstOrCreate(['name' => 'Administrador']);
+
         foreach ($modulesJson['menu'] as $module) {
           $this->createPermission($module['slug'], $module['view_all'], $adminRole, $module['module']);
 
@@ -210,5 +217,5 @@ class CreatePermissions extends Command
             $this->info('Permiso de vista total creado y asignado al rol Administrador: ' . $viewAllPermissionName);
         }
     }
-
 }
+
