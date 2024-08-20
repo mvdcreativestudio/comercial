@@ -36,12 +36,23 @@ use App\Http\Controllers\{
 
 };
 
+Route::get('/', function () {
+  if (Auth::check()) {
+      // Si el usuario está autenticado, redirigir al dashboard
+      return redirect()->route('dashboard');
+  } else {
+      // Si el usuario no está autenticado, redirigir al login
+      return redirect()->route('login');
+  }
+})->name('home');
+
 // Middleware de autenticación y verificación de email
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->prefix('admin')->group(function () {
+
 
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -227,7 +238,7 @@ Route::resources([
 
 
 // E-Commerce
-Route::get('/', [EcommerceController::class, 'home'])->name('home');
+// Route::get('/', [EcommerceController::class, 'home'])->name('home');
 Route::get('shop', [EcommerceController::class, 'index'])->name('shop'); //
 Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Tienda
 Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Tienda en el Carrito
