@@ -126,13 +126,13 @@
                   </select>
                 </div>
                 <div id="flavorsQuantityContainer" class="mb-3 col-4">
-                  <label class="form-label" for="max-flavors">Sabores</label>
-                  <input type="text" class="form-control" id="max_flavors" value="{{ $product->max_flavors }}" placeholder="Cantidad máxima de sabores" name="max_flavors" aria-label="Cantidad máxima de sabores">
+                  <label class="form-label" for="max-flavors">Variaciones</label>
+                  <input type="text" class="form-control" id="max_flavors" value="{{ $product->max_flavors }}" placeholder="Cantidad máxima de variaciones" name="max_flavors" aria-label="Cantidad máxima de variaciones">
                 </div>
               </div>
             </div>
             <div id="flavorsContainer" class="mb-3 col-8">
-              <label class="form-label">Sabores disponibles</label>
+              <label class="form-label">Variaciones disponibles</label>
               <select class="select2 form-select variationOptions" multiple="multiple" name="flavors[]" data-selected="{{ json_encode($product->flavors->pluck('id')->toArray()) }}">
                 @foreach ($flavors as $flavor)
                   <option value="{{ $flavor->id }}" {{ in_array($flavor->id, $product->flavors->pluck('id')->toArray()) ? 'selected' : '' }}>

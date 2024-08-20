@@ -142,7 +142,7 @@ Route::middleware([
         Route::post('assign-permissions', [RoleController::class, 'assignPermissions'])->name('assignPermissions');
     });
 
-    // Gestión de Sabores de Productos
+    // Gestión de Variaciones de Productos
     Route::get('/product-flavors', [ProductController::class, 'flavors'])->name('product-flavors');
     Route::post('/product-flavors', [ProductController::class, 'storeFlavor'])->name('product-flavors.store-modal');
     Route::post('/product-flavors/multiple', [ProductController::class, 'storeMultipleFlavors'])->name('product-flavors.store-multiple');
@@ -186,7 +186,7 @@ Route::middleware([
     Route::post('product-categories/{id}/update-selected',[ProductCategoryController::class,'updateSelected'])-> name('categories.updateSelected');
     Route::get('product-categories/{id}/get-selected',[ProductCategoryController::class,'getSelected'])-> name('categories.getSelected');
 
-    // Edición de Sabores
+    // Edición de Variaciones
     Route::get('/flavors/{id}', [ProductController::class, 'editFlavor'])->name('flavors.edit');
     Route::put('/flavors/{id}', [ProductController::class, 'updateFlavor'])->name('flavors.update');
 

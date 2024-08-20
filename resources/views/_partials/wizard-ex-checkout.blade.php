@@ -89,7 +89,7 @@
                         <div class="row">
                           <div class="col-md-8">
                             <p class=" mb-0"><a href="javascript:void(0)" class="text-body">{{ $details['name'] }}</a></p>
-                            <small class="mt-0">Tus sabores aquí</small>
+                            <small class="mt-0">Tus variaciones aquí</small>
                             <input type="number" class="form-control form-control-sm w-px-100 mt-2" value="{{ $details['quantity'] }}" min="1" max="5">
                           </div>
                           <div class="col-md-4">
@@ -301,7 +301,7 @@
                   </div>
                   <div class="flex-grow-1">
                     <p class="mb-0"><a class="text-body" href="javascript:void(0)">Helado 1 Litro</a></p>
-                    <p class="sabores-carrito">Chocolate - Dulce de leche - Frutilla - Limón</p>
+                    <p class="variaciones-carrito">Chocolate - Dulce de leche - Frutilla - Limón</p>
                   </div>
                 </li>
                 <li class="d-flex gap-3 align-items-center">
@@ -310,7 +310,7 @@
                   </div>
                   <div class="flex-grow-1">
                     <p class="mb-0"><a class="text-body" href="javascript:void(0)">Helado 2 Litros</a></p>
-                    <p class="sabores-carrito">Chocolate - Dulce de leche - Frutilla - Limón</p>
+                    <p class="variaciones-carrito">Chocolate - Dulce de leche - Frutilla - Limón</p>
                   </div>
                 </li>
               </ul>

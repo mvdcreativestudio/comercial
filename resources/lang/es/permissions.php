@@ -30,7 +30,7 @@ return [
   'access_chats' => 'Acceder a Chats',
   'access_coupons' => 'Acceder a Cupones',
   'access_company_settings' => 'Acceder a Configuración de Empresa',
-  'access_product-flavors' => 'Acceder a Sabores de Productos',
+  'access_product-flavors' => 'Acceder a Variaciones de Productos',
   'access_productions' => 'Acceder a Producciones',
   'view_all_productions' => 'Ver todas las Producciones',
   'access_bypass_raw_material_check' => 'Saltar verificación de materia prima para producciones',

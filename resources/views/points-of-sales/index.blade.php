@@ -50,9 +50,14 @@
 <!-- Contenedor para el botón y la tabla -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
         <h5 class="card-title mb-0">Cajas registradoras</h5>
+      </div>
+      <div>
         <button id="crear-caja-btn" class="btn btn-primary">+ Crear</button>
         <a href="{{ route('pos-orders.index') }}" class="btn btn-secondary">Ver Órdenes POS</a>
+      </div>
+
     </div>
 
     <!-- Tabla de cajas registradoras -->
@@ -177,9 +182,9 @@
     $(document).ready(function() {
 
     $('.datatables-cash-registers').DataTable({
-        "order": [[ 0, "desc" ]] 
+        "order": [[ 0, "desc" ]]
     });
-    
+
     var authenticatedUserId = @json($userId);
 
     // Mostrar el modal de crear al hacer clic en el botón de crear caja
@@ -364,6 +369,6 @@
         $('#cash_register_id_close').val(cashRegisterId);
         $('#cerrarCajaModal').modal('show');
     });
-});  
+});
 </script>
 @endsection

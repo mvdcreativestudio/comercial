@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <optgroup label="Productos">
           ${products.map(product => `<option value="product_${product.id}" data-recipes='${JSON.stringify(product.recipes)}'>${product.name}</option>`).join('')}
         </optgroup>
-        <optgroup label="Sabores">
+        <optgroup label="Variaciones">
           ${flavors.map(flavor => `<option value="flavor_${flavor.id}" data-recipes='${JSON.stringify(flavor.recipes)}'>${flavor.name}</option>`).join('')}
         </optgroup>
       </select>

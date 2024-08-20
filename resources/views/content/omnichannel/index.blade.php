@@ -328,7 +328,7 @@
                 </div>
                 <div class="chat-message-wrapper flex-grow-1">
                   <div class="chat-message-text">
-                    <p class="mb-0">Excelente. ¿Qué sabores?</p>
+                    <p class="mb-0">Excelente. ¿Qué variaciones?</p>
                   </div>
                   <div class="chat-message-text mt-2">
                     <p class="mb-0">Tenemos disponibles</p>

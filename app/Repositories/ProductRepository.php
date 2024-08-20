@@ -68,7 +68,7 @@ class ProductRepository
       // Se sincronizan las categorías del producto.
       $product->categories()->sync($request->input('categories', []));
 
-      // Se sincronizan los sabores del producto si se han seleccionado sabores.
+      // Se sincronizan los variaciones del producto si se han seleccionado variaciones.
       if ($request->filled('flavors')) {
           $product->flavors()->sync($request->flavors);
       }
@@ -272,7 +272,7 @@ class ProductRepository
   }
 
     /**
-     * Obtiene los sabores de los productos y las estadísticas necesarias para las cards.
+     * Obtiene los variaciones de los productos y las estadísticas necesarias para las cards.
      *
      * @return array
     */
@@ -288,7 +288,7 @@ class ProductRepository
     }
 
   /**
-   * Obtiene los datos de los sabores para DataTables.
+   * Obtiene los datos de los variaciones para DataTables.
    *
    * @return mixed
   */
@@ -305,7 +305,7 @@ class ProductRepository
   }
 
   /**
-   * Almacena los sabores
+   * Almacena los variaciones
    *
    * @param  StoreFlavorRequest  $request
    * @return Flavor
@@ -328,7 +328,7 @@ class ProductRepository
 
 
   /**
-   * Almacena múltiples sabores
+   * Almacena múltiples variaciones
    *
    * @param  StoreMultipleFlavorsRequest  $request
    * @return void

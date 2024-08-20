@@ -72,8 +72,8 @@
       "slug": "manufacturing",
       "submenu": [
         {
-          "id": "tour-sabores",
-          "name": "Sabores",
+          "id": "tour-variaciones",
+          "name": "Variaciones",
           "icon": "menu-icon tf-icons bx bx-lemon",
           "slug": "product-flavors",
           "url": "/admin/product-flavors"

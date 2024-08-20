@@ -10,7 +10,7 @@
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.js'])
 @endsection
 @section('content')
-    <div class="container my-5">
+    <div class="container-fluid my-5">
     @hasrole('Administrador')
         <!-- Sección de tarjetas -->
         <div class="row mb-4">
@@ -24,7 +24,7 @@
                             </div>
                             <h4 class="ms-1 mb-0">{{ $details->count() }}</h4>
                         </div>
-                        <p class="mb-1 fw-medium me-1">Logs de cajas</p>
+                        <p class="mb-1 fw-medium me-1">Registros de cajas</p>
                     </div>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                             </div>
                             <h4 class="ms-1 mb-0">{{$openCount}}</h4>
                         </div>
-                        <p class="mb-1 fw-medium me-1">Logs de cajas abiertas</p>
+                        <p class="mb-1 fw-medium me-1">Registros de cajas abiertas</p>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                                 </div>
                                 <h4 class="ms-1 mb-0">{{$closedCount}}</h4>
                             </div>
-                            <p class="mb-1 fw-medium me-1">Logs de cajas cerradas</p>
+                            <p class="mb-1 fw-medium me-1">Registros de cajas cerradas</p>
                         </div>
                     </div>
                 </div>
@@ -180,13 +180,13 @@
                                 <tr>
                                     <td>{{ $detail->id }}</td>
                                     <td class="text-center">
-                                        <strong>{{ \Carbon\Carbon::parse($detail->open_time)->translatedFormat('d \d\e F Y') }}</strong>
+                                        <strong>{{ \Carbon\Carbon::parse($detail->open_time)->translatedFormat('d \d\e F Y') }}</strong><br>
                                         {{ \Carbon\Carbon::parse($detail->open_time)->format('h:i a') }}
                                     </td>
                                     <td class="text-center">
                                         @if($detail->close_time)
-                                            <strong>{{ \Carbon\Carbon::parse($detail->close_time)->translatedFormat('d \d\e F Y') }}</strong>
-                                            {{ \Carbon\Carbon::parse($detail->close_time)->format('h:i a') }}
+                                            <strong>{{ \Carbon\Carbon::parse($detail->close_time)->translatedFormat('d \d\e F Y') }}</strong><br>
+                                          {{ \Carbon\Carbon::parse($detail->close_time)->format('h:i a') }}
                                         @else
                                             No ha cerrado.
                                         @endif
@@ -225,7 +225,7 @@
 
         $(document).ready(function() {
             $('.btn-view-sales').click(function() {
-                var detailId = $(this).data('id'); 
+                var detailId = $(this).data('id');
                 window.location.href = baseUrl + 'admin/point-of-sale/details/sales/' +
                 detailId; // Construye la URL completa
             });

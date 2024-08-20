@@ -10,7 +10,7 @@
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.js'])
 
 @section('content')
-    <div class="container my-5">
+    <div class="container-fluid my-5">
     @hasrole('Administrador')
         <!-- Sección de tarjetas -->
         <div class="row mb-4">
@@ -57,13 +57,13 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Sección de Ventas Realizadas -->
         <div class="bg-white p-4 shadow-sm rounded">
              <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="my-4">Ventas Realizadas</h2>
                 <button id="export-pdf-btn" class="btn btn-label-primary" data-id="{{ $id }}">Exportar PDF</button>
-             </div>            
+             </div>
             <div class="d-flex">
                 <p class="text-muted small">
                     <a href="" class="toggle-filter" data-bs-toggle="collapse">Filtrado por hora</a>
@@ -227,11 +227,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             const filterButton = document.getElementById('filter-button');
             const table = document.getElementById('cash-register-sales');
-            
+
             filterButton.addEventListener('click', function() {
                 const startTime = document.getElementById('start-time').value;
                 const endTime = document.getElementById('end-time').value;
-                
+
                 if (!startTime || !endTime) {
                     Swal.fire({
                         icon: 'error',
@@ -243,9 +243,9 @@
                     });
                     return;
                 }
-                
+
                 const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-                
+
                 for (let i = 0; i < rows.length; i++) {
                     const hourCell = rows[i].getElementsByTagName('td')[2];
                     if (hourCell) {
@@ -278,7 +278,7 @@
                 url: baseUrl + 'admin/point-of-sale/details/sales/pdf/' + + id,
                 method: 'GET',
                 xhrFields: {
-                    responseType: 'blob' 
+                    responseType: 'blob'
                 },
                 success: function (response) {
                     var link = document.createElement('a');

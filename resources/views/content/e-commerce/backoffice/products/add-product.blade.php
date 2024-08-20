@@ -126,14 +126,14 @@
                   </select>
                 </div>
                 <div id="flavorsQuantityContainer" class="mb-3 col-4">
-                  <label class="form-label" for="max-flavors">Sabores</label>
-                  <input type="text" class="form-control" id="max_flavors" placeholder="Cantidad máxima de sabores" name="max_flavors" aria-label="Cantidad máxima de sabores">
+                  <label class="form-label" for="max-flavors">Variaciones</label>
+                  <input type="text" class="form-control" id="max_flavors" placeholder="Cantidad máxima de variaciones" name="max_flavors" aria-label="Cantidad máxima de variaciones">
                 </div>
               </div>
             </div>
             <div id="flavorsContainer" class="mb-3 col-8">
               <div class="d-flex justify-content-between">
-                <label class="form-label">Sabores disponibles</label>
+                <label class="form-label">Variaciones disponibles</label>
                 <label class="form-label" id="selectAllFlavorsButton">Seleccionar todos</label>
               </div>
               <select class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
