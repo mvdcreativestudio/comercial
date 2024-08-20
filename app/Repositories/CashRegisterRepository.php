@@ -116,15 +116,16 @@ class CashRegisterRepository
     public function storesForCashRegister()
     {
         if (!Auth::user()->hasRole('Administrador')) {
-            return auth()->user()->store_id;
+            return auth()->user()->store()->select('id', 'name')->get();
         } else {
-            return Store::pluck('id');
+            return Store::select('id', 'name')->get();
         }
     }
 
+
     /**
      * Devuelve los balances y ventas de la caja registradora.
-     * 
+     *
      * @param $cashRegisterId
      */
     public function getDetails($cashRegisterId){
