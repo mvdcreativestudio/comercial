@@ -3,7 +3,7 @@
   return [
     "creatorName" => "MDV Studio",
     "creatorUrl" => "#",
-    "templateName" => "Chelato",
+    "templateName" => "Dalí",
     "templateSuffix" => "",
     "templateVersion" => "2.2.0",
     "templateFree" => false,
