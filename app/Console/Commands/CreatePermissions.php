@@ -71,7 +71,8 @@ class CreatePermissions extends Command
                     'invoices',
                     'receipts',
                     'entries',
-                    'accounting-settings'
+                    'accounting-settings',
+                    'expenses',
                 ],
                 'view_all' => false,
             ],

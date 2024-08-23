@@ -31,6 +31,8 @@ use App\Http\Controllers\{
     ProductionController,
     CashRegisterController,
     CashRegisterLogController,
+    ExpenseController,
+    ExpensePaymentMethodController,
     PosOrderController,
     UserController,
 
@@ -57,6 +59,8 @@ Route::middleware([
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
     Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/expenses/datatable', [ExpenseController::class, 'datatable'])->name('expenses.datatable');
+    Route::get('/expense-payment-methods/datatable/{id}', [ExpensePaymentMethodController::class, 'datatable'])->name('expense-payment-methods.datatable');
 
 
     // Recursos con acceso autenticado
@@ -77,6 +81,8 @@ Route::middleware([
         'productions' => ProductionController::class,
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
+        'expenses' => ExpenseController::class,
+        'expense-payment-methods' => ExpensePaymentMethodController::class,
     ]);
 
 
@@ -217,6 +223,24 @@ Route::middleware([
     Route::group(['prefix' => 'productions'], function () {
       Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
       Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+    });
+
+    // Gastos
+    Route::group(['prefix' => 'expenses'], function () {
+        // show
+        // Route::get('/{expense}/show', [ExpenseController::class, 'show'])->name('expenses.show');
+        Route::post('/delete-multiple', [ExpenseController::class, 'deleteMultiple'])->name('expenses.deleteMultiple');
+    });
+
+    // Métodos de Pago de Gastos
+    Route::group(['prefix' => 'expense-payment-methods'], function () {
+        // show
+        Route::get('/{expense}/detail', [ExpensePaymentMethodController::class, 'detail'])->name('expense-payment-methods.show');
+        // delete multiple
+        Route::post('/delete-multiple', [ExpensePaymentMethodController::class, 'deleteMultiple'])->name('expense-payment-methods.deleteMultiple');
+        // Route::get('/{expensePaymentMethod}/edit', [ExpensePaymentMethodController::class, 'edit'])->name('expense-payment-methods.edit');
+        // Route::post('/{expensePaymentMethod}/update', [ExpensePaymentMethodController::class, 'update'])->name('expense-payment-methods.update');
+        // Route::post('/{expensePaymentMethod}/delete', [ExpensePaymentMethodController::class, 'destroy'])->name('expense-payment-methods.delete');
     });
 });
 
