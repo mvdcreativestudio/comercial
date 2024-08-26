@@ -121,6 +121,7 @@ Route::middleware([
     Route::get('/api/sales-by-store', [DatacenterController::class, 'salesByStore']);
     Route::get('/sales-by-store', [DatacenterController::class, 'showSalesByStore'])->name('sales.by.store');
     Route::get('/datacenter/payment-methods', [DatacenterController::class, 'paymentMethodsData'])->name('datacenter.paymentMethodsData');
+    Route::get('/api/monthly-expenses', [DatacenterController::class, 'monthlyExpenses'])->name('datacenter.monthlyExpenses');
 
 
     // Gestión de Productos
