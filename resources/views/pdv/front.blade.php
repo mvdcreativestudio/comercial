@@ -64,7 +64,7 @@
           </div>
         </div>
         <div class="col-12 col-md-4 d-flex justify-content-end mb-3 mb-md-0">
-          <button type="button" id="submit-cerrar-caja" class="btn btn-primary me-2 w-100">Cerrar Caja</button>
+          <button type="button" id="submit-cerrar-caja" class="btn btn-sm btn-primary me-2 w-100">Cerrar Caja</button>
           <button id="toggle-view-btn" class="btn btn-light w-100" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="<span>Ver productos en lista</span>">
             <i class="bx bx-list-ul fs-2"></i>
           </button>
