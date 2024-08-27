@@ -1,6 +1,6 @@
 @extends('layouts.layoutMaster')
 
-@section('title', 'PDV - Sumeria')
+@section('title', 'PDV - MVD')
 
 @section('vendor-style')
 @vite([
@@ -34,7 +34,7 @@
     <div class="col-12">
       <h2 class="mb-4 text-center text-md-start">Punto de Venta</h2>
     </div>
-    <div class="col-12 col-md-8">
+    <div class="col-12 col-md-6">
       <div class="row d-flex search-bar-section align-items-center p-3 mb-4">
         {{-- Buscador de productos --}}
         <div class="col-12 col-md-4 mb-3 mb-md-0">
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-6">
       <div id="cart" class="card shadow-sm p-3">
         <div class="text-end mb-3">
           <button class="btn btn-primary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEnd" aria-controls="offcanvasEnd">Seleccionar cliente</button>
