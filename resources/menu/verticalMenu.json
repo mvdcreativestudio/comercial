@@ -45,7 +45,7 @@
     },
     {
       "id": "tour-tiendas",
-      "name": "Tiendas",
+      "name": "Empresas",
       "icon": "menu-icon tf-icons bx bx-store-alt",
       "slug": "stores",
       "url": "/admin/stores"

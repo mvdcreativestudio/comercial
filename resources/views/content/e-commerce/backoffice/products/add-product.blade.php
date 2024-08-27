@@ -248,7 +248,7 @@
           <!-- Vendor -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <label class="form-label mb-1" for="vendor">
-              Local
+              Empresa
             </label>
             <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
               @if(auth()->user()->hasPermissionTo('access_global_products'))

@@ -139,7 +139,7 @@ Route::middleware([
     Route::get('products/{id}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::post('products/{id}/switchStatus', [ProductController::class, 'switchStatus'])->name('products.switchStatus');
 
-    // Gestión de Tiendas
+    // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {
         Route::get('manage-users', [StoreController::class, 'manageUsers'])->name('manageUsers');
         Route::get('manage-hours', [StoreController::class, 'manageHours'])->name('manageHours');
@@ -247,8 +247,8 @@ Route::resources([
 // E-Commerce
 // Route::get('/', [EcommerceController::class, 'home'])->name('home');
 Route::get('shop', [EcommerceController::class, 'index'])->name('shop'); //
-Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Tienda
-Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Tienda en el Carrito
+Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Empresa
+Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Empresa en el Carrito
 Route::post('/cart/remove-item', [CartController::class, 'removeItem'])->name('cart.removeItem'); // Eliminar del Carrito
 Route::get('/session/clear', [CartController::class, 'clearSession'])->name('session.clear'); // Limpiar Sesión
 Route::get('/checkout/{orderId}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment'); // Pago de Orden
@@ -257,7 +257,7 @@ Route::get('/checkout/pending/{order:uuid}', [CheckoutController::class, 'pendin
 Route::get('/checkout/failure/{order:uuid}', [CheckoutController::class, 'failure'])->name('checkout.failure'); // Pago Fallido
 Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('apply.coupon'); // Aplicar Cupón
 
-// Rutas de autenticación de Tienda Abierta
+// Rutas de autenticación de Empresa Abierta
 Route::middleware(['check.store.open'])->group(function () {
   Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
   // Otras rutas que deben estar protegidas

@@ -140,7 +140,7 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Local</span>
+            <span class="switch-label">Empresa</span>
           </label>
         </div>
         <div class="mx-3">
@@ -192,7 +192,7 @@
           <th>N°</th>
           <th>Fecha</th>
           <th>Cliente</th>
-          <th>Local</th>
+          <th>Empresa</th>
           <th>Importe</th>
           <th>Pago</th>
           <th>Envío</th>

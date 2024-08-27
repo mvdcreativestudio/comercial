@@ -71,7 +71,7 @@ class StoreController extends Controller
         ]);
     }
 
-    return redirect()->route('stores.index')->with('success', 'Tienda creada con éxito.');
+    return redirect()->route('stores.index')->with('success', 'Empresa creada con éxito.');
   }
 
   /**
@@ -100,7 +100,7 @@ class StoreController extends Controller
   }
 
   /**
-   * Actualiza una tienda específica en la base de datos.
+   * Actualiza una Empresa específica en la base de datos.
    *
    * @param UpdateStoreRequest $request
    * @param Store $store
@@ -121,11 +121,11 @@ class StoreController extends Controller
         $store->mercadoPagoAccount()->delete();
     }
 
-    return redirect()->route('stores.index')->with('success', 'Tienda actualizada con éxito.');
+    return redirect()->route('stores.index')->with('success', 'Empresa actualizada con éxito.');
   }
 
   /**
-   * Elimina la tienda.
+   * Elimina la Empresa.
    *
    * @param Store $store
    * @return RedirectResponse
@@ -133,11 +133,11 @@ class StoreController extends Controller
   public function destroy(Store $store): RedirectResponse
   {
     $this->storeRepository->delete($store);
-    return redirect()->route('stores.index')->with('success', 'Tienda eliminada con éxito.');
+    return redirect()->route('stores.index')->with('success', 'Empresa eliminada con éxito.');
   }
 
   /**
-   * Cambia el estado de la tienda.
+   * Cambia el estado de la Empresa.
    *
    * @param Store $store
    * @return RedirectResponse

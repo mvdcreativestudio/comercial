@@ -67,7 +67,7 @@
         <div class="col-sm-6 col-lg-4">
           <div class="d-flex justify-content-between align-items-start">
             <div>
-              <h6 class="mb-2">Tienda con más Emisiones</h6>
+              <h6 class="mb-2">Empresa con más Emisiones</h6>
               <h4 class="mb-2">{{ $storeNameWithMostReceipts }}</h4>
               <p class="mb-0"><span class="text-muted me-2">Más Emisiones</span></p>
             </div>
@@ -122,7 +122,7 @@
                 <span class="switch-on"><i class="bx bx-check"></i></span>
                 <span class="switch-off"><i class="bx bx-x"></i></span>
               </span>
-              <span class="switch-label">Tienda</span>
+              <span class="switch-label">Empresa</span>
             </label>
           </div>
           <div class="mx-3">
@@ -152,7 +152,7 @@
       <thead>
         <tr>
           <th>N°</th>
-          <th>Tienda</th>
+          <th>Empresa</th>
           <th>Cliente</th>
           <th>Fecha</th>
           <th>Tipo</th>
