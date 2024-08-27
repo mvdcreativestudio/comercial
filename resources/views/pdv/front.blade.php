@@ -1,6 +1,6 @@
 @extends('layouts.layoutMaster')
 
-@section('title', 'PDV - MVD')
+@section('title', 'PDV - Sumeria')
 
 @section('vendor-style')
 @vite([
