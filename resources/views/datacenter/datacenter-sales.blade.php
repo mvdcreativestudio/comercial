@@ -326,13 +326,13 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
   <!--/ Total Income -->
 
 
-  <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
+  {{-- <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
     <div class="card h-100 text-center" data-aos="fade-left" data-aos-anchor="#example-anchor" data-aos-offset="500" data-aos-duration="500">
         <div class="card-header">
             <h5 class="card-title text-start pb-4 mb-0">Comparativas</h5>
             <ul class="nav nav-pills nav- card-header-pills" role="tablist">
                 <li class="nav-item">
-                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Empresas</button>
+                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Empresa</button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-os" aria-controls="navs-pills-os" aria-selected="false">Productos</button>
@@ -487,7 +487,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
             </div>
         </div>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Gráfica de promedio de pedidos por hora -->
   <div class="col-12 mb-4 mt-4">
