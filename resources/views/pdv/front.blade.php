@@ -77,7 +77,7 @@
 
     <div class="col-md-4">
       <div id="cart" class="card shadow-sm p-3">
-        <div class="text-end">
+        <div class="text-end mb-3">
           <button class="btn btn-primary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEnd" aria-controls="offcanvasEnd">Seleccionar cliente</button>
         </div>
         <!-- Offcanvas Seleccionar Cliente -->
@@ -102,7 +102,7 @@
                 </ul>
             </div>
         </div>
-        <table class="table table-hover" id="cart">
+        <table class="table-responsive table-hover" id="cart">
             <thead>
               <tr>
                 <th class="col-4">Producto</th>

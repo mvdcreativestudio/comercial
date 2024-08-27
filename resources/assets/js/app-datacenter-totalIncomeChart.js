@@ -35,15 +35,54 @@
         if (timeRange === 'always') {
             labels = data.map(item => `${monthNames[item.month - 1]} ${item.year}`);
             totalIncomes = data.map(item => parseInt(item.total));
-          } else if (timeRange === 'year') {
+        } else if (timeRange === 'year') {
             labels = monthNames; // Asegúrate de que solo se representen los meses
             totalIncomes = Array(12).fill(0);
             data.forEach(item => {
                 const monthIndex = item.month - 1;
                 totalIncomes[monthIndex] = parseInt(item.total);
             });
-        }
+        } else if (timeRange === 'month') {
+          const today = new Date();
+          const daysInMonth = today.getDate(); // Obtener el día actual del mes
+          // Crear un array con todos los días desde el 1 hasta el día actual
+          for (let i = 1; i <= daysInMonth; i++) {
+              labels.push(`${i}/${today.getMonth() + 1}`);
+              totalIncomes.push(0); // Inicializar con 0
+          }
+          // Asignar los ingresos a los días correspondientes
+          data.forEach(item => {
+              const label = `${item.day}/${item.month}`;
+              const index = labels.indexOf(label);
+              if (index !== -1) {
+                  totalIncomes[index] = parseInt(item.total);
+              }
+          });
+        } else if (timeRange === 'week') {
+            // Crear un array de 7 días empezando desde hoy (o el primer día de la semana)
+            const today = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const day = new Date(today);
+                day.setDate(today.getDate() - i);
+                labels.push(`${day.getDate()}/${day.getMonth() + 1}`);
+                totalIncomes.push(0); // Inicializar con 0
+            }
 
+            // Asignar los ingresos a los días correspondientes
+            data.forEach(item => {
+                const label = `${item.day}/${item.month}`;
+                const index = labels.indexOf(label);
+                if (index !== -1) {
+                    totalIncomes[index] = parseInt(item.total);
+                }
+            });
+        } else if (timeRange === 'today') {
+            labels = Array.from({length: 24}, (_, i) => `${i}:00`);
+            totalIncomes = Array(24).fill(0);
+            data.forEach(item => {
+                totalIncomes[item.hour] = parseInt(item.total);
+            });
+        }
 
         const totalIncomeConfig = {
           chart: {
@@ -95,14 +134,14 @@
           xaxis: {
             categories: labels,
             labels: {
-              offsetX: 0,
-              rotate: -45,
-              style: {
-                colors: '#757575',
-                fontSize: '13px'
-              }
+                offsetX: 0,
+                rotate: -45, // Mantener los labels rotados si hay muchos días
+                style: {
+                    colors: '#757575',
+                    fontSize: '13px'
+                }
             },
-            tickAmount: labels.length > 12 ? 12 : labels.length,
+            tickAmount: labels.length, // Asegura que se muestre un tick por cada label
           },
           yaxis: {
             labels: {

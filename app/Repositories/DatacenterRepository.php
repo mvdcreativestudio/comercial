@@ -344,7 +344,7 @@ class DatacenterRepository
 
 
 
-/**
+    /**
  * Obtener datos de ingresos con filtro de fecha y local.
  *
  * Este método obtiene los datos de ingresos agrupados por año, mes, día o hora dependiendo del período seleccionado.
@@ -360,18 +360,25 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
     // Selección y agrupación dinámica de campos según el periodo
     switch ($period) {
         case 'today':
-            $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(time)')];
+            // Ajustar startDate y endDate para cubrir todo el día
+            $startDate = Carbon::parse($startDate)->startOfDay()->toDateTimeString(); // Comienzo del día
+            $endDate = Carbon::parse($startDate)->endOfDay()->toDateTimeString(); // Fin del día
+
+            $groupByOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(time)')];
+            $groupByPosOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(hour)')];
             $selectFields = ['total', 'year', 'month', 'day', 'hour'];
             break;
         case 'week':
         case 'month':
-            $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
+            $groupByOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
+            $groupByPosOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
             $selectFields = ['total', 'year', 'month', 'day'];
             break;
         case 'year':
         case 'always':
         default:
-            $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
+            $groupByOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
+            $groupByPosOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
             $selectFields = ['total', 'year', 'month'];
             break;
     }
@@ -386,7 +393,7 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
     )
     ->where('payment_status', 'paid')
     ->whereBetween('date', [$startDate, $endDate])
-    ->groupBy($groupBy);
+    ->groupBy($groupByOrders);
 
     // Consulta de pedidos del módulo de POS
     $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
@@ -399,7 +406,7 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
             DB::raw('HOUR(pos_orders.hour) as hour')
         )
         ->whereBetween('pos_orders.date', [$startDate, $endDate])
-        ->groupBy($groupBy);
+        ->groupBy($groupByPosOrders);
 
     // Aplicar filtro por store_id si se proporciona
     if ($storeId) {
@@ -410,66 +417,68 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
     // Unir los resultados de ambas consultas
     $combinedResults = $orderQuery->unionAll($posOrderQuery)->get();
 
-    // Agregar cualquier campo faltante al resultado final
-    $filledResults = $this->fillMissingData($combinedResults, $startDate, $endDate, $selectFields);
+    return $combinedResults;
 
-    return new EloquentCollection($filledResults);
 }
 
-/**
- * Rellenar los campos faltantes en los resultados de ingresos.
- *
- * Este método recorre un rango de fechas y verifica si para cada fecha existe un registro en la colección de resultados.
- * Si no existe, rellena los datos faltantes con 0.
- *
- * @param EloquentCollection $results La colección original de resultados.
- * @param string $startDate La fecha de inicio del rango a consultar.
- * @param string $endDate La fecha de fin del rango a consultar.
- * @param array $selectFields Los campos seleccionados para el período actual.
- * @return EloquentCollection La colección de resultados con los campos faltantes rellenados.
- */
-private function fillMissingData(EloquentCollection $results, string $startDate, string $endDate, array $selectFields): EloquentCollection
-{
-    $filledResults = collect();
 
-    // Crear un rango de fechas basado en el inicio y el final
-    $period = Carbon::parse($startDate)->daysUntil($endDate);
 
-    foreach ($period as $date) {
-        // Busca si existe un registro que coincida con el grupo seleccionado (mes, día, hora, etc.)
-        $matchingResult = $results->first(function ($item) use ($date, $selectFields) {
-            foreach ($selectFields as $field) {
-                // Compara las propiedades según el campo correspondiente
-                switch ($field) {
-                    case 'year':
-                        if ($item->year != $date->year) return false;
-                        break;
-                    case 'month':
-                        if ($item->month != $date->month) return false;
-                        break;
-                    case 'day':
-                        if ($item->day != $date->day) return false;
-                        break;
-                    case 'hour':
-                        if ($item->hour != $date->hour) return false;
-                        break;
+
+
+    /**
+     * Rellenar los campos faltantes en los resultados de ingresos.
+     *
+     * Este método recorre un rango de fechas y verifica si para cada fecha existe un registro en la colección de resultados.
+     * Si no existe, rellena los datos faltantes con 0.
+     *
+     * @param EloquentCollection $results La colección original de resultados.
+     * @param string $startDate La fecha de inicio del rango a consultar.
+     * @param string $endDate La fecha de fin del rango a consultar.
+     * @param array $selectFields Los campos seleccionados para el período actual.
+     * @return EloquentCollection La colección de resultados con los campos faltantes rellenados.
+     */
+    private function fillMissingData(EloquentCollection $results, string $startDate, string $endDate, array $selectFields): EloquentCollection
+    {
+        $filledResults = collect();
+
+        // Crear un rango de fechas basado en el inicio y el final
+        $period = Carbon::parse($startDate)->daysUntil($endDate);
+
+        foreach ($period as $date) {
+            // Busca si existe un registro que coincida con el grupo seleccionado (mes, día, hora, etc.)
+            $matchingResult = $results->first(function ($item) use ($date, $selectFields) {
+                foreach ($selectFields as $field) {
+                    // Compara las propiedades según el campo correspondiente
+                    switch ($field) {
+                        case 'year':
+                            if ($item->year != $date->year) return false;
+                            break;
+                        case 'month':
+                            if ($item->month != $date->month) return false;
+                            break;
+                        case 'day':
+                            if ($item->day != $date->day) return false;
+                            break;
+                        case 'hour':
+                            if ($item->hour != $date->hour) return false;
+                            break;
+                    }
                 }
-            }
-            return true;
-        });
+                return true;
+            });
 
-        // Si no se encuentra ningún resultado, se rellena con 0
-        $filledResults->push([
-            'year' => $date->year,
-            'month' => $date->month,
-            'day' => in_array('day', $selectFields) ? $date->day : null,
-            'hour' => in_array('hour', $selectFields) ? $date->hour : null,
-            'total' => $matchingResult ? $matchingResult->total : 0
-        ]);
+            // Si no se encuentra ningún resultado, se rellena con 0
+            $filledResults->push([
+                'year' => $date->year,
+                'month' => $date->month,
+                'day' => in_array('day', $selectFields) ? $date->day : null,
+                'hour' => in_array('hour', $selectFields) ? $date->hour : null,
+                'total' => $matchingResult ? $matchingResult->total : 0
+            ]);
+        }
+
+        return new EloquentCollection($filledResults);
     }
-
-    return new EloquentCollection($filledResults);
-}
 
 
 

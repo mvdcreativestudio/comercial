@@ -6,7 +6,7 @@ $(document).ready(function() {
     const url = `${baseUrl}products/${cashRegisterId}`;
     let products = [];
     let cart = [];
-    let isListView = false;
+    let isListView = true;
     let categories = [];
     let flavors = [];
     let productCategory = [];
@@ -158,7 +158,7 @@ $(document).ready(function() {
             success: function(response) {
                 if (response && response.products) {
                     products = response.products;
-                    displayProducts(products);
+                    displayProductsList(products);
                 } else {
                     alert('No se encontraron productos.');
                 }
@@ -207,7 +207,7 @@ $(document).ready(function() {
         const priceToDisplay = product.price ? product.price : product.old_price;
 
         productsHtml += `
-          <div class="col-6 col-md-3 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
+          <div class="col-6 col-xxl-4  mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
               <div class="card-product-pos w-100 mb-3 position-relative">
                   <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
                   <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
@@ -319,7 +319,7 @@ $(document).ready(function() {
           cartHtml += `
               <tr>
                   <td>
-                      <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail me-2" style="width: 50px;">
+                      <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail img-carrito me-2" style="width: 50px;">
                       ${item.name}
                   </td>
                   <td>
