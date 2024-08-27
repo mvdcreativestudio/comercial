@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\{
     DashboardController,
@@ -38,8 +40,14 @@ use App\Http\Controllers\{
 
 Route::get('/', function () {
   if (Auth::check()) {
-      // Si el usuario está autenticado, redirigir al dashboard
-      return redirect()->route('dashboard');
+      // Si el usuario está autenticado
+      if (Gate::allows('access_open_close_stores')) {
+          // Si el usuario tiene el permiso `access_open_close_stores`
+          return redirect()->route('dashboard');
+      } else {
+          // Si el usuario no tiene el permiso `access_open_close_stores`
+          return redirect()->route('pdv.front');
+      }
   } else {
       // Si el usuario no está autenticado, redirigir al login
       return redirect()->route('login');
@@ -53,9 +61,8 @@ Route::middleware([
     'verified',
 ])->prefix('admin')->group(function () {
 
-
     // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Data Tables
     Route::get('/clients/datatable', [ClientController::class, 'datatable'])->name('clients.datatable');

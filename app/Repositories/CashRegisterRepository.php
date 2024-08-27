@@ -23,37 +23,30 @@ class CashRegisterRepository
     */
     public function getCashRegistersForDatatable($userId): mixed
     {
-        // Obtener solo los registros del usuario si no tiene el rol de 'Administrador'
-        if (!Auth::user()->hasRole('Administrador')) {
-            $query = CashRegister::select([
-                    'cash_registers.id',
-                    'cash_registers.store_id',
-                    'cash_registers.user_id',
-                    'stores.name as store_name',
-                    'users.name as user_name'
-                ])
-                ->join('stores', 'cash_registers.store_id', '=', 'stores.id')
-                ->join('users', 'cash_registers.user_id', '=', 'users.id')
-                ->where('cash_registers.user_id', $userId)
-                ->get();
-
-            return $query;
-        }
-
-        // Obtener todos los registros si es 'Administrador'
         $query = CashRegister::select([
                 'cash_registers.id',
                 'cash_registers.store_id',
                 'cash_registers.user_id',
                 'stores.name as store_name',
-                'users.name as user_name'
+                'users.name as user_name',
+                'cash_register_logs.open_time',  // Último open_time
+                'cash_register_logs.close_time'  // Último close_time
             ])
             ->join('stores', 'cash_registers.store_id', '=', 'stores.id')
             ->join('users', 'cash_registers.user_id', '=', 'users.id')
-            ->get();
+            ->leftJoin('cash_register_logs', function ($join) {
+                $join->on('cash_register_logs.cash_register_id', '=', 'cash_registers.id')
+                     ->whereRaw('cash_register_logs.id = (select max(id) from cash_register_logs where cash_register_logs.cash_register_id = cash_registers.id)');
+            });
 
-        return $query;
+        // Filtrar los registros según el rol del usuario
+        if (!Auth::user()->hasRole('Administrador')) {
+            $query->where('cash_registers.user_id', $userId);
+        }
+
+        return $query->get();
     }
+
 
 
 

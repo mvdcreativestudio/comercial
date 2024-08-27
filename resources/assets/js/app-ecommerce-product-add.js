@@ -29,16 +29,22 @@
     const flavorsQuantityContainer = document.getElementById('flavorsQuantityContainer');
     const flavorsContainer = document.getElementById('flavorsContainer');
     const recipeCard = document.getElementById('recipeCard');
+    const stockContainer = document.getElementById('stockContainer');
 
     function toggleFields() {
       if (productTypeSelect.value === 'configurable') {
         flavorsQuantityContainer.style.display = 'block';
         flavorsContainer.style.display = 'block';
         recipeCard.style.display = 'none';
+        stockContainer.style.display = 'none';
+        console.log('Producto configurable');
       } else {
         flavorsQuantityContainer.style.display = 'none';
         flavorsContainer.style.display = 'none';
         recipeCard.style.display = 'block';
+        stockContainer.style.display = 'block';
+        console.log('Producto simple');
+
       }
     }
 
@@ -144,18 +150,7 @@
         });
       }
 
-      function toggleFields() {
-        var productType = $('#productType').val();
-        if (productType === 'configurable') {
-          $('#flavorsContainer').show();
-          $('#flavorsQuantityContainer').show();
-          $('#recipeCard').hide();
-        } else {
-          $('#flavorsContainer').hide();
-          $('#flavorsQuantityContainer').hide();
-          $('#recipeCard').show();
-        }
-      }
+
 
       toggleFields();
 

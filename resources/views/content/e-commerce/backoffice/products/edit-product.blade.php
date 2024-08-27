@@ -227,6 +227,11 @@
               @endforeach
             </select>
           </div>
+          <!-- Stock -->
+          <div class="mb-3" id="stockContainer">
+            <label class="form-label" for="stock">Stock</label>
+            <input type="number" class="form-control" id="stock" placeholder="Stock" value="{{$product->stock}}" name="stock" aria-label="Introduzca el stock">
+          </div>
         </div>
       </div>
       <!-- Media -->
