@@ -140,6 +140,7 @@ class ExpensePaymentMethodController extends Controller
             $this->expensePaymentMethodRepository->deleteMultipleExpensePaymentMethods($request->input('ids'));
             return response()->json(['success' => true, 'message' => 'Métodos de pago de gastos eliminados correctamente.']);
         } catch (\Exception $e) {
+            dd($e);
             Log::error($e->getMessage());
             return response()->json(['success' => false, 'message' => 'Error al eliminar los métodos de pago de gastos.'], 400);
         }

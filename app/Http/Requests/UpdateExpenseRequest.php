@@ -24,12 +24,16 @@ class UpdateExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'id' => 'required|integer|exists:expenses,id',
-            'amount' => 'required|numeric',
-            // 'status' => [
-            //     'required',
-            //     new Enum(ExpenseStatusEnum::class),
-            // ],
+            'amount' => [
+                'required',
+                'numeric',
+                function ($attribute, $value, $fail) {
+                    $expense = $this->route('expense'); // Obtener la instancia de Expense desde la ruta
+                    if ($expense->total_payments > $value) {
+                        $fail('El monto no puede ser menor al total de los pagos ya realizados: $' . $expense->total_payments . ', si desea modificar el monto, primero elimine los pagos.');
+                    }
+                },
+            ],
             'due_date' => 'required|date',
             'supplier_id' => 'required|integer|exists:suppliers,id',
             'expense_category_id' => 'required|integer|exists:expense_categories,id',
@@ -45,12 +49,8 @@ class UpdateExpenseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            // 'id.required' => 'El identificador del gasto es obligatorio.',
-            // 'id.exists' => 'El gasto no existe.',
             'amount.required' => 'El campo monto es requerido.',
             'amount.numeric' => 'El campo monto debe ser un número.',
-            // 'status.required' => 'El campo estado es requerido.',
-            // 'status.enum' => 'El campo estado no es válido.',
             'due_date.required' => 'El campo fecha de vencimiento es requerido.',
             'due_date.date' => 'El campo fecha de vencimiento debe ser una fecha válida.',
             'supplier_id.required' => 'El campo proveedor es requerido.',

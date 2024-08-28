@@ -27,7 +27,8 @@ $(function () {
   const temporalStatusMap = {
     'On Time': { class: 'bg-success', text: 'EN FECHA' },
     'Due Soon': { class: 'bg-warning', text: 'POR VENCER' },
-    Overdue: { class: 'bg-danger', text: 'VENCIDO' }
+    Overdue: { class: 'bg-danger', text: 'VENCIDO' },
+    'Due Today': { class: 'bg-warning', text: 'VENCE HOY' }
   };
 
   try {
@@ -174,6 +175,9 @@ $(function () {
                 .appendTo('.store_filter')
                 .on('change', function () {
                   var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  if (val == 'Sin local') {
+                    val = '^$';
+                  }
                   column.search(val ? `^${val}$` : '', true, false).draw();
                 });
 
@@ -182,6 +186,9 @@ $(function () {
                 .unique()
                 .sort()
                 .each(function (d, j) {
+                  if (d == null) {
+                    d = 'Sin local';
+                  }
                   select.append(`<option value="${d}">${d}</option>`);
                 });
             });

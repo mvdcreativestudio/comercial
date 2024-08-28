@@ -7,12 +7,12 @@ use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Repositories\ExpenseRepository;
 use App\Models\Expense;
+use App\Repositories\ExpensePaymentMethodRepository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Enum;
 
 class ExpenseController extends Controller
 {
@@ -22,27 +22,36 @@ class ExpenseController extends Controller
      * @var ExpenseRepository
      */
     protected $expenseRepository;
+    protected $expensePaymentMethodRepository;
 
     /**
      * Inyecta el repositorio en el controlador y los middleware.
      *
      * @param ExpenseRepository $expenseRepository
      */
-    public function __construct(ExpenseRepository $expenseRepository)
+    public function __construct(ExpenseRepository $expenseRepository, ExpensePaymentMethodRepository $expensePaymentMethodRepository)
     {
         $this->middleware(['check_permission:access_expenses', 'user_has_store'])->only(
             [
                 'index',
                 'create',
                 'show',
-                'destroy',
-                'deleteMultiple',
+                // 'destroy',
+                // 'deleteMultiple',
                 'datatable',
                 'expensePaymentsDatatable'
             ]
         );
 
+        $this->middleware(['check_permission:access_delete_expenses'])->only(
+            [
+                'destroy',
+                'deleteMultiple'
+            ]
+        );
+
         $this->expenseRepository = $expenseRepository;
+        $this->expensePaymentMethodRepository = $expensePaymentMethodRepository;
     }
 
     /**
@@ -56,8 +65,9 @@ class ExpenseController extends Controller
         $suppliers = $this->expenseRepository->getAllSuppliers();
         $stores = $this->expenseRepository->getAllStores();
         $expenseCategories = $this->expenseRepository->getAllExpenseCategories();
+        $paymentMethods = $this->expensePaymentMethodRepository->getPaymentsMethods();
          // Combinar todos los datos en un solo array
-        $mergeData = array_merge($expenses, compact('suppliers', 'stores', 'expenseCategories',));
+        $mergeData = array_merge($expenses, compact('suppliers', 'stores', 'expenseCategories','paymentMethods'));
         return view('content.accounting.expenses.index', $mergeData);
     }
 
@@ -83,7 +93,7 @@ class ExpenseController extends Controller
             $expense = $this->expenseRepository->store($request->validated());
             return response()->json($expense);
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             Log::error($e->getMessage());
             return response()->json(['error' => 'Error al guardar el gasto.'], 400);
         }

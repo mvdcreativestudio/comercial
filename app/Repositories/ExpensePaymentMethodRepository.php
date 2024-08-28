@@ -96,12 +96,11 @@ class ExpensePaymentMethodRepository
      */
     public function deleteMultipleExpensePaymentMethods(array $expensePaymentMethodIds): void
     {
+        $expenses = Expense::whereHas('payments', function ($query) use ($expensePaymentMethodIds) {
+            $query->whereIn('id', $expensePaymentMethodIds);
+        })->first();
         ExpensePaymentMethod::whereIn('id', $expensePaymentMethodIds)->delete();
-
-        // Actualizar el estado de los gastos
-        foreach ($expensePaymentMethodIds as $expensePaymentMethodId) {
-            $this->updateStatusExpense($expensePaymentMethodId);
-        }
+        $this->updateStatusExpense($expenses->id);
     }
 
     /**
@@ -153,7 +152,8 @@ class ExpensePaymentMethodRepository
 
     private function updateStatusExpense(int $expenseId): void
     {
-        $expense = Expense::findOrFail($expenseId)->load('payments');
+        // $expense = Expense::findOrFail($expenseId)->load('payments');
+        $expense = Expense::findOrFail($expenseId);
         $totalPaid = (float) $expense->payments->sum('amount_paid');
         $totalAmount = (float) $expense->amount;
     

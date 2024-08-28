@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enums\Expense\ExpenseStatusEnum;
+use App\Enums\Expense\ExpenseTemporalStatusEnum;
 use App\Helpers\Helpers;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -25,7 +26,7 @@ class ExpenseRepository
     public function getAllExpenses(): array
     {
         // Verificar si el usuario tiene permiso para ver todos los gastos de la tienda
-        if (Auth::user()->can('view_all_supplier-orders')) {
+        if (Auth::user()->can('view_all_expenses')) {
             // Si tiene el permiso, obtenemos todos los gastos
             $expenses = Expense::all();
         } else {
@@ -54,11 +55,25 @@ class ExpenseRepository
         DB::beginTransaction();
 
         try {
-            // dd($data);
             $expense = Expense::create($data);
             $expense->status = ExpenseStatusEnum::UNPAID;
             $expense->temporal_status = $expense->calculateTemporalStatus();
             $expense->save();
+
+            // verificar si existe un monto pagado
+            if ($data['is_paid']) {
+                $paymentData = [
+                    'expense_id' => $expense->id,
+                    'amount_paid' => $data['amount_paid'],
+                    'payment_date' => $data['due_date'],
+                    'payment_method_id' => $data['payment_method_id'],
+                ];
+
+                $expensePaymentMethod = ExpensePaymentMethod::create($paymentData);
+                $expense->status = $data['amount_paid'] == $data['amount'] ? ExpenseStatusEnum::PAID : ExpenseStatusEnum::PARTIAL;
+                $expense->temporal_status = $expense->calculateTemporalStatus();
+                $expense->save();
+            }
             DB::commit();
             return $expense;
         } catch (Exception $e) {
@@ -162,7 +177,7 @@ class ExpenseRepository
             ->orderBy('expenses.created_at', 'desc');
 
         // Verificar permisos del usuario
-        if (!Auth::user()->can('view_all_supplier-orders')) {
+        if (!Auth::user()->can('view_all_expenses')) {
             $query->where(function ($query) {
                 $query->where('expenses.store_id', Auth::user()->store_id)
                       ->orWhereNull('expenses.store_id'); // Incluir registros con store_id null

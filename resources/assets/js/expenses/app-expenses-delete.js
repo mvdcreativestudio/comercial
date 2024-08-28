@@ -54,7 +54,11 @@ $(document).ready(function () {
             }
           },
           error: function (xhr, ajaxOptions, thrownError) {
-            Swal.fire('Error!', 'No se pudo eliminar el cupón: ' + xhr.responseJSON.message, 'error');
+            if (xhr.status === 403) {
+              Swal.fire('Permiso denegado!', xhr.responseJSON.message, 'error');
+            } else {
+              Swal.fire('Error!', 'No se pudo eliminar el gasto: ' + (xhr.responseJSON.message || thrownError), 'error');
+            }
           }
         });
       }
@@ -93,11 +97,11 @@ $(document).ready(function () {
             }
           },
           error: function (xhr, ajaxOptions, thrownError) {
-            Swal.fire(
-              'Error!',
-              'No se pudieron eliminar los gastos seleccionados: ' + xhr.responseJSON.message,
-              'error'
-            );
+            if (xhr.status === 403) {
+              Swal.fire('Permiso denegado!', xhr.responseJSON.message, 'error');
+            } else {
+              Swal.fire('Error!', 'No se pudo eliminar el gasto: ' + (xhr.responseJSON.message || thrownError), 'error');
+            }
           }
         });
       }

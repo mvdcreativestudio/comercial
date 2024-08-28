@@ -26,7 +26,7 @@ $(document).ready(function () {
         // Rellenar los campos del formulario con los datos obtenidos
         $('#amountEdit').val(data.amount);
         // $('#statusEdit').val(data.status);
-        $('#dueDateEdit').val(data.due_date);
+        $('#dueDateEdit').val(moment(data.due_date).format('YYYY-MM-DD'));
         $('#supplierIdEdit').val(data.supplier_id);
         $('#expenseCategoryIdEdit').val(data.expense_category_id);
         $('#storeIdEdit').val(data.store_id);

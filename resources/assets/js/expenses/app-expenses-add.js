@@ -3,6 +3,23 @@ $(document).ready(function() {
     submitNewExpense();
   });
 
+  $('#is_paid').on('change', function () {
+    if ($(this).is(':checked')) {
+      $('#paymentFields').removeClass('d-none');
+      // load mount
+      $('#amount_paid').val($('#amount').val());
+    } else {
+      $('#paymentFields').addClass('d-none');
+      $('#amount_paid').val('');
+    }
+  });
+
+  $('#amount').on('keyup', function () {
+    if ($('#is_paid').is(':checked')) {
+      $('#amount_paid').val($(this).val());
+    }
+  });
+
   function submitNewExpense() {
     var route = $('#submitExpenseBtn').data('route');
     var formData = {
@@ -11,7 +28,10 @@ $(document).ready(function() {
       due_date: $('#due_date').val(),
       supplier_id: $('#supplier_id').val(),
       expense_category_id: $('#expense_category_id').val(),
-      store_id: $('#store_id').val()
+      store_id: $('#store_id').val(),
+      is_paid: $('#is_paid').is(':checked'),
+      amount_paid: $('#amount_paid').val(),
+      payment_method_id: $('#payment_method_id').val(),
     };
     $.ajax({
       url: route,

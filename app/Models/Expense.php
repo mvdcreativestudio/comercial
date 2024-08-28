@@ -26,6 +26,7 @@ class Expense extends Model
 
     protected $casts = [
         'status' => ExpenseStatusEnum::class,
+        'due_date' => 'date',
     ];
 
     // Atributos adicionales
@@ -101,14 +102,18 @@ class Expense extends Model
     public function calculateTemporalStatus(): string
     {
         $now = now();
-        // si la fecha de vencimiento es mayor a la fecha actual
-        if ($this->due_date > $now) {
+        // Si la fecha de vencimiento es igual a la fecha actual
+        if ($this->due_date->isToday()) {
+            return ExpenseTemporalStatusEnum::DUE_TODAY->value;
+        } elseif ($this->due_date->greaterThan($now)) {
+            // Si la fecha de vencimiento es dentro de los próximos 3 días
+            if ($this->due_date->lessThanOrEqualTo($now->addDays(3))) {
+                return ExpenseTemporalStatusEnum::DUE_SOON->value;
+            }
+            // Si la fecha de vencimiento es mayor a la fecha actual
             return ExpenseTemporalStatusEnum::ON_TIME->value;
-        // si la fecha de vencimiento es mayor a la fecha actual menos 3 días
-        } elseif ($this->due_date > $now->subDays(3)) {
-            return ExpenseTemporalStatusEnum::DUE_SOON->value;
-        // si la fecha de vencimiento es menor a la fecha actual
         } else {
+            // Si la fecha de vencimiento es menor a la fecha actual
             return ExpenseTemporalStatusEnum::OVERDUE->value;
         }
     }

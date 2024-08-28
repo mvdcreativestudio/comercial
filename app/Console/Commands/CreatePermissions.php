@@ -176,6 +176,14 @@ class CreatePermissions extends Command
                 'module' => 'management',
                 'view_all' => false,
             ],
+            [
+                'slug' => 'expenses',
+                'module' => 'expenses',
+                'view_all' => true,
+                "submenus" => [
+                    "delete_expenses"
+                ]
+            ]
         ]
       ];
 
@@ -201,7 +209,7 @@ class CreatePermissions extends Command
     {
         // Crear o buscar el permiso base y asignar el módulo
         $permissionName = 'access_' . $slug;
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::updateOrCreate(
             ['name' => $permissionName],
             ['module' => $module]
         );

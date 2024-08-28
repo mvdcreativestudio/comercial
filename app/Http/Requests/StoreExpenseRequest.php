@@ -2,12 +2,20 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\Expense\ExpenseStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 class StoreExpenseRequest extends FormRequest
 {
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'is_paid' => filter_var($this->is_paid, FILTER_VALIDATE_BOOLEAN),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,14 +33,30 @@ class StoreExpenseRequest extends FormRequest
     {
         return [
             'amount' => 'required|numeric',
-            // 'status' => [
-            //     'required',
-            //     new Enum(ExpenseStatusEnum::class),
-            // ],
             'due_date' => 'required|date',
             'supplier_id' => 'required|integer|exists:suppliers,id',
             'expense_category_id' => 'required|integer|exists:expense_categories,id',
             'store_id' => 'nullable|integer|exists:stores,id',
+            'is_paid' => 'required|in:true,false,1,0',
+            'amount_paid' => [
+                'nullable',
+                'numeric',
+                // function ($attribute, $value, $fail) {
+                //     if ($this->is_paid && $value != $this->amount) {
+                //         $fail('El monto pagado debe ser igual al monto del gasto.');
+                //     }
+                // },
+            ],
+            'payment_method_id' => [
+                'nullable',
+                'integer',
+                'exists:payment_methods,id',
+                function ($attribute, $value, $fail) {
+                    if ($this->is_paid && empty($value)) {
+                        $fail('Debe seleccionar un método de pago cuando el gasto está marcado como pagado.');
+                    }
+                },
+            ],
         ];
     }
 
@@ -46,8 +70,6 @@ class StoreExpenseRequest extends FormRequest
         return [
             'amount.required' => 'El campo monto es requerido.',
             'amount.numeric' => 'El campo monto debe ser un número.',
-            // 'status.required' => 'El campo estado es requerido.',
-            // 'status.enum' => 'El campo estado no es válido.',
             'due_date.required' => 'El campo fecha de vencimiento es requerido.',
             'due_date.date' => 'El campo fecha de vencimiento debe ser una fecha válida.',
             'supplier_id.required' => 'El campo proveedor es requerido.',
@@ -58,6 +80,11 @@ class StoreExpenseRequest extends FormRequest
             'expense_category_id.exists' => 'La categoría de gasto seleccionada no es válida.',
             'store_id.integer' => 'El campo tienda debe ser un número entero.',
             'store_id.exists' => 'La tienda seleccionada no es válida.',
+            'is_paid.required' => 'Debe indicar si el gasto está pagado o no.',
+            'is_paid.in' => 'El campo de pago debe ser verdadero o falso.',
+            'amount_paid.numeric' => 'El campo monto pagado debe ser un número.',
+            'payment_method_id.integer' => 'El método de pago debe ser un número entero.',
+            'payment_method_id.exists' => 'El método de pago seleccionado no es válido.',
         ];
     }
 }
