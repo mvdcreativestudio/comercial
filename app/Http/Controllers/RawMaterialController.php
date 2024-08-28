@@ -49,9 +49,19 @@ class RawMaterialController extends Controller
     public function index(): View
     {
         $rawMaterials = $this->rawMaterialRepository->getAll();
-        return view('raw-materials.index', ['rawMaterials' => $rawMaterials]);
+        
+        $inStockCount = 0;
+        foreach ($rawMaterials as $material) {
+            if ($material->stock > 0) {
+                $inStockCount++;
+            }
+        }
+        
+        return view('raw-materials.index', [
+            'rawMaterials' => $rawMaterials,
+            'inStockCount' => $inStockCount
+        ]);
     }
-
 
 
     /**

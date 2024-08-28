@@ -17,39 +17,33 @@ class Product extends Model
         'sku',
         'description',
         'type',
-        'max_flavors',
-        'old_price',
-        'price',
-        'discount',
-        'categories',
-        'tags',
-        'atributtes',
-        'variations',
         'image',
-        'store_id',
         'status',
-        'stock'
+        'draft',
+        'is_trash',
+        'category_id',
+        'bulk_production_id'
       ];
 
 
-    /**
-     * Obtiene la tienda a la que pertenece el producto.
-     *
-     * @return BelongsTo
-    */
-    public function store(): BelongsTo
+    public function productCategories(): HasMany
     {
-        return $this->belongsTo(Store::class);
+          return $this->hasMany(ProductCategory::class);
     }
 
-    /**
-      * Obtiene las categorías asociadas al producto.
-      *
-      * @return BelongsToMany
-    */
-    public function categories(): BelongsToMany
+    public function productPrices(): HasMany
     {
-        return $this->belongsToMany(ProductCategory::class, 'category_product', 'product_id', 'category_id');
+        return $this->hasMany(ProductPrice::class);
+    }
+
+    public function packaging(): HasMany
+    {
+        return $this->hasMany(Packaging::class, 'final_product_id');
+    }
+
+    public function BulkProduction(): HasMany
+    {
+        return $this->hasMany(BulkProduction::class, 'bulk_production_id');
     }
 
     /**
@@ -62,16 +56,6 @@ class Product extends Model
     return $this->belongsToMany(Order::class, 'order_products')
                 ->withPivot('quantity', 'price')
                 ->withTimestamps();
-    }
-
-    /**
-      * Obtiene los sabores asociados al producto.
-      *
-      * @return BelongsToMany
-    */
-    public function flavors(): BelongsToMany
-    {
-        return $this->belongsToMany(Flavor::class, 'product_flavor')->withTimestamps();
     }
 
     /**
@@ -92,5 +76,10 @@ class Product extends Model
     public function productions(): HasMany
     {
         return $this->hasMany(Production::class);
+    }
+    
+    public function batch(): HasMany
+    {
+        return $this->hasMany(Batch::class);
     }
 }
