@@ -37,7 +37,7 @@ class StoreExpenseRequest extends FormRequest
             'supplier_id' => 'required|integer|exists:suppliers,id',
             'expense_category_id' => 'required|integer|exists:expense_categories,id',
             'store_id' => 'nullable|integer|exists:stores,id',
-            'is_paid' => 'required|in:true,false,1,0',
+            'is_paid' => 'required|boolean',
             'amount_paid' => [
                 'nullable',
                 'numeric',

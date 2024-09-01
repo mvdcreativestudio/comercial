@@ -183,7 +183,25 @@ class CreatePermissions extends Command
                 "submenus" => [
                     "delete_expenses"
                 ]
-            ]
+            ],
+            [
+                'slug' => 'entries',
+                'module' => 'entries',
+                'view_all' => true,
+                'submenus' => [
+                    'entry-details',
+                    'delete_entries',
+                    // 'entry-types',
+                    // 'entry-accounts',
+                    // 'entry-currencies',
+                    // 'entry-settings',
+                ],
+            ],
+            [
+                'slug' => 'entry-details',
+                'module' => 'accounting',
+                'view_all' => false,
+            ],
         ]
       ];
 

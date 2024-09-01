@@ -93,7 +93,6 @@ class ExpenseController extends Controller
             $expense = $this->expenseRepository->store($request->validated());
             return response()->json($expense);
         } catch (\Exception $e) {
-            dd($e);
             Log::error($e->getMessage());
             return response()->json(['error' => 'Error al guardar el gasto.'], 400);
         }
