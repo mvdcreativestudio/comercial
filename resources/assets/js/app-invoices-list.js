@@ -1,6 +1,6 @@
 $(function () {
   let borderColor, bodyBg, headingColor;
-  let $currencySymbol = $('.datatables-receipt').data('symbol');
+  let $currencySymbol = $('.datatables-invoice').data('symbol');
 
   if (isDarkStyle) {
     borderColor = config.colors_dark.borderColor;
@@ -12,25 +12,29 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_receipt_table = $('.datatables-receipt');
+  var dt_invoice_table = $('.datatables-invoice');
 
   $.fn.dataTable.ext.errMode = 'throw';
 
-  if (dt_receipt_table.length) {
+  if (dt_invoice_table.length) {
     try {
-      var dt_receipts = dt_receipt_table.DataTable({
+      var dt_invoices = dt_invoice_table.DataTable({
         ajax: {
-          url: 'receipts/datatable',
+          url: 'invoices/datatable',
           dataSrc: 'data'
         },
         columns: [
           { data: 'id' },
           { data: 'store_name' },
           { data: 'client_name' },
+          { data: 'order_id' },
           { data: 'date' },
           { data: 'type' },
+          { data: 'reason' },
+          { data: 'balance' },
           { data: 'currency' },
           { data: 'total' },
+          { data: 'associated_id' }, // Nueva columna para el ID asociado
           { data: 'actions' }
         ],
         columnDefs: [
@@ -38,15 +42,7 @@ $(function () {
             targets: 0,
             orderable: false,
             render: function (data, type, full, meta) {
-              return (
-                '<a href="' +
-                baseUrl +
-                'admin/receipts/' +
-                full['order_uuid'] +
-                '/show" class="text-body">#' +
-                data +
-                '</a>'
-              );
+              return '#' + data;
             }
           },
           {
@@ -84,31 +80,75 @@ $(function () {
           {
             targets: 3,
             render: function (data, type, full, meta) {
-              return data ? moment(data.date).format('DD-MM-YYYY HH:mm') : 'Fecha inválida';
+              return (
+                '<a href="' +
+                baseUrl +
+                'admin/orders/' +
+                full['order_uuid'] +
+                '/show" class="text-body">' +
+                full['order_id'] +
+                '</a>'
+              );
             }
           },
           {
             targets: 4,
             render: function (data, type, full, meta) {
-              return data;
+              return data ? moment(data.date).format('DD-MM-YYYY HH:mm') : 'Fecha inválida';
             }
           },
           {
             targets: 5,
             render: function (data, type, full, meta) {
-              return full['currency'];
+              return data;
             }
           },
           {
             targets: 6,
             render: function (data, type, full, meta) {
+              return data ? data : 'Facturación';
+            }
+          },
+          {
+            targets: 7,
+            render: function (data, type, full, meta) {
+              return data ? $currencySymbol + data : 'N/A';
+            }
+          },
+          {
+            targets: 8,
+            render: function (data, type, full, meta) {
+              return full['currency'];
+            }
+          },
+          {
+            targets: 9,
+            render: function (data, type, full, meta) {
               return $currencySymbol + data;
+            }
+          },
+          {
+            targets: 10, // Nueva columna para el ID asociado
+            render: function (data, type, full, meta) {
+              if (full['associated_id']) {
+                return (
+                  '<a href="#" class="search-associated-id" data-id="' +
+                  full['associated_id'] +
+                  '">#' +
+                  full['associated_id'] +
+                  '</a>'
+                );
+              }
+              return 'N/A';
             }
           },
           {
             targets: -1,
             orderable: false,
             render: function (data, type, full, meta) {
+              var hideEmitirNota =
+                full['type'].includes('Nota de Crédito') || full['type'].includes('Nota de Débito') ? 'd-none' : '';
+
               return (
                 '<div class="d-flex justify-content-center align-items-center">' +
                 '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>' +
@@ -124,13 +164,18 @@ $(function () {
                 '<a href="#" class="dropdown-item btn-ver-detalles" data-id="' +
                 full['id'] +
                 '">Ver Detalles</a>' +
+                '<a href="#" class="dropdown-item btn-emitir-nota ' +
+                hideEmitirNota +
+                '" data-id="' +
+                full['id'] +
+                '">Emitir Nota</a>' +
                 '</div>' +
                 '</div>'
               );
             }
           }
         ],
-        order: [3, 'desc'],
+        order: [[0, 'desc']],
         dom:
           '<"card-header d-flex flex-column flex-md-row align-items-start align-items-md-center"<"ms-n2"f><"d-flex align-items-md-center justify-content-md-end mt-2 mt-md-0"l<"dt-action-buttons"B>>' +
           '>t' +
@@ -155,39 +200,56 @@ $(function () {
           emptyTable: 'No hay facturas disponibles',
           dom: 'Bfrtip',
           renderer: 'bootstrap'
+        },
+        rowCallback: function (row, data, index) {
+          if (data['type'].includes('Nota de Crédito') || data['type'].includes('Nota de Débito')) {
+            $('td', row).eq(5).css('background-color', '#F5F5F9').css('color', '#566A7F');
+          }
         }
       });
 
+      $('.datatables-invoice tbody').on('click', '.search-associated-id', function (e) {
+        e.preventDefault();
+        var associatedId = $(this).data('id');
+        dt_invoices.search('#' + associatedId).draw();
+      });
+
       // Evento para mostrar el modal con detalles
-      $('.datatables-receipt tbody').on('click', '.btn-ver-detalles', function () {
-        var receipt = dt_receipts.row($(this).parents('tr')).data();
+      $('.datatables-invoice tbody').on('click', '.btn-ver-detalles', function () {
+        var invoice = dt_invoices.row($(this).parents('tr')).data();
 
         $('#modalDetalle .modal-title').text('Detalles del CFE');
         $('#modalDetalle .modal-body').html(`
-          <p><strong>Serie:</strong> ${receipt.serie}</p>
-          <p><strong>CFE ID:</strong> ${receipt.cfeId}</p>
-          <p><strong>Número:</strong> ${receipt.nro}</p>
-          <p><strong>CAE Number:</strong> ${receipt.caeNumber}</p>
-          <p><strong>CAE Range:</strong> ${receipt.caeRange}</p>
-          <p><strong>CAE Expiration Date:</strong> ${moment(receipt.caeExpirationDate).format('DD-MM-YYYY')}</p>
-          <p><strong>Total:</strong> ${$currencySymbol}${receipt.total}</p>
-          <p><strong>Emisión Date:</strong> ${moment(receipt.emitionDate).format('DD-MM-YYYY')}</p>
-          <p><strong>Hash:</strong> ${receipt.sentXmlHash}</p>
-          <p><strong>Security Code:</strong> ${receipt.securityCode}</p>
-          <p><strong>QR URL:</strong> <a href="${receipt.qrUrl}" target="_blank">${receipt.qrUrl}</a></p>
+          <p><strong>Serie:</strong> ${invoice.serie}</p>
+          <p><strong>CFE ID:</strong> ${invoice.cfeId}</p>
+          <p><strong>Número:</strong> ${invoice.nro}</p>
+          <p><strong>CAE Number:</strong> ${invoice.caeNumber}</p>
+          <p><strong>CAE Range:</strong> ${invoice.caeRange}</p>
+          <p><strong>CAE Expiration Date:</strong> ${moment(invoice.caeExpirationDate).format('DD-MM-YYYY')}</p>
+          <p><strong>Total:</strong> ${$currencySymbol}${invoice.total}</p>
+          <p><strong>Emisión Date:</strong> ${moment(invoice.emitionDate).format('DD-MM-YYYY')}</p>
+          <p><strong>Hash:</strong> ${invoice.sentXmlHash}</p>
+          <p><strong>Security Code:</strong> ${invoice.securityCode}</p>
+          <p><strong>QR URL:</strong> <a href="${invoice.qrUrl}" target="_blank">${invoice.qrUrl}</a></p>
         `);
 
         $('#modalDetalle').modal('show');
       });
 
       $('.toggle-column').on('change', function () {
-        var column = dt_receipts.column($(this).attr('data-column'));
+        var column = dt_invoices.column($(this).attr('data-column'));
         column.visible(!column.visible());
       });
 
       // Estilos buscador y paginación
       $('.dataTables_length label select').addClass('form-select form-select-sm');
       $('.dataTables_filter label input').addClass('form-control');
+
+      $('.datatables-invoice tbody').on('click', '.btn-emitir-nota', function () {
+        var invoiceId = $(this).data('id');
+        $('#emitirNotaForm').attr('action', baseUrl + 'admin/invoices/' + invoiceId + '/emit-note');
+        $('#emitirNotaModal').modal('show');
+      });
     } catch (error) {
       console.log(error);
     }

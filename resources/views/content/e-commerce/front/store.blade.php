@@ -166,7 +166,7 @@
                               <small class="cart-product-variants">{{ $details['quantity'] }} x ${{ $details['price'] }}</small>
                           @endif
                       </div>
-                      <!-- Si hay sabores asociados al producto -->
+                      <!-- Si hay variaciones asociados al producto -->
                       @if(isset($details['flavors']) && is_array($details['flavors']) && count($details['flavors']) > 0)
                           <div class="cart-flavors">
                               @foreach($details['flavors'] as $flavorId => $flavorDetails)
@@ -287,11 +287,11 @@ document.addEventListener('DOMContentLoaded', function() {
     modalDescription.textContent = stripHtml(productDescription);
     modalImg.src = `../${productImage}`;
 
-    // Limpia el contenedor de selectores de sabores antes de añadir nuevos
+    // Limpia el contenedor de selectores de variaciones antes de añadir nuevos
     var flavorSelectorsContainer = document.getElementById('flavorSelectors');
     flavorSelectorsContainer.innerHTML = '';
 
-    // Genera dinámicamente los selectores de sabores basados en maxFlavors
+    // Genera dinámicamente los selectores de variaciones basados en maxFlavors
     for (let i = 0; i < maxFlavors; i++) {
       let flavorText = getFlavorText(i);
       var selectHTML = `<select name="flavors[]" class="form-select mb-2" required>

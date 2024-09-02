@@ -21,7 +21,7 @@
 
 @section('page-script')
 @vite([
-  'resources/assets/js/app-receipts-list.js'
+  'resources/assets/js/app-invoices-list.js'
 ])
 @endsection
 
@@ -83,10 +83,31 @@
   </div>
 </div>
 
+@if (session('success'))
+<div class="alert alert-success mt-3 mb-3">
+  {{ session('success') }}
+</div>
+@endif
+
+@if (session('error'))
+<div class="alert alert-danger mt-3 mb-3">
+  {{ session('error') }}
+</div>
+@endif
+
+@if ($errors->any())
+@foreach ($errors->all() as $error)
+  <div class="alert alert-danger">
+    {{ $error }}
+  </div>
+@endforeach
+@endif
+
+
 <!-- Receipts List Table -->
 <div class="card">
   <div class="card-datatable table-responsive">
-    <div class="card-header">
+    <div class="card-header" style="padding-bottom: 0px;">
       <h5 class="card-title">Facturas</h5>
       <div class="d-flex">
         <p class="text-muted small">
@@ -148,16 +169,20 @@
         </div>
       </div>
     </div>
-    <table class="datatables-receipt table border-top" data-symbol="{{ $settings->currency_symbol }}">
+    <table class="datatables-invoice table border-top" data-symbol="{{ $settings->currency_symbol }}">
       <thead>
         <tr>
           <th>N°</th>
           <th>Tienda</th>
           <th>Cliente</th>
+          <th>Orden</th>
           <th>Fecha</th>
           <th>Tipo</th>
+          <th>Razón</th>
+          <th>Balance</th>
           <th>Moneda</th>
           <th>Total</th>
+          <th>Asociado a</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -182,6 +207,41 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="emitirNotaModal" tabindex="-1" aria-labelledby="emitirNotaLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="#" method="POST" id="emitirNotaForm">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="emitirNotaLabel">Emitir Nota</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="noteType" class="form-label">Tipo de Nota</label>
+            <select class="form-control" id="noteType" name="noteType" required>
+              <option value="credit">Nota de Crédito</option>
+              <option value="debit">Nota de Débito</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="noteAmount" class="form-label">Monto de la Nota</label>
+            <input type="number" class="form-control" id="noteAmount" name="noteAmount" min="0" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label for="reason" class="form-label">Razón de la Nota</label>
+            <textarea class="form-control" id="reason" name="reason" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Emitir Nota</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

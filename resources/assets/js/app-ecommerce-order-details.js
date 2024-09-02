@@ -17,7 +17,7 @@ $(function () {
           }
         },
         {
-          // Nombre del producto con sabores
+          // Nombre del producto con variaciones
           data: 'name',
           render: function(data, type, row, meta) {
               var flavors = row.flavors ? '<br><small>' + row.flavors + '</small>' : '';

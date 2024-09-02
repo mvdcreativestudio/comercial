@@ -114,6 +114,7 @@ class CheckoutRepository
 
             $storeId = session('store.id');
             $clientData = $this->getClientData($request);
+
             $orderData = $this->getOrderData($request);
 
             // Guardar la orden y los datos del cliente
@@ -122,10 +123,7 @@ class CheckoutRepository
             $store = $order->store;
 
             if ($store->automatic_billing) {
-                // Emitir CFE (eFactura o eTicket)
-                $tipoCFE = $request->input('tipo_cfe', 'eTicket');
-
-                $this->accountingRepository->emitirCFE($order, $tipoCFE);
+                $this->accountingRepository->emitCFE($order);
 
                 // Marcar la orden como facturada
                 $order->update(['is_billed' => true]);
@@ -147,31 +145,35 @@ class CheckoutRepository
                 Log::info('Pedido procesado correctamente.');
 
                 // Enviar correos
-                Log::info('Método de pago es efectivo. Intentando enviar correos...');
-                $variables = [
-                    'order_id' => $order->id,
-                    'client_name' => $order->client->name,
-                    'client_lastname' => $order->client->lastname,
-                    'client_email' => $order->client->email,
-                    'client_phone' => $order->client->phone,
-                    'client_address' => $order->client->address,
-                    'client_city' => $order->client->city,
-                    'client_state' => $order->client->state,
-                    'client_country' => $order->client->country,
-                    'order_subtotal' => $order->subtotal,
-                    'order_shipping' => $order->shipping,
-                    'coupon_amount' => $order->coupon_amount,
-                    'order_total' => $order->total,
-                    'order_date' => $order->date,
-                    'order_items' => $order->products,
-                    'order_shipping_method' => $order->shipping_method,
-                    'order_payment_method' => $order->payment_method,
-                    'order_payment_status' => $order->payment_status,
-                    'store_name' => $order->store->name,
-                ];
+                try {
+                    Log::info('Método de pago es efectivo. Intentando enviar correos...');
+                    $variables = [
+                        'order_id' => $order->id,
+                        'client_name' => $order->client->name,
+                        'client_lastname' => $order->client->lastname,
+                        'client_email' => $order->client->email,
+                        'client_phone' => $order->client->phone,
+                        'client_address' => $order->client->address,
+                        'client_city' => $order->client->city,
+                        'client_state' => $order->client->state,
+                        'client_country' => $order->client->country,
+                        'order_subtotal' => $order->subtotal,
+                        'order_shipping' => $order->shipping,
+                        'coupon_amount' => $order->coupon_amount,
+                        'order_total' => $order->total,
+                        'order_date' => $order->date,
+                        'order_items' => $order->products,
+                        'order_shipping_method' => $order->shipping_method,
+                        'order_payment_method' => $order->payment_method,
+                        'order_payment_status' => $order->payment_status,
+                        'store_name' => $order->store->name,
+                    ];
 
-                $this->emailNotificationsRepository->sendNewOrderEmail($variables);
-                $this->emailNotificationsRepository->sendNewOrderClientEmail($variables);
+                    $this->emailNotificationsRepository->sendNewOrderEmail($variables);
+                    $this->emailNotificationsRepository->sendNewOrderClientEmail($variables);
+                } catch (\Exception $e) {
+                    Log::error("Error al enviar correos: {$e->getMessage()} en {$e->getFile()}:{$e->getLine()}");
+                }
 
                 // Redirigir al usuario a la página de éxito usando el UUID
                 return redirect()->route('checkout.success', $order->uuid);
@@ -184,15 +186,26 @@ class CheckoutRepository
     }
 
 
+
     /**
      * Crea una orden y un cliente en la base de datos.
      *
      * @param array $clientData
      * @param array $orderData
      * @return Order
-    */
+     */
     private function createOrder(array $clientData, array $orderData): Order
     {
+        // Obtener la configuración de companySettings
+        $companySettings = app('companySettings');
+
+        // Asignar store_id o null dependiendo del valor de clients_has_store
+        if ($companySettings && $companySettings->clients_has_store == 1) {
+            $clientData['store_id'] = session('store.id');
+        } else {
+            $clientData['store_id'] = null;
+        }
+
         // Crear y guardar el cliente
         $client = Client::updateOrCreate(
             ['email' => $clientData['email']],
@@ -211,7 +224,6 @@ class CheckoutRepository
 
         return $order;
     }
-
 
     /**
      * Procesa el pago con tarjeta utilizando MercadoPago.
@@ -291,12 +303,14 @@ class CheckoutRepository
             'name' => $request->name,
             'lastname' => $request->lastname,
             'type' => 'individual',
-            'state' => 'Montevideo',
-            'city' => 'Montevideo',
+            'state' => $request->department ?? 'Montevideo',
+            'city' => $request->city ?? 'Montevideo',
             'country' => 'Uruguay',
             'address' => $request->address ?? 'N/A',
             'phone' => $request->phone,
             'email' => $request->email,
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
     }
 
@@ -363,6 +377,8 @@ class CheckoutRepository
             'payment_method' => $request->payment_method,
             'shipping_method' => $request->shipping_method,
             'products' => json_encode($products),
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
 
         if ($request->filled('estimate_id')) {

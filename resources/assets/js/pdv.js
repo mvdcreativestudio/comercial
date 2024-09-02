@@ -11,7 +11,7 @@ $(document).ready(function() {
     let flavors = [];
     let productCategory = [];
     let clients = [];
-  
+
         // Inicializar Select2 en elementos con clase .select2
         $(function () {
           var select2 = $('.select2');
@@ -25,7 +25,7 @@ $(document).ready(function() {
               });
           }
       });
-  
+
     // Cargar el carrito desde el servidor
     function loadCart() {
         $.ajax({
@@ -42,8 +42,8 @@ $(document).ready(function() {
             }
         });
     }
-    
-  
+
+
     // Guardar el carrito en el servidor
     function saveCart() {
         $.ajax({
@@ -56,7 +56,7 @@ $(document).ready(function() {
             },
         });
     }
-  
+
     // Cargar las categorías y sus relaciones con los productos desde el backend
     function cargarCategorias() {
         $.ajax({
@@ -75,7 +75,7 @@ $(document).ready(function() {
             }
         });
     }
-  
+
     // Cargar las categorías de los productos desde el backend
     function cargarCategoriaProducto() {
         $.ajax({
@@ -94,13 +94,13 @@ $(document).ready(function() {
             }
         });
     }
-  
+
     // Evento de entrada para el campo de búsqueda de categorías
     $('#category-search-input').on('input', function() {
         const query = $(this).val();
         searchCategories(query);
     });
-  
+
     // Función para actualizar el menú desplegable de categorías en la vista
     function actualizarCategoriasEnVista(categoriesToDisplay = productCategory) {
         let categoryHtml = '';
@@ -114,41 +114,41 @@ $(document).ready(function() {
         });
         $('#category-container').html(categoryHtml);
     }
-  
+
     // Escuchar cambios en los checkboxes de las categorías
     $(document).on('change', '.form-check-input', function() {
         filterProductsByCategory();
     });
-  
+
     // Función para filtrar productos por categorías seleccionadas
     function filterProductsByCategory() {
         const selectedCategories = [];
         $('.form-check-input:checked').each(function() {
             selectedCategories.push(parseInt($(this).val()));
         });
-  
-  
+
+
         let filteredProducts = [];
-  
+
         products.forEach(function(product) {
             const productCategories = categories.filter(category => category.product_id === product.id);
-  
+
             const hasCategory = productCategories.some(category =>
                 selectedCategories.includes(category.category_id)
             );
-  
+
             if (hasCategory) {
                 filteredProducts.push(product);
             }
         });
-  
+
         if (isListView) {
             displayProductsList(filteredProducts);
         } else {
             displayProducts(filteredProducts);
         }
     }
-  
+
     // Función para cargar productos
     function loadProducts() {
         $.ajax({
@@ -168,44 +168,44 @@ $(document).ready(function() {
             }
         });
     }
-  
-    // Cargar sabores desde el backend
-  function cargarSabores() {
+
+    // Cargar variaciones desde el backend
+  function cargarVariaciones() {
     $.ajax({
         url: `flavors`,
         type: 'GET',
         success: function(response) {
             if (response && response.flavors) {
                 flavors = response.flavors;
-                // Llenar el select con los sabores
+                // Llenar el select con los variaciones
                 $('#flavorsSelect').empty();
                 flavors.forEach(flavor => {
                     $('#flavorsSelect').append(new Option(flavor.name, flavor.id));
                 });
-  
+
                 // Inicializar Select2 con formato de tags
                 $('#flavorsSelect').select2({
                     tags: true,
-                    placeholder: 'Selecciona sabores',
+                    placeholder: 'Selecciona variaciones',
                     dropdownParent: $('#flavorModal')
                 });
             } else {
-                alert('No se encontraron sabores.');
+                alert('No se encontraron variaciones.');
             }
         },
         error: function(xhr, status, error) {
-            alert('Error al cargar los sabores: ' + xhr.responseText);
+            alert('Error al cargar los variaciones: ' + xhr.responseText);
         }
     });
   }
-  
-  
+
+
   // Función para mostrar productos en formato de tarjetas
   function displayProducts(productsToDisplay) {
     let productsHtml = '';
     productsToDisplay.forEach(product => {
         const priceToDisplay = product.price ? product.price : product.old_price;
-  
+
         productsHtml += `
           <div class="col-6 col-md-3 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
               <div class="card-product-pos w-100 mb-3 position-relative">
@@ -224,14 +224,14 @@ $(document).ready(function() {
     });
     $('#products-container').html(productsHtml);
   }
-  
-  
+
+
     // Función para mostrar productos en formato de lista
     function displayProductsList(productsToDisplay) {
         let productsHtml = '<ul class="list-group w-100">';
         productsToDisplay.forEach(product => {
             const priceToDisplay = product.price ? product.price : product.old_price; // Usar price si existe, de lo contrario old_price
-  
+
             productsHtml += `
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
@@ -249,26 +249,26 @@ $(document).ready(function() {
         productsHtml += '</ul>';
         $('#products-container').html(productsHtml);
     }
-  
+
     // Función para agregar a un producto al carrito
     function addToCart(productId, productType) {
       const product = products.find(p => p.id === productId);
-  
+
       // Determinar el precio a usar
       const priceToUse = product.price ? product.price : product.old_price;
-  
+
       if (productType === 'configurable') {
-          // Mostrar el modal para seleccionar sabores
+          // Mostrar el modal para seleccionar variaciones
           $('#flavorModal').modal('show');
-  
-          // Guardar el producto temporalmente hasta que se seleccionen los sabores
+
+          // Guardar el producto temporalmente hasta que se seleccionen los variaciones
           $('#saveFlavors').off('click').on('click', function() {
               const selectedFlavors = $('#flavorsSelect').val();
               if (selectedFlavors.length === 0) {
                   alert('Debe seleccionar al menos un sabor.');
                   return;
               }
-  
+
               var category = categories.find(category => category.product_id == product.id);
               var category_id = category ? category.category_id : null;
               // Agregar el producto como nuevo ítem en el carrito
@@ -281,7 +281,7 @@ $(document).ready(function() {
                   quantity: 1,
                   category_id: category_id
               });
-  
+
               updateCart();
               $('#flavorModal').modal('hide');
           });
@@ -302,20 +302,20 @@ $(document).ready(function() {
                   category_id: category_id
               });
           }
-  
+
           updateCart();
       }
   }
-  
+
   // Función para actualizar el carrito en el DOM
   function updateCart() {
       let cartHtml = '';
       let subtotal = 0;
-  
+
       cart.forEach(item => {
           const itemTotal = item.price * item.quantity;  // Usar el precio ya calculado en addToCart
           subtotal += itemTotal;
-  
+
           cartHtml += `
               <tr>
                   <td>
@@ -347,24 +347,24 @@ $(document).ready(function() {
               </tr>
           `;
       });
-  
+
       const total = subtotal;
-  
+
       $('#cart tbody').html(cartHtml);
       $('.subtotal').text(`$${subtotal.toFixed(2)}`);
       $('.total').text(`$${total.toFixed(2)}`);
-  
+
       // Guardar el carrito en el servidor
       saveCart();
   }
-  
+
   // Manejar el clic en el botón "Agregar al carrito"
   $(document).on('click', '.add-to-cart', function() {
       const productId = $(this).data('id');
       const productType = $(this).data('type');
       addToCart(productId, productType);
   });
-  
+
   // Manejar el clic en los botones para aumentar/disminuir cantidad
   $(document).on('click', '.increase-quantity', function() {
       const productId = $(this).data('id');
@@ -372,7 +372,7 @@ $(document).ready(function() {
       cartItem.quantity += 1;
       updateCart();
   });
-  
+
   $(document).on('click', '.decrease-quantity', function() {
       const productId = $(this).data('id');
       const cartItem = cart.find(item => item.id === productId);
@@ -383,14 +383,14 @@ $(document).ready(function() {
       }
       updateCart();
   });
-  
+
   // Manejar el clic en el botón "Eliminar del carrito"
   $(document).on('click', '.remove-from-cart', function() {
       const productId = $(this).data('id');
       cart = cart.filter(item => item.id !== productId);
       updateCart();
   });
-  
+
   // Función para cargar clientes
   function loadClients() {
       $.ajax({
@@ -412,7 +412,7 @@ $(document).ready(function() {
           }
       });
   }
-  
+
   // Función para mostrar los clientes
   function displayClients(clients) {
       const clientList = $('#client-list');
@@ -433,25 +433,25 @@ $(document).ready(function() {
           `;
           clientList.append(clientItem);
       });
-  
+
       // Manejar el clic en el botón "+"
       $('.add-client').on('click', function() {
           const client = $(this).data('client');
           saveClientToSession(client);
-  
+
           // Actualizar el botón "Seleccionar cliente" con el nombre completo del cliente
           const buttonSelector = document.querySelector('[data-bs-target="#offcanvasEnd"]');
           if (buttonSelector) {
               const fullName = `${client.name} ${client.lastname}`;
               buttonSelector.textContent = fullName;
           }
-  
+
           // Cerrar el modal
           const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasEnd'));
           offcanvas.hide();
       });
   }
-  
+
   function saveClientToSession(client) {
       $.ajax({
           url: 'client-session',
@@ -462,18 +462,18 @@ $(document).ready(function() {
           },
       });
   }
-  
+
   // Filtrar clientes por búsqueda
   $('#search-client').on('input', function() {
       const query = $(this).val().toLowerCase();
       searchClients(query);
   });
-  
+
   // Cargar clientes al abrir el offcanvas
   $('#offcanvasEnd').on('show.bs.offcanvas', function() {
       loadClients();
   });
-  
+
   function searchClients(query) {
       const filteredClients = clients.filter(client => {
           const clientName = client.name ? client.name.toLowerCase() : '';
@@ -483,10 +483,10 @@ $(document).ready(function() {
                  clientCI.includes(query.toLowerCase()) ||
                  clientRUT.includes(query.toLowerCase());
       });
-  
+
       displayClients(filteredClients); // Muestra los clientes filtrados
   }
-  
+
   // Guardar cliente en base de datos
   document.getElementById('guardarCliente').addEventListener('click', function () {
       let nombre = document.getElementById('nombreCliente').value;
@@ -495,20 +495,20 @@ $(document).ready(function() {
       let email = document.getElementById('emailCliente').value;
       let ci = document.getElementById('ciCliente').value;
       let rut = document.getElementById('rutCliente').value;
-  
+
       let data = {
           name: nombre,
           lastname: apellido,
           type: tipo,
           email: email
       };
-  
+
       if (tipo === 'individual') {
           data.ci = ci;
       } else if (tipo === 'company') {
           data.rut = rut;
       }
-  
+
       fetch('client', {
           method: 'POST',
           headers: {
@@ -527,7 +527,7 @@ $(document).ready(function() {
           console.error('Error:', error);
       });
   });
-  
+
   document.getElementById('tipoCliente').addEventListener('change', function() {
       let tipo = this.value;
       if (tipo === 'individual') {
@@ -538,7 +538,7 @@ $(document).ready(function() {
           document.getElementById('rutField').style.display = 'block';
       }
   });
-  
+
   // Manejar el cambio de vista de productos (tarjeta/lista)
   $('#toggle-view-btn').on('click', function() {
       isListView = !isListView;
@@ -549,7 +549,7 @@ $(document).ready(function() {
           displayProducts(products);
       }
   });
-  
+
   // Filtrar productos por búsqueda
   function searchProducts(query) {
       const filteredProducts = products.filter(product => {
@@ -563,24 +563,24 @@ $(document).ready(function() {
           displayProducts(filteredProducts);
       }
   }
-  
+
   // Manejar cambios en la barra de búsqueda
   $('#html5-search-input').on('input', function() {
       const query = $(this).val();
       searchProducts(query);
   });
-  
+
   // Mostrar el modal de cerrar caja al hacer clic en el botón correspondiente
   $('#btn-cerrar-caja').click(function() {
       var cashRegisterId = $(this).data('id');
       $('#cash_register_id_close').val(cashRegisterId);
       $('#cerrarCajaModal').modal('show');
   });
-  
+
   // Enviar la solicitud para cerrar la caja registradora
   $('#submit-cerrar-caja').click(function() {
       var csrfToken = $('meta[name="csrf-token"]').attr('content');
-  
+
       $.ajax({
           url: 'close/' + cashRegisterId,
           type: 'POST',
@@ -596,11 +596,11 @@ $(document).ready(function() {
           }
       });
   });
-  
+
   // Inicializar funciones
   loadProducts();
   cargarCategorias();
-  cargarSabores();
+  cargarVariaciones();
   cargarCategoriaProducto();
   loadCart();
   });

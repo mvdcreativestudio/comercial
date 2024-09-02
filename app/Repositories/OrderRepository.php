@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Repositories\AccountingRepository;
 use Exception;
+use Illuminate\Http\Request;
 
 class OrderRepository
 {
@@ -328,21 +329,23 @@ class OrderRepository
      * Emite un CFE para una orden.
      *
      * @param int $orderId
-     * @param float|null $montoFactura
+     * @param Request $request
      * @return void
      * @throws Exception
     */
-    public function emitirCFE(int $orderId, ?float $montoFactura = null): void
+    public function emitCFE(int $orderId, Request $request): void
     {
       $order = Order::findOrFail($orderId);
 
-      $montoAFacturar = $montoFactura ?? $order->total;
+      $amountToBill = $request->amountToBill ?? $order->total;
 
-      if ($montoAFacturar > $order->total) {
+      if ($amountToBill > $order->total) {
         throw new Exception('El monto a facturar no puede ser mayor que el total de la orden.');
       }
 
-      $this->accountingRepository->emitirCFE($order, 'eTicket', $montoAFacturar);
+      $payType = $request->payType ?? 1;
+
+      $this->accountingRepository->emitCFE($order, $amountToBill, $payType);
 
       $order->update(['is_billed' => true]);
     }

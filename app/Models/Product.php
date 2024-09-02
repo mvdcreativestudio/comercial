@@ -65,7 +65,7 @@ class Product extends Model
     }
 
     /**
-      * Obtiene los sabores asociados al producto.
+      * Obtiene los variaciones asociados al producto.
       *
       * @return BelongsToMany
     */

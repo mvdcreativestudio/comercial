@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\PedidosYaController;
 use App\Http\Controllers\MercadoPagoController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ScanntechController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +38,17 @@ Route::post('/mpagohook', [MercadoPagoController::class, 'webhooks'])->name('mpa
 // Pedidos Ya
 Route::post('/pedidos-ya/estimate-order', [PedidosYaController::class, 'estimateOrder'])->name('api.pedidos-ya.estimate-order');
 Route::post('/pedidos-ya/confirm-order', [PedidosYaController::class, 'confirmOrder'])->name('api.pedidos-ya.confirm-order');
+
+// Scanntech
+Route::get('/scanntech/scanntech_responses', [ScanntechController::class, 'getScanntechResponses']);
+Route::get('/scanntech/token', [ScanntechController::class, 'getToken']);
+Route::post('/scanntech/purchase', [ScanntechController::class, 'postPurchase']);
+Route::post('/scanntech/transaction-state', [ScanntechController::class, 'getTransactionState']);
+
+
+Route::post('/payment/process', [PaymentController::class, 'processPayment']);
+
+
 
 
 

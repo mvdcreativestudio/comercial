@@ -184,19 +184,19 @@
   </div>
 </div>
 
-<!-- Modal para seleccionar sabores -->
+<!-- Modal para seleccionar variaciones -->
 <div class="modal fade" id="flavorModal" tabindex="-1" aria-labelledby="flavorModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="flavorModalLabel">Seleccionar Sabores</h5>
+              <h5 class="modal-title" id="flavorModalLabel">Seleccionar Variaciones</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
               <div id="flavorsContainer" class="mb-3 col-12">
-                <label class="form-label">Sabores disponibles</label>
+                <label class="form-label">Variaciones disponibles</label>
                 <select id="flavorsSelect" class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
-                    <!-- Opciones de sabores serán añadidas dinámicamente -->
+                    <!-- Opciones de variaciones serán añadidas dinámicamente -->
                 </select>
             </div>
           </div>
