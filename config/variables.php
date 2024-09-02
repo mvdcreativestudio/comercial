@@ -3,7 +3,7 @@
   return [
     "creatorName" => "MDV Studio",
     "creatorUrl" => "#",
-    "templateName" => "MVD Studio",
+    "templateName" => "Anjos Colchones",
     "templateSuffix" => "",
     "templateVersion" => "2.2.0",
     "templateFree" => false,

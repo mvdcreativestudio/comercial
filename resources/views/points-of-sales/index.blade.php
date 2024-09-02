@@ -240,7 +240,7 @@
                     // Si el array está vacío, ocultar el botón de crear caja
                     $('#crear-caja-btn').hide();
                 } else {
-                    // Si hay IDs, crear un select con las opciones
+                    // Crear un select con las opciones
                     var select = $('<select>', {
                         class: 'form-control',
                         id: 'store_id',
@@ -248,18 +248,12 @@
                         required: true
                     });
 
-                    // Opción por defecto para invitar a seleccionar una tienda
-                    select.append($('<option>', {
-                        value: '',
-                        text: 'Seleccione una tienda...',
-                        disabled: true,
-                        selected: true
-                    }));
-
+                    // Añadir las opciones de las tiendas
                     $.each(storeIds, function(index, store) {
                         select.append($('<option>', {
                             value: store.id,
-                            text: store.name // Usar el nombre de la tienda para mostrar en el select
+                            text: store.name, // Usar el nombre de la tienda para mostrar en el select
+                            selected: index === 0 // Seleccionar la primera tienda por defecto
                         }));
                     });
 

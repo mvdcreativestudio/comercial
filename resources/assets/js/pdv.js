@@ -200,54 +200,64 @@ $(document).ready(function() {
   }
 
 
-  // Función para mostrar productos en formato de tarjetas
-  function displayProducts(productsToDisplay) {
-    let productsHtml = '';
-    productsToDisplay.forEach(product => {
-        const priceToDisplay = product.price ? product.price : product.old_price;
+    // Función para mostrar productos en formato de tarjetas
+    function displayProducts(productsToDisplay) {
+      if (productsToDisplay.length === 0) {
+          $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
+          return;
+      }
 
-        productsHtml += `
-          <div class="col-6 col-md-3 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
-              <div class="card-product-pos w-100 mb-3 position-relative">
-                  <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
-                  <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
-                      <h5 class="card-title-product-pos text-white">${product.name}</h5>
-                      <p class="card-text-product-pos">
-                          ${product.price ? `<span class="text-muted" style="font-size: 0.8em;"><del>$${product.old_price}</del></span>` : ''}
-                          <span style="font-size: 1em;">$${priceToDisplay}</span>
-                      </p>
-                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}">Agregar</button>
-                  </div>
-              </div>
-          </div>
-        `;
-    });
-    $('#products-container').html(productsHtml);
-  }
+      let productsHtml = '';
+      productsToDisplay.forEach(product => {
+          const priceToDisplay = product.price ? product.price : product.old_price;
+
+          productsHtml += `
+            <div class="col-6 col-md-3 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
+                <div class="card-product-pos w-100 mb-3 position-relative">
+                    <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
+                    <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
+                        <h5 class="card-title-product-pos text-white">${product.name}</h5>
+                        <p class="card-text-product-pos">
+                            ${product.price ? `<span class="text-muted" style="font-size: 0.8em;"><del>$${product.old_price}</del></span>` : ''}
+                            <span style="font-size: 1em;">$${priceToDisplay}</span>
+                        </p>
+                        <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}">Agregar</button>
+                    </div>
+                </div>
+            </div>
+          `;
+      });
+      $('#products-container').html(productsHtml);
+    }
 
 
     // Función para mostrar productos en formato de lista
     function displayProductsList(productsToDisplay) {
-        let productsHtml = '<ul class="list-group w-100">';
-        productsToDisplay.forEach(product => {
-            const priceToDisplay = product.price ? product.price : product.old_price; // Usar price si existe, de lo contrario old_price
+      if (productsToDisplay.length === 0) {
+          $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
+          return;
+      }
 
-            productsHtml += `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <img src="${baseUrl}${product.image}" class="img-thumbnail me-2" alt="${product.name}" style="width: 50px;">
-                        <div>
-                            <h5 class="mb-0">${product.name}</h5>
-                            ${product.price ? `<small class="text-muted"><del>$${product.old_price}</del></small>` : ''}
-                            <p class="mb-0">$${priceToDisplay}</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}">Agregar</button>
-                </li>
-            `;
-        });
-        productsHtml += '</ul>';
-        $('#products-container').html(productsHtml);
+      let productsHtml = '<ul class="list-group w-100">';
+      productsToDisplay.forEach(product => {
+          const priceToDisplay = product.price ? product.price : product.old_price; // Usar price si existe, de lo contrario old_price
+
+          productsHtml += `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                      <img src="${baseUrl}${product.image}" class="img-thumbnail me-2" alt="${product.name}" style="width: 50px;">
+                      <div>
+                          <h5 class="mb-0">${product.name}</h5>
+                          ${product.price ? `<small class="text-muted"><del>$${product.old_price}</del></small>` : ''}
+                          <p class="mb-0">$${priceToDisplay}</p>
+                      </div>
+                  </div>
+                  <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}">Agregar</button>
+              </li>
+          `;
+      });
+      productsHtml += '</ul>';
+      $('#products-container').html(productsHtml);
     }
 
     // Función para agregar a un producto al carrito

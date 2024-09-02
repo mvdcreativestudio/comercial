@@ -15,7 +15,7 @@ class StoreProductRequest extends FormRequest
             'type' => 'required|in:simple,configurable',
             'max_flavors' => 'nullable|integer|min:1',
             'old_price' => 'required|numeric',
-            'price' => 'required|numeric|lt:old_price',
+            'price' => 'nullable|numeric|lt:old_price',
             'discount' => 'nullable|numeric',
             'store_id' => 'required|exists:stores,id',
             'status' => 'required|boolean',
