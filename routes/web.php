@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\{
     DashboardController,
@@ -36,6 +38,22 @@ use App\Http\Controllers\{
 
 };
 
+Route::get('/', function () {
+  if (Auth::check()) {
+      // Si el usuario está autenticado
+      if (Gate::allows('access_open_close_stores')) {
+          // Si el usuario tiene el permiso `access_open_close_stores`
+          return redirect()->route('dashboard');
+      } else {
+          // Si el usuario no tiene el permiso `access_open_close_stores`
+          return redirect()->route('pdv.front');
+      }
+  } else {
+      // Si el usuario no está autenticado, redirigir al login
+      return redirect()->route('login');
+  }
+})->name('home');
+
 // Middleware de autenticación y verificación de email
 Route::middleware([
     'auth:sanctum',
@@ -44,7 +62,7 @@ Route::middleware([
 ])->prefix('admin')->group(function () {
 
     // Dashboard
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Data Tables
     Route::get('/clients/datatable', [ClientController::class, 'datatable'])->name('clients.datatable');
@@ -142,7 +160,7 @@ Route::middleware([
         Route::post('assign-permissions', [RoleController::class, 'assignPermissions'])->name('assignPermissions');
     });
 
-    // Gestión de Sabores de Productos
+    // Gestión de Variaciones de Productos
     Route::get('/product-flavors', [ProductController::class, 'flavors'])->name('product-flavors');
     Route::post('/product-flavors', [ProductController::class, 'storeFlavor'])->name('product-flavors.store-modal');
     Route::post('/product-flavors/multiple', [ProductController::class, 'storeMultipleFlavors'])->name('product-flavors.store-multiple');
@@ -187,7 +205,7 @@ Route::middleware([
     Route::post('product-categories/{id}/update-selected',[ProductCategoryController::class,'updateSelected'])-> name('categories.updateSelected');
     Route::get('product-categories/{id}/get-selected',[ProductCategoryController::class,'getSelected'])-> name('categories.getSelected');
 
-    // Edición de Sabores
+    // Edición de Variaciones
     Route::get('/flavors/{id}', [ProductController::class, 'editFlavor'])->name('flavors.edit');
     Route::put('/flavors/{id}', [ProductController::class, 'updateFlavor'])->name('flavors.update');
 
@@ -228,7 +246,7 @@ Route::resources([
 
 
 // E-Commerce
-Route::get('/', [EcommerceController::class, 'home'])->name('home');
+// Route::get('/', [EcommerceController::class, 'home'])->name('home');
 Route::get('shop', [EcommerceController::class, 'index'])->name('shop'); //
 Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Tienda
 Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Tienda en el Carrito

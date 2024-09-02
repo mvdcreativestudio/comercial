@@ -192,7 +192,7 @@ class CashRegisterLogRepository
     }
 
     /**
-     * Toma los sabores para crear los productos con varios sabores.
+     * Toma los variaciones para crear los productos con varios variaciones.
      *
      * @return Flavor
      */

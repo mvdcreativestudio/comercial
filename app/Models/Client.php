@@ -9,7 +9,7 @@ class Client extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'lastname', 'type', 'rut', 'ci', 'passport', 'doc_ext',
+    protected $fillable = ['store_id', 'name', 'lastname', 'type', 'rut', 'ci', 'passport', 'doc_ext',
     'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document'];
 
 
@@ -42,5 +42,7 @@ class Client extends Model
     {
         return $this->hasMany(PosOrder::class);
     }
+
+
 
 }

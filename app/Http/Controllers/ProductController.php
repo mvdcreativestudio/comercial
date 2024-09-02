@@ -147,7 +147,7 @@ class ProductController extends Controller
   }
 
   /**
-   * Muestra una lista de todos los sabores.
+   * Muestra una lista de todos los variaciones.
    *
    * @return View
   */
@@ -158,7 +158,7 @@ class ProductController extends Controller
   }
 
   /**
-   * Obtiene los datos de los sabores para DataTables.
+   * Obtiene los datos de los variaciones para DataTables.
    *
    * @return mixed
   */
@@ -180,7 +180,7 @@ class ProductController extends Controller
   }
 
   /**
-   * Almacena múltiples sabores
+   * Almacena múltiples variaciones
    *
    * @param StoreMultipleFlavorsRequest $request
    * @return JsonResponse
@@ -188,7 +188,7 @@ class ProductController extends Controller
   public function storeMultipleFlavors(StoreMultipleFlavorsRequest $request): JsonResponse
   {
     $this->productRepo->storeMultipleFlavors($request);
-    return response()->json(['success' => true, 'message' => 'Sabores múltiples creados correctamente.']);
+    return response()->json(['success' => true, 'message' => 'Variaciones múltiples creados correctamente.']);
   }
 
   /**

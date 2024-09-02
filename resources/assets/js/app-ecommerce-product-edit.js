@@ -126,6 +126,7 @@ function initSelect2Components() {
   $('#productType')
     .select2()
     .on('change', function () {
+      toggleProductTypeFields();
       const isConfigurable = $(this).val() === 'configurable';
       $('#flavorsContainer').toggle(isConfigurable);
       $('#flavorsQuantityContainer').toggle(isConfigurable);
@@ -163,6 +164,15 @@ function initSelect2Components() {
       }
     }
   });
+  function toggleProductTypeFields() {
+    const productType = $('#productType').val();
+    const isConfigurable = productType === 'configurable';
+
+    $('#flavorsContainer').toggle(isConfigurable);
+    $('#flavorsQuantityContainer').toggle(isConfigurable);
+    $('#recipeCard').toggle(!isConfigurable);
+    $('#stockContainer').toggle(!isConfigurable); // Mostrar/ocultar stock inicial basado en el tipo de producto
+  }
 }
 
 function initFlatpickr() {
@@ -292,6 +302,7 @@ function initRepeater() {
     repeaterList.appendChild(row);
     updateFlavorOptions();
   }
+
 
   if (recipes.length > 0) {
     recipes.forEach(recipe => {

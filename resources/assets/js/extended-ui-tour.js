@@ -89,10 +89,10 @@
         attachTo: { element: '#tour-productos', on: 'right' },
       },
       {
-        id: 'tour-sabores',
-        title: 'Sabores',
-        text: 'Gestiona los sabores de tus productos. Aquí puedes agregar nuevos sabores, editar los existentes o eliminarlos.',
-        attachTo: { element: '#tour-sabores', on: 'right' },
+        id: 'tour-variaciones',
+        title: 'Variaciones',
+        text: 'Gestiona los variaciones de tus productos. Aquí puedes agregar nuevos variaciones, editar los existentes o eliminarlos.',
+        attachTo: { element: '#tour-variaciones', on: 'right' },
       },
       {
         id: 'tour-categorias',

@@ -8,8 +8,6 @@
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
 'resources/assets/vendor/libs/select2/select2.scss',
-'resources/assets/vendor/libs/bootstrap/bootstrap.min.css', // Bootstrap CSS
-'resources/assets/vendor/libs/fontawesome/fontawesome.min.css' // FontAwesome CSS
 ])
 @endsection
 
@@ -297,7 +295,7 @@
             pos_sales: formaPago === 'pos' ? totalOrden : 0,
             discount: 0,
             client_type: tipoCliente,
-            products: JSON.stringify(ordenes[0]), 
+            products: JSON.stringify(ordenes[0]),
             subtotal: (formaPago === 'efectivo' ? totalOrden : 0) + (formaPago === 'pos' ? totalOrden : 0),
             total: ((formaPago === 'efectivo' ? totalOrden : 0) + (formaPago === 'pos' ? totalOrden : 0)) - 0, // Resta 0 para acordarnos después de que debemos ver la lógica del tema descuentos.
             _token: $('meta[name="csrf-token"]').attr('content')
@@ -319,7 +317,7 @@
             }
         });
     });
-    
+
 
     // Cargar categorías desde el backend
     function cargarCategorias() {
@@ -339,8 +337,8 @@
         });
     }
 
-    // Cargar sabores desde el backend
-    function cargarSabores() {
+    // Cargar variaciones desde el backend
+    function cargarVariaciones() {
         $.ajax({
             url: 'pdv/flavors',
             type: 'GET',
@@ -348,17 +346,17 @@
                 if (response && response.flavors) {
                     flavors = response.flavors;
                 } else {
-                    alert('No se encontraron sabores.');
+                    alert('No se encontraron variaciones.');
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error al cargar los sabores: ' + xhr.responseText);
+                alert('Error al cargar los variaciones: ' + xhr.responseText);
             }
         });
     }
 
     cargarCategorias();
-    cargarSabores();
+    cargarVariaciones();
 
     // Mostrar el modal de cerrar caja al hacer clic en el botón correspondiente
     $('#btn-cerrar-caja').click(function() {
@@ -454,7 +452,7 @@
     function actualizarTotalOrden() {
         var total = 0;
         $('#productosTable tbody tr').each(function() {
-            // Verifica que no sea una fila de sabores
+            // Verifica que no sea una fila de variaciones
             if (!$(this).hasClass('flavor-row')) {
                 var price = parseFloat($(this).data('price')) || 0;
                 var quantity = parseInt($(this).find('.cantidad').val()) || 0;
@@ -488,7 +486,7 @@ $('#productosSelect').change(function() {
                 <td><button class="btn btn-danger btn-eliminar-producto">Eliminar</button></td>
             </tr>
         `;
-        
+
         if (type === 'configurable') {
             tr += `<tr class="flavor-row" data-id="${id}">
                     <td colspan="5">
@@ -521,7 +519,7 @@ $('#productosSelect').change(function() {
             var type = $(this).data('type');
             var productFlavors = [];
 
-            // Obtener sabores seleccionados si el producto es configurable
+            // Obtener variaciones seleccionados si el producto es configurable
             if (type === 'configurable') {
                 $(this).next('.flavor-row').find('.flavor-select option:selected').each(function() {
                     productFlavors.push($(this).val());
@@ -656,7 +654,7 @@ $('#productosSelect').change(function() {
         var type = $(this).data('type');
         var productFlavors = [];
 
-        // Obtener sabores seleccionados si el producto es configurable
+        // Obtener variaciones seleccionados si el producto es configurable
         if (type === 'configurable') {
             $(this).next('.flavor-row').find('.flavor-select option:selected').each(function() {
                 productFlavors.push($(this).val());
@@ -672,9 +670,9 @@ $('#productosSelect').change(function() {
             name: name,
             image: image,
             price: parseFloat(price),
-            flavors: productFlavors, 
+            flavors: productFlavors,
             quantity: parseInt(quantity),
-            category_id: category_id 
+            category_id: category_id
         });
     });
     // Recuperar las órdenes existentes del localStorage o crear una nueva lista si no existen
