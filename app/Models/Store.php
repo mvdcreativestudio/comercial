@@ -116,9 +116,9 @@ class Store extends Model
      *
      * @return HasMany
     */
-    public function receipts(): HasMany
+    public function invoices(): HasMany
     {
-        return $this->hasMany(Receipt::class);
+        return $this->hasMany(CFE::class);
     }
 
 }

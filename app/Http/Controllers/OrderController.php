@@ -174,10 +174,10 @@ class OrderController extends Controller
      * @param int $orderId
      * @return RedirectResponse
     */
-    public function emitirCFE(Request $request, int $orderId): RedirectResponse
+    public function emitCFE(Request $request, int $orderId): RedirectResponse
     {
       try {
-          $this->orderRepository->emitirCFE($orderId, $request->input('monto_factura'));
+          $this->orderRepository->emitCFE($orderId, $request);
           return redirect()->back()->with('success', 'Factura emitida correctamente.');
       } catch (\Exception $e) {
           Log::error("Error al emitir CFE para la orden {$orderId}: {$e->getMessage()}");

@@ -14,7 +14,7 @@ class ClientRepository
   */
   public function getClientsForDatatable(): mixed
   {
-    $query = Client::select(['id', 'name', 'lastname', 'type', 'rut', 'ci', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo']);
+    $query = Client::select(['id', 'name', 'lastname', 'type', 'rut', 'ci', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document']);
     return DataTables::of($query)->make(true);
   }
 

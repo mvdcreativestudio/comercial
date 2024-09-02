@@ -114,6 +114,7 @@ class CheckoutRepository
 
             $storeId = session('store.id');
             $clientData = $this->getClientData($request);
+
             $orderData = $this->getOrderData($request);
 
             // Guardar la orden y los datos del cliente
@@ -122,10 +123,7 @@ class CheckoutRepository
             $store = $order->store;
 
             if ($store->automatic_billing) {
-                // Emitir CFE (eFactura o eTicket)
-                $tipoCFE = $request->input('tipo_cfe', 'eTicket');
-
-                $this->accountingRepository->emitirCFE($order, $tipoCFE);
+                $this->accountingRepository->emitCFE($order);
 
                 // Marcar la orden como facturada
                 $order->update(['is_billed' => true]);
@@ -291,12 +289,14 @@ class CheckoutRepository
             'name' => $request->name,
             'lastname' => $request->lastname,
             'type' => 'individual',
-            'state' => 'Montevideo',
-            'city' => 'Montevideo',
+            'state' => $request->department ?? 'Montevideo',
+            'city' => $request->city ?? 'Montevideo',
             'country' => 'Uruguay',
             'address' => $request->address ?? 'N/A',
             'phone' => $request->phone,
             'email' => $request->email,
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
     }
 
@@ -363,6 +363,8 @@ class CheckoutRepository
             'payment_method' => $request->payment_method,
             'shipping_method' => $request->shipping_method,
             'products' => json_encode($products),
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
 
         if ($request->filled('estimate_id')) {

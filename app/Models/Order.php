@@ -17,7 +17,7 @@ class Order extends Model
     protected $fillable = ['date', 'time', 'origin', 'client_id',
       'store_id', 'products', 'subtotal', 'tax', 'shipping', 'coupon_id',
       'coupon_amount', 'discount', 'total', 'payment_status', 'shipping_status',
-      'payment_method', 'shipping_method', 'estimate_id', 'shipping_id', 'uuid', 'is_billed'];
+      'payment_method', 'shipping_method', 'estimate_id', 'shipping_id', 'uuid', 'is_billed', 'doc_type', 'document'];
 
     /**
      * The "booted" method of the model.
@@ -105,8 +105,8 @@ class Order extends Model
      *
      * @return HasMany
     */
-    public function receipts(): HasMany
+    public function invoices(): HasMany
     {
-        return $this->hasMany(Receipt::class);
+        return $this->hasMany(CFE::class);
     }
 }
