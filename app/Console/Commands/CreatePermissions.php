@@ -20,7 +20,7 @@ class CreatePermissions extends Command
      *
      * @var string
      */
-    protected $description = 'Crea permisos basados en los módulos del CRM - MVD';
+    protected $description = 'Crea permisos basados en los módulos del CRM - Sumeria';
 
     public function __construct()
     {
@@ -73,7 +73,7 @@ class CreatePermissions extends Command
                         'entries',
                         'accounting-settings'
                     ],
-                    'view_all' => false,
+                    'view_all' => true,
                 ],
                 [
                     'slug' => 'clients',

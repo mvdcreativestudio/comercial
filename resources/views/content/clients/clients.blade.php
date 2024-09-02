@@ -124,6 +124,8 @@
           <th class="col-2">Dirección</th>
           <th class="col-1">Ciudad</th>
           <th class="text-nowrap col-1">Departamento</th>
+          <th class="col-1">Tipo de Documento</th>
+          <th class="col-1">Documento</th>
         </tr>
       </thead>
     </table>

@@ -74,7 +74,7 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
 
 
     // Recursos con acceso autenticado
@@ -175,6 +175,7 @@ Route::middleware([
     Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
     Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
+    Route::post('invoices/{invoice}/emit-note', [AccountingController::class, 'emitNote'])->name('invoices.emitNote');
 
     Route::get('/accounting/settings', [AccountingController::class, 'settings'])->name('accounting.settings');
     Route::post('/accounting/save-rut', [AccountingController::class, 'saveRut'])->name('accounting.saveRut');
@@ -193,7 +194,7 @@ Route::middleware([
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'generatePdf'])->name('orders.pdf');
-    Route::post('/orders/{order}/emit-cfe', [OrderController::class, 'emitirCFE'])->name('orders.emitCFE');
+    Route::post('/orders/{order}/emit-cfe', [OrderController::class, 'emitCFE'])->name('orders.emitCFE');
 
     // Gestión de Cupones
     Route::post('marketing/coupons/delete-selected', [CouponController::class, 'deleteSelected'])->name('coupons.deleteSelected');
