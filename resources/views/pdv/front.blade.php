@@ -4,10 +4,13 @@
 
 @section('vendor-style')
 @vite([
-    'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-    'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-    'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-    'resources/assets/vendor/libs/select2/select2.scss',
+
+'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
+'resources/assets/vendor/libs/select2/select2.scss',
+// 'resources/assets/vendor/libs/bootstrap/bootstrap.min.css',
+// 'resources/assets/vendor/libs/fontawesome/fontawesome.min.css'
 ])
 
 <style>
@@ -28,14 +31,23 @@
 
 @section('vendor-script')
 @vite([
-    'resources/assets/vendor/libs/select2/select2.js',
-    'resources/assets/js/pdv.js'
+
+// 'resources/assets/vendor/libs/select2/select2.min.js',
+// 'resources/assets/vendor/libs/bootstrap/bootstrap.bundle.min.js',
+// 'resources/assets/vendor/libs/fontawesome/fontawesome.min.js',
+'resources/assets/vendor/libs/select2/select2.js',
+'resources/assets/js/pdv.js'
 ])
 
 <script>
-    window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
+  window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
     window.baseUrl = "{{ url('') }}/";
 </script>
+
+@php
+$openCashRegister = Session::get('open_cash_register_id');
+@endphp
+@if ($openCashRegister !== null)
 
 @section('content')
 <div class="container-fluid">
@@ -55,7 +67,6 @@
           </div>
         </div>
         {{-- Fin buscador de productos --}}
-
         {{-- Botones de acciones --}}
         <div class="col-12 d-flex justify-content-end align-items-center">
           {{-- Botón de categorías --}}
@@ -75,7 +86,6 @@
               </form>
             </div>
           </div>
-
           {{-- Botón para cerrar caja --}}
           <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger d-flex align-items-center ms-2">
             <i class="bx bx-lock-alt me-2"></i> Cerrar Caja
@@ -101,6 +111,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- Modal para ver el carrito -->
 <div class="modal modal-bottom fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
@@ -153,7 +164,8 @@
 
 
 <!-- Offcanvas Crear Cliente -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="crearClienteOffcanvas" aria-labelledby="crearClienteOffcanvasLabel">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="crearClienteOffcanvas"
+  aria-labelledby="crearClienteOffcanvasLabel">
   <div class="offcanvas-header">
     <h5 id="crearClienteOffcanvasLabel" class="offcanvas-title">Crear Cliente</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -195,24 +207,38 @@
 <!-- Modal para seleccionar variaciones -->
 <div class="modal fade" id="flavorModal" tabindex="-1" aria-labelledby="flavorModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="flavorModalLabel">Seleccionar Variaciones</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <div id="flavorsContainer" class="mb-3 col-12">
-                <label class="form-label">Variaciones disponibles</label>
-                <select id="flavorsSelect" class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
-                    <!-- Opciones de variaciones serán añadidas dinámicamente -->
-                </select>
-            </div>
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              <button type="button" id="saveFlavors" class="btn btn-primary">Guardar</button>
-          </div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="flavorModalLabel">Seleccionar Variaciones</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+      <div class="modal-body">
+        <div id="flavorsContainer" class="mb-3 col-12">
+          <label class="form-label">Variaciones disponibles</label>
+          <select id="flavorsSelect" class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
+            <!-- Opciones de variaciones serán añadidas dinámicamente -->
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" id="saveFlavors" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
   </div>
 </div>
 @endsection
+@else
+
+@section('content')
+
+<div class="alert alert-success mt-3 mb-3">
+  <h4 class="alert-heading">¡Caja cerrada!</h4>
+  <p>Para abrir una nueva caja, haga clic en el botón de abajo.</p>
+  <a href="/admin/points-of-sales" class="btn btn-primary">Abrir caja</a>
+</div>
+
+@endsection
+
+@endif
+
