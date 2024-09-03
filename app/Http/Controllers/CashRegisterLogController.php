@@ -12,8 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreClientRequest;
 use App\Models\Product;
-
-
+use Illuminate\Support\Facades\Session;
 
 class CashRegisterLogController extends Controller
 {
@@ -75,6 +74,7 @@ class CashRegisterLogController extends Controller
         $request['pos_sales'] = 0;
         $validatedData = $request->validated();
         $cashRegisterLog = $this->cashRegisterLogRepository->createCashRegisterLog($validatedData);
+        Session::put('open_cash_register_id', $cashRegisterId);
         return response()->json($cashRegisterLog, 201);
     }
 
@@ -141,6 +141,7 @@ class CashRegisterLogController extends Controller
         $closed = $this->cashRegisterLogRepository->closeCashRegister($id);
 
         if ($closed) {
+            Session::forget('open_cash_register_id');
             return response()->json(['message' => 'Caja registradora cerrada correctamente.']);
         } else {
             return response()->json(['message' => 'Ha ocurrido un error intentando cerrar la caja registradora.'], 404);

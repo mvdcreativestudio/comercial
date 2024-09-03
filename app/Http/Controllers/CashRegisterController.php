@@ -37,12 +37,11 @@ class CashRegisterController extends Controller
 
         if ($openCashRegisterId) {
             Session::put('open_cash_register_id', $openCashRegisterId);
-            return redirect()->route('pdv.front');
         } else {
             Session::forget('open_cash_register_id');
-            $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
-            return view('points-of-sales.index', compact('cajas', 'userId'));
         }
+        $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
+        return view('points-of-sales.index', compact('cajas', 'userId'));
     }
 
 

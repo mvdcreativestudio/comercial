@@ -175,6 +175,16 @@ class CreatePermissions extends Command
                     'module' => 'management',
                     'view_all' => false,
                 ],
+                [
+                    'slug' => 'cash-registers',
+                    'module' => 'point-of-sale',
+                    'view_all' => true,
+                ],
+                [
+                    'slug' => 'orders',
+                    'module' => 'orders',
+                    'view_all' => true,
+                ],
             ]
         ];
 
