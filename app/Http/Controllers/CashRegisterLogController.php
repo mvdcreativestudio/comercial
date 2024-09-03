@@ -315,4 +315,15 @@ class CashRegisterLogController extends Controller
         $client = session('client', []);
         return response()->json(['client' => $client]);
     }
+
+    /**
+     * Devuelve el Store ID de la session.
+     *
+     * @return JsonResponse
+     */
+    public function getStoreId()
+    {
+        $id = session('store_id', []);
+        return response()->json(['id' => $id]);
+    }
 }
