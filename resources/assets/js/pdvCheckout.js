@@ -98,35 +98,45 @@ $(document).ready(function () {
     let subtotal = 0;
 
     if (!Array.isArray(cart)) {
-      mostrarError('El carrito no es un array.');
-      return;
+        mostrarError('El carrito no es un array.');
+        return;
     }
 
     cart.forEach(item => {
-      const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
 
-      cartHtml += `
+        // Formatear el precio del producto y el total del ítem con separador de miles
+        const formattedItemPrice = item.price.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        const formattedItemTotal = itemTotal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+        cartHtml += `
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center">
-            <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail me-2" style="width: 50px;">
-            <div>
-              <h6 class="mb-0">${item.name}</h6>
-              <small class="text-muted">Cantidad: ${item.quantity}</small>
+            <div class="d-flex align-items-center">
+                <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail me-2" style="width: 50px;">
+                <div>
+                    <h6 class="mb-0">${item.name}</h6>
+                    <small class="text-muted">Cantidad: ${item.quantity} x $${formattedItemPrice}</small>
+                </div>
             </div>
-          </div>
-          <span>$${itemTotal.toFixed(2)}</span>
+            <span>$${formattedItemTotal}</span>
         </li>
-      `;
+        `;
     });
 
     const total = subtotal;
 
+    // Formatear los valores de subtotal y total con separadores de miles
+    const formattedSubtotal = subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const formattedTotal = total.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
     $('.list-group-flush').html(cartHtml);
 
-    $('.subtotal').text(`$${subtotal.toFixed(2)}`);
-    $('.total').text(`$${total.toFixed(2)}`);
+    $('.subtotal').text(`$${formattedSubtotal}`);
+    $('.total').text(`$${formattedTotal}`);
   }
+
+
 
   function loadClients() {
     $.ajax({
@@ -290,61 +300,72 @@ $(document).ready(function () {
     const paymentMethod = $('input[name="paymentMethod"]:checked').attr('id');
     let cashSales = 0;
     let posSales = 0;
+
+    // Convertir los valores de texto formateados a números enteros
+    const total = parseInt($('.total').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
+    const subtotal = parseInt($('.subtotal').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
+
     if (paymentMethod === 'cash') {
-      cashSales = parseInt($('.total').text().replace('$', ''));
+        cashSales = total;
     } else {
-      posSales = parseInt($('.total').text().replace('$', ''));
+        posSales = total;
     }
+
     const orderData = {
-      date: new Date().toISOString().split('T')[0],
-      hour: new Date().toLocaleTimeString('it-IT'),
-      cash_register_log_id: cashRegisterLogId,
-      cash_sales: cashSales,
-      pos_sales: posSales,
-      discount: 0,
-      client_id: client && client.id ? client.id : null,
-      client_type: client && client.type ? client.type : 'individual',
-      products: JSON.stringify(cart),
-      subtotal: parseInt($('.subtotal').text().replace('$', '')),
-      total: parseInt($('.total').text().replace('$', '')),
-      notes: $('textarea').val() || ''
+        date: new Date().toISOString().split('T')[0],
+        hour: new Date().toLocaleTimeString('it-IT'),
+        cash_register_log_id: cashRegisterLogId,
+        cash_sales: cashSales,
+        pos_sales: posSales,
+        discount: 0,
+        client_id: client && client.id ? client.id : null,
+        client_type: client && client.type ? client.type : 'individual',
+        products: JSON.stringify(cart),
+        subtotal: subtotal,
+        total: total,
+        notes: $('textarea').val() || ''
     };
 
     $.ajax({
-      url: `${baseUrl}admin/pos-orders`,
-      type: 'POST',
-      data: {
-        _token: $('meta[name="csrf-token"]').attr('content'),
-        ...orderData
-      },
-      success: function (response) {
-        cart = [];
-        saveCartToSession().done(function () {
-          updateCheckoutCart();
-          client = [];
-          saveClientToSession(client).done(function () {
-            window.location.href = frontRoute;
-          }).fail(function (xhr) {
-            mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-          });
-        }).fail(function (xhr) {
-          mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
-        });
-      },
-      error: function (xhr) {
-        if (xhr.responseJSON && xhr.responseJSON.errors) {
-          const errores = xhr.responseJSON.errors;
-          let mensajes = '';
-          for (const campo in errores) {
-            mensajes += `${errores[campo].join(', ')}<br>`;
-          }
-          mostrarError(mensajes);
-        } else {
-          mostrarError('Error al guardar la orden: ' + xhr.responseText);
+        url: `${baseUrl}admin/pos-orders`,
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            ...orderData
+        },
+        success: function (response) {
+            cart = [];
+            saveCartToSession().done(function () {
+                updateCheckoutCart();
+                client = [];
+                saveClientToSession(client).done(function () {
+                    window.location.href = frontRoute;
+                }).fail(function (xhr) {
+                    mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+                });
+            }).fail(function (xhr) {
+                mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+            });
+        },
+        error: function (xhr) {
+            if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.error) {
+                mostrarError(xhr.responseJSON.error);
+            } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                const errores = xhr.responseJSON.errors;
+                let mensajes = '';
+                for (const campo in errores) {
+                    mensajes += `${errores[campo].join(', ')}<br>`;
+                }
+                mostrarError(mensajes);
+            } else {
+                mostrarError('Error al guardar la orden: ' + xhr.responseText);
+            }
         }
-      }
     });
   }
+
+
+
 
   $('.btn-success').on('click', function () {
     postOrder();
@@ -359,15 +380,31 @@ $(document).ready(function () {
   });
 
   $('#valorRecibido').on('input', function () {
-    var valorRecibido = parseFloat($(this).val()) || 0;
-    var total = parseFloat($('.total').text().replace('$', '')) || 0;
+    // Obtener el valor recibido eliminando cualquier carácter que no sea un dígito o coma, y luego reemplazando la coma por un punto
+    var valorRecibido = parseFloat($(this).val().replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+
+    // Obtener el total eliminando cualquier carácter que no sea un dígito o punto decimal
+    var total = parseFloat($('.total').text().replace(/[^\d.-]/g, '').replace('.', '').replace(',', '.')) || 0;
+
+    // Calcular el vuelto
     var vuelto = valorRecibido - total;
 
+    // Verificar si el valor recibido es menor que el total
     if (valorRecibido < total) {
-      $('#mensajeError').removeClass('d-none');
+        $('#mensajeError').removeClass('d-none');
     } else {
-      $('#mensajeError').addClass('d-none');
+        $('#mensajeError').addClass('d-none');
     }
-    $('#vuelto').text(vuelto.toFixed(2));
-  });
+
+    // Formatear el vuelto con separadores de miles, mínimo de 0 decimales y máximo de 2
+    var formattedVuelto = vuelto.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+    // Mostrar el vuelto formateado
+    $('#vuelto').text(`${formattedVuelto}`);
+});
+
+
+
+
+
 });

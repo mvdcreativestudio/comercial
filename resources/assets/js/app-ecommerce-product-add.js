@@ -38,7 +38,7 @@
         flavorsQuantityContainer.style.display = 'block';
         flavorsContainer.style.display = 'block';
         recipeCard.style.display = 'none';
-        stockContainer.style.display = 'none';
+        stockContainer.style.display = 'block';
         console.log('Producto configurable');
       } else {
         flavorsQuantityContainer.style.display = 'none';

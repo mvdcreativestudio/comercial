@@ -109,7 +109,7 @@
         </div>
       </div>
       <!-- /Product Information -->
-      <!-- Variants -->
+      {{-- <!-- Variants -->
       <div class="card mb-4">
         <div class="card-header">
           <h5 class="card-title mb-0">Tipo de producto y variaciones</h5>
@@ -144,8 +144,8 @@
           </div>
         </div>
       </div>
-      <!-- /Variants -->
-      <!-- Recipe -->
+      <!-- /Variants --> --}}
+      {{-- <!-- Recipe -->
       <div class="card mb-4" id="recipeCard" style="display: none;">
         <div class="card-header">
           <h5 class="card-title mb-0">Receta</h5>
@@ -156,7 +156,7 @@
           <button type="button" class="btn btn-primary" id="addRawMaterial">Agregar Materia Prima</button>
           <button type="button" class="btn btn-secondary" id="addUsedFlavor">Agregar Sabor Usado</button>
         </div>
-      </div>
+      </div> --}}
 
     </div>
     <!-- /Second column -->
