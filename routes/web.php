@@ -100,6 +100,7 @@ Route::middleware([
 
 
     // Puntos de venta
+
     Route::get('/point-of-sale/stores', [CashRegisterController::class, 'storesForCashRegister']);
     Route::get('/point-of-sale/details/{id}', [CashRegisterController::class, 'getDetails']);
     Route::get('/point-of-sale/details/sales/{id}', [CashRegisterController::class, 'getSales']);
@@ -251,7 +252,6 @@ Route::get('shop', [EcommerceController::class, 'index'])->name('shop'); //
 Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Tienda
 Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Tienda en el Carrito
 Route::post('/cart/remove-item', [CartController::class, 'removeItem'])->name('cart.removeItem'); // Eliminar del Carrito
-Route::get('/session/clear', [CartController::class, 'clearSession'])->name('session.clear'); // Limpiar Sesión
 Route::get('/checkout/{orderId}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment'); // Pago de Orden
 Route::get('/checkout/success/{order:uuid}', [CheckoutController::class, 'success'])->name('checkout.success'); // Pago Exitoso
 Route::get('/checkout/pending/{order:uuid}', [CheckoutController::class, 'pending'])->name('checkout.pending'); // Pago Pendiente
@@ -275,3 +275,7 @@ Route::get('/test-email', [EmailTemplateController::class, 'testEmail']);
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/notifications/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+
+// Sesión
+Route::get('/session/clear', [CartController::class, 'clearSession'])->name('session.clear'); // Limpiar Sesión
+

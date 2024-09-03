@@ -133,7 +133,16 @@ class CashRegisterRepository
      * @param $id
      * @return JsonResponse
      */
-    public function getSales($id){
-        return PosOrder::where('cash_register_log_id', $id)->get();
+    public function getSales($id)
+    {
+        $sales = PosOrder::where('cash_register_log_id', $id)->get();
+
+        // Iterar sobre cada venta para decodificar los productos
+        foreach ($sales as $sale) {
+            $sale->products = json_decode($sale->products, true); // Decodificar el JSON a un array
+        }
+
+        return $sales;
     }
+
 }

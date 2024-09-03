@@ -72,79 +72,56 @@
                 </tr>
             </thead>
             <tbody>
-              {{-- @php
-                dd($cajas);
-              @endphp --}}
-              @foreach ($cajas as $caja)
-              <tr>
-                  <td>{{ $caja->id }}</td>
-                  <td>{{ $caja->store_name }}</td>
-                  <td>{{ $caja->user_name }}</td>
-                  <td class="text-center">
-                      @if($caja->open_time)
-                          {{ \Carbon\Carbon::parse($caja->open_time)->translatedFormat('d \d\e F Y') }}<br>
-                          {{ \Carbon\Carbon::parse($caja->open_time)->format('h:i a') }}
-                      @else
-                          <span class="text-muted">N/A</span>
-                      @endif
-                  </td>
-                  <td class="text-center">
-                      @if($caja->close_time)
-                          {{ \Carbon\Carbon::parse($caja->close_time)->translatedFormat('d \d\e F Y') }}<br>
-                          {{ \Carbon\Carbon::parse($caja->close_time)->format('h:i a') }}
-                      @else
-                          <span class="text-muted">N/A</span>
-                      @endif
-                  </td>
-                  <td>
-                      {{-- Utiliza el método del modelo para determinar el estado --}}
-                      <span class="badge {{ $caja->getEstado()['clase'] }}">{{ $caja->getEstado()['estado'] }}</span>
-                  </td>
-                  <td>
-                    @php
-                        // Verifica si hay acciones disponibles para mostrar
-                        $accionesDisponibles = (
-                            $caja->close_time != null ||
-                            auth()->user()->hasRole('Administrador') ||
-                            ($caja->open_time == null && $caja->close_time == null) // Permite abrir si no está iniciada
-                        );
-                    @endphp
-
-                    @if($accionesDisponibles)
-                    <!-- Menú desplegable de tres puntos -->
-                    <div class="dropdown">
-                        <button class="btn btn-link text-muted p-0" type="button" id="dropdownMenuButton{{ $caja->id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton{{ $caja->id }}">
-                            <!-- Mostrar "Abrir caja" si está cerrada o no iniciada -->
-                            @if($caja->close_time != null || ($caja->open_time == null && $caja->close_time == null))
-                            <li>
-                                <button class="dropdown-item btn-open" data-id="{{ $caja->id }}">Abrir caja</button>
-                            </li>
-                            @endif
-                            <!-- Mostrar "Cerrar caja" si está abierta -->
-                            @if($caja->open_time != null && $caja->close_time == null)
-                            <li>
-                                <button class="dropdown-item btn-closed" data-id="{{ $caja->id }}">Cerrar caja</button>
-                            </li>
-                            @endif
-
-                            <!-- Mostrar las acciones si el usuario tiene rol de Administrador -->
-                            @hasrole('Administrador')
-                            <li>
-                                <button class="dropdown-item btn-view" data-id="{{ $caja->id }}" data-store="{{ $caja->store_id }}" data-user="{{ $caja->user_id }}">Ver Detalles</button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item btn-delete" data-id="{{ $caja->id }}">Eliminar</button>
-                            </li>
-                            @endhasrole
-                        </ul>
-                    </div>
-                    @endif
-                </td>
-              </tr>
-              @endforeach
+                @foreach ($cajas as $caja)
+                <tr>
+                    <td>{{ $caja->id }}</td>
+                    <td>{{ $caja->store_name }}</td>
+                    <td>{{ $caja->user_name }}</td>
+                    <td class="text-center">
+                      {{ \Carbon\Carbon::parse($caja->open_time)->translatedFormat('d \d\e F Y') }}<br>
+                      {{ \Carbon\Carbon::parse($caja->open_time)->format('h:i a') }}
+                    </td>
+                    <td class="text-center">
+                      @if($caja->close_time == null)
+                        <button class="btn btn-primary btn-closed" data-id="{{ $caja->id }}">Cerrar</button>
+                        @else
+                        {{ \Carbon\Carbon::parse($caja->close_time)->translatedFormat('d \d\e F Y') }}<br>
+                        {{ \Carbon\Carbon::parse($caja->close_time)->format('h:i a') }}
+                        @endif
+                    </td>
+                    <td>
+                        @if($caja->close_time == null)
+                            <span class="badge bg-success">Abierta</span>
+                        @else
+                            <span class="badge bg-danger">Cerrada</span>
+                        @endif
+                    </td>
+                    <td>
+                        <!-- Menú desplegable de tres puntos -->
+                        <div class="dropdown">
+                            <button class="btn btn-link text-muted p-0" type="button" id="dropdownMenuButton{{ $caja->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton{{ $caja->id }}">
+                                <li>
+                                    <button class="dropdown-item btn-open" data-id="{{ $caja->id }}">Abrir caja</button>
+                                </li>
+                                @hasrole('Administrador')
+                                <li>
+                                    <button class="dropdown-item btn-view" data-id="{{ $caja->id }}" data-store="{{ $caja->store_id }}" data-user="{{ $caja->user_id }}">Ver Detalles</button>
+                                </li>
+                                @endhasrole
+                                <li>
+                                    <button class="dropdown-item btn-edit" data-id="{{ $caja->id }}" data-store="{{ $caja->store_id }}" data-user="{{ $caja->user_id }}">Editar</button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item btn-delete" data-id="{{ $caja->id }}">Eliminar</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -218,27 +195,6 @@
         </div>
     </div>
 </div>
-
-<!-- Modal para cerrar caja registradora -->
-<div class="modal fade" id="cerrarCajaModal" tabindex="-1" aria-labelledby="cerrarCajaLabel" aria-hidden="true">
-  <div class="modal-dialog">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="cerrarCajaLabel">Cerrar Caja Registradora</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <p>¿Estás seguro de que deseas cerrar esta caja registradora?</p>
-              <input type="hidden" id="cash_register_id_close" name="cash_register_id_close">
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="button" id="submit-cerrar-caja" class="btn btn-primary">Cerrar Caja</button>
-          </div>
-      </div>
-  </div>
-</div>
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery -->
 <script>
@@ -437,33 +393,12 @@
             });
         });
 
-        // Mostrar el modal de cierre al hacer clic en el botón "Cerrar"
+        // Mostrar el modal de cierre con la información de la caja
         $('.btn-closed').click(function() {
-            var cashRegisterId = $(this).data('id'); // Obtener el ID de la caja registradora
-            $('#cash_register_id_close').val(cashRegisterId); // Asignar el ID al campo oculto en el modal
-            $('#cerrarCajaModal').modal('show'); // Mostrar el modal de cierre de caja
+            var cashRegisterId = $(this).data('id');
+            $('#cash_register_id_close').val(cashRegisterId);
+            $('#cerrarCajaModal').modal('show');
         });
-
-        // Enviar la solicitud para cerrar la caja registradora al hacer clic en el botón "Cerrar"
-        $('#submit-cerrar-caja').click(function() {
-            var cashRegisterId = $('#cash_register_id_close').val(); // Obtener el ID de la caja a cerrar
-            var csrfToken = $('meta[name="csrf-token"]').attr('content'); // Obtener el token CSRF
-
-            $.ajax({
-                url: 'pdv/close/' + cashRegisterId, // URL de la solicitud para cerrar la caja
-                type: 'POST',
-                data: {
-                    _token: csrfToken // Token CSRF para seguridad
-                },
-                success: function(response) {
-                    $('#cerrarCajaModal').modal('hide'); // Ocultar el modal al cerrar la caja
-                    location.reload(); // Recargar la página para reflejar los cambios
-                },
-                error: function(xhr, status, error) {
-                    alert('Error al cerrar la caja registradora: ' + xhr.responseText); // Mostrar mensaje de error si falla
-                }
-            });
-          });
     });
 </script>
 @endsection
