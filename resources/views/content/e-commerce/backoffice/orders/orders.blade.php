@@ -27,7 +27,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span> Pedidos
+  <span class="text-muted fw-light">Pedidos /</span> Ordenes de Pedidos
 </h4>
 
 @if (Auth::user()->can('access_datacenter'))
@@ -65,7 +65,7 @@
           </div>
           <hr class="d-none d-sm-block d-lg-none">
         </div>
-        <div class="col-sm-6 col-lg-3">
+        {{-- <div class="col-sm-6 col-lg-3">
           <div class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
             <div>
               <h6 class="mb-2">Pedidos Pendientes</h6>
@@ -93,7 +93,7 @@
               </span>
             </div>
           </div>
-        </div>
+        </div> --}}
       </div>
     </div>
   </div>

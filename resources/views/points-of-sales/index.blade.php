@@ -365,7 +365,8 @@
                 },
                 success: function(response) {
                     $('#abrirCajaModal').modal('hide');
-                    location.reload(); // Recargar la página para reflejar los cambios
+                    // location.reload(); // Recargar la página para reflejar los cambios
+                    window.location.href = '/admin/pdv/front'; // Redirigir a la página de PDV
                 },
                 error: function(xhr, status, error) {
                     alert('Error al abrir la caja registradora: ' + xhr.responseText);

@@ -48,6 +48,8 @@ class CashRegisterController extends Controller
             $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
             return view('points-of-sales.index', compact('cajas', 'userId'));
         }
+        $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
+        return view('points-of-sales.index', compact('cajas', 'userId'));
     }
 
 

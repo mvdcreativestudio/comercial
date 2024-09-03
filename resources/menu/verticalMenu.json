@@ -12,7 +12,30 @@
       "name": "Punto de Venta",
       "icon": "menu-icon tf-icons bx bx-home-circle",
       "slug": "point-of-sale",
-      "url": "/admin/points-of-sales"
+      "url": "/admin/points-of-sales",
+      "submenu": [
+        {
+          "id": "tour-cajas-registradoras",
+          "name": "Cajas Registradoras",
+          "icon": "menu-icon tf-icons bx bx-cart",
+          "slug": "cash-registers",
+          "url": "/admin/points-of-sales"
+        },
+        {
+          "id": "tour-punto-de-venta",
+          "name": "Ver Punto de Venta",
+          "icon": "menu-icon tf-icons bx bx-home-circle",
+          "slug": "point-of-sale",
+          "url": "/admin/pdv/front"
+        }
+      ]
+    },
+    {
+      "id": "tour-pedidos",
+      "name": "Pedidos",
+      "icon": "menu-icon tf-icons bx bx-cart",
+      "slug": "orders",
+      "url": "/admin/orders"
     },
     {
       "id": "tour-clientes",
@@ -49,21 +72,6 @@
       "icon": "menu-icon tf-icons bx bx-store-alt",
       "slug": "stores",
       "url": "/admin/stores"
-    },
-    {
-      "id": "tour-ecommerce",
-      "name": "E-Commerce",
-      "icon": "menu-icon tf-icons bx bx-world",
-      "slug": "ecommerce",
-      "submenu": [
-        {
-          "id": "tour-pedidos",
-          "name": "Pedidos",
-          "icon": "menu-icon tf-icons bx bx-cart",
-          "slug": "orders",
-          "url": "/admin/orders"
-        }
-      ]
     },
     {
       "id": "tour-gestion-proveedores",
