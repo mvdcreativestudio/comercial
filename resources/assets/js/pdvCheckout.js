@@ -326,9 +326,9 @@ $(document).ready(function () {
     const subtotal = parseInt($('.subtotal').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
 
     if (paymentMethod === 'cash') {
-        cashSales = parseInt($('.total').text().replace('$', ''));
+        cashSales = total;
     } else {
-        posSales = parseInt($('.total').text().replace('$', ''));
+        posSales = total;
     }
 
     const orderData = {
@@ -341,8 +341,8 @@ $(document).ready(function () {
         client_id: client && client.id ? client.id : null,
         client_type: client && client.type ? client.type : 'individual',
         products: JSON.stringify(cart),
-        subtotal: parseInt($('.subtotal').text().replace('$', '')),
-        total: parseInt($('.total').text().replace('$', '')),
+        subtotal: subtotal,
+        total: total,
         notes: $('textarea').val() || ''
     };
 
@@ -381,12 +381,13 @@ $(document).ready(function () {
                 is_billed: 0,
                 doc_type: null,
                 document: null,
-                name: client.name,
-                lastname: client.lastname,
-                address: client.address,
-                phone: client.phone,
-                email: client.email
+                name: client ? client.name : 'N/A',
+                lastname: client ? client.lastname : 'N/A',
+                address: client ? client.address : 'N/A',
+                phone: client ? client.phone : 123456789,
+                email: client ? client.email : 'no@email.com',
             };
+
             $.ajax({
                 url: `${baseUrl}admin/orders`,
                 type: 'POST',
@@ -395,10 +396,12 @@ $(document).ready(function () {
                     ...ordersData
                 },
                 success: function (response) {
-                  console.log('Prueba');
+                    // Limpiar el carrito después de guardar la orden
+                    cart = [];
                     saveCartToSession().done(function () {
                         updateCheckoutCart();
                         saveClientToSession(client).done(function () {
+                            // Redirigir al usuario después de guardar la orden y el cliente
                             window.location.href = frontRoute;
                         }).fail(function (xhr) {
                             mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
@@ -426,6 +429,8 @@ $(document).ready(function () {
         }
     });
 }
+
+
 
   $('.btn-success').on('click', function () {
     postOrder();
