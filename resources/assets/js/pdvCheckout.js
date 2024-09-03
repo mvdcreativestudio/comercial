@@ -183,9 +183,9 @@ $(document).ready(function () {
         <li class="list-group-item d-flex justify-content-between align-items-center client-item"
           data-name="${String(client.name).toLowerCase()}"
           data-ci="${String(client.ci).toLowerCase()}"
-          data-rut="${String(client.rut).toLowerCase()}">
-          data-email="${String(client.email).toLowerCase()}">
-          data-phone="${String(client.phone).toLowerCase()}">
+          data-rut="${String(client.rut).toLowerCase()}"
+          data-email="${String(client.email).toLowerCase()}"
+          data-phone="${String(client.phone).toLowerCase()}"
           data-address="${String(client.address).toLowerCase()}">
           <div>
             ${client.name}, CI: ${client.ci}, RUT: ${client.rut}
