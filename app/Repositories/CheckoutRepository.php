@@ -117,30 +117,25 @@ class CheckoutRepository
 
             $orderData = $this->getOrderData($request);
 
-            // Guardar la orden y los datos del cliente
             $order = $this->createOrder($clientData, $orderData);
 
             $store = $order->store;
 
             if ($store->automatic_billing) {
                 $this->accountingRepository->emitCFE($order);
-
-                // Marcar la orden como facturada
                 $order->update(['is_billed' => true]);
             } else {
-                // Marcar la orden como no facturada
                 $order->update(['is_billed' => false]);
             }
 
             if ($request->payment_method === 'card') {
                 $redirectUrl = $this->processCardPayment($request, $order, $mercadoPagoService, $storeId);
                 DB::commit();
-                session()->forget('cart'); // Limpiar el carrito de compras
+                session()->forget('cart');
                 return Redirect::away($redirectUrl);
             } else {
-                // Lógica para pago en efectivo
                 DB::commit();
-                session()->forget('cart'); // Limpiar el carrito de compras
+                session()->forget('cart');
 
                 Log::info('Pedido procesado correctamente.');
 

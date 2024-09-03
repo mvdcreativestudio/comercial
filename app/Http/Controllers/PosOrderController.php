@@ -59,7 +59,7 @@ class PosOrderController extends Controller
 
         if (!$stockUpdated) {
             // Si el stock no se actualizó, retornar un error
-            return response()->json(['error' => 'Stock insuficiente en uno o más productos'], 400);
+            return response()->json(['error' => 'Stock insuficiente en uno o mas productos'], 400);
         }
 
         // Crear la orden después de actualizar el stock

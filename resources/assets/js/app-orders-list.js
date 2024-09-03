@@ -30,7 +30,6 @@ $(function () {
           { data: 'store_name' },
           { data: 'total' },
           { data: 'payment_status' },
-          { data: 'shipping_status' },
           { data: 'is_billed' },
           { data: '' }
         ],
@@ -98,15 +97,7 @@ $(function () {
             }
           },
           {
-            targets: 6,
-            render: function (data, type, full, meta) {
-              let badgeClass = data === 'pending' ? 'bg-warning' : data === 'shipped' ? 'bg-info' : 'bg-success';
-              let text = data === 'pending' ? 'PENDIENTE' : data === 'shipped' ? 'ENVIADO' : 'ENTREGADO';
-              return '<span class="badge pill ' + badgeClass + '">' + text + '</span>';
-            }
-          },
-          {
-            targets: 7, // Columna para mostrar si ha sido facturado
+            targets: 6, // Columna para mostrar si ha sido facturado
             render: function (data, type, full, meta) {
               console.log(full);
               return data

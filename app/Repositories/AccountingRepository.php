@@ -307,7 +307,7 @@ class AccountingRepository
     private function prepareCFEData(Order $order, string $cfeType, float $amountToBill, int $payType): array
     {
         $client = $order->client;
-        $products = json_decode($order->products, true);
+        $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
         // Calcular proporción si se está usando un monto facturado menor al total de la orden
         $proporcion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
@@ -315,11 +315,12 @@ class AccountingRepository
         $items = array_map(function ($product, $index) use ($proporcion, $order) {
             $cantidadAjustada = round($product['quantity'] * $proporcion, 2); // Redondeo a dos decimales
             $montoItemAjustado = round(($product['price'] * $product['quantity']) * $proporcion, 2); // Redondeo a dos decimales
-
+            // Log de Product name
+            Log::info('Product name: ' . $product['name']);
             return [
                 'NroLinDet' => $index + 1, // Número de línea de detalle
                 'IndFact' => 3, // Valor de 'IndFact' de la orden -- SI ES RUC ESTA EXENTO DE IVA ?
-                'NomItem' => $product['name'], // Nombre del producto
+                'NomItem' => 'Venta PDV', // Nombre del producto
                 'Cantidad' => $cantidadAjustada, // Cantidad del producto
                 'UniMed' => 'N/A', // Unidad de medida, si no tiene usar N/A
                 'PrecioUnitario' => $product['price'], // Precio unitario del producto
@@ -335,9 +336,9 @@ class AccountingRepository
                 'FmaPago' => $payType // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
             ],
             'Receptor' => [
-                'TipoDocRecep' => $order->doc_type, // Tipo de documento receptor
+                'TipoDocRecep' => 3, // Tipo de documento receptor
                 'CodPaisRecep' => 'UY',
-                'DocRecep' => strval($client->document), // Documento receptor (RUC o CI)
+                'DocRecep' => 12345678, // Documento receptor (RUC o CI)
                 'RznSocRecep' => $client->name . ' ' . $client->lastname, // Nombre completo del cliente o razón social
                 'DirRecep' => $client->address, // Dirección del cliente
                 'CiudadRecep' => $client->city, // Ciudad del cliente PASA A LA TABLA DE CLIENTE
@@ -552,10 +553,10 @@ class AccountingRepository
                 'FmaPago' => '1',
             ],
             'Receptor' => [
-                'TipoDocRecep' => $order->doc_type,
+                'TipoDocRecep' => 3,
                 'CodPaisRecep' => 'UY',
                 'PaisRecep' => 'Uruguay',
-                'DocRecep' => strval($order->document),
+                'DocRecep' => 12345678,
                 'RznSocRecep' => $order->client->name . ' ' . $order->client->lastname,
                 'DirRecep' => $order->client->address,
                 'CiudadRecep' => $order->client->city,

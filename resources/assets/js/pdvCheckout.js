@@ -411,6 +411,7 @@ $(document).ready(function () {
                     });
                 },
                 error: function (xhr) {
+                    console.log(xhr)
                     mostrarError('Error al guardar la orden en orders: ' + xhr.responseText);
                 }
             });
@@ -424,7 +425,8 @@ $(document).ready(function () {
                 }
                 mostrarError(mensajes);
             } else {
-                mostrarError('Error al guardar la orden en pos-orders: ' + xhr.responseText);
+                console.log(xhr)
+                mostrarError(xhr.responseJSON.error);
             }
         }
     });

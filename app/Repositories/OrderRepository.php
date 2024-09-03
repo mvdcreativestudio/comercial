@@ -71,7 +71,6 @@ class OrderRepository
   */
   public function store($request)
   {
-
     $clientData = $this->extractClientData($request->validated());
     $orderData = $this->prepareOrderData($request->payment_method);
 
@@ -83,19 +82,23 @@ class OrderRepository
         $order->client()->associate($client);
 
         $order->save();
-        Log::info('Guardo la orden..');
 
         $products = json_decode($request['products'], true);
-
-
         $order->products = $products;
 
         $order->save();
         DB::commit();
-        Log::info('Pasó el commit.');
 
         session()->forget('cart');
-        Log::info('Olvidé la session del carrito.');
+
+        $store = $order->store;
+
+        if ($store->automatic_billing) {
+            $this->accountingRepository->emitCFE($order);
+            $order->update(['is_billed' => true]);
+        } else {
+            $order->update(['is_billed' => false]);
+        }
 
         return $order;
     } catch (\Exception $e) {
@@ -139,14 +142,14 @@ class OrderRepository
     return [
         'date' => now(),
         'time' => now()->format('H:i:s'),
-        'origin' => 'ecommerce',
+        'origin' => 'physical',
         'store_id' => 1,
         'subtotal' => $subtotal,
         'tax' => 0,
         'shipping' => session('costoEnvio', 0),
         'total' => $subtotal + session('costoEnvio', 0),
-        'payment_status' => 'pending',
-        'shipping_status' => 'pending',
+        'payment_status' => 'paid',
+        'shipping_status' => 'shipped',
         'payment_method' => $paymentMethod,
         'shipping_method' => 'peya',
     ];

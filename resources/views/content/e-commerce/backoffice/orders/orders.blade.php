@@ -35,7 +35,7 @@
   <div class="card-widget-separator-wrapper">
     <div class="card-body card-widget-separator">
       <div class="row gy-4 gy-sm-1">
-        <div class="col-sm-6 col-lg-3">
+        <div class="col-sm-6 col-lg-6">
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Total de Pedidos</h6>
@@ -50,8 +50,8 @@
           </div>
           <hr class="d-none d-sm-block d-lg-none me-4">
         </div>
-        <div class="col-sm-6 col-lg-3">
-          <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
+        <div class="col-sm-6 col-lg-6">
+          <div class="d-flex justify-content-between align-items-start card-widget-2 pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Ingresos Totales</h6>
               <h4 class="mb-2">{{ $settings->currency_symbol }} {{ number_format($totalIncome, 2) }}</h4>
@@ -170,12 +170,12 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Envío</span>
+            <span class="switch-label">Facturado</span>
           </label>
         </div>
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="8" checked>
+            <input type="checkbox" class="toggle-column switch-input" data-column="7" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
@@ -195,7 +195,6 @@
           <th>Local</th>
           <th>Importe</th>
           <th>Pago</th>
-          <th>Envío</th>
           <th>Facturado</th>
           <th>Acciones</th>
         </tr>
