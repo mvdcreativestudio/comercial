@@ -5,6 +5,7 @@ $(document).ready(function () {
   let client = [];
   const cashRegisterId = window.cashRegisterId;
   let cashRegisterLogId = null;
+  let sessionStoreId = null;
 
   function mostrarError(mensaje) {
     $('#errorContainer').text(mensaje).removeClass('d-none'); // Mostrar mensaje de error
@@ -62,6 +63,21 @@ $(document).ready(function () {
           showClientInfo(client);
           $('#client-selection-container').hide();
         }
+      },
+      error: function (xhr) {
+        mostrarError('Error al cargar el cliente desde la sesión: ' + xhr.responseText);
+      }
+    });
+  }
+
+  function loadStoreIdFromSession() {
+    $.ajax({
+      url: `storeid-session`,
+      type: 'GET',
+      dataType: 'json',
+      success: function (response) {
+        sessionStoreId = response.id;
+        console.log('Hola + '+sessionStoreId)
       },
       error: function (xhr) {
         mostrarError('Error al cargar el cliente desde la sesión: ' + xhr.responseText);
@@ -168,6 +184,9 @@ $(document).ready(function () {
           data-name="${String(client.name).toLowerCase()}"
           data-ci="${String(client.ci).toLowerCase()}"
           data-rut="${String(client.rut).toLowerCase()}">
+          data-email="${String(client.email).toLowerCase()}">
+          data-phone="${String(client.phone).toLowerCase()}">
+          data-address="${String(client.address).toLowerCase()}">
           <div>
             ${client.name}, CI: ${client.ci}, RUT: ${client.rut}
           </div>
@@ -293,6 +312,7 @@ $(document).ready(function () {
   loadCartFromSession();
   loadClientFromSession();
   obtenerCashRegisterLogId();
+  loadStoreIdFromSession();
 
   function postOrder() {
     ocultarError(); // Ocultar errores previos
@@ -306,9 +326,9 @@ $(document).ready(function () {
     const subtotal = parseInt($('.subtotal').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
 
     if (paymentMethod === 'cash') {
-        cashSales = total;
+        cashSales = parseInt($('.total').text().replace('$', ''));
     } else {
-        posSales = total;
+        posSales = parseInt($('.total').text().replace('$', ''));
     }
 
     const orderData = {
@@ -321,11 +341,12 @@ $(document).ready(function () {
         client_id: client && client.id ? client.id : null,
         client_type: client && client.type ? client.type : 'individual',
         products: JSON.stringify(cart),
-        subtotal: subtotal,
-        total: total,
+        subtotal: parseInt($('.subtotal').text().replace('$', '')),
+        total: parseInt($('.total').text().replace('$', '')),
         notes: $('textarea').val() || ''
     };
 
+    // Primero, hacer el POST a pos-orders
     $.ajax({
         url: `${baseUrl}admin/pos-orders`,
         type: 'POST',
@@ -334,23 +355,65 @@ $(document).ready(function () {
             ...orderData
         },
         success: function (response) {
-            cart = [];
-            saveCartToSession().done(function () {
-                updateCheckoutCart();
-                client = [];
-                saveClientToSession(client).done(function () {
-                    window.location.href = frontRoute;
-                }).fail(function (xhr) {
-                    mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-                });
-            }).fail(function (xhr) {
-                mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+            // Si la orden se guarda con éxito en pos-orders, proceder a guardar en orders
+            const ordersData = {
+                date: orderData.date,
+                time: orderData.hour,
+                origin: 'physical',
+                client_id: orderData.client_id,
+                store_id: sessionStoreId,
+                products: orderData.products,
+                subtotal: orderData.subtotal,
+                tax: 0,
+                shipping: 0,
+                coupon_id: null,
+                coupon_amount: 0,
+                discount: orderData.discount,
+                total: orderData.total,
+                estimate_id: null,
+                shipping_id: null,
+                payment_status: 'paid',
+                shipping_status: 'delivered',
+                payment_method: paymentMethod,
+                shipping_method: 'standard',
+                preference_id: null,
+                shipping_tracking: null,
+                is_billed: 0,
+                doc_type: null,
+                document: null,
+                name: client.name,
+                lastname: client.lastname,
+                address: client.address,
+                phone: client.phone,
+                email: client.email
+            };
+            $.ajax({
+                url: `${baseUrl}admin/orders`,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    ...ordersData
+                },
+                success: function (response) {
+                  console.log('Prueba');
+                    saveCartToSession().done(function () {
+                        updateCheckoutCart();
+                        saveClientToSession(client).done(function () {
+                            window.location.href = frontRoute;
+                        }).fail(function (xhr) {
+                            mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+                        });
+                    }).fail(function (xhr) {
+                        mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+                    });
+                },
+                error: function (xhr) {
+                    mostrarError('Error al guardar la orden en orders: ' + xhr.responseText);
+                }
             });
         },
         error: function (xhr) {
-            if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.error) {
-                mostrarError(xhr.responseJSON.error);
-            } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
                 const errores = xhr.responseJSON.errors;
                 let mensajes = '';
                 for (const campo in errores) {
@@ -358,14 +421,11 @@ $(document).ready(function () {
                 }
                 mostrarError(mensajes);
             } else {
-                mostrarError('Error al guardar la orden: ' + xhr.responseText);
+                mostrarError('Error al guardar la orden en pos-orders: ' + xhr.responseText);
             }
         }
     });
-  }
-
-
-
+}
 
   $('.btn-success').on('click', function () {
     postOrder();
@@ -402,9 +462,6 @@ $(document).ready(function () {
     // Mostrar el vuelto formateado
     $('#vuelto').text(`${formattedVuelto}`);
 });
-
-
-
 
 
 });

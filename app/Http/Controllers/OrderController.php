@@ -78,15 +78,34 @@ class OrderController extends Controller
    * @param  StoreOrderRequest  $request
    * @return RedirectResponse
   */
-  public function store(StoreOrderRequest $request): RedirectResponse
-  {
-      try {
-          $order = $this->orderRepository->store($request);
-          return redirect()->route('checkout.index')->with('success', 'Pedido realizado con éxito. ID de orden: ' . $order->id);
-      } catch (\Exception $e) {
-          return back()->withErrors('Error al procesar el pedido. Por favor, intente nuevamente.')->withInput();
-      }
-  }
+  public function store(StoreOrderRequest $request): JsonResponse
+    {
+        try {
+            $order = $this->orderRepository->store($request);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pedido realizado con éxito.',
+                    'order_id' => $order->id
+                ]);
+            }
+
+            return redirect()->route('pdv.index')->with('success', 'Pedido realizado con éxito. ID de orden: ' . $order->id);
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al procesar el pedido. Por favor, intente nuevamente.',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            // Manejo de errores para solicitudes normales
+            return back()->withErrors('Error al procesar el pedido. Por favor, intente nuevamente.')->withInput();
+        }
+    }
+
 
   /**
    * Muestra un pedido específico.

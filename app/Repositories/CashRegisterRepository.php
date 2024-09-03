@@ -47,8 +47,16 @@ class CashRegisterRepository
         return $query->get();
     }
 
+    public function findStoreByCashRegisterId($cashRegisterId)
+    {
+        $cashRegister = CashRegister::find($cashRegisterId);
 
+        if ($cashRegister) {
+            return $cashRegister->store_id;
+        }
 
+        return null;
+    }
 
     /**
      * Crea un nuevo registro de caja.

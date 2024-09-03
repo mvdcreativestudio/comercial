@@ -71,6 +71,7 @@ class OrderRepository
   */
   public function store($request)
   {
+
     $clientData = $this->extractClientData($request->validated());
     $orderData = $this->prepareOrderData($request->payment_method);
 
@@ -82,15 +83,19 @@ class OrderRepository
         $order->client()->associate($client);
 
         $order->save();
+        Log::info('Guardo la orden..');
 
-        $products = json_decode($orderData['products'], true);
+        $products = json_decode($request['products'], true);
+
+
         $order->products = $products;
 
         $order->save();
-
         DB::commit();
+        Log::info('Pasó el commit.');
 
         session()->forget('cart');
+        Log::info('Olvidé la session del carrito.');
 
         return $order;
     } catch (\Exception $e) {
