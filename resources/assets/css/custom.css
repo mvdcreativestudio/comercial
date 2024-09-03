@@ -666,3 +666,10 @@ tr.odd {
   border: solid 1px #18181859;
   border-radius: 3px;
 }
+
+.card-title-product-pos {
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden;    /* Oculta el desbordamiento de texto */
+  text-overflow: ellipsis; /* Añade puntos suspensivos al final del texto si es demasiado largo */
+  max-width: 100%;     /* Asegura que el texto se mantenga dentro del contenedor */
+}
