@@ -39,15 +39,20 @@
 'resources/assets/js/pdv.js'
 ])
 
+@php
+$openCashRegister = Session::get('open_cash_register_id');
+$currencySymbol = $settings->currency_symbol;
+@endphp
+
 <script>
   window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
     window.baseUrl = "{{ url('') }}/";
+  window.currencySymbol = '{{ $currencySymbol }}';
 </script>
 
-@php
-$openCashRegister = Session::get('open_cash_register_id');
-@endphp
+
 @if ($openCashRegister !== null)
+
 
 @section('content')
 <div class="container-fluid">
@@ -58,7 +63,7 @@ $openCashRegister = Session::get('open_cash_register_id');
     </div>
 
     <div class="col-12">
-      <div class="row d-flex align-items-center p-3 mb-4 card sticky-top">
+      <div class="row align-items-center p-3 mb-4 card sticky-top">
         {{-- Buscador de productos --}}
         <div class="col-12 mb-3">
           <div class="input-group">
@@ -67,10 +72,11 @@ $openCashRegister = Session::get('open_cash_register_id');
           </div>
         </div>
         {{-- Fin buscador de productos --}}
+
         {{-- Botones de acciones --}}
-        <div class="col-12 d-flex justify-content-end align-items-center">
+        <div class="col-12 d-flex flex-column flex-md-row justify-content-md-end align-items-center">
           {{-- Botón de categorías --}}
-          <div class="btn-group ms-2">
+          <div class="btn-group mb-2 mb-md-0 ms-md-2">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="bx bx-category"></i> Categorías
             </button>
@@ -78,7 +84,6 @@ $openCashRegister = Session::get('open_cash_register_id');
               <form class="p-3" onsubmit="return false">
                 <div class="mb-2">
                   <h6 class="mb-1">Filtrar por categoría</h6>
-                  {{-- Input para buscar categoría --}}
                 </div>
                 <div class="mb-2" id="category-container">
                   {{-- Aquí se cargarán las categorías dinámicamente --}}
@@ -86,23 +91,25 @@ $openCashRegister = Session::get('open_cash_register_id');
               </form>
             </div>
           </div>
+
           {{-- Botón para cerrar caja --}}
-          <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger d-flex align-items-center ms-2">
+          <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger d-flex align-items-center mb-2 mb-md-0 ms-md-2">
             <i class="bx bx-lock-alt me-2"></i> Cerrar Caja
           </button>
 
           {{-- Botón de cambio de vista --}}
-          <button id="toggle-view-btn" class="btn btn-outline-secondary d-flex align-items-center ms-2" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="Ver productos en lista">
+          <button id="toggle-view-btn" class="btn btn-outline-secondary d-flex align-items-center mb-2 mb-md-0 ms-md-2" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="Ver productos en lista">
             <i class="bx bx-list-ul fs-5"></i>
           </button>
 
           {{-- Botón para ver carrito --}}
-          <button id="view-cart-btn" class="btn btn-outline-secondary d-flex align-items-center ms-2 position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+          <button id="view-cart-btn" class="btn btn-outline-secondary d-flex align-items-center mb-2 mb-md-0 ms-md-2 position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
             <i class="bx bx-cart fs-5"></i>
             <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
           </button>
         </div>
       </div>
+
 
       {{-- Contenedor de productos --}}
       <div class="row d-flex flex-wrap" id="products-container">
@@ -115,7 +122,7 @@ $openCashRegister = Session::get('open_cash_register_id');
 
 <!-- Modal para ver el carrito -->
 <div class="modal modal-bottom fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
+  <div class="modal-dialog modal-lg"> <!-- Cambiado a modal-lg para pantallas pequeñas -->
     <div class="modal-content">
       <div class="modal-header bg-light">
         <h5 class="modal-title" id="cartModalLabel">🛒 Carrito de Compras</h5>
@@ -123,7 +130,7 @@ $openCashRegister = Session::get('open_cash_register_id');
       </div>
       <div class="modal-body">
         <!-- Contenedor dinámico de productos del carrito -->
-        <div id="cart-items">
+        <div id="cart-items" class="table-responsive"> <!-- Agregar clase table-responsive para pantallas pequeñas -->
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
@@ -140,14 +147,14 @@ $openCashRegister = Session::get('open_cash_register_id');
           </table>
         </div>
         <!-- Totales -->
-        <div class="mt-3 col-4 ms-auto">
-          <div class="justify-content-between mb-1">
+        <div class="mt-3 d-flex flex-column flex-md-row justify-content-md-end align-items-md-center">
+          <div class="mb-2 mb-md-0">
             <span><strong>Subtotal:</strong> <span class="subtotal">$191.440,00</span></span>
           </div>
-          <div class="justify-content-between mb-1">
+          <div class="mb-2 mb-md-0 ms-md-3">
             <span><strong>Envío:</strong> <span>$0</span></span>
           </div>
-          <div class="justify-content-between mb-1 border-top pt-2">
+          <div class="border-top pt-2 ms-md-3">
             <span><strong>Total:</strong> <span class="total">$191.440,00</span></span>
           </div>
         </div>
@@ -159,6 +166,7 @@ $openCashRegister = Session::get('open_cash_register_id');
     </div>
   </div>
 </div>
+
 
 
 

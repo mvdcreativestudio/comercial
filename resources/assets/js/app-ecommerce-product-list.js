@@ -3,8 +3,9 @@
 $(function () {
   let borderColor, bodyBg, headingColor;
 
-  let currencySymbol = $('.datatables-products').data('symbol');
+  let currencySymbol = window.currencySymbol;
 
+  
   if (isDarkStyle) {
     borderColor = config.colors_dark.borderColor;
     bodyBg = config.colors_dark.bodyBg;
