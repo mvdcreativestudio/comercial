@@ -13,12 +13,17 @@
 ])
 @endsection
 
+@php
+  $currencySymbol = $settings->currency_symbol;
+@endphp
+
 <script>
     window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
     window.baseUrl = "{{ url('') }}/";
     window.frontRoute = "{{ route('pdv.front') }}";
     // Configuración de las respuestas del POS Scanntech
     const posResponsesConfig = @json(config('posResponses'));
+    window.currencySymbol = '{{ $currencySymbol }}';
 </script>
 
 @section('content')
@@ -124,7 +129,7 @@
           <input class="form-check-input" type="radio" name="paymentMethod" id="cash" checked>
           <label class="form-check-label" for="cash">Efectivo</label>
           <input type="text" id="valorRecibido" class="form-control mt-2 mb-3" placeholder="Valor recibido">
-          <p class="text-muted">Vuelto: $<span id="vuelto">0.00</span></p>
+          <p class="text-muted">Vuelto: <span id="vuelto">0</span></p>
           <small id="mensajeError" class="text-danger d-none">El valor recibido es menor al total de la compra.</small>
         </div>
         {{-- <div class="form-check mb-2">

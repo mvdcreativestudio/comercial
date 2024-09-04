@@ -8,6 +8,7 @@ $(document).ready(function () {
   let sessionStoreId = null;
   let discount = 0;
   let coupon = null;
+  let currencySymbol = window.currencySymbol;
 
 
   function mostrarError(mensaje) {
@@ -119,8 +120,9 @@ $(document).ready(function () {
     subtotal = Math.round(subtotal);
     total = Math.round(total);
 
-    $('.subtotal').text(`$${subtotal.toLocaleString('es-ES')}`);
-    $('.total').text(`$${total.toLocaleString('es-ES')}`);
+    $('.subtotal').text(`${currencySymbol}${subtotal.toLocaleString('es-ES')}`);
+    $('.total').text(`${currencySymbol}${total.toLocaleString('es-ES')}`);
+
 }
 
 function aplicarDescuento() {
@@ -160,7 +162,7 @@ function aplicarDescuentoPorCupon(couponResponse) {
   }
 
   discount = Math.round(discount);
-  $('.discount-amount').text(`$${discount.toFixed(2)}`);
+  $('.discount-amount').text(`${currencySymbol}${discount.toFixed(0)}`);
 
   calcularTotal();
 }
@@ -188,7 +190,8 @@ function aplicarDescuentoFijo() {
     }
 
     discount = Math.round(discount);
-    $('.discount-amount').text(`$${discount.toFixed(2)}`);
+    $('.discount-amount').text(`${currencySymbol}${discount.toFixed(0)}`);
+
 
     calcularTotal();
 }
@@ -222,10 +225,10 @@ $('#apply-discount-btn').on('click', function () {
                 <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail me-2" style="width: 50px;">
                 <div>
                     <h6 class="mb-0">${item.name}</h6>
-                    <small class="text-muted">Cantidad: ${item.quantity} x $${formattedItemPrice}</small>
+                    <small class="text-muted">Cantidad: ${item.quantity} x ${currencySymbol}${formattedItemPrice}</small>
                 </div>
             </div>
-            <span>$${formattedItemTotal}</span>
+            <span>${currencySymbol}${formattedItemTotal}</span>
         </li>
         `;
     });
@@ -238,8 +241,8 @@ $('#apply-discount-btn').on('click', function () {
 
     $('.list-group-flush').html(cartHtml);
 
-    $('.subtotal').text(`$${formattedSubtotal}`);
-    $('.total').text(`$${formattedTotal}`);
+    $('.subtotal').text(`${currencySymbol}${formattedSubtotal}`);
+    $('.total').text(`${currencySymbol}${formattedTotal}`);
     calcularTotal();
 
   }
@@ -440,7 +443,7 @@ $('#apply-discount-btn').on('click', function () {
         total: total - discount, // Aplica el descuento al total
         notes: $('textarea').val() || ''
     };
-    
+
     // Primero, hacer el POST a pos-orders
     $.ajax({
         url: `${baseUrl}admin/pos-orders`,
@@ -563,8 +566,8 @@ $('#apply-discount-btn').on('click', function () {
     var formattedVuelto = vuelto.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
     // Mostrar el vuelto formateado
-    $('#vuelto').text(`${formattedVuelto}`);
-});
+    $('#vuelto').text(`${currencySymbol}${formattedVuelto}`);
+  });
 
 
 });
