@@ -82,7 +82,7 @@
         </div>
         <div class="d-flex justify-content-between">
           <span>Descuentos</span>
-          <span>$0.00</span>
+          <span class="discount-amount">$0.00</span>
         </div>
         <hr>
         <div class="d-flex justify-content-between">
@@ -90,6 +90,34 @@
           <strong class="total">$0.00</strong>
         </div>
       </div>
+
+      <div class="discount-section mt-3">
+        <div class="card shadow-sm p-3 mb-3 border-0">
+            <h5 class="mb-3 font-weight-bold">Descuentos</h5>
+            <div class="form-group mb-3">
+                <label for="coupon-code" class="text-muted small">Cupón de descuento</label>
+                <input type="text" id="coupon-code" class="form-control form-control-sm" placeholder="Ingresa código de cupón">
+            </div>
+            <div class="form-group mb-3">
+                <label for="fixed-discount" class="text-muted small">Descuento fijo</label>
+                <div class="input-group">
+                    <input type="number" id="fixed-discount" class="form-control form-control-sm" placeholder="Ingresa cantidad o porcentaje">
+                    <div class="input-group-append">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-secondary btn-sm">
+                                <input type="radio" name="discount-type" value="fixed" autocomplete="off"> Monto
+                            </label>
+                            <label class="btn btn-outline-secondary btn-sm">
+                                <input type="radio" name="discount-type" value="percentage" autocomplete="off"> %
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-sm w-100">Aplicar</button>
+        </div>
+    </div>
+
       <div class="card shadow-sm p-3">
         <h5>Seleccione el método de pago</h5>
         <div class="form-check mb-2">

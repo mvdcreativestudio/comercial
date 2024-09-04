@@ -6,6 +6,9 @@ $(document).ready(function () {
   const cashRegisterId = window.cashRegisterId;
   let cashRegisterLogId = null;
   let sessionStoreId = null;
+  let discount = 0;
+  let coupon = null;
+
 
   function mostrarError(mensaje) {
     $('#errorContainer').text(mensaje).removeClass('d-none'); // Mostrar mensaje de error
@@ -77,7 +80,6 @@ $(document).ready(function () {
       dataType: 'json',
       success: function (response) {
         sessionStoreId = response.id;
-        console.log('Hola + '+sessionStoreId)
       },
       error: function (xhr) {
         mostrarError('Error al cargar el cliente desde la sesión: ' + xhr.responseText);
@@ -108,6 +110,94 @@ $(document).ready(function () {
       mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
     });
   }
+
+  function calcularTotal() {
+    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let total = subtotal - discount;
+    if (total < 0) total = 0;
+
+    subtotal = Math.round(subtotal);
+    total = Math.round(total);
+
+    $('.subtotal').text(`$${subtotal.toLocaleString('es-ES')}`);
+    $('.total').text(`$${total.toLocaleString('es-ES')}`);
+}
+
+function aplicarDescuento() {
+    const couponCode = $('#coupon-code').val();
+    if (couponCode) {
+        $.ajax({
+            url: `${baseUrl}admin/get-coupon/${couponCode}`,
+            type: 'GET',
+            success: function (response) {
+                if (response) {
+                    aplicarDescuentoPorCupon(response);
+                } else {
+                    mostrarError('Cupón no válido o no encontrado.');
+                }
+            },
+            error: function () {
+                mostrarError('Error al aplicar el cupón.');
+            }
+        });
+    } else {
+        aplicarDescuentoFijo();
+    }
+}
+
+function aplicarDescuentoPorCupon(couponResponse) {
+  coupon = couponResponse;
+  let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  if (coupon.coupon.type === 'percentage') {
+      discount = (coupon.coupon.amount / 100) * subtotal;
+  } else if (coupon.coupon.type === 'fixed') {
+      discount = coupon.coupon.amount;
+  }
+
+  if (discount > subtotal) {
+      discount = subtotal;
+  }
+
+  discount = Math.round(discount);
+  $('.discount-amount').text(`$${discount.toFixed(2)}`);
+
+  calcularTotal();
+}
+
+
+function aplicarDescuentoFijo() {
+    const discountType = $('input[name="discount-type"]:checked').val();
+    const discountValue = parseFloat($('#fixed-discount').val());
+
+    if (isNaN(discountValue) || discountValue <= 0) {
+        mostrarError('Por favor, ingrese un valor de descuento válido.');
+        return;
+    }
+
+    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    if (discountType === 'percentage') {
+        discount = (discountValue / 100) * subtotal;
+    } else if (discountType === 'fixed') {
+        discount = discountValue;
+    }
+
+    if (discount > subtotal) {
+        discount = subtotal;
+    }
+
+    discount = Math.round(discount);
+    $('.discount-amount').text(`$${discount.toFixed(2)}`);
+
+    calcularTotal();
+}
+
+$('#apply-discount-btn').on('click', function () {
+    aplicarDescuento();
+});
+
+
 
   function updateCheckoutCart() {
     let cartHtml = '';
@@ -150,8 +240,13 @@ $(document).ready(function () {
 
     $('.subtotal').text(`$${formattedSubtotal}`);
     $('.total').text(`$${formattedTotal}`);
+    calcularTotal();
+
   }
 
+  $('.discount-section button').on('click', function () {
+    aplicarDescuento();
+  });
 
 
   function loadClients() {
@@ -337,15 +432,15 @@ $(document).ready(function () {
         cash_register_log_id: cashRegisterLogId,
         cash_sales: cashSales,
         pos_sales: posSales,
-        discount: 0,
+        discount: discount,
         client_id: client && client.id ? client.id : null,
         client_type: client && client.type ? client.type : 'individual',
         products: JSON.stringify(cart),
         subtotal: subtotal,
-        total: total,
+        total: total - discount, // Aplica el descuento al total
         notes: $('textarea').val() || ''
     };
-
+    
     // Primero, hacer el POST a pos-orders
     $.ajax({
         url: `${baseUrl}admin/pos-orders`,
@@ -366,8 +461,8 @@ $(document).ready(function () {
                 subtotal: orderData.subtotal,
                 tax: 0,
                 shipping: 0,
-                coupon_id: null,
-                coupon_amount: 0,
+                coupon_id: coupon ? coupon.coupon.id : null,
+                coupon_amount: coupon ? coupon.coupon.amount : 0,
                 discount: orderData.discount,
                 total: orderData.total,
                 estimate_id: null,
@@ -381,13 +476,13 @@ $(document).ready(function () {
                 is_billed: 0,
                 doc_type: null,
                 document: null,
-                name: client ? client.name : 'N/A',
-                lastname: client ? client.lastname : 'N/A',
-                address: client ? client.address : 'N/A',
-                phone: client ? client.phone : 123456789,
-                email: client ? client.email : 'no@email.com',
+                name: client != null ? client.name : 'N/A',
+                lastname: client != null ? client.lastname : 'N/A',
+                address: client != null ? client.address : 'N/A',
+                phone: client != null ? client.phone : 123456789,
+                email: client != null ? client.email : 'no@email.com',
             };
-
+            console.log('Hola'+ ordersData.discount+ 'Hola'+ ordersData.total + 'Hola'+ ordersData.subtotal);
             $.ajax({
                 url: `${baseUrl}admin/orders`,
                 type: 'POST',
@@ -431,6 +526,7 @@ $(document).ready(function () {
         }
     });
 }
+
 
 
 
