@@ -4,6 +4,7 @@ $(document).ready(function() {
     const cashRegisterId = window.cashRegisterId;
     const baseUrl = window.baseUrl;
     const url = `${baseUrl}products/${cashRegisterId}`;
+    let currencySymbol = window.currencySymbol;
     let products = [];
     let cart = [];
     let isListView = true;
@@ -219,6 +220,9 @@ $(document).ready(function() {
         const outOfStockLabel = product.stock <= 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-1">Agotado</span>` : '';
         const inactiveLabel = product.status == 2 ? `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Inactivo</span>` : '';
 
+        // Mostrar el precio tachado solo si 'price' existe y es mayor que 0
+        const oldPriceHtml = product.price && product.old_price ? `<span class="text-muted" style="font-size: 0.8em;"><del>${currencySymbol}${product.old_price}</del></span>` : '';
+
         productsHtml += `
           <div class="col-12 col-sm-6 col-xxl-4 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
               <div class="card-product-pos w-100 mb-3 position-relative">
@@ -228,8 +232,8 @@ $(document).ready(function() {
                   <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
                       <h5 class="card-title-product-pos text-white">${product.name}</h5>
                       <p class="card-text-product-pos">
-                          ${product.price ? `<span class="text-muted" style="font-size: 0.8em;"><del>$${product.old_price}</del></span>` : ''}
-                          <span style="font-size: 1em;">$${priceToDisplay}</span>
+                          ${oldPriceHtml}
+                          <span style="font-size: 1em;">${currencySymbol}${priceToDisplay}</span>
                       </p>
                       <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
                   </div>
@@ -239,6 +243,7 @@ $(document).ready(function() {
       });
       $('#products-container').html(productsHtml);
     }
+
 
     // Función para mostrar productos en formato de lista
     function displayProductsList(productsToDisplay) {
@@ -256,14 +261,17 @@ $(document).ready(function() {
           const outOfStockText = product.stock <= 0 ? '<span class="badge bg-danger ms-2">Agotado</span>' : '';
           const inactiveText = product.status == 2 ? '<span class="badge bg-warning text-dark ms-2">Inactivo</span>' : '';
 
+          // Mostrar el precio tachado solo si 'price' existe y es mayor que 0
+          const oldPriceHtml = product.price && product.old_price ? `<small class="text-muted"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : '';
+
           productsHtml += `
               <li class="list-group-item d-flex justify-content-between align-items-center">
                   <div class="d-flex align-items-center">
                       <img src="${baseUrl}${product.image}" class="img-thumbnail me-2" alt="${product.name}" style="width: 50px;">
                       <div>
                           <h6 class="mb-0">${product.name} ${outOfStockText} ${inactiveText}</h6>
-                          ${product.old_price ? `<small class="text-muted"><del>$${oldPriceFormatted}</del></small>` : ''}
-                          <p class="mb-0">$${priceToDisplay}</p>
+                          ${oldPriceHtml}
+                          <p class="mb-0">${currencySymbol}${priceToDisplay}</p>
                       </div>
                   </div>
                   <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
@@ -273,6 +281,7 @@ $(document).ready(function() {
       productsHtml += '</ul>';
       $('#products-container').html(productsHtml);
     }
+
 
 
 
@@ -371,24 +380,24 @@ $(document).ready(function() {
           totalItems += item.quantity;  // Suma la cantidad de cada producto al contador
 
           cartHtml += `
-              <tr>
-                  <td>${item.name}</td>
-                  <td>${item.quantity}</td>
-                  <td>$${item.price.toLocaleString('es-ES')}</td>
-                  <td>$${itemTotal.toLocaleString('es-ES')}</td>
-                  <td>
-                      <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">X</button>
-                  </td>
-              </tr>
-          `;
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>${currencySymbol}${item.price.toLocaleString('es-ES')}</td>
+                <td>${currencySymbol}${itemTotal.toLocaleString('es-ES')}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">X</button>
+                </td>
+            </tr>
+            `;
       });
 
       const total = subtotal;
 
       // Actualiza el contenido del carrito
       $('#cart-items-body').html(cartHtml);
-      $('.subtotal').text(`$${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 2 })}`);
-      $('.total').text(`$${total.toLocaleString('es-ES', { minimumFractionDigits: 2 })}`);
+      $('.subtotal').text(`${currencySymbol}${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
+      $('.total').text(`${currencySymbol}${total.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
 
       // Actualiza el contador de productos en el botón "Ver Carrito"
       $('#cart-count').text(totalItems);
