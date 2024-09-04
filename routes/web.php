@@ -202,6 +202,7 @@ Route::middleware([
     // Gestión de Cupones
     Route::post('marketing/coupons/delete-selected', [CouponController::class, 'deleteSelected'])->name('coupons.deleteSelected');
     Route::get('coupons/{id}', [CouponController::class, 'show'])->name('coupons.show');
+    Route::get('get-coupon/{id}', [CouponController::class, 'getCouponByName'])->name('coupons.getCouponByName');
 
     // Gestión de categorías
     Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class,'deleteSelected'])-> name('categories.deleteSelected');

@@ -72,7 +72,7 @@ class OrderRepository
   public function store($request)
   {
     $clientData = $this->extractClientData($request->validated());
-    $orderData = $this->prepareOrderData($request->payment_method);
+    $orderData = $this->prepareOrderData($request->payment_method, $request);
 
     DB::beginTransaction();
 
@@ -133,7 +133,7 @@ class OrderRepository
    * @param string $paymentMethod
    * @return array
   */
-  private function prepareOrderData(string $paymentMethod): array
+  private function prepareOrderData(string $paymentMethod, $request): array
   {
     $subtotal = array_reduce(session('cart', []), function ($carry, $item) {
         return $carry + ($item['price'] ?? $item['old_price']) * $item['quantity'];
@@ -147,7 +147,10 @@ class OrderRepository
         'subtotal' => $subtotal,
         'tax' => 0,
         'shipping' => session('costoEnvio', 0),
-        'total' => $subtotal + session('costoEnvio', 0),
+        'discount' => $request->discount,
+        'coupon_id' => $request->coupon_id,
+        'coupon_amount' => $request->coupon_amount,
+        'total' => $subtotal + session('costoEnvio', 0) - $request->discount,
         'payment_status' => 'paid',
         'shipping_status' => 'shipped',
         'payment_method' => $paymentMethod,
