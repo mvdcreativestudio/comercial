@@ -150,4 +150,19 @@ class AccountingController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+    /**
+     * Descarga el PDF de un CFE.
+     *
+     * @param int $cfeId
+     * @return mixed
+    */
+    public function downloadCfePdf($cfeId)
+    {
+        try {
+            return $this->accountingRepository->getCfePdf($cfeId);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 }

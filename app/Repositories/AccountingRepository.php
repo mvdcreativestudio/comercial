@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Collection;
 use Illuminate\Http\UploadedFile;
 use App\Models\Order;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 class AccountingRepository
@@ -605,5 +607,58 @@ class AccountingRepository
         }
 
         return $notaData;
+    }
+
+    /**
+     * Obtiene el PDF de un CFE (eFactura o eTicket) para una orden específica.
+     *
+     * @param int $cfeId
+     * @return Response
+     * @throws Exception
+    */
+    public function getCfePdf(int $cfeId): Response
+    {
+        $cfe = CFE::findOrFail($cfeId);
+
+        // Iniciar sesión para obtener cookies
+        $cookies = $this->login();
+
+        if (!$cookies) {
+            Log::error('No se pudo iniciar sesión para obtener el PDF del CFE.');
+            throw new \Exception('No se pudo iniciar sesión para obtener el PDF del CFE.');
+        }
+
+        $rutSetting = PymoSetting::where('settingKey', 'rut')->first();
+        if (!$rutSetting) {
+            Log::error('No se encontró el RUT de la empresa para obtener el PDF del CFE.');
+            throw new \Exception('No se encontró el RUT de la empresa para obtener el PDF del CFE.');
+        }
+
+        // Construir la URL para obtener el PDF
+        $rut = $rutSetting->settingValue;
+        $cfeId = $cfe->cfeId;
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/invoices?id=' . $cfeId;
+
+        try {
+            // Hacer la solicitud para obtener el PDF
+            $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+                ->asJson()
+                ->get($url);
+
+            if ($response->successful()) {
+                $pdfContent = $response->body();
+
+                // Enviar el PDF al navegador
+                return response($pdfContent)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', 'attachment; filename="CFE_' . $cfeId . '.pdf"');
+            } else {
+                Log::error('Error al obtener el PDF del CFE: ' . $response->body());
+                throw new \Exception('Error al obtener el PDF del CFE.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al obtener el PDF del CFE: ' . $e->getMessage());
+            throw new \Exception('Error al obtener el PDF del CFE: ' . $e->getMessage());
+        }
     }
 }

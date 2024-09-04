@@ -164,6 +164,10 @@ $(function () {
                 '<a href="#" class="dropdown-item btn-ver-detalles" data-id="' +
                 full['id'] +
                 '">Ver Detalles</a>' +
+                '<a href="' +
+                baseUrl +
+                'admin/invoices/download/' + full['id'] +
+                '" class="dropdown-item">Descargar PDF</a>' +
                 '<a href="#" class="dropdown-item btn-emitir-nota ' +
                 hideEmitirNota +
                 '" data-id="' +
