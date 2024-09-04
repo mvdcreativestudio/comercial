@@ -47,9 +47,6 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>
-            <h5 class="card-title mb-0">Cajas Registradoras</h5>
-        </div>
-        <div>
             <button id="crear-caja-btn" class="btn btn-primary">Nueva Caja</button>
             <a href="{{ route('pos-orders.index') }}" class="btn btn-secondary">Movimientos</a>
         </div>
