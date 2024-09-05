@@ -236,7 +236,7 @@ class AccountingRepository
         if ($rutSetting) {
             $rut = $rutSetting->settingValue;
             $cfeType = $order->doc_type == 2 ? '111' : '101';
-            $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/1';
+            $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/2';
 
             $amountToBill = $amountToBill ?? $order->total;
 
@@ -494,7 +494,7 @@ class AccountingRepository
         // Emitir la nota y preparar los datos
         $notaData = $this->prepareNoteData($invoice, $noteAmount, $reason, $noteType);
 
-        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/1';
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/2';
 
         try {
             $payloadArray = [
