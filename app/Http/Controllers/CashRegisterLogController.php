@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StoreClientRequest;
 use App\Models\Product;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class CashRegisterLogController extends Controller
 {
@@ -65,8 +66,8 @@ class CashRegisterLogController extends Controller
         $cashRegisterId = $request->input('cash_register_id');
 
         // Verificar si hay un log existente sin fecha de cierre
-        if ($this->cashRegisterLogRepository->hasOpenLog()) {
-            return response()->json(['message' => 'Ya existe una caja registradora abierta.'], 400);
+        if ($this->cashRegisterLogRepository->hasOpenLogForUser(Auth::id())) {
+            return response()->json(['message' => 'Ya existe una caja registradora abierta para este usuario.'], 400);
         }
 
         $request['open_time'] = now();
