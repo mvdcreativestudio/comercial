@@ -132,7 +132,7 @@
           <p class="text-muted">Vuelto: <span id="vuelto">0</span></p>
           <small id="mensajeError" class="text-danger d-none">El valor recibido es menor al total de la compra.</small>
         </div>
-        {{-- <div class="form-check mb-2">
+        <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="debit">
           <label class="form-check-label" for="debit">Débito</label>
         </div>
@@ -140,7 +140,7 @@
           <input class="form-check-input" type="radio" name="paymentMethod" id="credit">
           <label class="form-check-label" for="credit">Crédito</label>
         </div>
-        <div class="form-check mb-2">
+        {{-- <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="other">
           <label class="form-check-label" for="other">Otros</label>
         </div>

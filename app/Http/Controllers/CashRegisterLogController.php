@@ -221,11 +221,11 @@ class CashRegisterLogController extends Controller
       $validatedData = $request->validated();
 
       // Establecer valores predeterminados si no están presentes en la solicitud
-      $validatedData['address'] = $validatedData['address'] ?? 'FÍSICO';
-      $validatedData['city'] = $validatedData['city'] ?? 'FÍSICO';
-      $validatedData['state'] = $validatedData['state'] ?? 'FÍSICO';
-      $validatedData['country'] = $validatedData['country'] ?? 'FÍSICO';
-      $validatedData['phone'] = $validatedData['phone'] ?? 'FÍSICO';
+      $validatedData['address'] = $validatedData['address'] ?? '-';
+      $validatedData['city'] = $validatedData['city'] ?? '-';
+      $validatedData['state'] = $validatedData['state'] ?? '-';
+      $validatedData['country'] = $validatedData['country'] ?? '-';
+      $validatedData['phone'] = $validatedData['phone'] ?? '-';
 
 
       // Crear el nuevo cliente
