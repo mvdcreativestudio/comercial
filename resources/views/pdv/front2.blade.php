@@ -196,19 +196,19 @@
   <div class="offcanvas-body">
     <form id="formCrearCliente">
       <div class="mb-3">
+        <label for="tipoCliente" class="form-label">Tipo de Cliente</label>
+        <select class="form-select" id="tipoCliente" required>
+          <option value="individual">Persona</option>
+          <option value="company">Empresa</option>
+        </select>
+      </div>
+      <div class="mb-3">
         <label for="nombreCliente" class="form-label">Nombre</label>
         <input type="text" class="form-control" id="nombreCliente" required>
       </div>
       <div class="mb-3">
         <label for="apellidoCliente" class="form-label">Apellido</label>
         <input type="text" class="form-control" id="apellidoCliente" required>
-      </div>
-      <div class="mb-3">
-        <label for="tipoCliente" class="form-label">Tipo de Cliente</label>
-        <select class="form-select" id="tipoCliente" required>
-          <option value="individual">Individual</option>
-          <option value="company">Compañía</option>
-        </select>
       </div>
       <div class="mb-3" id="ciField">
         <label for="ciCliente" class="form-label">CI</label>
@@ -218,6 +218,16 @@
         <label for="rutCliente" class="form-label">RUT</label>
         <input type="text" class="form-control" id="rutCliente">
       </div>
+      <!-- Campo Razón Social -->
+      <div class="mb-3" id="razonSocialField" style="display: none;">
+        <label for="razonSocialCliente" class="form-label">Razón Social</label>
+        <input type="text" class="form-control" id="razonSocialCliente">
+      </div>
+      <!-- Campo Dirección -->
+      <div class="mb-3">
+        <label for="direccionCliente" class="form-label">Dirección</label>
+        <input type="text" class="form-control" id="direccionCliente" required>
+      </div>
       <div class="mb-3">
         <label for="emailCliente" class="form-label">Correo Electrónico</label>
         <input type="email" class="form-control" id="emailCliente" required>
@@ -226,6 +236,7 @@
     </form>
   </div>
 </div>
+
 
 @endsection
 

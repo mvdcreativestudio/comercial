@@ -37,6 +37,7 @@ class StoreClientRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:clients,email',
             'website' => 'nullable|string|max:255',
             'logo' => 'nullable|string|max:255',
+            'company_name' => 'nullable|string|max:255',
         ];
     }
 

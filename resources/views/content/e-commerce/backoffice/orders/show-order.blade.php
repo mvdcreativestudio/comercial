@@ -104,8 +104,12 @@ $changeTypeTranslations = [
     <h6 class="card-title mb-1 mt-1">Método de pago:
       @if($order->payment_method === 'card')
         <span class="badge bg-label-primary me-2 ms-2">MercadoPago</span>
-      @elseif($order->payment_method === 'efectivo')
+      @elseif($order->payment_method === 'cash')
         <span class="me-2 ms-2">Efectivo</span>
+      @elseif($order->payment_method === 'debit')
+        <span class="me-2 ms-2">Débito</span>
+      @elseif($order->payment_method === 'credit')
+        <span class="me-2 ms-2">Crédito</span>
       @endif
     </h6>
     <!-- Mostrar si el pedido ha sido facturado -->

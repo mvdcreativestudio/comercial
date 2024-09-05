@@ -314,9 +314,9 @@ $('#apply-discount-btn').on('click', function () {
       const rut = $(this).data('rut').toString().toLowerCase();
 
       if (name.includes(searchText) || ci.includes(searchText) || rut.includes(searchText)) {
-        $(this).show();
+        $(this).removeClass('d-none');
       } else {
-        $(this).hide();
+        $(this).addClass('d-none');
       }
     });
   });
@@ -340,56 +340,62 @@ $('#apply-discount-btn').on('click', function () {
     loadClients();
   });
 
-  document.getElementById('guardarCliente').addEventListener('click', function () {
+document.getElementById('guardarCliente').addEventListener('click', function () {
     let nombre = document.getElementById('nombreCliente').value;
     let apellido = document.getElementById('apellidoCliente').value;
     let tipo = document.getElementById('tipoCliente').value;
     let email = document.getElementById('emailCliente').value;
     let ci = document.getElementById('ciCliente').value;
     let rut = document.getElementById('rutCliente').value;
+    let direccion = document.getElementById('direccionCliente').value;
+    let razonSocial = document.getElementById('razonSocialCliente').value;
 
     let data = {
-      name: nombre,
-      lastname: apellido,
-      type: tipo,
-      email: email
+        name: nombre,
+        lastname: apellido,
+        type: tipo,
+        email: email,
+        address: direccion
     };
 
     if (tipo === 'individual') {
-      data.ci = ci;
+        data.ci = ci;
     } else if (tipo === 'company') {
-      data.rut = rut;
+        data.rut = rut;
+        data.business_name = razonSocial; // Añadir razón social para compañías
     }
 
     fetch('client', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify(data)
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(data)
     })
-      .then(response => response.json())
-      .then(data => {
+    .then(response => response.json())
+    .then(data => {
         let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('crearClienteOffcanvas'));
         offcanvas.hide();
         document.getElementById('formCrearCliente').reset();
-      })
-      .catch((error) => {
+    })
+    .catch((error) => {
         mostrarError('Error al guardar el cliente: ' + error);
-      });
-  });
+    });
+});
 
-  document.getElementById('tipoCliente').addEventListener('change', function () {
+document.getElementById('tipoCliente').addEventListener('change', function () {
     let tipo = this.value;
     if (tipo === 'individual') {
-      document.getElementById('ciField').style.display = 'block';
-      document.getElementById('rutField').style.display = 'none';
+        document.getElementById('ciField').style.display = 'block';
+        document.getElementById('rutField').style.display = 'none';
+        document.getElementById('razonSocialField').style.display = 'none';
     } else if (tipo === 'company') {
-      document.getElementById('ciField').style.display = 'none';
-      document.getElementById('rutField').style.display = 'block';
+        document.getElementById('ciField').style.display = 'none';
+        document.getElementById('rutField').style.display = 'block';
+        document.getElementById('razonSocialField').style.display = 'block';
     }
-  });
+});
 
   $('#deselect-client').on('click', function () {
     deselectClient();

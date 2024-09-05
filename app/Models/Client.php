@@ -10,7 +10,7 @@ class Client extends Model
     use HasFactory;
 
     protected $fillable = ['store_id', 'name', 'lastname', 'type', 'rut', 'ci', 'passport', 'doc_ext',
-    'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document'];
+    'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document', 'company_name'];
 
 
     /**
