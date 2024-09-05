@@ -214,16 +214,12 @@ class OrderRepository
                 DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name")
               ])
             ->join('clients', 'orders.client_id', '=', 'clients.id')
-            ->join('stores', 'orders.store_id', '=', 'stores.id')
-            ->orderBy('orders.date', 'desc');
-
+            ->join('stores', 'orders.store_id', '=', 'stores.id');
 
     // Verificar permisos del usuario
     if (!Auth::user()->can('view_all_ecommerce')) {
-        $query->where('orders.store_id', Auth::user()->store_id);
+        $query->where('orders.store_id', Auth::user()->store_id)->orderBy('orders.created_at', 'desc');
     }
-
-    // Ordenar por fecha descendente
 
     $dataTable = DataTables::of($query)->make(true);
 

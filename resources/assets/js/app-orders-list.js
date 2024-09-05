@@ -24,7 +24,7 @@ $(function () {
           }
         },
         columns: [
-          { data: 'id', type: 'num' }, // Especifica que esta columna es numérica
+          { data: 'id', type: 'num' },
           { data: 'date' },
           { data: 'client_name' },
           { data: 'store_name' },
@@ -33,12 +33,14 @@ $(function () {
           { data: 'is_billed' },
           { data: '' }
         ],
+        order: [[1, 'desc']],
         columnDefs: [
           {
             targets: 0,
+            orderable: false,
             render: function (data, type, full, meta) {
               var uuid = full['uuid'];
-              return '<a href="' + baseUrl + 'admin/orders/' + uuid + '/show" class="text-body">' + '#' + data + '</a>';
+              return '#' + data;
             }
           },
           {

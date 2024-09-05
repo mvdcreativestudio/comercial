@@ -28,12 +28,14 @@ class AccountingRepository
 
         if (auth()->user()->can('view_all_accounting')) {
             return CFE::with('order.client', 'order.store')
+                ->orderBy('created_at', 'desc')
                 ->whereIn('type', $validTypes)
                 ->get();
         }
 
         return CFE::with('order.client', 'order.store')
             ->whereIn('type', $validTypes)
+            ->orderBy('created_at', 'desc')
             ->whereHas('order.store', function ($query) {
                 $query->where('id', auth()->user()->store_id);
             })
@@ -320,28 +322,38 @@ class AccountingRepository
             throw new \Exception('No se encontró el tipo de cambio para el dólar.');
         }
 
-        // Calcular proporción si se está usando un monto facturado menor al total de la orden
-        $proporcion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
+        $proportion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
-        $items = array_map(function ($product, $index) use ($proporcion, $order) {
-            $cantidadAjustada = round($product['quantity'] * $proporcion, 2); // Redondeo a dos decimales
-            $montoItemAjustado = round(($product['price'] * $product['quantity']) * $proporcion, 2); // Redondeo a dos decimales
-            // Log de Product name
-            Log::info('Product name: ' . $product['name']);
+        $items = array_map(function ($product, $index) use ($proportion, $order) {
+            $adjustedAmount = round($product['quantity'] * $proportion, 0);
+
+            $discountPercentage =  round(( ($order->subtotal - $order->total) / $order->subtotal ) * 100, 0);
+
+            $productPrice = round($product['price'] * $proportion, 0);
+
+            $discountAmount = round($productPrice * ($discountPercentage / 100), 0);
+
+            $itemAmountAdjusted = round(($productPrice * $adjustedAmount) * $proportion, 0);
+
             return [
                 'NroLinDet' => $index + 1, // Número de línea de detalle
                 'IndFact' => 3, // Valor de 'IndFact' de la orden -- SI ES RUC ESTA EXENTO DE IVA ?
-                'NomItem' => 'Venta PDV', // Nombre del producto
-                'Cantidad' => $cantidadAjustada, // Cantidad del producto
+                'NomItem' => $product['name'], // Nombre del producto
+                'Cantidad' => $adjustedAmount, // Cantidad del producto
                 'UniMed' => 'N/A', // Unidad de medida, si no tiene usar N/A
-                'PrecioUnitario' => $product['price'], // Precio unitario del producto
-                'MontoItem' => $montoItemAjustado, // Monto del item
+                "DescuentoPct" => $discountPercentage, // % de descuento aplicado
+                "DescuentoMonto" => $discountAmount, // Monto de descuento
+                "MontoItem" => $itemAmountAdjusted, // Monto del item
+                'PrecioUnitario' => $productPrice, // Precio unitario del producto
             ];
         }, $products, array_keys($products));
 
+        // Actualizo amountToBill calculado por los productos con tu el monto item - el descuentomonto
+        $amountToBill = array_sum(array_column($items, 'MontoItem')) - array_sum(array_column($items, 'DescuentoMonto'));
+
         $cfeData = [
             'clientEmissionId' => $order->uuid,
-            'adenda' => 'Orden ' . $order->uuid . ' - MVD.',
+            'adenda' => 'Orden ' . $order->uuid . ' - Anjos.',
             'IdDoc' => [
                 'MntBruto' => 1,
                 'FmaPago' => $payType // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
