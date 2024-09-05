@@ -165,7 +165,9 @@ $changeTypeTranslations = [
             @if($order->discount !== null && $order->discount !== 0)
               <div class="d-flex align-items-center me-3">
                 <span class="text-heading">Cupón utilizado:</span>
-                <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
+                @if($order->coupon->code !== null)
+                  <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
+                @endif
               </div>
             @endif
             <div class="order-calculations">
