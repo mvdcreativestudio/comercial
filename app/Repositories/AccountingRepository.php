@@ -13,6 +13,7 @@ use App\Models\Order;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use App\Models\CurrencyRate;
 
 class AccountingRepository
 {
@@ -67,7 +68,7 @@ class AccountingRepository
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
               'type' => $typeCFEs[$invoice->type] ?? 'N/A',
-              'currency' => $invoice->order->currency ?? 'UYU',
+              'currency' => 'USD',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
               'order_uuid' => $invoice->order->uuid,
@@ -311,6 +312,14 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
+        $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+
+        if ($usdRate) {
+            $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+        } else {
+            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        }
+
         // Calcular proporción si se está usando un monto facturado menor al total de la orden
         $proporcion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
@@ -347,7 +356,8 @@ class AccountingRepository
                 'DeptoRecep' => $client->state, // Departamento del cliente PASA A LA TABLA DE CLIENTE
             ],
             'Totales' => [
-                'TpoMoneda' => 'UYU', // Moneda de la factura (quizá cambie a USD)
+                'TpoMoneda' => 'USD', // Moneda de la factura (quizá cambie a USD)
+                'TpoCambio' => $exchangeRate, // Tipo de cambio
                 'MntNoGrv' => $amountToBill, // Configurado igual que en la documentación
                 'MntNetoIvaTasaMin' => 0, // Configurado igual que en la documentación
                 'MntNetoIVATasaBasica' => 0, // Valor total de la factura
@@ -547,6 +557,14 @@ class AccountingRepository
     {
         $order = $invoice->order;
 
+        $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+
+        if ($usdRate) {
+            $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+        } else {
+            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        }
+
         $notaData = [
             'clientEmissionId' => $order->uuid,
             'adenda' => $reason,
@@ -566,7 +584,8 @@ class AccountingRepository
                 'CompraID' => null
             ],
             'Totales' => [
-                'TpoMoneda' => 'UYU',
+                'TpoMoneda' => 'USD',
+                'TpoCambio' => $exchangeRate,
                 'MntTotal' => $noteAmount,
                 'CantLinDet' => 1,
                 'MntPagar' => $noteAmount
