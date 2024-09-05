@@ -446,88 +446,90 @@ $('#apply-discount-btn').on('click', function () {
 
     // Primero, hacer el POST a pos-orders
     $.ajax({
-        url: `${baseUrl}admin/pos-orders`,
-        type: 'POST',
-        data: {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            ...orderData
-        },
-        success: function (response) {
-            // Si la orden se guarda con éxito en pos-orders, proceder a guardar en orders
-            const ordersData = {
-                date: orderData.date,
-                time: orderData.hour,
-                origin: 'physical',
-                client_id: orderData.client_id,
-                store_id: sessionStoreId,
-                products: orderData.products,
-                subtotal: orderData.subtotal,
-                tax: 0,
-                shipping: 0,
-                coupon_id: coupon ? coupon.coupon.id : null,
-                coupon_amount: coupon ? coupon.coupon.amount : 0,
-                discount: orderData.discount,
-                total: orderData.total,
-                estimate_id: null,
-                shipping_id: null,
-                payment_status: 'paid',
-                shipping_status: 'delivered',
-                payment_method: paymentMethod,
-                shipping_method: 'standard',
-                preference_id: null,
-                shipping_tracking: null,
-                is_billed: 0,
-                doc_type: null,
-                document: null,
-                name: client != null ? client.name : 'N/A',
-                lastname: client != null ? client.lastname : 'N/A',
-                address: client != null ? client.address : 'N/A',
-                phone: client != null ? client.phone : 123456789,
-                email: client != null ? client.email : 'no@email.com',
-            };
-            console.log('Hola'+ ordersData.discount+ 'Hola'+ ordersData.total + 'Hola'+ ordersData.subtotal);
-            $.ajax({
-                url: `${baseUrl}admin/orders`,
-                type: 'POST',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    ...ordersData
-                },
-                success: function (response) {
-                    // Limpiar el carrito después de guardar la orden
-                    cart = [];
-                    saveCartToSession().done(function () {
-                        updateCheckoutCart();
-                        saveClientToSession(client).done(function () {
-                            // Redirigir al usuario después de guardar la orden y el cliente
-                            window.location.href = frontRoute;
-                        }).fail(function (xhr) {
-                            mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-                        });
-                    }).fail(function (xhr) {
-                        mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr)
-                    mostrarError('Error al guardar la orden en orders: ' + xhr.responseText);
-                }
-            });
-        },
-        error: function (xhr) {
-            if (xhr.responseJSON && xhr.responseJSON.errors) {
-                const errores = xhr.responseJSON.errors;
-                let mensajes = '';
-                for (const campo in errores) {
-                    mensajes += `${errores[campo].join(', ')}<br>`;
-                }
-                mostrarError(mensajes);
-            } else {
-                console.log(xhr)
-                mostrarError(xhr.responseJSON.error);
-            }
-        }
-    });
+      url: `${baseUrl}admin/pos-orders`,
+      type: 'POST',
+      data: {
+          _token: $('meta[name="csrf-token"]').attr('content'),
+          ...orderData
+      },
+      success: function (response) {
+          // Validación más robusta para los datos del cliente
+          const isClientValid = client && Object.keys(client).length > 0;
+          const ordersData = {
+              date: orderData.date,
+              time: orderData.hour,
+              origin: 'physical',
+              client_id: orderData.client_id,
+              store_id: sessionStoreId,
+              products: orderData.products,
+              subtotal: orderData.subtotal,
+              tax: 0,
+              shipping: 0,
+              coupon_id: coupon ? coupon.coupon.id : null,
+              coupon_amount: coupon ? coupon.coupon.amount : 0,
+              discount: orderData.discount,
+              total: orderData.total,
+              estimate_id: null,
+              shipping_id: null,
+              payment_status: 'paid',
+              shipping_status: 'delivered',
+              payment_method: paymentMethod,
+              shipping_method: 'standard',
+              preference_id: null,
+              shipping_tracking: null,
+              is_billed: 0,
+              doc_type: null,
+              document: null,
+              name: isClientValid && client.name ? client.name : 'N/A',
+              lastname: isClientValid && client.lastname ? client.lastname : 'N/A',
+              address: isClientValid && client.address ? client.address : '-',
+              phone: isClientValid && client.phone ? client.phone : '123456789',
+              email: isClientValid && client.email ? client.email : 'no@email.com',
+          };
+
+          $.ajax({
+              url: `${baseUrl}admin/orders`,
+              type: 'POST',
+              data: {
+                  _token: $('meta[name="csrf-token"]').attr('content'),
+                  ...ordersData
+              },
+              success: function (response) {
+                  // Limpiar el carrito después de guardar la orden
+                  cart = [];
+                  saveCartToSession().done(function () {
+                      updateCheckoutCart();
+                      saveClientToSession(client).done(function () {
+                          // Redirigir al usuario después de guardar la orden y el cliente
+                          window.location.href = frontRoute;
+                      }).fail(function (xhr) {
+                          mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+                      });
+                  }).fail(function (xhr) {
+                      mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+                  });
+              },
+              error: function (xhr) {
+                  console.log(xhr);
+                  mostrarError('Error al guardar la orden en orders: ' + xhr.responseText);
+              }
+          });
+      },
+      error: function (xhr) {
+          if (xhr.responseJSON && xhr.responseJSON.errors) {
+              const errores = xhr.responseJSON.errors;
+              let mensajes = '';
+              for (const campo in errores) {
+                  mensajes += `${errores[campo].join(', ')}<br>`;
+              }
+              mostrarError(mensajes);
+          } else {
+              console.log(xhr);
+              mostrarError(xhr.responseJSON.error);
+          }
+      }
+  });
+
 }
 
 
