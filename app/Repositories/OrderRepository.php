@@ -152,7 +152,7 @@ class OrderRepository
         'coupon_amount' => $request->coupon_amount,
         'total' => $subtotal + session('costoEnvio', 0) - $request->discount,
         'payment_status' => 'paid',
-        'shipping_status' => 'shipped',
+        'shipping_status' => 'delivered',
         'payment_method' => $paymentMethod,
         'shipping_method' => 'peya',
     ];

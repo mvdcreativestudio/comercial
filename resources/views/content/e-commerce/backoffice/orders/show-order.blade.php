@@ -104,8 +104,12 @@ $changeTypeTranslations = [
     <h6 class="card-title mb-1 mt-1">Método de pago:
       @if($order->payment_method === 'card')
         <span class="badge bg-label-primary me-2 ms-2">MercadoPago</span>
-      @elseif($order->payment_method === 'efectivo')
+      @elseif($order->payment_method === 'cash')
         <span class="me-2 ms-2">Efectivo</span>
+      @elseif($order->payment_method === 'debit')
+        <span class="me-2 ms-2">Débito</span>
+      @elseif($order->payment_method === 'credit')
+        <span class="me-2 ms-2">Crédito</span>
       @endif
     </h6>
     <!-- Mostrar si el pedido ha sido facturado -->
@@ -165,9 +169,12 @@ $changeTypeTranslations = [
             @if($order->discount !== null && $order->discount !== 0)
               <div class="d-flex align-items-center me-3">
                 <span class="text-heading">Cupón utilizado:</span>
-                <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
+                @if($order->coupon && $order->coupon->code !== null)
+                  <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
+                @endif
               </div>
             @endif
+
             <div class="order-calculations">
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Subtotal:</span>
