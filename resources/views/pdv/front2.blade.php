@@ -119,9 +119,10 @@
                     </div>
                 </div>
             </div>
-            <button class="btn btn-primary btn-sm w-100">Aplicar</button>
+            <button class="btn btn-primary btn-sm w-100" id="apply-discount-btn">Aplicar</button>
+            <button class="btn btn-danger btn-sm w-100 mt-1" id="quitarDescuento" style="display: none;">Eliminar descuento</button>
         </div>
-    </div>
+      </div>
 
       <div class="card shadow-sm p-3">
         <h5>Seleccione el método de pago</h5>

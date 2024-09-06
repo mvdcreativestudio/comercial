@@ -155,6 +155,8 @@ class OrderRepository
         'shipping_status' => 'delivered',
         'payment_method' => $paymentMethod,
         'shipping_method' => 'peya',
+        'doc_type' => $request->doc_type,
+        'document' => $request->document,
     ];
   }
 

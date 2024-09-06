@@ -237,7 +237,17 @@ class AccountingRepository
         $rutSetting = PymoSetting::where('settingKey', 'rut')->first();
         if ($rutSetting) {
             $rut = $rutSetting->settingValue;
-            $cfeType = $order->doc_type == 2 ? '111' : '101';
+
+            // Obtener el cliente asociado a la orden
+            $client = $order->client;
+
+            // Determinar el tipo de documento
+            $cfeType = '101'; // Por defecto, es eTicket
+            if ($client) {
+                // Si hay cliente, verificar su tipo
+                $cfeType = $client->type === 'company' ? '111' : '101'; // '111' para empresa, '101' para individuo
+            }
+
             $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/2';
 
             $amountToBill = $amountToBill ?? $order->total;
@@ -314,6 +324,12 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
+        // Verificar el tipo de documento según el cliente
+        $documentType = 101; // Default es eTicket
+        if ($client) {
+            $documentType = $client->type === 'company' ? 111 : 101;
+        }
+
         $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
         if ($usdRate) {
@@ -324,33 +340,50 @@ class AccountingRepository
 
         $proportion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
-        $items = array_map(function ($product, $index) use ($proportion, $order) {
+        $ivaTasaBasica = 22; // Tasa básica de IVA
+        $subtotalConIVA = 0;
+        $totalDescuento = 0; // Inicializar el total de descuento
+
+        // Generar los ítems basados en el precio original de la orden
+        $items = array_map(function ($product, $index) use ($proportion, $order, &$subtotalConIVA, &$totalDescuento, $ivaTasaBasica) {
             $adjustedAmount = round($product['quantity'] * $proportion, 0);
 
-            $discountPercentage =  round(( ($order->subtotal - $order->total) / $order->subtotal ) * 100, 0);
+            $discountPercentage = round((($order->subtotal - $order->total) / $order->subtotal) * 100, 0);
 
-            $productPrice = round($product['price'] * $proportion, 0);
+            // Precio unitario del producto de la orden (con IVA incluido)
+            $productPriceConIVA = round($product['price'], 2);
 
-            $discountAmount = round($productPrice * ($discountPercentage / 100), 0);
+            // Descuento aplicado al precio con IVA
+            $discountAmount = round($productPriceConIVA * ($discountPercentage / 100), 2);
 
-            $itemAmountAdjusted = round(($productPrice * $adjustedAmount) * $proportion, 0);
+            // Acumular el total de descuento
+            $totalDescuento += $discountAmount;
+
+            // Acumular el subtotal con IVA incluido
+            $subtotalConIVA += $productPriceConIVA * $adjustedAmount;
 
             return [
                 'NroLinDet' => $index + 1, // Número de línea de detalle
-                'IndFact' => 3, // Valor de 'IndFact' de la orden -- SI ES RUC ESTA EXENTO DE IVA ?
-                'NomItem' => $product['name'], // Nombre del producto
+                'IndFact' => 3, // Gravado a Tasa Básica
+                'NomItem' => preg_replace('/[^A-Za-z0-9\s\-.,]/', '', $product['name']), // Nombre del producto limpio
                 'Cantidad' => $adjustedAmount, // Cantidad del producto
                 'UniMed' => 'N/A', // Unidad de medida, si no tiene usar N/A
                 "DescuentoPct" => $discountPercentage, // % de descuento aplicado
                 "DescuentoMonto" => $discountAmount, // Monto de descuento
-                "MontoItem" => $itemAmountAdjusted, // Monto del item
-                'PrecioUnitario' => $productPrice, // Precio unitario del producto
+                "MontoItem" => round($productPriceConIVA * $adjustedAmount, 2), // Monto del ítem con IVA
+                'PrecioUnitario' => $productPriceConIVA, // Precio unitario del producto con IVA
             ];
         }, $products, array_keys($products));
 
-        // Actualizo amountToBill calculado por los productos con tu el monto item - el descuentomonto
-        $amountToBill = array_sum(array_column($items, 'MontoItem')) - array_sum(array_column($items, 'DescuentoMonto'));
+        // Redondear los totales a dos decimales
+        $subtotalConIVA = round($subtotalConIVA, 2);
+        $totalConIVA = round($subtotalConIVA - $totalDescuento, 2); // Total con IVA ya incluido
 
+        // Calcular el IVA incluido en el total
+        $montoIVATotal = round(($totalConIVA * $ivaTasaBasica) / (100 + $ivaTasaBasica), 0); // Redondear IVA a 0 decimales
+        $subtotalSinIVA = $totalConIVA - $montoIVATotal;
+
+        // Preparar los datos del CFE
         $cfeData = [
             'clientEmissionId' => $order->uuid,
             'adenda' => 'Orden ' . $order->uuid . ' - Anjos.',
@@ -359,27 +392,27 @@ class AccountingRepository
                 'FmaPago' => $payType // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
             ],
             'Receptor' => [
-                'TipoDocRecep' => 3, // Tipo de documento receptor
+                'TipoDocRecep' => $client ? ($client->type === 'company' ? 2 : 3) : 3, // 2 para RUC, 3 para CI
                 'CodPaisRecep' => 'UY',
-                'DocRecep' => 12345678, // Documento receptor (RUC o CI)
-                'RznSocRecep' => $client->name . ' ' . $client->lastname, // Nombre completo del cliente o razón social
+                'DocRecep' => $client ? ($client->type === 'company' ? $client->rut : ($client->ci ?? '00000000')) : '00000000',
+                'RznSocRecep' => $client ? ($client->type === 'company' ? $client->company_name : $client->name . ' ' . $client->lastname) : '',
                 'DirRecep' => $client->address, // Dirección del cliente
-                'CiudadRecep' => $client->city, // Ciudad del cliente PASA A LA TABLA DE CLIENTE
-                'DeptoRecep' => $client->state, // Departamento del cliente PASA A LA TABLA DE CLIENTE
+                'CiudadRecep' => $client->city, // Ciudad del cliente
+                'DeptoRecep' => $client->state, // Departamento del cliente
             ],
             'Totales' => [
-                'TpoMoneda' => 'USD', // Moneda de la factura (quizá cambie a USD)
+                'TpoMoneda' => 'USD', // Moneda de la factura
                 'TpoCambio' => $exchangeRate, // Tipo de cambio
-                'MntNoGrv' => $amountToBill, // Configurado igual que en la documentación
-                'MntNetoIvaTasaMin' => 0, // Configurado igual que en la documentación
-                'MntNetoIVATasaBasica' => 0, // Valor total de la factura
-                'IVATasaMin' => 10,
-                'IVATasaBasica' => 22, // IVA Normal
-                'MntIVATasaMin' => 0,
-                'MntIVATasaBasica' => 0, // Redondeo a dos decimales
-                'MntTotal' => $amountToBill, // Total a pagar
+                'MntNoGrv' => 0, // No hay montos no gravados
+                'MntNetoIvaTasaMin' => 0, // No hay montos a tasa mínima
+                'MntNetoIVATasaBasica' => $subtotalSinIVA, // Subtotal de los ítems gravados a tasa básica
+                'IVATasaMin' => 10, // Tasa mínima de IVA (opcional si no se usa)
+                'IVATasaBasica' => $ivaTasaBasica, // IVA Normal (22%)
+                'MntIVATasaMin' => 0, // Monto de IVA a tasa mínima (no aplica)
+                'MntIVATasaBasica' => $montoIVATotal, // Monto de IVA a tasa básica (redondeado sin decimales)
+                'MntTotal' => $totalConIVA, // Total a pagar (incluye IVA)
                 'CantLinDet' => count($items), // Cantidad de líneas de artículos
-                'MntPagar' => $amountToBill, // Total a pagar
+                'MntPagar' => $totalConIVA, // Total a pagar
             ],
             'Items' => $items,
         ];
@@ -390,6 +423,9 @@ class AccountingRepository
 
         return $cfeData;
     }
+
+
+
 
     /**
      * Realiza el login en el servicio externo y devuelve las cookies de la sesión.
@@ -566,79 +602,84 @@ class AccountingRepository
      * @return array
     */
     private function prepareNoteData(CFE $invoice, float $noteAmount, string $reason, string $noteType): array
-    {
-        $order = $invoice->order;
+{
+    $order = $invoice->order;
 
-        $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+    $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
-        if ($usdRate) {
-            $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
-        } else {
-            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
-
-        $notaData = [
-            'clientEmissionId' => $order->uuid,
-            'adenda' => $reason,
-            'IdDoc' => [
-                'FchEmis' => now()->toIso8601String(),
-                'FmaPago' => '1',
-            ],
-            'Receptor' => [
-                'TipoDocRecep' => 3,
-                'CodPaisRecep' => 'UY',
-                'PaisRecep' => 'Uruguay',
-                'DocRecep' => 12345678,
-                'RznSocRecep' => $order->client->name . ' ' . $order->client->lastname,
-                'DirRecep' => $order->client->address,
-                'CiudadRecep' => $order->client->city,
-                'DeptoRecep' => $order->client->state,
-                'CompraID' => null
-            ],
-            'Totales' => [
-                'TpoMoneda' => 'USD',
-                'TpoCambio' => $exchangeRate,
-                'MntTotal' => $noteAmount,
-                'CantLinDet' => 1,
-                'MntPagar' => $noteAmount
-            ],
-            'Referencia' => [
-                [
-                    'NroLinRef' => '1',
-                    'IndGlobal' => '1',
-                    'TpoDocRef' => $invoice->type,
-                    'Serie' => $invoice->serie ?? 'A',
-                    'NroCFERef' => $invoice->nro,
-                    'RazonRef' => $reason,
-                    'FechaCFEref' => $invoice->emitionDate->toIso8601String()
-                ]
-            ],
-            'Items' => [
-                [
-                    'NroLinDet' => '1',
-                    'IndFact' => 6,
-                    'NomItem' => 'Nota de ' . (ucfirst($noteType) == 'credit' ? 'Crédito' : 'Débito') . ' - Ajuste',
-                    'Cantidad' => '1',
-                    'UniMed' => 'N/A',
-                    'PrecioUnitario' => $noteAmount,
-                    'MontoItem' => $noteAmount,
-                ]
-            ],
-            'Emisor' => [
-                'GiroEmis' => 'Chelato'
-            ]
-        ];
-
-        if ($invoice->type == 111) {
-            $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
-                'ViaTransp' => '8',
-                'ClauVenta' => 'N/A',
-                'ModVenta' => '90'
-            ]);
-        }
-
-        return $notaData;
+    if ($usdRate) {
+        $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+    } else {
+        throw new \Exception('No se encontró el tipo de cambio para el dólar.');
     }
+
+    // Utilizar los datos del receptor del CFE existente
+    $tipoDocRecep = $invoice->type == 111 ? 2 : 3; // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
+    $docRecep = $invoice->order->document ?? '00000000'; // Tomar el documento del receptor o '12345678' como predeterminado
+
+    $notaData = [
+        'clientEmissionId' => $order->uuid,
+        'adenda' => $reason,
+        'IdDoc' => [
+            'FchEmis' => now()->toIso8601String(),
+            'FmaPago' => '1',
+        ],
+        'Receptor' => [
+            'TipoDocRecep' => $tipoDocRecep,
+            'CodPaisRecep' => 'UY',
+            'PaisRecep' => 'Uruguay',
+            'DocRecep' => $docRecep,
+            'RznSocRecep' => $order->client ? ($order->client->type === 'company' ? $order->client->company_name : $order->client->name . ' ' . $order->client->lastname) : '',
+            'DirRecep' => $order->client->address,
+            'CiudadRecep' => $order->client->city,
+            'DeptoRecep' => $order->client->state,
+            'CompraID' => $order->id,
+        ],
+        'Totales' => [
+            'TpoMoneda' => 'USD',
+            'TpoCambio' => $exchangeRate,
+            'MntTotal' => $noteAmount,
+            'CantLinDet' => 1,
+            'MntPagar' => $noteAmount
+        ],
+        'Referencia' => [
+            [
+                'NroLinRef' => '1',
+                'IndGlobal' => '1',
+                'TpoDocRef' => $invoice->type,
+                'Serie' => $invoice->serie,
+                'NroCFERef' => $invoice->nro,
+                'RazonRef' => $reason,
+                'FechaCFEref' => $invoice->emitionDate->toIso8601String()
+            ]
+        ],
+        'Items' => [
+            [
+                'NroLinDet' => '1',
+                'IndFact' => 6,
+                'NomItem' => 'Nota de ' . (ucfirst($noteType) == 'credit' ? 'Crédito' : 'Débito') . ' - Ajuste',
+                'Cantidad' => '1',
+                'UniMed' => 'N/A',
+                'PrecioUnitario' => $noteAmount,
+                'MontoItem' => $noteAmount,
+            ]
+        ],
+        'Emisor' => [
+            'GiroEmis' => 'Chelato'
+        ]
+    ];
+
+    if ($invoice->type == 111) {
+        $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
+            'ViaTransp' => '8',
+            'ClauVenta' => 'N/A',
+            'ModVenta' => '90'
+        ]);
+    }
+
+    return $notaData;
+    }
+
 
     /**
      * Obtiene el PDF de un CFE (eFactura o eTicket) para una orden específica.

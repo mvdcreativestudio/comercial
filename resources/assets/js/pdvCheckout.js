@@ -126,25 +126,32 @@ $(document).ready(function () {
 }
 
 function aplicarDescuento() {
-    const couponCode = $('#coupon-code').val();
-    if (couponCode) {
-        $.ajax({
-            url: `${baseUrl}admin/get-coupon/${couponCode}`,
-            type: 'GET',
-            success: function (response) {
-                if (response) {
-                    aplicarDescuentoPorCupon(response);
-                } else {
-                    mostrarError('Cupón no válido o no encontrado.');
-                }
-            },
-            error: function () {
-                mostrarError('Error al aplicar el cupón.');
-            }
-        });
-    } else {
-        aplicarDescuentoFijo();
-    }
+  const couponCode = $('#coupon-code').val();
+
+  // Si no hay ningún cupón o descuento, no realizar validación
+  if (!couponCode && !$('#fixed-discount').val()) {
+      removeDiscount();
+      return;
+  }
+
+  if (couponCode) {
+      $.ajax({
+          url: `${baseUrl}admin/get-coupon/${couponCode}`,
+          type: 'GET',
+          success: function (response) {
+              if (response) {
+                  aplicarDescuentoPorCupon(response);
+              } else {
+                  mostrarError('Cupón no válido o no encontrado.');
+              }
+          },
+          error: function () {
+              mostrarError('Error al aplicar el cupón.');
+          }
+      });
+  } else {
+      aplicarDescuentoFijo();
+  }
 }
 
 function aplicarDescuentoPorCupon(couponResponse) {
@@ -165,40 +172,69 @@ function aplicarDescuentoPorCupon(couponResponse) {
   $('.discount-amount').text(`${currencySymbol}${discount.toFixed(0)}`);
 
   calcularTotal();
+  $('#quitarDescuento').show(); // Mostrar el botón de eliminar descuento
 }
-
 
 function aplicarDescuentoFijo() {
-    const discountType = $('input[name="discount-type"]:checked').val();
-    const discountValue = parseFloat($('#fixed-discount').val());
+  const discountType = $('input[name="discount-type"]:checked').val();
+  const discountValue = parseFloat($('#fixed-discount').val());
 
-    if (isNaN(discountValue) || discountValue <= 0) {
-        mostrarError('Por favor, ingrese un valor de descuento válido.');
-        return;
-    }
+  // Solo validar si se está intentando aplicar un descuento
+  if (!discountValue || isNaN(discountValue) || discountValue <= 0) {
+      mostrarError('Por favor, ingrese un valor de descuento válido.');
+      return; // Detener la ejecución si el descuento no es válido
+  }
 
-    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    if (discountType === 'percentage') {
-        discount = (discountValue / 100) * subtotal;
-    } else if (discountType === 'fixed') {
-        discount = discountValue;
-    }
+  if (discountType === 'percentage') {
+      discount = (discountValue / 100) * subtotal;
+  } else if (discountType === 'fixed') {
+      discount = discountValue;
+  }
 
-    if (discount > subtotal) {
-        discount = subtotal;
-    }
+  if (discount > subtotal) {
+      discount = subtotal;
+  }
 
-    discount = Math.round(discount);
-    $('.discount-amount').text(`${currencySymbol}${discount.toFixed(0)}`);
+  discount = Math.round(discount);
+  $('.discount-amount').text(`${currencySymbol}${discount.toFixed(0)}`);
 
-
-    calcularTotal();
+  calcularTotal();
+  $('#quitarDescuento').show(); // Mostrar el botón de eliminar descuento
 }
 
-$('#apply-discount-btn').on('click', function () {
-    aplicarDescuento();
+
+function removeDiscount() {
+  // Reiniciar variables de descuento
+  discount = 0;
+  coupon = null;
+
+  // Limpiar campos de entrada relacionados con descuentos
+  $('#coupon-code').val(''); // Limpiar el código de cupón
+  $('#fixed-discount').val(''); // Limpiar el valor del descuento fijo
+
+  // Actualizar la visualización del descuento a 0
+  $('.discount-amount').text(`${currencySymbol}0`);
+
+  // Recalcular el total sin descuento
+  calcularTotal();
+
+  // Ocultar el botón de eliminar descuento
+  $('#quitarDescuento').hide();
+
+  // Ocultar el mensaje de error (si hay alguno mostrado)
+  ocultarError();
+}
+
+// Evento para el botón de "Eliminar descuento"
+$('#quitarDescuento').on('click', function () {
+  removeDiscount(); // Llamar a la función para eliminar el descuento
 });
+
+
+
+
 
 
 
@@ -435,6 +471,22 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
         posSales = total;
     }
 
+    // Definir docType y doc en función del tipo de cliente
+    let docType = null;
+    let doc = null
+    if (client) {
+        if (client.type === 'company') {
+            docType = 2; // RUC para empresas
+            doc = client.rut;
+        } else {
+            docType = 3; // CI para individuos
+            doc = client.ci ? client.ci : '00000000'; // Usar '12345678' si no hay CI
+        }
+    } else {
+        docType = 3; // Por defecto, asumir CI para 'individual'
+        doc = '00000000';
+    }
+
     const orderData = {
         date: new Date().toISOString().split('T')[0],
         hour: new Date().toLocaleTimeString('it-IT'),
@@ -484,8 +536,8 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
               preference_id: null,
               shipping_tracking: null,
               is_billed: 0,
-              doc_type: null,
-              document: null,
+              doc_type: docType,
+              document: doc,
               name: isClientValid && client.name ? client.name : 'N/A',
               lastname: isClientValid && client.lastname ? client.lastname : 'N/A',
               address: isClientValid && client.address ? client.address : '-',
@@ -503,6 +555,7 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
               success: function (response) {
                   // Limpiar el carrito después de guardar la orden
                   cart = [];
+                  client = [];
                   saveCartToSession().done(function () {
                       updateCheckoutCart();
                       saveClientToSession(client).done(function () {
@@ -538,6 +591,28 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
 
 }
 
+  function clearAllData() {
+    // Limpiar el carrito de la sesión
+    cart = [];
+    saveCartToSession().done(function () {
+        updateCheckoutCart();
+    }).fail(function (xhr) {
+        mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+    });
+
+    // Limpiar el cliente de la sesión
+    client = [];
+    saveClientToSession(client).done(function () {
+        $('#client-id').text('');
+        $('#client-name').text('');
+        $('#client-ci').text('');
+        $('#client-rut').text('');
+        $('#client-info').hide();
+        $('#client-selection-container').show();
+    }).fail(function (xhr) {
+        mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+    });
+  }
 
 
 
