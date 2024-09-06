@@ -398,7 +398,7 @@ document.getElementById('guardarCliente').addEventListener('click', function () 
         data.ci = ci;
     } else if (tipo === 'company') {
         data.rut = rut;
-        data.business_name = razonSocial; // Añadir razón social para compañías
+        data.company_name = razonSocial; 
     }
 
     fetch('client', {
