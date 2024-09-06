@@ -24,7 +24,7 @@ $(function () {
           dataSrc: 'data'
         },
         columns: [
-          { data: 'id' },
+          { data: 'id', type: 'num'},
           { data: 'store_name' },
           { data: 'client_name' },
           { data: 'order_id' },
@@ -34,7 +34,7 @@ $(function () {
           { data: 'balance' },
           { data: 'currency' },
           { data: 'total' },
-          { data: 'associated_id' }, // Nueva columna para el ID asociado
+          { data: 'associated_id' },
           { data: 'actions' }
         ],
         columnDefs: [
