@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Client;
 use App\Models\OrderStatusChange;
+use App\Models\CashRegisterLog;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -157,6 +158,7 @@ class OrderRepository
         'shipping_method' => 'peya',
         'doc_type' => $request->doc_type,
         'document' => $request->document,
+        'cash_register_log_id' => $request->cash_register_log_id,
     ];
   }
 
@@ -166,10 +168,18 @@ class OrderRepository
    * @param Order $order
    * @return Order
   */
-  public function loadOrderRelations(Order $order): Order
+  public function loadOrderRelations(Order $order)
   {
-    return $order->load(['client', 'statusChanges.user']);
+      // Cargar las relaciones necesarias
+      return $order->load([
+          'client',
+          'statusChanges.user',
+          'store',
+          'coupon',
+          'cashRegisterLog.cashRegister.user'
+      ]);
   }
+
 
   /**
    * Elimina un pedido específico.

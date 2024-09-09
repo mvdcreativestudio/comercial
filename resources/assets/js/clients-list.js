@@ -50,15 +50,26 @@ $(document).ready(function () {
             return `${row.name} ${row.lastname}`;
           }
         },
-        // Cambia el tipo de documento de 2 o 3 a CI o RUT
         {
           targets: 5,
           render: function (data, type, row) {
-            if (row.doc_type == 2) {
+            if (row.type == 'company') {
               return 'RUT';
             } else {
               return 'CI';
             }
+          }
+        },
+        // Modificación para mostrar CI o RUT dependiendo del tipo de cliente
+        {
+          targets: 6, // Asumiendo que la columna 'document' es la sexta columna
+          render: function (data, type, row) {
+            if (row.type === 'company') {
+              return row.rut ? row.rut : '-';
+            } else if (row.type === 'individual') {
+              return row.ci ? row.ci : '-';
+            }
+            return '-';
           }
         }
       ],

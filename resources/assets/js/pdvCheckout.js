@@ -89,13 +89,33 @@ $(document).ready(function () {
   }
 
   function showClientInfo(client) {
-    $('#client-id').text(client.id);
-    $('#client-name').text(client.name);
-    $('#client-ci').text(client.ci);
-    $('#client-rut').text(client.rut);
+    // Verifica si el cliente es una persona o una empresa
+    const clientType = client.type === 'company' ? 'Empresa' : 'Persona';
+    const clientDocLabel = client.type === 'company' ? 'RUT' : 'CI';
+    const clientDoc = client.type === 'company' ? client.rut : client.ci;
+    const fullName = `${client.name || '-'} ${client.lastname || ''}`.trim();
+
+
+    // Actualiza los elementos de la tarjeta de información del cliente
+    $('#client-id').text(client.id || '-');
+    $('#client-name').text(fullName); 
+    $('#client-type').text(clientType);
+    $('#client-doc-label').text(clientDocLabel);
+    $('#client-doc').text(clientDoc || 'No disponible');
+
+    // Muestra o oculta la información de la razón social, dependiendo del tipo de cliente
+    if (client.type === 'company') {
+        $('#client-company').html(`<strong>Razón Social:</strong> ${client.company_name || '-'}`);
+        $('#client-company').show();
+    } else {
+        $('#client-company').hide();
+    }
+
+    // Muestra la tarjeta de información del cliente
     $('#client-info').show();
     $('#client-selection-container').hide();
   }
+
 
   function saveCartToSession() {
     return $.ajax({
@@ -311,51 +331,65 @@ $('#quitarDescuento').on('click', function () {
 
   function displayClients(clients) {
     const clientList = $('#client-list');
-    clientList.empty();
+    clientList.empty(); // Limpiar la lista existente
+
     clients.forEach(client => {
-      const clientItem = `
-        <li class="list-group-item d-flex justify-content-between align-items-center client-item"
-          data-name="${String(client.name).toLowerCase()}"
-          data-ci="${String(client.ci).toLowerCase()}"
-          data-rut="${String(client.rut).toLowerCase()}"
-          data-email="${String(client.email).toLowerCase()}"
-          data-phone="${String(client.phone).toLowerCase()}"
-          data-address="${String(client.address).toLowerCase()}">
-          <div>
-            ${client.name}, CI: ${client.ci}, RUT: ${client.rut}
-          </div>
-          <button class="btn btn-primary btn-sm add-client" data-client='${JSON.stringify(client)}'>+</button>
-        </li>
-      `;
-      clientList.append(clientItem);
+        const clientType = client.type === 'company' ? 'Empresa' : 'Persona';
+        const clientDoc = client.type === 'company' ? client.rut : client.ci;
+        const clientDocLabel = client.type === 'company' ? 'RUT' : 'CI';
+        const razonSocialText = client.company_name ? client.company_name : '-';
+        const razonSocial = client.type === 'company' ? `<p class="client-info"><strong>Razón Social:</strong> ${razonSocialText}</p>` : '';
+
+        const clientCard = `
+            <div class="client-card card mb-2" style="border: none; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+                <div class="card-body d-flex justify-content-between align-items-center p-2">
+                    <div class="client-details">
+                        <h6 class="card-title mb-1">${client.name || '-'} ${client.lastname || '-'}</h6>
+                        ${razonSocial}
+                        <p class="client-info"><strong>Tipo de Cliente:</strong> ${clientType}</p>
+                        <p class="client-info"><strong>${clientDocLabel}:</strong> ${clientDoc ? clientDoc : 'No disponible'}</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm btn-select-client" data-client='${JSON.stringify(client)}'>Seleccionar</button>
+                </div>
+            </div>
+        `;
+
+        clientList.append(clientCard);
     });
 
-    $('.add-client').on('click', function () {
-      const client = $(this).data('client');
-      showClientInfo(client);
+    // Event listener para el botón "Seleccionar"
+    $('.btn-select-client').on('click', function () {
+        const client = $(this).data('client');
+        showClientInfo(client);
 
-      saveClientToSession(client).done(function () {
-        loadClientFromSession();
-      }).fail(function (xhr) {
-        mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-      });
+        saveClientToSession(client).done(function () {
+            loadClientFromSession();
+        }).fail(function (xhr) {
+            mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+        });
     });
   }
 
+
   $('#search-client').on('input', function () {
     const searchText = $(this).val().toLowerCase();
-    $('#client-list li').each(function () {
-      const name = $(this).data('name').toString().toLowerCase();
-      const ci = $(this).data('ci').toString().toLowerCase();
-      const rut = $(this).data('rut').toString().toLowerCase();
 
-      if (name.includes(searchText) || ci.includes(searchText) || rut.includes(searchText)) {
-        $(this).removeClass('d-none');
-      } else {
-        $(this).addClass('d-none');
-      }
+    // Seleccionar las tarjetas de cliente correctas
+    $('#client-list .client-card').each(function () {
+        const name = $(this).find('.card-title').text().toLowerCase(); // Obtener el nombre del cliente desde la tarjeta
+        const ci = $(this).find('.client-info:contains("CI")').text().toLowerCase(); // Obtener CI
+        const rut = $(this).find('.client-info:contains("RUT")').text().toLowerCase(); // Obtener RUT
+        const company_name = $(this).find('.client-info:contains("Razón Social")').text().toLowerCase(); // Obtener Razón Social
+
+        // Comprobar si el texto de búsqueda coincide con nombre, CI o RUT
+        if (name.includes(searchText) || ci.includes(searchText) || rut.includes(searchText) || company_name.includes(searchText)) {
+            $(this).removeClass('d-none'); // Mostrar tarjeta
+        } else {
+            $(this).addClass('d-none'); // Ocultar tarjeta
+        }
     });
   });
+
 
   function saveClientToSession(client) {
     return $.ajax({
@@ -376,31 +410,88 @@ $('#quitarDescuento').on('click', function () {
     loadClients();
   });
 
-document.getElementById('guardarCliente').addEventListener('click', function () {
-    let nombre = document.getElementById('nombreCliente').value;
-    let apellido = document.getElementById('apellidoCliente').value;
-    let tipo = document.getElementById('tipoCliente').value;
-    let email = document.getElementById('emailCliente').value;
-    let ci = document.getElementById('ciCliente').value;
-    let rut = document.getElementById('rutCliente').value;
-    let direccion = document.getElementById('direccionCliente').value;
-    let razonSocial = document.getElementById('razonSocialCliente').value;
+  document.getElementById('guardarCliente').addEventListener('click', function () {
+    // Obtener los elementos de los campos del formulario
+    const nombre = document.getElementById('nombreCliente');
+    const apellido = document.getElementById('apellidoCliente');
+    const tipo = document.getElementById('tipoCliente');
+    const email = document.getElementById('emailCliente');
+    const ci = document.getElementById('ciCliente');
+    const rut = document.getElementById('rutCliente');
+    const direccion = document.getElementById('direccionCliente');
+    const razonSocial = document.getElementById('razonSocialCliente');
 
-    let data = {
-        name: nombre,
-        lastname: apellido,
-        type: tipo,
-        email: email,
-        address: direccion
-    };
+    // Inicializar el indicador de error
+    let hasError = false;
 
-    if (tipo === 'individual') {
-        data.ci = ci;
-    } else if (tipo === 'company') {
-        data.rut = rut;
-        data.company_name = razonSocial; 
+    // Limpiar errores anteriores
+    clearErrors();
+
+    // Validar cada campo
+    if (nombre.value.trim() === '') {
+        showError(nombre, 'Este campo es obligatorio');
+        hasError = true;
     }
 
+    if (apellido.value.trim() === '') {
+        showError(apellido, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    if (tipo.value.trim() === '') {
+        showError(tipo, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    if (email.value.trim() === '') {
+        showError(email, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    if (direccion.value.trim() === '') {
+        showError(direccion, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    if (tipo.value === 'individual' && ci.value.trim() === '') {
+        showError(ci, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    if (tipo.value === 'company') {
+        if (rut.value.trim() === '') {
+            showError(rut, 'Este campo es obligatorio');
+            hasError = true;
+        }
+
+        if (razonSocial.value.trim() === '') {
+            showError(razonSocial, 'Este campo es obligatorio');
+            hasError = true;
+        }
+    }
+
+    // Si hay errores, detener el envío del formulario
+    if (hasError) {
+        return;
+    }
+
+    // Crear el objeto de datos a enviar
+    let data = {
+        name: nombre.value.trim(),
+        lastname: apellido.value.trim(),
+        type: tipo.value,
+        email: email.value.trim(),
+        address: direccion.value.trim()
+    };
+
+    if (tipo.value === 'individual') {
+        data.ci = ci.value.trim();
+    } else if (tipo.value === 'company') {
+        data.rut = rut.value.trim();
+        data.company_name = razonSocial.value.trim();
+    }
+
+    // Realizar la solicitud de creación del cliente
     fetch('client', {
         method: 'POST',
         headers: {
@@ -419,6 +510,23 @@ document.getElementById('guardarCliente').addEventListener('click', function () 
         mostrarError('Error al guardar el cliente: ' + error);
     });
 });
+
+// Función para mostrar el mensaje de error
+function showError(input, message) {
+    const errorElement = document.createElement('small');
+    errorElement.className = 'text-danger';
+    errorElement.innerText = message;
+    input.parentElement.appendChild(errorElement);
+}
+
+// Función para limpiar los mensajes de error anteriores
+function clearErrors() {
+    const errorMessages = document.querySelectorAll('.text-danger');
+    errorMessages.forEach(function (error) {
+        error.remove();
+    });
+}
+
 
 document.getElementById('tipoCliente').addEventListener('change', function () {
     let tipo = this.value;
@@ -498,7 +606,7 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
         client_type: client && client.type ? client.type : 'individual',
         products: JSON.stringify(cart),
         subtotal: subtotal,
-        total: total - discount, // Aplica el descuento al total
+        total: total - discount, //
         notes: $('textarea').val() || ''
     };
 
@@ -510,6 +618,7 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
           _token: $('meta[name="csrf-token"]').attr('content'),
           ...orderData
       },
+
       success: function (response) {
           // Validación más robusta para los datos del cliente
           const isClientValid = client && Object.keys(client).length > 0;
@@ -543,7 +652,9 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
               address: isClientValid && client.address ? client.address : '-',
               phone: isClientValid && client.phone ? client.phone : '123456789',
               email: isClientValid && client.email ? client.email : 'no@email.com',
+              cash_register_log_id: cashRegisterLogId,
           };
+          console.log(ordersData);
 
           $.ajax({
               url: `${baseUrl}admin/orders`,
@@ -560,7 +671,7 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
                       updateCheckoutCart();
                       saveClientToSession(client).done(function () {
                           // Redirigir al usuario después de guardar la orden y el cliente
-                          window.location.href = frontRoute;
+                          // window.location.href = frontRoute;
                       }).fail(function (xhr) {
                           mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
                       });

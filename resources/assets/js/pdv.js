@@ -207,6 +207,9 @@ $(document).ready(function() {
 
     // Función para mostrar productos en formato de tarjetas
     function displayProducts(productsToDisplay) {
+      // Ordenar productos por disponibilidad: los productos agotados al final
+      productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
+
       if (productsToDisplay.length === 0) {
         $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
         return;
@@ -216,11 +219,9 @@ $(document).ready(function() {
       productsToDisplay.forEach(product => {
         const priceToDisplay = product.price ? product.price : product.old_price;
 
-        // Verificar si el producto tiene stock o está inactivo
         const outOfStockLabel = product.stock <= 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-1">Agotado</span>` : '';
         const inactiveLabel = product.status == 2 ? `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Inactivo</span>` : '';
 
-        // Mostrar el precio tachado solo si 'price' existe y es mayor que 0
         const oldPriceHtml = product.price && product.old_price ? `<span class="text-muted" style="font-size: 0.8em;"><del>${currencySymbol}${product.old_price}</del></span>` : '';
 
         productsHtml += `
@@ -245,8 +246,12 @@ $(document).ready(function() {
     }
 
 
+
     // Función para mostrar productos en formato de lista
     function displayProductsList(productsToDisplay) {
+      // Ordenar productos por disponibilidad: los productos agotados al final
+      productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
+
       if (productsToDisplay.length === 0) {
           $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
           return;
@@ -257,11 +262,9 @@ $(document).ready(function() {
           const priceToDisplay = product.price ? product.price.toLocaleString('es-ES') : product.old_price.toLocaleString('es-ES'); // Formatear el precio con separador de miles
           const oldPriceFormatted = product.old_price ? product.old_price.toLocaleString('es-ES') : ''; // Formatear old_price si existe
 
-          // Verificar si el producto tiene stock o está inactivo
           const outOfStockText = product.stock <= 0 ? '<span class="badge bg-danger ms-2">Agotado</span>' : '';
           const inactiveText = product.status == 2 ? '<span class="badge bg-warning text-dark ms-2">Inactivo</span>' : '';
 
-          // Mostrar el precio tachado solo si 'price' existe y es mayor que 0
           const oldPriceHtml = product.price && product.old_price ? `<small class="text-muted"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : '';
 
           productsHtml += `
@@ -281,6 +284,7 @@ $(document).ready(function() {
       productsHtml += '</ul>';
       $('#products-container').html(productsHtml);
     }
+
 
 
 

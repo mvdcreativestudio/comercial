@@ -36,11 +36,11 @@ $(function () {
         order: [[1, 'desc']],
         columnDefs: [
           {
-            targets: 0,
+            targets: 0, // Enlazar el ID del pedido
             orderable: false,
             render: function (data, type, full, meta) {
               var uuid = full['uuid'];
-              return '#' + data;
+              return '<a class="text-muted" href="' + baseUrl + 'admin/orders/' + uuid + '/show">#' + data + '</a>';
             }
           },
           {

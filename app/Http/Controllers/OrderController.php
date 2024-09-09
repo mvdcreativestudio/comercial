@@ -115,6 +115,7 @@ class OrderController extends Controller
   */
   public function show(Order $order): View
   {
+      // Cargar las relaciones necesarias
       $order = $this->orderRepository->loadOrderRelations($order);
       $products = json_decode($order->products, true);
       $clientOrdersCount = $this->orderRepository->getClientOrdersCount($order->client_id);

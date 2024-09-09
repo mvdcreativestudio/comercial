@@ -120,6 +120,10 @@ $changeTypeTranslations = [
         <span class="badge bg-label-danger me-2 ms-2">No Facturado</span>
       @endif
     </h6>
+    <!-- Mostrar el vendedor -->
+    <h6 class="card-title mb-1 mt-1">Vendido por:
+      <span class="me-2 ms-2">{{ $order->cashRegisterLog->cashRegister->user->name }}</span>
+    </h6>
     <p class="text-body mb-1">{{ date('d/m/Y', strtotime($order->date)) }} - {{ $order->time }}</p>
 
   </div>
@@ -143,7 +147,6 @@ $changeTypeTranslations = [
 
   </div>
 </div>
-
 
 <!-- Order Details Table -->
 <div class="row">
@@ -243,7 +246,7 @@ $changeTypeTranslations = [
   </div>
   <div class="card-body">
     <ul class="timeline pb-0 mb-0">
-      @if($order->statusChanges == null)
+      @if($order->statusChanges == null || $order->statusChanges->isEmpty())
         <li class="timeline-item timeline-item-transparent border-primary">
           <span class="timeline-point-wrapper"><span class="timeline-point timeline-point-primary"></span></span>
           <div class="timeline-event">
@@ -389,7 +392,7 @@ $changeTypeTranslations = [
       </div>
     </div>
 
-    <div class="card mb-4">
+    {{-- <div class="card mb-4">
       <div class="card-header d-flex justify-content-between">
         <h6 class="card-title m-0">Dirección de envío</h6>
       </div>
@@ -404,7 +407,7 @@ $changeTypeTranslations = [
       <div class="card-body">
         <p class="mb-4">{{ $order->client->address }}</p>
       </div>
-    </div>
+    </div> --}}
   </div>
 </div>
 
