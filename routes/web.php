@@ -31,6 +31,7 @@ use App\Http\Controllers\{
     ProductionController,
     CashRegisterController,
     CashRegisterLogController,
+    CompositeProductController,
     PosOrderController,
     UserController,
 
@@ -57,6 +58,7 @@ Route::middleware([
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
     Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/composite-products/datatable', [CompositeProductController::class, 'datatable'])->name('composites.datatable');
 
 
     // Recursos con acceso autenticado
@@ -77,6 +79,7 @@ Route::middleware([
         'productions' => ProductionController::class,
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
+        'composite-products' => CompositeProductController::class,
     ]);
 
 
@@ -217,6 +220,12 @@ Route::middleware([
     Route::group(['prefix' => 'productions'], function () {
       Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
       Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+    });
+
+    // Productos compuestos
+    Route::group(['prefix' => 'composite-products'], function () {
+        Route::get('/{compositeProduct}/details', [CompositeProductController::class, 'details'])->name('composite-products.details');
+        Route::post('/delete-multiple', [CompositeProductController::class, 'deleteMultiple'])->name('composite-products.deleteMultiple');
     });
 });
 

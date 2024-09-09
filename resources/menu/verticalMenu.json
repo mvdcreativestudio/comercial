@@ -35,6 +35,13 @@
           "url": "/admin/products"
         },
         {
+          "id": "tour-productos-compuestos",
+          "name": "Productos Compuestos",
+          "icon": "menu-icon tf-icons bx bx-box",
+          "slug": "composite-products",
+          "url": "/admin/composite-products"
+        },
+        {
           "id": "tour-categorias",
           "name": "Categorías",
           "icon": "menu-icon tf-icons bx bx-list-ul",

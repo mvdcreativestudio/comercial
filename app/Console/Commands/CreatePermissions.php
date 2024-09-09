@@ -88,7 +88,8 @@ class CreatePermissions extends Command
                     'products',
                     'product-categories',
                     'settings',
-                    'product-flavors'
+                    'product-flavors',
+                    'composite-products',
                 ],
                 'view_all' => true,
             ],
@@ -174,6 +175,14 @@ class CreatePermissions extends Command
                 'slug' => 'user-accounts',
                 'module' => 'management',
                 'view_all' => false,
+            ],
+            [
+                'slug' => 'composite-products',
+                'module' => 'ecommerce',
+                'view_all' => true,
+                'submenus' => [
+                    'delete_composite-products',
+                ],
             ],
         ]
       ];
