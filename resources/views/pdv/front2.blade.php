@@ -24,6 +24,7 @@
     // Configuración de las respuestas del POS Scanntech
     const posResponsesConfig = @json(config('posResponses'));
     window.currencySymbol = '{{ $currencySymbol }}';
+    window.userPermissions = @json(auth()->user()->getAllPermissions()->pluck('name')->toArray());
 </script>
 
 @section('content')
@@ -249,6 +250,27 @@
     </form>
   </div>
 </div>
+
+<!-- Modal de venta exitosa -->
+<div class="modal fade" id="ventaExitosaModal" tabindex="-1" aria-labelledby="ventaExitosaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ventaExitosaModalLabel">Venta Realizada con Éxito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>La venta se ha realizado exitosamente.</p>
+        <p>¿Desea ver la orden?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" id="verOrdenBtn" class="btn btn-primary">Ver Orden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 @endsection
