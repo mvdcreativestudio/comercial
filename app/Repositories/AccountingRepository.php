@@ -399,6 +399,16 @@ class AccountingRepository
             'Totales' => [
                 'TpoMoneda' => 'USD', // Moneda de la factura
                 'TpoCambio' => $exchangeRate, // Tipo de cambio
+                // 'MntNoGrv' => 0, // No hay montos no gravados
+                // 'MntNetoIvaTasaMin' => 0, // No hay montos a tasa mínima
+                // 'MntNetoIVATasaBasica' => $subtotalSinIVA, // Subtotal de los ítems gravados a tasa básica
+                // 'IVATasaMin' => 10, // Tasa mínima de IVA (opcional si no se usa)
+                // 'IVATasaBasica' => $ivaTasaBasica, // IVA Normal (22%)
+                // 'MntIVATasaMin' => 0, // Monto de IVA a tasa mínima (no aplica)
+                // 'MntIVATasaBasica' => $montoIVATotal, // Monto de IVA a tasa básica (redondeado sin decimales)
+                // 'MntTotal' => $totalConIVA, // Total a pagar (incluye IVA)
+                // 'CantLinDet' => count($items), // Cantidad de líneas de artículos
+                // 'MntPagar' => $totalConIVA, // Total a pagar
             ],
             'Items' => $items,
         ];
