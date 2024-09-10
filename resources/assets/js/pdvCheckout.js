@@ -9,6 +9,8 @@ $(document).ready(function () {
   let discount = 0;
   let coupon = null;
   let currencySymbol = window.currencySymbol;
+  $('#client-info').hide();
+
 
 
   function mostrarError(mensaje) {
@@ -98,7 +100,7 @@ $(document).ready(function () {
 
     // Actualiza los elementos de la tarjeta de información del cliente
     $('#client-id').text(client.id || '-');
-    $('#client-name').text(fullName); 
+    $('#client-name').text(fullName);
     $('#client-type').text(clientType);
     $('#client-doc-label').text(clientDocLabel);
     $('#client-doc').text(clientDoc || 'No disponible');
@@ -657,33 +659,46 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
           console.log(ordersData);
 
           $.ajax({
-              url: `${baseUrl}admin/orders`,
-              type: 'POST',
-              data: {
-                  _token: $('meta[name="csrf-token"]').attr('content'),
-                  ...ordersData
-              },
-              success: function (response) {
-                  // Limpiar el carrito después de guardar la orden
-                  cart = [];
-                  client = [];
-                  saveCartToSession().done(function () {
-                      updateCheckoutCart();
-                      saveClientToSession(client).done(function () {
-                          // Redirigir al usuario después de guardar la orden y el cliente
-                          // window.location.href = frontRoute;
-                      }).fail(function (xhr) {
-                          mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-                      });
-                  }).fail(function (xhr) {
-                      mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+            url: `${baseUrl}admin/orders`,
+            type: 'POST',
+            data: {
+              _token: $('meta[name="csrf-token"]').attr('content'),
+              ...ordersData
+            },
+            success: function (response) {
+              // Limpiar el carrito después de guardar la orden
+              cart = [];
+              client = [];
+              saveCartToSession().done(function () {
+                updateCheckoutCart();
+                saveClientToSession(client).done(function () {
+                  // Mostrar el popup con SweetAlert
+                  Swal.fire({
+                    title: 'Venta Realizada con Éxito',
+                    text: 'La venta se ha realizado exitosamente.',
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ver Orden',
+                    cancelButtonText: 'Cerrar',
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      // Redirigir a la página de la orden
+                      window.location.href = `${baseUrl}admin/orders/${response.order_id}`;
+                    }
                   });
-              },
-              error: function (xhr) {
-                  console.log(xhr);
-                  mostrarError('Error al guardar la orden en orders: ' + xhr.responseText);
-              }
+                }).fail(function (xhr) {
+                  mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+                });
+              }).fail(function (xhr) {
+                mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
+              });
+            },
+            error: function (xhr) {
+              console.log(xhr);
+              mostrarError('Error al guardar la orden en orders: ' + xhr.responseText);
+            }
           });
+
       },
       error: function (xhr) {
           if (xhr.responseJSON && xhr.responseJSON.errors) {
