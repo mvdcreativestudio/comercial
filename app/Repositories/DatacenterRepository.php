@@ -37,7 +37,9 @@ class DatacenterRepository
 
         switch ($period) {
             case 'today':
-                return [$today->startOfDay(), $today->endOfDay()];
+                $start = $today->copy()->startOfDay();
+                $end = $today->copy()->endOfDay(); 
+                return [$start, $end];
             case 'week':
                 return [$today->copy()->subDays(6)->startOfDay(), $today->endOfDay()];
             case 'month':
@@ -796,4 +798,45 @@ public function getSalesPercentByProduct(string $startDate, string $endDate, int
         }
         return $paymentMethods;
     }
+
+    /**
+     * Obtener ventas por vendedor para gráfica de barras con filtro de fecha y local.
+     *
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getSalesBySellerData(string $startDate, string $endDate, int $storeId = null): array
+    {
+        // Filtrar por el rango de fechas y el estado de pago
+        $query = Order::whereBetween('date', [$startDate, $endDate])
+            ->where('payment_status', 'paid');
+
+        // Filtrar por el store_id si se proporciona
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        // Obtener el total de ventas por vendedor
+        $salesBySeller = $query->join('cash_register_logs', 'orders.cash_register_log_id', '=', 'cash_register_logs.id')
+            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
+            ->join('users', 'cash_registers.user_id', '=', 'users.id')
+            ->select('users.name as seller', DB::raw('SUM(orders.total) as totalSales'))
+            ->groupBy('users.name')
+            ->orderBy('totalSales', 'desc')
+            ->get();
+
+
+        // Convertir los datos a un array
+        return $salesBySeller->map(function ($item) {
+            return [
+                'seller' => $item->seller,
+                'totalSales' => (float) $item->totalSales,
+            ];
+        })->toArray();
+    }
+
+
+
 }

@@ -67,6 +67,8 @@ class DatacenterController extends Controller
         }
         $averageOrdersByHour = $this->datacenterRepo->getAverageOrdersByHour($startDate, $endDate, $storeIdForChart);
 
+
+
         return view('datacenter.datacenter-sales', compact(
             'storesCount',
             'registredClients',
@@ -116,15 +118,6 @@ class DatacenterController extends Controller
         return response()->json($incomeData);
     }
 
-
-
-
-
-
-
-
-
-
     // Gráfica de torta - Ventas por Local en porcentaje
     public function salesByStore(Request $request)
     {
@@ -150,6 +143,25 @@ class DatacenterController extends Controller
 
         $paymentMethods = $this->datacenterRepo->getPaymentMethodsData($startDate, $endDate, $storeId);
         return response()->json($paymentMethods);
+    }
+
+    public function salesBySellerData(Request $request)
+    {
+        $period = $request->input('period', 'year'); // Periodo por defecto es 'año'
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $storeId = $request->input('store_id');
+
+        // Si no se pasa un store_id y el usuario no tiene permisos globales, usar el store_id del usuario.
+        if (!$storeId && !auth()->user()->can('view_all_datacenter')) {
+            $storeId = auth()->user()->store_id;
+        }
+
+        list($startDate, $endDate) = $this->datacenterRepo->getDateRange($period, $startDate, $endDate);
+
+        $salesBySeller = $this->datacenterRepo->getSalesBySellerData($startDate, $endDate, $storeId);
+
+        return response()->json($salesBySeller);
     }
 
 

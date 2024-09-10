@@ -22,7 +22,9 @@
 @vite('resources/assets/js/app-datacenter-salesByStoreChart.js')
 @vite('resources/assets/js/app-datacenter-paymentMethodsChart.js')
 @vite('resources/assets/js/app-datacenter-averageOrdersByHourChart.js')
+@vite('resources/assets/js/app-datacenter-salesBySellerChart')
 @endsection
+
 
 
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -38,6 +40,7 @@
 
 <script>
   window.paymentMethodsUrl = '{{ route('datacenter.paymentMethodsData') }}';
+  window.currencySymbol = '{{ $settings->currency_symbol }}';
 </script>
 
 <div class="row sticky-top" style="top: 80px;">
@@ -527,11 +530,25 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           </div>
       </div>
       <div class="card-body">
-          <div id="paymentMethodsChart" style="height: 420px;"></div> <!-- Asegúrate de que tenga dimensiones -->
+          <div id="paymentMethodsChart" style="height: 420px;"></div>
       </div>
     </div>
   </div>
   <!--/ Gráfica métodos de pago -->
+
+  <div class="col-md-4 col-12 mb-4 mt-4">
+    <div class="card" data-aos="zoom-in">
+      <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="card-title mb-0">
+              <h5 class="m-0 me-2">Ventas por Vendedor</h5>
+          </div>
+      </div>
+      <div class="card-body">
+          <div id="salesBySellerChart" style="height: 420px;"></div> <!-- Contenedor para la gráfica -->
+      </div>
+    </div>
+  </div>
+
 
 </div>
 
