@@ -52,6 +52,18 @@
     fetch(url)
       .then(response => response.json())
       .then(data => {
+        if (data.length === 0) {
+          // Si no hay datos, mostrar mensaje de "No hay datos disponibles"
+          salesBySellerChartEl.innerHTML = '<div class="no-data">No hay datos disponibles</div>';
+          salesBySellerChartEl.style.display = 'flex';
+          salesBySellerChartEl.style.justifyContent = 'center';
+          salesBySellerChartEl.style.alignItems = 'center';
+          salesBySellerChartEl.style.height = '420px';
+          salesBySellerChartEl.style.fontSize = '1.5rem';
+          salesBySellerChartEl.style.color = labelColor;
+          return;
+        }
+
         const labels = data.map(item => item.seller);
         const series = data.map(item => parseFloat(item.totalSales));
 
@@ -104,7 +116,7 @@
                   total: {
                     show: true,
                     fontSize: '0.7rem',
-                    label: 'Mejor vendedor/a: ' + topSellerName,
+                    label: 'Vendedor con más ventas: ' + topSellerName,
                     color: labelColor,
                     formatter: function () {
                       return `${window.currencySymbol}${topSellerSales.toFixed(2)}`; // Total de ventas del mejor vendedor con símbolo de moneda
