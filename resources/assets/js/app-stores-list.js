@@ -26,14 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
         { data: 'rut' },
         { data: 'status' },
         {
-          data: 'automatic_billing',
-          render: function (data, type, row) {
-            return data
-              ? '<span class="badge rounded-pill bg-success">Activada</span>'
-              : '<span class="badge rounded-pill bg-danger">Desactivada</span>';
-          }
-        },
-        {
           data: 'users_count',
           render: function (data, type, row) {
             return `<a href="${storeManageUsers.replace(':id', row.id)}">${data}</a>`;
@@ -50,16 +42,12 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         },
         {
-          targets: 8,
+          targets: 7,
           render: function (data, type, row, meta) {
             let actionButton =
               row.status === 1
                 ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Desactivar Tienda</div>"
                 : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Activar Tienda</div>";
-
-            let automaticBillingButton = row.automatic_billing
-              ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-file'></i> Desactivar F. Automática</div>"
-              : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-file'></i> Activar F. Automática</div>";
             return `
             <div class="dropdown">
                 <button class="btn btn-icon btn-icon-only" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -75,15 +63,10 @@ document.addEventListener('DOMContentLoaded', function () {
                   <a class="dropdown-item" href="${storeManageHours.replace(':id', row.id)}">
                     <i class="bx bx-time"></i> Modificar Horarios
                   </a>
-                  <form class="delete-form-${row.id}" action="${storeChangeBilling.replace(':id', row.id)}" style="margin-bottom: 0px;" method="POST">
-                    <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
-                    ${automaticBillingButton}
-                  </form>
                   <form class="delete-form-${row.id}" action="${storeChangeStatus.replace(':id', row.id)}" method="POST">
                     <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                     ${actionButton}
                   </form>
-
                 </div>
               </div>
             `;

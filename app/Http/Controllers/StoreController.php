@@ -10,6 +10,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
+use App\Repositories\AccountingRepository;
+use Illuminate\Support\Facades\Log;
 
 class StoreController extends Controller
 {
@@ -21,13 +25,22 @@ class StoreController extends Controller
   protected StoreRepository $storeRepository;
 
   /**
+   * El repositorio de contabilidad.
+   *
+   * @var AccountingRepository
+  */
+  protected AccountingRepository $accountingRepository;
+
+  /**
    * Constructor para inyectar el repositorio.
    *
    * @param StoreRepository $storeRepository
+   * @param AccountingRepository $accountingRepository
   */
-  public function __construct(StoreRepository $storeRepository)
+  public function __construct(StoreRepository $storeRepository, AccountingRepository $accountingRepository)
   {
     $this->storeRepository = $storeRepository;
+    $this->accountingRepository = $accountingRepository;
   }
 
   /**
@@ -60,7 +73,16 @@ class StoreController extends Controller
   public function store(StoreStoreRequest $request): RedirectResponse
   {
     $storeData = $request->validated();
-    $store = $this->storeRepository->create(Arr::except($storeData, ['mercadoPagoPublicKey', 'mercadoPagoAccessToken', 'mercadoPagoSecretKey', 'accepts_mercadopago']));
+
+    $store = $this->storeRepository->create(Arr::except($storeData, [
+        'mercadoPagoPublicKey',
+        'mercadoPagoAccessToken',
+        'mercadoPagoSecretKey',
+        'accepts_mercadopago',
+        'pymo_user',
+        'pymo_password',
+        'pymo_branch_office'
+    ]));
 
     if ($request->boolean('accepts_mercadopago')) {
         $store->mercadoPagoAccount()->create([
@@ -70,6 +92,14 @@ class StoreController extends Controller
             'secret_key' => $request->input('mercadoPagoSecretKey'),
         ]);
     }
+
+    if ($request->boolean('invoices_enabled')) {
+      $store->update([
+          'pymo_user' => $request->input('pymo_user'),
+          'pymo_password' => Crypt::encryptString($request->input('pymo_password')),
+          'pymo_branch_office' => $request->input('pymo_branch_office'),
+      ]);
+  }
 
     return redirect()->route('stores.index')->with('success', 'Tienda creada con éxito.');
   }
@@ -93,11 +123,19 @@ class StoreController extends Controller
   */
   public function edit(Store $store): View
   {
-    return view('stores.edit', [
-        'store' => $store,
-        'googleMapsApiKey' => config('services.google.maps_api_key'),
-    ]);
+      $googleMapsApiKey = config('services.google.maps_api_key');
+
+      $companyInfo = null;
+      $logoUrl = null;
+
+      if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password) {
+          $companyInfo = $this->accountingRepository->getCompanyInfo($store->rut);
+          $logoUrl = $this->accountingRepository->getCompanyLogo($store->rut);
+      }
+
+      return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl'));
   }
+
 
   /**
    * Actualiza una tienda específica en la base de datos.
@@ -108,20 +146,51 @@ class StoreController extends Controller
   */
   public function update(UpdateStoreRequest $request, Store $store): RedirectResponse
   {
-    $storeData = $request->validated();
-    $this->storeRepository->update($store, Arr::except($storeData, ['mercadoPagoPublicKey', 'mercadoPagoAccessToken', 'mercadoPagoSecretKey', 'accepts_mercadopago']));
+      $storeData = $request->validated();
 
-    if ($request->boolean('accepts_mercadopago')) {
-        $store->mercadoPagoAccount()->updateOrCreate(['store_id' => $store->id], [
-            'public_key' => $request->input('mercadoPagoPublicKey'),
-            'access_token' => $request->input('mercadoPagoAccessToken'),
-            'secret_key' => $request->input('mercadoPagoSecretKey'),
-        ]);
+      $this->storeRepository->update($store, Arr::except($storeData, [
+          'mercadoPagoPublicKey',
+          'mercadoPagoAccessToken',
+          'mercadoPagoSecretKey',
+          'accepts_mercadopago',
+          'pymo_user',
+          'pymo_password',
+          'pymo_branch_office'
+      ]));
+
+      if ($request->boolean('accepts_mercadopago')) {
+          $store->mercadoPagoAccount()->updateOrCreate(['store_id' => $store->id], [
+              'public_key' => $request->input('mercadoPagoPublicKey'),
+              'access_token' => $request->input('mercadoPagoAccessToken'),
+              'secret_key' => $request->input('mercadoPagoSecretKey'),
+          ]);
+      } else {
+          $store->mercadoPagoAccount()->delete();
+      }
+
+      // Actualizar solo si invoices_enabled es true
+      if ($request->boolean('invoices_enabled')) {
+        $updateData = [
+            'pymo_user' => $request->input('pymo_user'),
+            'pymo_branch_office' => $request->input('pymo_branch_office'),
+        ];
+
+        if ($request->filled('pymo_password') && $request->input('pymo_password') !== $store->pymo_password) {
+            $updateData['pymo_password'] = Crypt::encryptString($request->input('pymo_password'));
+        }
+
+        $store->update($updateData);
     } else {
-        $store->mercadoPagoAccount()->delete();
+        $store->update([
+            'pymo_user' => null,
+            'pymo_password' => null,
+            'pymo_branch_office' => null,
+        ]);
     }
 
-    return redirect()->route('stores.index')->with('success', 'Tienda actualizada con éxito.');
+
+
+      return redirect()->route('stores.index')->with('success', 'Tienda actualizada con éxito.');
   }
 
   /**

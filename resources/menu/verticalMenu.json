@@ -145,6 +145,13 @@
           "url": "/admin/entries"
         },
         {
+          "id": "tour-documentos-recibidos",
+          "name": "Recibidos",
+          "icon": "menu-icon tf-icons bx bx-file",
+          "slug": "received-documents",
+          "url": "/admin/received-cfes"
+        },
+        {
           "id": "tour-configuracion-contabilidad",
           "name": "Configuración",
           "icon": "menu-icon tf-icons bx bx-cog",

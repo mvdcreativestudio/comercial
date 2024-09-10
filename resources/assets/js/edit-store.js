@@ -74,4 +74,14 @@ document.addEventListener('DOMContentLoaded', function () {
       ecommerceFields.style.display = this.checked ? 'block' : 'none';
     }
   });
+
+
+  document.getElementById('invoicesEnabledSwitch').addEventListener('change', function() {
+    var pymoFields = document.getElementById('pymoFields');
+    if (this.checked) {
+      pymoFields.style.display = 'block';
+    } else {
+      pymoFields.style.display = 'none';
+    }
+  });
 });

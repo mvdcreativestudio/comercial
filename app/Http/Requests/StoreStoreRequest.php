@@ -33,7 +33,14 @@ class StoreStoreRequest extends FormRequest
             'ecommerce' => 'required|boolean',
             'status' => 'required|boolean',
             'accepts_mercadopago' => 'required|boolean',
+            'invoices_enabled' => 'boolean',
         ];
+
+        if ($this->boolean('invoices_enabled')) {
+            $rules['pymo_user'] = 'required|string|max:255';
+            $rules['pymo_password'] = 'required|string|max:255';
+            $rules['pymo_branch_office'] = 'required|string|max:255';
+        }
 
         if ($this->boolean('accepts_mercadopago')) {
             $rules['mercadoPagoPublicKey'] = 'required|string|max:255';
@@ -42,5 +49,4 @@ class StoreStoreRequest extends FormRequest
 
         return $rules;
     }
-
 }

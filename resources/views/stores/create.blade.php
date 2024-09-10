@@ -73,9 +73,6 @@
                       </div>
                     </div>
 
-
-
-
                     <!-- Campos MercadoPago (ocultos por defecto) -->
                     <div id="mercadoPagoFields" style="display: none;">
                       <!-- Public Key -->
@@ -94,6 +91,33 @@
                       <div class="mb-3">
                           <label class="form-label" for="mercadoPagoSecretKey">Clave Secreta</label>
                           <input type="text" class="form-control" id="mercadoPagoSecreyKey" name="mercadoPagoSecretKey" placeholder="Clave secreta de MercadoPago">
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="form-check form-switch">
+                        <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
+                        <input type="hidden" name="invoices_enabled" value="0">
+                        <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch" name="invoices_enabled" value="1">
+                        <label class="form-check-label" for="invoicesEnabledSwitch">Habilitar Facturación</label>
+                      </div>
+                    </div>
+
+                    <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
+                    <div id="pymoFields" style="display: none;">
+                      <div class="mb-3">
+                        <label class="form-label" for="pymoUser">Usuario PyMo</label>
+                        <input type="text" class="form-control" id="pymoUser" name="pymo_user" placeholder="Usuario PyMo">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" for="pymoPassword">Contraseña PyMo</label>
+                        <input type="password" class="form-control" id="pymoPassword" name="pymo_password" placeholder="Contraseña PyMo">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
+                        <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office" placeholder="Sucursal PyMo">
                       </div>
                     </div>
 

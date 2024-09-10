@@ -180,7 +180,9 @@ Route::middleware([
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
     Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
     Route::post('invoices/{invoice}/emit-note', [AccountingController::class, 'emitNote'])->name('invoices.emitNote');
-    route::get('invoices/download/{id}', [AccountingController::class, 'downloadCfePdf'])->name('invoices.download');
+    Route::get('invoices/download/{id}', [AccountingController::class, 'downloadCfePdf'])->name('invoices.download');
+
+    Route::get('received-cfes', [AccountingController::class, 'receivedCfes'])->name('accounting.received_cfes');
 
     Route::get('/accounting/settings', [AccountingController::class, 'settings'])->name('accounting.settings');
     Route::post('/accounting/save-rut', [AccountingController::class, 'saveRut'])->name('accounting.saveRut');
