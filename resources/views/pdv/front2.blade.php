@@ -24,6 +24,7 @@
     // Configuración de las respuestas del POS Scanntech
     const posResponsesConfig = @json(config('posResponses'));
     window.currencySymbol = '{{ $currencySymbol }}';
+    window.userPermissions = @json(auth()->user()->getAllPermissions()->pluck('name')->toArray());
 </script>
 
 @section('content')

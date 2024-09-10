@@ -11,6 +11,13 @@ $(document).ready(function () {
   let currencySymbol = window.currencySymbol;
   $('#client-info').hide();
 
+  // Función para verificar si el usuario tiene permiso para ver las ordenes
+  function userHasPermission(permission) {
+    // Chequear si la lista de permisos contiene el permiso buscado
+    return window.userPermissions && window.userPermissions.includes(permission);
+  }
+
+
 
 
   function mostrarError(mensaje) {
@@ -672,20 +679,23 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
               saveCartToSession().done(function () {
                 updateCheckoutCart();
                 saveClientToSession(client).done(function () {
-                  // Mostrar el popup con SweetAlert
-                  Swal.fire({
-                    title: 'Venta Realizada con Éxito',
-                    text: 'La venta se ha realizado exitosamente.',
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ver Orden',
-                    cancelButtonText: 'Cerrar',
-                  }).then((result) => {
-                    if (result.isConfirmed) {
-                      // Redirigir a la página de la orden
-                      window.location.href = `${baseUrl}admin/orders/${response.order_id}`;
-                    }
-                  });
+                // Mostrar el popup con SweetAlert
+                Swal.fire({
+                  title: 'Venta Realizada con Éxito',
+                  text: 'La venta se ha realizado exitosamente.',
+                  icon: 'success',
+                  showCancelButton: userHasPermission('access_orders'), // Mostrar el botón "Cerrar" solo si el usuario tiene el permiso
+                  confirmButtonText: userHasPermission('access_orders') ? 'Ver Orden' : 'Cerrar', // Si el usuario tiene permiso, el botón principal es "Ver Orden", de lo contrario "Cerrar"
+                  cancelButtonText: 'Cerrar',
+                }).then((result) => {
+                  if (result.isConfirmed && userHasPermission('access_orders')) {
+                    // Redirigir a la página de la orden utilizando el UUID
+                    window.location.href = `${baseUrl}admin/orders/${response.order_uuid}/show`;
+                  } else {
+                    // Recargar la vista anterior
+                    window.location.href = frontRoute; // Ruta anterior o vista que se desee recargar
+                  }
+                });
                 }).fail(function (xhr) {
                   mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
                 });
