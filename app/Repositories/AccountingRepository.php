@@ -357,10 +357,10 @@ class AccountingRepository
             $discountAmount = round($productPriceConIVA * ($discountPercentage / 100), 2);
 
             // Acumular el total de descuento
-            $totalDescuento += $discountAmount;
+            $totalDescuento += $discountAmount * $adjustedAmount;
 
             // Acumular el subtotal con IVA incluido
-            $subtotalConIVA += $productPriceConIVA * $adjustedAmount;
+            $subtotalConIVA += ($productPriceConIVA - $discountAmount) * $adjustedAmount;
 
             return [
                 'NroLinDet' => $index + 1, // Número de línea de detalle
@@ -369,27 +369,23 @@ class AccountingRepository
                 'Cantidad' => $adjustedAmount, // Cantidad del producto
                 'UniMed' => 'N/A', // Unidad de medida, si no tiene usar N/A
                 "DescuentoPct" => $discountPercentage, // % de descuento aplicado
-                "DescuentoMonto" => $discountAmount, // Monto de descuento
-                "MontoItem" => round($productPriceConIVA * $adjustedAmount, 2), // Monto del ítem con IVA
+                "DescuentoMonto" => $discountAmount, // Monto de descuento por unidad
+                "MontoItem" => round(($productPriceConIVA - $discountAmount) * $adjustedAmount, 2), // Monto del ítem con IVA
                 'PrecioUnitario' => $productPriceConIVA, // Precio unitario del producto con IVA
             ];
         }, $products, array_keys($products));
 
         // Redondear los totales a dos decimales
         $subtotalConIVA = round($subtotalConIVA, 2);
-        $totalConIVA = round($subtotalConIVA - $totalDescuento, 2); // Total con IVA ya incluido
-
-        // Calcular el IVA incluido en el total
-        $montoIVATotal = round(($totalConIVA * $ivaTasaBasica) / (100 + $ivaTasaBasica), 0); // Redondear IVA a 0 decimales
-        $subtotalSinIVA = $totalConIVA - $montoIVATotal;
+        $totalConIVA = round($subtotalConIVA, 2); // Total con IVA ya incluido
 
         // Preparar los datos del CFE
         $cfeData = [
             'clientEmissionId' => $order->uuid,
             'adenda' => 'Orden ' . $order->uuid . ' - Anjos.',
             'IdDoc' => [
-                'MntBruto' => 1,
-                'FmaPago' => $payType // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
+                'MntBruto' => 1, // Indica que los montos enviados incluyen IVA
+                'FmaPago' => $payType, // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
             ],
             'Receptor' => [
                 'TipoDocRecep' => $client ? ($client->type === 'company' ? 2 : 3) : 3, // 2 para RUC, 3 para CI
@@ -403,16 +399,6 @@ class AccountingRepository
             'Totales' => [
                 'TpoMoneda' => 'USD', // Moneda de la factura
                 'TpoCambio' => $exchangeRate, // Tipo de cambio
-                'MntNoGrv' => 0, // No hay montos no gravados
-                'MntNetoIvaTasaMin' => 0, // No hay montos a tasa mínima
-                'MntNetoIVATasaBasica' => $subtotalSinIVA, // Subtotal de los ítems gravados a tasa básica
-                'IVATasaMin' => 10, // Tasa mínima de IVA (opcional si no se usa)
-                'IVATasaBasica' => $ivaTasaBasica, // IVA Normal (22%)
-                'MntIVATasaMin' => 0, // Monto de IVA a tasa mínima (no aplica)
-                'MntIVATasaBasica' => $montoIVATotal, // Monto de IVA a tasa básica (redondeado sin decimales)
-                'MntTotal' => $totalConIVA, // Total a pagar (incluye IVA)
-                'CantLinDet' => count($items), // Cantidad de líneas de artículos
-                'MntPagar' => $totalConIVA, // Total a pagar
             ],
             'Items' => $items,
         ];
@@ -423,6 +409,7 @@ class AccountingRepository
 
         return $cfeData;
     }
+
 
 
 
