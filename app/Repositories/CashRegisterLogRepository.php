@@ -258,7 +258,7 @@ class CashRegisterLogRepository
      */
     public function getAllClients(): \Illuminate\Database\Eloquent\Collection
     {
-        $clients = Client::select('id', 'name', 'lastname', 'ci', 'rut','type')
+        $clients = Client::select('id', 'name', 'lastname', 'ci', 'rut','type','company_name','phone','address','email')
                      ->get()
                      ->map(function ($client) {
                          $client->ci = $client->ci ?? 'No CI';

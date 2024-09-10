@@ -114,35 +114,28 @@ class CheckoutRepository
 
             $storeId = session('store.id');
             $clientData = $this->getClientData($request);
+
             $orderData = $this->getOrderData($request);
 
-            // Guardar la orden y los datos del cliente
             $order = $this->createOrder($clientData, $orderData);
 
             $store = $order->store;
 
             if ($store->automatic_billing) {
-                // Emitir CFE (eFactura o eTicket)
-                $tipoCFE = $request->input('tipo_cfe', 'eTicket');
-
-                $this->accountingRepository->emitirCFE($order, $tipoCFE);
-
-                // Marcar la orden como facturada
+                $this->accountingRepository->emitCFE($order);
                 $order->update(['is_billed' => true]);
             } else {
-                // Marcar la orden como no facturada
                 $order->update(['is_billed' => false]);
             }
 
             if ($request->payment_method === 'card') {
                 $redirectUrl = $this->processCardPayment($request, $order, $mercadoPagoService, $storeId);
                 DB::commit();
-                session()->forget('cart'); // Limpiar el carrito de compras
+                session()->forget('cart');
                 return Redirect::away($redirectUrl);
             } else {
-                // Lógica para pago en efectivo
                 DB::commit();
-                session()->forget('cart'); // Limpiar el carrito de compras
+                session()->forget('cart');
 
                 Log::info('Pedido procesado correctamente.');
 
@@ -305,12 +298,14 @@ class CheckoutRepository
             'name' => $request->name,
             'lastname' => $request->lastname,
             'type' => 'individual',
-            'state' => 'Montevideo',
-            'city' => 'Montevideo',
+            'state' => $request->department ?? 'Montevideo',
+            'city' => $request->city ?? 'Montevideo',
             'country' => 'Uruguay',
             'address' => $request->address ?? 'N/A',
             'phone' => $request->phone,
             'email' => $request->email,
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
     }
 
@@ -377,6 +372,8 @@ class CheckoutRepository
             'payment_method' => $request->payment_method,
             'shipping_method' => $request->shipping_method,
             'products' => json_encode($products),
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
 
         if ($request->filled('estimate_id')) {

@@ -37,7 +37,9 @@ class DatacenterRepository
 
         switch ($period) {
             case 'today':
-                return [$today->startOfDay(), $today->endOfDay()];
+                $start = $today->copy()->startOfDay();
+                $end = $today->copy()->endOfDay(); 
+                return [$start, $end];
             case 'week':
                 return [$today->copy()->subDays(6)->startOfDay(), $today->endOfDay()];
             case 'month':
@@ -81,7 +83,7 @@ class DatacenterRepository
      */
     public function countClients(string $startDate, string $endDate, int $storeId = null): int
     {
-        $query = Client::whereBetween('created_at', [$startDate, $endDate]);
+        $query = Client::query();
 
         // Obtener configuración de companySettings usando el provider
         $companySettings = App::make('companySettings');
@@ -101,6 +103,8 @@ class DatacenterRepository
             // Si clients_has_store no está habilitado, se filtra por store_id si está definido
             if ($storeId) {
                 $query->where('store_id', $storeId);
+            } else {
+                $query->whereNull('store_id');
             }
         }
 
@@ -118,11 +122,14 @@ class DatacenterRepository
      */
     public function countProducts(string $startDate, string $endDate, int $storeId = null): int
     {
-        $query = Product::whereBetween('created_at', [$startDate, $endDate]);
-        if ($storeId) {
-            $query->where('store_id', $storeId);
-        }
-        return $query->count();
+      $query = Product::query(); // Inicializa la consulta para contar productos
+
+      // Filtra por store_id si es proporcionado
+      if ($storeId) {
+          $query->where('store_id', $storeId);
+      }
+
+      return $query->count(); // Retorna el total de productos contados
     }
 
     /**
@@ -146,23 +153,16 @@ class DatacenterRepository
     public function countOrders(string $startDate, string $endDate, int $storeId = null): array
     {
         $orderQuery = Order::whereBetween('date', [$startDate, $endDate]);
+
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
         }
 
-        $posOrderQuery = PosOrder::whereBetween('date', [$startDate, $endDate]);
-        if ($storeId) {
-            $posOrderQuery->whereHas('cashRegisterLog.cashRegister', function ($query) use ($storeId) {
-                $query->where('store_id', $storeId);
-            });
-        }
-
         return [
-            'delivered' => (clone $orderQuery)->where('shipping_status', 'delivered')->count() + $posOrderQuery->count(),
-            'shipped' => (clone $orderQuery)->where('shipping_status', 'shipped')->count(),
-            'pending' => (clone $orderQuery)->where('shipping_status', 'pending')->count(),
-            'cancelled' => (clone $orderQuery)->where('shipping_status', 'cancelled')->count()
-            ];
+            'completed' => (clone $orderQuery)->where('payment_status', 'paid')->count(),
+            'pending' => (clone $orderQuery)->where('payment_status', 'pending')->count(),
+            'cancelled' => (clone $orderQuery)->where('payment_status', 'failed')->count()
+        ];
     }
 
 
@@ -202,19 +202,14 @@ class DatacenterRepository
             ->where('payment_status', 'paid')
             ->where('origin', 'physical');
 
-        $posOrderQuery = PosOrder::whereBetween('date', [$startDate, $endDate]);
-
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
-            $posOrderQuery->whereHas('cashRegisterLog.cashRegister', function ($query) use ($storeId) {
-                $query->where('store_id', $storeId);
-            });
         }
 
         $totalOrderPaid = $orderQuery->sum('total');
-        $totalPosOrderPaid = $posOrderQuery->sum('total');
 
-        $totalPaid = $totalOrderPaid + $totalPosOrderPaid;
+
+        $totalPaid = $totalOrderPaid;
 
         return number_format($totalPaid, 0, ',', '.');
     }
@@ -233,19 +228,14 @@ class DatacenterRepository
         $orderQuery = Order::whereBetween('date', [$startDate, $endDate])
             ->where('payment_status', 'paid');
 
-        $posOrderQuery = PosOrder::whereBetween('date', [$startDate, $endDate]);
 
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
-            $posOrderQuery->whereHas('cashRegisterLog.cashRegister', function ($query) use ($storeId) {
-                $query->where('store_id', $storeId);
-            });
         }
 
         $totalOrderPaid = $orderQuery->sum('total');
-        $totalPosOrderPaid = $posOrderQuery->sum('total');
 
-        $totalPaid = $totalOrderPaid + $totalPosOrderPaid;
+        $totalPaid = $totalOrderPaid;
 
         return number_format($totalPaid, 0, ',', '.');
     }
@@ -259,29 +249,22 @@ class DatacenterRepository
      */
     public function averageMonthlySales(int $storeId = null): string
     {
-        // Consulta para Order
-        $orderQuery = Order::select(DB::raw('SUM(total) as total'), DB::raw('YEAR(date) as year'), DB::raw('MONTH(date) as month'))
-            ->where('payment_status', 'paid')
-            ->groupBy(DB::raw('YEAR(date)'), DB::raw('MONTH(date)'));
-
-        // Consulta para PosOrder
-        $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->select(DB::raw('SUM(pos_orders.total) as total'), DB::raw('YEAR(pos_orders.date) as year'), DB::raw('MONTH(pos_orders.date) as month'))
-            ->groupBy(DB::raw('YEAR(pos_orders.date)'), DB::raw('MONTH(pos_orders.date)'));
+        // Consulta para obtener las ventas mensuales de la tabla Order
+        $orderQuery = Order::select(
+            DB::raw('SUM(total) as total'),
+            DB::raw('YEAR(date) as year'),
+            DB::raw('MONTH(date) as month')
+        )
+        ->where('payment_status', 'paid')
+        ->groupBy(DB::raw('YEAR(date)'), DB::raw('MONTH(date)'));
 
         // Aplicar filtro por store_id si es proporcionado
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
-            $posOrderQuery->where('cash_registers.store_id', $storeId);
         }
 
-        // Obtener ventas mensuales combinadas de ambas consultas
-        $monthlySales = DB::table(DB::raw("({$orderQuery->toSql()} UNION ALL {$posOrderQuery->toSql()}) as combined_sales"))
-            ->mergeBindings($orderQuery->getQuery())
-            ->mergeBindings($posOrderQuery->getQuery())
-            ->select(DB::raw('SUM(total) as total'), 'year', 'month')
-            ->groupBy('year', 'month')
+        // Obtener ventas mensuales
+        $monthlySales = $orderQuery
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc')
             ->get();
@@ -300,7 +283,6 @@ class DatacenterRepository
 
 
 
-
     /**
      * Calcular el ticket medio con filtro de fecha y local.
      *
@@ -315,25 +297,16 @@ class DatacenterRepository
             ->whereBetween('date', [$startDate, $endDate])
             ->where('payment_status', 'paid');
 
-        $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->select(DB::raw('pos_orders.total'))
-            ->whereBetween('pos_orders.date', [$startDate, $endDate]);
-
+        // Aplicar filtro por store_id si es proporcionado
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
-            $posOrderQuery->where('cash_registers.store_id', $storeId);
         }
 
-        $totalPaidOrders = DB::table(DB::raw("({$orderQuery->toSql()} UNION ALL {$posOrderQuery->toSql()}) as combined_orders"))
-            ->mergeBindings($orderQuery->getQuery())
-            ->mergeBindings($posOrderQuery->getQuery())
-            ->sum('total');
+        // Calcular el total de los pedidos pagados
+        $totalPaidOrders = $orderQuery->sum('total');
 
-        $totalPaidOrdersCount = DB::table(DB::raw("({$orderQuery->toSql()} UNION ALL {$posOrderQuery->toSql()}) as combined_orders"))
-            ->mergeBindings($orderQuery->getQuery())
-            ->mergeBindings($posOrderQuery->getQuery())
-            ->count();
+        // Contar la cantidad de pedidos pagados
+        $totalPaidOrdersCount = $orderQuery->count();
 
         if ($totalPaidOrdersCount > 0) {
             return number_format($totalPaidOrders / $totalPaidOrdersCount, 0, ',', '.');
@@ -343,86 +316,63 @@ class DatacenterRepository
     }
 
 
-
     /**
- * Obtener datos de ingresos con filtro de fecha y local.
- *
- * Este método obtiene los datos de ingresos agrupados por año, mes, día o hora dependiendo del período seleccionado.
- *
- * @param string $startDate La fecha de inicio del rango a consultar.
- * @param string $endDate La fecha de fin del rango a consultar.
- * @param int|null $storeId El ID del local para filtrar los resultados. Si es null, se consideran todos los locales.
- * @param string $period El período de agrupación de los resultados ('today', 'week', 'month', 'year', 'always').
- * @return EloquentCollection La colección de resultados agrupados.
- */
-public function getIncomeData(string $startDate, string $endDate, int $storeId = null, string $period = 'month'): EloquentCollection
-{
-    // Selección y agrupación dinámica de campos según el periodo
-    switch ($period) {
-        case 'today':
-            // Ajustar startDate y endDate para cubrir todo el día
-            $startDate = Carbon::parse($startDate)->startOfDay()->toDateTimeString(); // Comienzo del día
-            $endDate = Carbon::parse($startDate)->endOfDay()->toDateTimeString(); // Fin del día
+     * Obtener datos de ingresos con filtro de fecha y local.
+     *
+     * Este método obtiene los datos de ingresos agrupados por año, mes, día o hora dependiendo del período seleccionado.
+     *
+     * @param string $startDate La fecha de inicio del rango a consultar.
+     * @param string $endDate La fecha de fin del rango a consultar.
+     * @param int|null $storeId El ID del local para filtrar los resultados. Si es null, se consideran todos los locales.
+     * @param string $period El período de agrupación de los resultados ('today', 'week', 'month', 'year', 'always').
+     * @return EloquentCollection La colección de resultados agrupados.
+     */
+    public function getIncomeData(string $startDate, string $endDate, int $storeId = null, string $period = 'month'): EloquentCollection
+    {
+        // Selección y agrupación dinámica de campos según el periodo
+        switch ($period) {
+            case 'today':
+                $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(time)')];
+                $selectFields = ['total', 'year', 'month', 'day', 'hour'];
+                break;
+            case 'week':
+            case 'month':
+                $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
+                $selectFields = ['total', 'year', 'month', 'day'];
+                break;
+            case 'year':
+            case 'always':
+            default:
+                $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
+                $selectFields = ['total', 'year', 'month'];
+                break;
+        }
 
-            $groupByOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(time)')];
-            $groupByPosOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(hour)')];
-            $selectFields = ['total', 'year', 'month', 'day', 'hour'];
-            break;
-        case 'week':
-        case 'month':
-            $groupByOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
-            $groupByPosOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
-            $selectFields = ['total', 'year', 'month', 'day'];
-            break;
-        case 'year':
-        case 'always':
-        default:
-            $groupByOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
-            $groupByPosOrders = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
-            $selectFields = ['total', 'year', 'month'];
-            break;
-    }
-
-    // Consulta de pedidos del módulo de e-commerce
-    $orderQuery = Order::select(
-        DB::raw('SUM(total) as total'),
-        DB::raw('YEAR(date) as year'),
-        DB::raw('MONTH(date) as month'),
-        DB::raw('DAY(date) as day'),
-        DB::raw('HOUR(time) as hour')
-    )
-    ->where('payment_status', 'paid')
-    ->whereBetween('date', [$startDate, $endDate])
-    ->groupBy($groupByOrders);
-
-    // Consulta de pedidos del módulo de POS
-    $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-        ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-        ->select(
-            DB::raw('SUM(pos_orders.total) as total'),
-            DB::raw('YEAR(pos_orders.date) as year'),
-            DB::raw('MONTH(pos_orders.date) as month'),
-            DB::raw('DAY(pos_orders.date) as day'),
-            DB::raw('HOUR(pos_orders.hour) as hour')
+        // Consulta de pedidos del módulo de e-commerce y ventas físicas
+        $orderQuery = Order::select(
+            DB::raw('SUM(total) as total'),
+            DB::raw('YEAR(date) as year'),
+            DB::raw('MONTH(date) as month'),
+            DB::raw('DAY(date) as day'),
+            DB::raw('HOUR(time) as hour')
         )
-        ->whereBetween('pos_orders.date', [$startDate, $endDate])
-        ->groupBy($groupByPosOrders);
+        ->where('payment_status', 'paid')
+        ->whereBetween('date', [$startDate, $endDate])
+        ->groupBy($groupBy);
 
-    // Aplicar filtro por store_id si se proporciona
-    if ($storeId) {
-        $orderQuery->where('store_id', $storeId);
-        $posOrderQuery->where('cash_registers.store_id', $storeId);
+        // Aplicar filtro por store_id si se proporciona
+        if ($storeId) {
+            $orderQuery->where('store_id', $storeId);
+        }
+
+        // Obtener los resultados de la consulta
+        $results = $orderQuery->get();
+
+        // Agregar cualquier campo faltante al resultado final
+        $filledResults = $this->fillMissingData($results, $startDate, $endDate, $selectFields);
+
+        return new EloquentCollection($filledResults);
     }
-
-    // Unir los resultados de ambas consultas
-    $combinedResults = $orderQuery->unionAll($posOrderQuery)->get();
-
-    return $combinedResults;
-
-}
-
-
-
 
 
     /**
@@ -482,10 +432,6 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
 
 
 
-
-
-
-
     /**
      * Obtener ventas por local en porcentaje para gráfica de torta.
      *
@@ -496,44 +442,26 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
     {
         $stores = Store::all();
 
+        // Consulta de todos los pedidos con estado pagado
         $orderQuery = Order::where('payment_status', 'paid');
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
         }
         $totalPaidOrders = $orderQuery->sum('total');
 
-        $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->selectRaw('SUM(pos_orders.total) as total');
-        if ($storeId) {
-            $posOrderQuery->where('cash_registers.store_id', $storeId);
-        }
-        $totalPaidPosOrders = $posOrderQuery->first()->total;
-
-        $totalPaidOrdersCombined = $totalPaidOrders + $totalPaidPosOrders;
-
         $data = [];
 
         foreach ($stores as $store) {
-            $storeOrdersQuery = Order::where('store_id', $store->id)->where('payment_status', 'paid');
+            // Consulta de pedidos por tienda específica con estado pagado
+            $storeOrdersQuery = Order::where('store_id', $store->id)
+                ->where('payment_status', 'paid');
             if ($storeId) {
                 $storeOrdersQuery->where('store_id', $storeId);
             }
-            $storeOrders = $storeOrdersQuery->sum('total');
+            $storeTotalOrders = $storeOrdersQuery->sum('total');
 
-            $storePosOrdersQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-                ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-                ->where('cash_registers.store_id', $store->id)
-                ->selectRaw('SUM(pos_orders.total) as total');
-            if ($storeId) {
-                $storePosOrdersQuery->where('cash_registers.store_id', $storeId);
-            }
-            $storePosOrders = $storePosOrdersQuery->first()->total;
-
-            $storeTotalOrders = $storeOrders + $storePosOrders;
-
-            if ($totalPaidOrdersCombined > 0) {
-                $percent = ($storeTotalOrders / $totalPaidOrdersCombined) * 100;
+            if ($totalPaidOrders > 0) {
+                $percent = ($storeTotalOrders / $totalPaidOrders) * 100;
             } else {
                 $percent = 0;
             }
@@ -548,6 +476,7 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
     }
 
 
+
     /**
      * Obtener porcentaje de ventas por local para tabla con filtro de fecha y local.
      *
@@ -557,43 +486,32 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
      */
     public function getSalesPercentByStore(string $startDate, string $endDate): array
     {
-        $totalPaidOrdersQuery = Order::whereBetween('date', [$startDate, $endDate])->where('payment_status', 'paid');
+        // Obtener el total de pedidos pagados en el rango de fechas
+        $totalPaidOrdersQuery = Order::whereBetween('date', [$startDate, $endDate])
+            ->where('payment_status', 'paid');
         $totalPaidOrders = $totalPaidOrdersQuery->sum('total');
 
-        // Incluir ventas de PosOrder
-        $totalPaidPosOrdersQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->whereBetween('pos_orders.date', [$startDate, $endDate])
-            ->selectRaw('SUM(pos_orders.total) as total');
-        $totalPaidPosOrders = $totalPaidPosOrdersQuery->first()->total;
-
-        $totalPaidOrdersCombined = $totalPaidOrders + $totalPaidPosOrders;
-
         $stores = Store::with(['orders' => function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('date', [$startDate, $endDate])->where('payment_status', 'paid');
+            $query->whereBetween('date', [$startDate, $endDate])
+                  ->where('payment_status', 'paid');
         }])->get();
 
         $data = [];
         foreach ($stores as $store) {
+            // Calcular el total de ventas por tienda
             $storeTotal = $store->orders->sum('total');
 
-            // Incluir ventas de PosOrder por tienda
-            $storePosOrdersQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-                ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-                ->where('cash_registers.store_id', $store->id)
-                ->whereBetween('pos_orders.date', [$startDate, $endDate])
-                ->selectRaw('SUM(pos_orders.total) as total');
-            $storePosOrders = $storePosOrdersQuery->first()->total;
+            // Calcular el porcentaje de ventas por tienda
+            $percent = $totalPaidOrders > 0 ? ($storeTotal / $totalPaidOrders) * 100 : 0;
 
-            $storeTotalCombined = $storeTotal + $storePosOrders;
-            $percent = $totalPaidOrdersCombined > 0 ? ($storeTotalCombined / $totalPaidOrdersCombined) * 100 : 0;
             $data[] = [
                 'store' => $store->name,
                 'percent' => round($percent, 2),
-                'storeTotal' => number_format($storeTotalCombined, 0, ',', '.'),
+                'storeTotal' => number_format($storeTotal, 0, ',', '.'),
             ];
         }
 
+        // Ordenar los datos por el total de ventas en orden descendente
         usort($data, function ($a, $b) {
             return $b['storeTotal'] <=> $a['storeTotal'];
         });
@@ -603,74 +521,84 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
 
 
 
-    /**
-     * Obtener porcentaje de ventas por producto para tabla con filtro de fecha y local.
-     *
-     * @param string $startDate
-     * @param string $endDate
-     * @param int|null $storeId
-     * @return array
-     */
-    public function getSalesPercentByProduct(string $startDate, string $endDate, int $storeId = null): array
-    {
-        $query = Order::whereBetween('date', [$startDate, $endDate])->where('payment_status', 'paid');
-        if ($storeId) {
-            $query->where('store_id', $storeId);
-        }
-        $orders = $query->get();
 
-        // Incluir ventas de PosOrder
-        $posQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->whereBetween('pos_orders.date', [$startDate, $endDate]);
-        if ($storeId) {
-            $posQuery->where('cash_registers.store_id', $storeId);
-        }
-        $posOrders = $posQuery->get();
+/**
+ * Obtener porcentaje de ventas por producto para tabla con filtro de fecha y local.
+ *
+ * @param string $startDate
+ * @param string $endDate
+ * @param int|null $storeId
+ * @return array
+ */
+public function getSalesPercentByProduct(string $startDate, string $endDate, int $storeId = null): array
+{
+    // Consulta de pedidos con filtro de fecha y local
+    $query = Order::whereBetween('date', [$startDate, $endDate])
+        ->where('payment_status', 'paid');
 
-        $productSales = [];
+    if ($storeId) {
+        $query->where('store_id', $storeId);
+    }
 
-        foreach ([$orders, $posOrders] as $orderCollection) {
-            foreach ($orderCollection as $order) {
-                $products = json_decode($order->products, true);
+    $orders = $query->get();
 
-                if (is_array($products) && count($products) > 0) {
-                    foreach ($products as $product) {
-                        if (is_array($product) && isset($product['name'], $product['price'], $product['quantity'])) {
-                            if (!isset($productSales[$product['name']])) {
-                                $productSales[$product['name']] = [
-                                    'total' => 0,
-                                    'count' => 0
-                                ];
-                            }
-                            $productSales[$product['name']]['total'] += $product['price'] * $product['quantity'];
-                            $productSales[$product['name']]['count'] += $product['quantity'];
-                        }
+    $productSales = [];
+
+    // Procesar todos los pedidos
+    foreach ($orders as $order) {
+        $products = json_decode($order->products, true);
+
+        if (is_array($products) && count($products) > 0) {
+            $subtotal = $order->subtotal; // Total sin descuentos
+            $total = $order->total; // Total cobrado al cliente (después de descuentos)
+
+            foreach ($products as $product) {
+                if (is_array($product) && isset($product['name'], $product['price'], $product['quantity'])) {
+                    if (!isset($productSales[$product['name']])) {
+                        $productSales[$product['name']] = [
+                            'total' => 0,
+                            'count' => 0
+                        ];
                     }
+
+                    // Calcular el porcentaje del subtotal que representa este producto
+                    $productSubtotal = $product['price'] * $product['quantity'];
+                    $productPercentageOfSubtotal = $subtotal > 0 ? $productSubtotal / $subtotal : 0;
+
+                    // Calcular el total ajustado de este producto en base al total cobrado al cliente
+                    $productAdjustedTotal = $productPercentageOfSubtotal * $total;
+
+                    // Acumular las ventas ajustadas y la cantidad
+                    $productSales[$product['name']]['total'] += $productAdjustedTotal;
+                    $productSales[$product['name']]['count'] += $product['quantity'];
                 }
             }
         }
-
-        $totalSales = array_sum(array_map(function ($product) {
-            return $product['total'];
-        }, $productSales));
-
-        $data = [];
-        foreach ($productSales as $name => $info) {
-            $percent = $totalSales > 0 ? ($info['total'] / $totalSales) * 100 : 0;
-            $data[] = [
-                'product' => $name,
-                'percent' => round($percent, 2),
-                'productTotal' => $info['total'],
-            ];
-        }
-
-        usort($data, function ($a, $b) {
-            return $b['productTotal'] <=> $a['productTotal'];
-        });
-
-        return $data;
     }
+
+    $totalSales = array_sum(array_map(function ($product) {
+        return $product['total'];
+    }, $productSales));
+
+    $data = [];
+    foreach ($productSales as $name => $info) {
+        $percent = $totalSales > 0 ? ($info['total'] / $totalSales) * 100 : 0;
+        $data[] = [
+            'product' => $name,
+            'percent' => round($percent, 2),
+            'productTotal' => $info['total'],
+        ];
+    }
+
+    // Ordenar los productos por el total de ventas en orden descendente
+    usort($data, function ($a, $b) {
+        return $b['productTotal'] <=> $a['productTotal'];
+    });
+
+    return $data;
+}
+
+
 
 
     /**
@@ -729,19 +657,11 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
                 ->where('store_id', $store->id)
                 ->groupBy(DB::raw('HOUR(time)'));
 
-            $posOrderQuery = PosOrder::select(DB::raw('HOUR(hour) as hour'), DB::raw('COUNT(*) as count'))
-                ->whereHas('cashRegisterLog.cashRegister', function ($query) use ($store) {
-                    $query->where('store_id', $store->id);
-                })
-                ->groupBy(DB::raw('HOUR(hour)'));
-
             if ($startDate && $endDate) {
                 $orderQuery->whereBetween('date', [$startDate, $endDate]);
-                $posOrderQuery->whereBetween('date', [$startDate, $endDate]);
             }
 
             $orders = $orderQuery->get();
-            $posOrders = $posOrderQuery->get();
 
             $hourlyData = array_fill(0, 24, 0);
 
@@ -749,9 +669,6 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
                 $hourlyData[$order->hour] += $order->count;
             }
 
-            foreach ($posOrders as $posOrder) {
-                $hourlyData[$posOrder->hour] += $posOrder->count;
-            }
 
             $result[] = [
                 'store' => $store->name,
@@ -783,16 +700,6 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
 
         $orders = $orderQuery->get();
 
-        // Consulta a la tabla PosOrder
-        $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->whereBetween('pos_orders.date', [$startDate, $endDate]);
-
-        if ($storeId) {
-            $posOrderQuery->where('cash_registers.store_id', $storeId);
-        }
-
-        $posOrders = $posOrderQuery->get(['pos_orders.products']);
 
         $categorySales = [];
 
@@ -818,27 +725,6 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
             }
         }
 
-        // Procesar pedidos de PosOrder
-        foreach ($posOrders as $posOrder) {
-            $products = json_decode($posOrder->products, true);
-
-            foreach ($products as $product) {
-                if (!isset($product['category_id']) || !$product['category_id']) {
-                    continue;
-                }
-
-                if (!isset($categorySales[$product['category_id']])) {
-                    $categorySales[$product['category_id']] = [
-                        'total' => 0,
-                        'count' => 0,
-                        'category_name' => ProductCategory::find($product['category_id'])->name ?? 'Sin categoría'
-                    ];
-                }
-
-                $categorySales[$product['category_id']]['total'] += $product['price'] * $product['quantity'];
-                $categorySales[$product['category_id']]['count'] += $product['quantity'];
-            }
-        }
 
         $totalSales = array_sum(array_map(function ($category) {
             return $category['total'];
@@ -880,35 +766,27 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
 
         $orders = $orderQuery->get();
 
-        $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->whereBetween('pos_orders.date', [$startDate, $endDate]);
-
-        if ($storeId) {
-            $posOrderQuery->where('cash_registers.store_id', $storeId);
-        }
-
-        $posOrders = $posOrderQuery->get(['pos_orders.cash_sales', 'pos_orders.pos_sales']);
 
         $paymentMethods = [
-            'MercadoPago' => 0,
+            'Crédito' => 0,
+            'Débito' => 0,
             'Efectivo' => 0,
             'Otro' => 0,
         ];
 
         foreach ($orders as $order) {
             $method = $order->payment_method;
-            if ($method === 'mercadopago') {
-                $paymentMethods['MercadoPago'] += $order->total;
-            } elseif ($method === 'efectivo') {
+            if ($method === 'credit') {
+                $paymentMethods['Crédito'] += $order->total;
+            } elseif ($method === 'debit') {
+                $paymentMethods['Débito'] += $order->total;
+            } elseif ($method === 'cash') {
                 $paymentMethods['Efectivo'] += $order->total;
+            } else {
+                $paymentMethods['Otro'] += $order->total;
             }
         }
 
-        foreach ($posOrders as $posOrder) {
-            $paymentMethods['Efectivo'] += $posOrder->cash_sales;
-            $paymentMethods['Otro'] += $posOrder->pos_sales;
-        }
 
         $total = array_sum($paymentMethods);
 
@@ -920,4 +798,45 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
         }
         return $paymentMethods;
     }
+
+    /**
+     * Obtener ventas por vendedor para gráfica de barras con filtro de fecha y local.
+     *
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $storeId
+     * @return array
+     */
+    public function getSalesBySellerData(string $startDate, string $endDate, int $storeId = null): array
+    {
+        // Filtrar por el rango de fechas y el estado de pago
+        $query = Order::whereBetween('date', [$startDate, $endDate])
+            ->where('payment_status', 'paid');
+
+        // Filtrar por el store_id si se proporciona
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        // Obtener el total de ventas por vendedor
+        $salesBySeller = $query->join('cash_register_logs', 'orders.cash_register_log_id', '=', 'cash_register_logs.id')
+            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
+            ->join('users', 'cash_registers.user_id', '=', 'users.id')
+            ->select('users.name as seller', DB::raw('SUM(orders.total) as totalSales'))
+            ->groupBy('users.name')
+            ->orderBy('totalSales', 'desc')
+            ->get();
+
+
+        // Convertir los datos a un array
+        return $salesBySeller->map(function ($item) {
+            return [
+                'seller' => $item->seller,
+                'totalSales' => (float) $item->totalSales,
+            ];
+        })->toArray();
+    }
+
+
+
 }

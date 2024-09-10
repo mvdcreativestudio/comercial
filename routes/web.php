@@ -74,7 +74,7 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
 
 
     // Recursos con acceso autenticado
@@ -100,6 +100,7 @@ Route::middleware([
 
 
     // Puntos de venta
+
     Route::get('/point-of-sale/stores', [CashRegisterController::class, 'storesForCashRegister']);
     Route::get('/point-of-sale/details/{id}', [CashRegisterController::class, 'getDetails']);
     Route::get('/point-of-sale/details/sales/{id}', [CashRegisterController::class, 'getSales']);
@@ -108,9 +109,9 @@ Route::middleware([
     Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
     Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister']);
     Route::get('/pdv/clients/json', [CashRegisterLogController::class, 'getAllClients']);
-    Route::get('/pdv', [CashRegisterLogController::class, 'index'])->middleware('check.open.cash.register')->name('pdv.index');
-    Route::get('/pdv/front', [CashRegisterLogController::class, 'front'])->middleware('check.open.cash.register')->name('pdv.front');
-    Route::get('/pdv/front2', [CashRegisterLogController::class, 'front2'])->middleware('check.open.cash.register')->name('pdv.front2');
+    Route::get('/pdv', [CashRegisterLogController::class, 'index'])->name('pdv.index');
+    Route::get('/pdv/front', [CashRegisterLogController::class, 'front'])->name('pdv.front');
+    Route::get('/pdv/front2', [CashRegisterLogController::class, 'front2'])->name('pdv.front2');
 
 
     // Productos para caja registradora
@@ -125,6 +126,7 @@ Route::middleware([
     Route::get('/pdv/cart', [CashRegisterLogController::class, 'getCart']);
     Route::post('/pdv/client-session', [CashRegisterLogController::class, 'saveClient']);
     Route::get('/pdv/client-session', [CashRegisterLogController::class, 'getClient']);
+    Route::get('/pdv/storeid-session', [CashRegisterLogController::class, 'getStoreId']);
 
 
     // Datacenter
@@ -133,6 +135,8 @@ Route::middleware([
     Route::get('/api/sales-by-store', [DatacenterController::class, 'salesByStore']);
     Route::get('/sales-by-store', [DatacenterController::class, 'showSalesByStore'])->name('sales.by.store');
     Route::get('/datacenter/payment-methods', [DatacenterController::class, 'paymentMethodsData'])->name('datacenter.paymentMethodsData');
+    Route::get('/datacenter/sales-by-seller', [DatacenterController::class, 'salesBySellerData'])->name('datacenter.salesBySellerData');
+
 
 
     // Gestión de Productos
@@ -175,6 +179,8 @@ Route::middleware([
     Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
     Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
+    Route::post('invoices/{invoice}/emit-note', [AccountingController::class, 'emitNote'])->name('invoices.emitNote');
+    route::get('invoices/download/{id}', [AccountingController::class, 'downloadCfePdf'])->name('invoices.download');
 
     Route::get('/accounting/settings', [AccountingController::class, 'settings'])->name('accounting.settings');
     Route::post('/accounting/save-rut', [AccountingController::class, 'saveRut'])->name('accounting.saveRut');
@@ -193,11 +199,12 @@ Route::middleware([
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'generatePdf'])->name('orders.pdf');
-    Route::post('/orders/{order}/emit-cfe', [OrderController::class, 'emitirCFE'])->name('orders.emitCFE');
+    Route::post('/orders/{order}/emit-cfe', [OrderController::class, 'emitCFE'])->name('orders.emitCFE');
 
     // Gestión de Cupones
     Route::post('marketing/coupons/delete-selected', [CouponController::class, 'deleteSelected'])->name('coupons.deleteSelected');
     Route::get('coupons/{id}', [CouponController::class, 'show'])->name('coupons.show');
+    Route::get('get-coupon/{id}', [CouponController::class, 'getCouponByName'])->name('coupons.getCouponByName');
 
     // Gestión de categorías
     Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class,'deleteSelected'])-> name('categories.deleteSelected');
@@ -250,7 +257,6 @@ Route::get('shop', [EcommerceController::class, 'index'])->name('shop'); //
 Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Empresa
 Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Empresa en el Carrito
 Route::post('/cart/remove-item', [CartController::class, 'removeItem'])->name('cart.removeItem'); // Eliminar del Carrito
-Route::get('/session/clear', [CartController::class, 'clearSession'])->name('session.clear'); // Limpiar Sesión
 Route::get('/checkout/{orderId}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment'); // Pago de Orden
 Route::get('/checkout/success/{order:uuid}', [CheckoutController::class, 'success'])->name('checkout.success'); // Pago Exitoso
 Route::get('/checkout/pending/{order:uuid}', [CheckoutController::class, 'pending'])->name('checkout.pending'); // Pago Pendiente
@@ -274,3 +280,7 @@ Route::get('/test-email', [EmailTemplateController::class, 'testEmail']);
 
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/notifications/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+
+// Sesión
+Route::get('/session/clear', [CartController::class, 'clearSession'])->name('session.clear'); // Limpiar Sesión
+

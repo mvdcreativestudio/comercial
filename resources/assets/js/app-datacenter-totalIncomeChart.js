@@ -22,11 +22,10 @@
   const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'];
 
   function loadTotalIncomeData() {
-    // Obtener el valor del filtro de tiempo seleccionado
     const timeRange = document.querySelector('select[name="period"]').value;
-    const storeId = document.querySelector('select[name="store_id"]').value; // Agregar esto
+    const storeId = document.querySelector('select[name="store_id"]').value;
 
-    fetch(`/admin/api/monthly-income?time_range=${timeRange}&store_id=${storeId}`) // Incluir store_id en la URL
+    fetch(`/admin/api/monthly-income?time_range=${timeRange}&store_id=${storeId}`)
         .then(response => response.json())
         .then(data => {
         let labels = [];
@@ -43,44 +42,38 @@
                 totalIncomes[monthIndex] = parseInt(item.total);
             });
         } else if (timeRange === 'month') {
-          const today = new Date();
-          const daysInMonth = today.getDate(); // Obtener el día actual del mes
-          // Crear un array con todos los días desde el 1 hasta el día actual
-          for (let i = 1; i <= daysInMonth; i++) {
-              labels.push(`${i}/${today.getMonth() + 1}`);
-              totalIncomes.push(0); // Inicializar con 0
-          }
-          // Asignar los ingresos a los días correspondientes
-          data.forEach(item => {
-              const label = `${item.day}/${item.month}`;
-              const index = labels.indexOf(label);
-              if (index !== -1) {
-                  totalIncomes[index] = parseInt(item.total);
-              }
-          });
-        } else if (timeRange === 'week') {
-            // Crear un array de 7 días empezando desde hoy (o el primer día de la semana)
+            // Configuración para "Este Mes"
             const today = new Date();
-            for (let i = 6; i >= 0; i--) {
-                const day = new Date(today);
-                day.setDate(today.getDate() - i);
-                labels.push(`${day.getDate()}/${day.getMonth() + 1}`);
-                totalIncomes.push(0); // Inicializar con 0
-            }
-
-            // Asignar los ingresos a los días correspondientes
+            const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}/${today.getMonth() + 1}`);
+            totalIncomes = Array(daysInMonth).fill(0);
             data.forEach(item => {
-                const label = `${item.day}/${item.month}`;
-                const index = labels.indexOf(label);
-                if (index !== -1) {
-                    totalIncomes[index] = parseInt(item.total);
+                const dayIndex = item.day - 1;
+                totalIncomes[dayIndex] = parseInt(item.total);
+            });
+        } else if (timeRange === 'week') {
+            // Configuración para "Esta Semana"
+            const today = new Date();
+            labels = Array.from({ length: 7 }, (_, i) => {
+                const date = new Date(today);
+                date.setDate(today.getDate() - (6 - i));
+                return `${date.getDate()}/${date.getMonth() + 1}`;
+            });
+            totalIncomes = Array(7).fill(0);
+            data.forEach(item => {
+                const dateLabel = `${item.day}/${item.month}`;
+                const labelIndex = labels.indexOf(dateLabel);
+                if (labelIndex > -1) {
+                    totalIncomes[labelIndex] = parseInt(item.total);
                 }
             });
         } else if (timeRange === 'today') {
-            labels = Array.from({length: 24}, (_, i) => `${i}:00`);
+            // Configuración para "Hoy"
+            labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
             totalIncomes = Array(24).fill(0);
             data.forEach(item => {
-                totalIncomes[item.hour] = parseInt(item.total);
+                const hourIndex = item.hour;
+                totalIncomes[hourIndex] = parseInt(item.total);
             });
         }
 

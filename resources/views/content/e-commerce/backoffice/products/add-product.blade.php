@@ -110,7 +110,7 @@
       </div>
       <!-- /Product Information -->
       <!-- Variants -->
-      <div class="card mb-4">
+      <div class="card mb-4" style="display: none;">
         <div class="card-header">
           <h5 class="card-title mb-0">Tipo de producto y variaciones</h5>
         </div>
@@ -149,57 +149,14 @@
       <!-- Recipe -->
       <div class="card mb-4" id="recipeCard" style="display: none;">
         <div class="card-header">
-          <h5 class="card-title mb-0">Receta</h5>
+            <h5 class="card-title mb-0">Receta</h5>
         </div>
         <div class="card-body">
-          <div data-repeater-list="recipes">
-            <div class="row mb-3" data-repeater-item>
-              <div class="col-4">
-                <label class="form-label" for="raw-material">Materia Prima</label>
-                <select class="form-select raw-material-select" name="recipes[0][raw_material_id]">
-                  <option value="">Selecciona una materia prima</option>
-                  @foreach ($rawMaterials as $rawMaterial)
-                    <option value="{{ $rawMaterial->id }}" data-unit="{{ $rawMaterial->unit_of_measure }}">{{ $rawMaterial->name }}</option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="col-3">
-                <label class="form-label" for="quantity">Cantidad</label>
-                <input type="number" class="form-control" name="recipes[0][quantity]" placeholder="Cantidad" aria-label="Cantidad" disabled>
-              </div>
-              <div class="col-3">
-                <label class="form-label" for="unit-of-measure">Unidad de Medida</label>
-                <input type="text" class="form-control unit-of-measure" placeholder="Unidad de medida" readonly>
-              </div>
-              <div class="col-2 d-flex align-items-end">
-                <button type="button" class="btn btn-danger" data-repeater-delete>Eliminar</button>
-              </div>
+            <div data-repeater-list="recipes">
+                <!-- Elimina los elementos predeterminados aquí -->
             </div>
-            <div class="row mb-3" data-repeater-item>
-              <div class="col-4">
-                <label class="form-label" for="used-flavor">Sabor Usado</label>
-                <select class="form-select used-flavor-select" name="recipes[1][used_flavor_id]">
-                  <option value="">Selecciona un sabor</option>
-                  @foreach ($flavors as $flavor)
-                    <option value="{{ $flavor->id }}">Balde de {{ $flavor->name }}</option>
-                  @endforeach
-                </select>
-              </div>
-              <div class="col-3">
-                <label class="form-label" for="units-per-bucket">Unidades por Balde</label>
-                <input type="number" class="form-control units-per-bucket" name="recipes[1][units_per_bucket]" placeholder="Unidades por balde" aria-label="Unidades por balde" disabled>
-              </div>
-              <div class="col-3">
-                <label class="form-label" for="quantity-individual">Cantidad Individual</label>
-                <input type="number" class="form-control quantity-individual" name="recipes[1][quantity]" placeholder="Cantidad Individual" aria-label="Cantidad Individual" readonly>
-              </div>
-              <div class="col-2 d-flex align-items-end">
-                <button type="button" class="btn btn-danger" data-repeater-delete>Eliminar</button>
-              </div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-primary" id="addRawMaterial">Agregar Materia Prima</button>
-          <button type="button" class="btn btn-secondary" id="addUsedFlavor">Agregar Sabor Usado</button>
+            <button type="button" class="btn btn-primary" id="addRawMaterial">Agregar Materia Prima</button>
+            <button type="button" class="btn btn-secondary" id="addUsedFlavor">Agregar Sabor Usado</button>
         </div>
       </div>
       <!-- /Recipe -->
@@ -250,17 +207,22 @@
             <label class="form-label mb-1" for="vendor">
               Empresa
             </label>
-            <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
+            <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required {{ count($stores) === 1 ? 'disabled' : '' }}>
               @if(auth()->user()->hasPermissionTo('access_global_products'))
-                <option value="">Seleccionar local</option>
-                @foreach ($stores as $store)
-                  <option value="{{ $store->id }}">{{ $store->name }}</option>
+                @foreach ($stores as $index => $store)
+                  <option value="{{ $store->id }}" {{ $index === 0 ? 'selected' : '' }}>{{ $store->name }}</option>
                 @endforeach
               @else
                 <option value="{{ auth()->user()->store_id }}" selected>{{ auth()->user()->store->name }}</option>
               @endif
             </select>
+
+            @if(count($stores) === 1)
+              <!-- Campo oculto para enviar el valor si solo hay un local disponible -->
+              <input type="hidden" name="store_id" value="{{ $stores->first()->id }}">
+            @endif
           </div>
+
 
           <!-- Category -->
           <div class="mb-3 col ecommerce-select2-dropdown">

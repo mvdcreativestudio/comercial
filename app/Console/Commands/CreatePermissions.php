@@ -73,7 +73,7 @@ class CreatePermissions extends Command
                         'entries',
                         'accounting-settings'
                     ],
-                    'view_all' => false,
+                    'view_all' => true,
                 ],
                 [
                     'slug' => 'clients',
@@ -174,6 +174,16 @@ class CreatePermissions extends Command
                     'slug' => 'user-accounts',
                     'module' => 'management',
                     'view_all' => false,
+                ],
+                [
+                    'slug' => 'cash-registers',
+                    'module' => 'point-of-sale',
+                    'view_all' => true,
+                ],
+                [
+                    'slug' => 'orders',
+                    'module' => 'orders',
+                    'view_all' => true,
                 ],
             ]
         ];

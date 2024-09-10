@@ -3,7 +3,8 @@
 $(function () {
   let borderColor, bodyBg, headingColor;
 
-  let currencySymbol = $('.datatables-products').data('symbol');
+  let currencySymbol = window.currencySymbol;
+
 
   if (isDarkStyle) {
     borderColor = config.colors_dark.borderColor;
@@ -97,17 +98,21 @@ $(function () {
         {
           targets: 5,
           render: function (data, type, full, meta) {
-            return currencySymbol + parseFloat(data).toFixed(0);
+            if (type === 'display') {
+              return currencySymbol + parseFloat(data).toFixed(0);
+            }
+            // For sorting or other types, return the plain numeric value
+            return parseFloat(data);
           }
         },
         {
           targets: 6,
           render: function (data, type, full, meta) {
-            if (data !== null) {
+            if (type === 'display') {
               return currencySymbol + parseFloat(data).toFixed(0);
-            } else {
-              return '-';
             }
+            // For sorting or other types, return the plain numeric value
+            return parseFloat(data);
           }
         },
         {

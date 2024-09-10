@@ -43,4 +43,5 @@ return [
   'view_all_ecommerce' => 'Datos globales de E-Commerce',
   'view_all_datacenter' => 'Datos globales de Datacenter',
   'access_accounting-settings' => 'Acceder a configuración de contabilidad',
+  'view_all_accounting' => 'Ver todas las transacciones contables',
 ];

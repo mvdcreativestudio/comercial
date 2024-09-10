@@ -23,4 +23,5 @@ class DashboardController extends Controller
 
         return view('content.dashboard.index', compact('stores'));
     }
+
 }

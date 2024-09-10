@@ -39,11 +39,11 @@
     @section('page-script')
     @vite([
       'resources/assets/js/app-ecommerce-order-details.js',
-      'resources/assets/js/modal-add-new-address.js',
-      'resources/assets/js/modal-edit-user.js'
     ])
     <script>
       window.orderProducts = @json($products);
+      window.baseUrl = "{{ url('') }}/";
+      window.currencySymbol = "{{ $settings->currency_symbol }}"
     </script>
     @endsection
 @endif
@@ -53,7 +53,6 @@
 @php
 use Carbon\Carbon;
 Carbon::setLocale('es');
-
 $paymentStatusTranslations = [
   'paid' => 'Pagado',
   'pending' => 'Pendiente',
@@ -75,7 +74,7 @@ $changeTypeTranslations = [
 @endphp
 
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span> Detalles del pedido
+  <span class="text-muted fw-light"></span> Detalles del pedido
 </h4>
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 card p-3">
@@ -104,8 +103,12 @@ $changeTypeTranslations = [
     <h6 class="card-title mb-1 mt-1">Método de pago:
       @if($order->payment_method === 'card')
         <span class="badge bg-label-primary me-2 ms-2">MercadoPago</span>
-      @elseif($order->payment_method === 'efectivo')
+      @elseif($order->payment_method === 'cash')
         <span class="me-2 ms-2">Efectivo</span>
+      @elseif($order->payment_method === 'debit')
+        <span class="me-2 ms-2">Débito</span>
+      @elseif($order->payment_method === 'credit')
+        <span class="me-2 ms-2">Crédito</span>
       @endif
     </h6>
     <!-- Mostrar si el pedido ha sido facturado -->
@@ -115,6 +118,10 @@ $changeTypeTranslations = [
       @else
         <span class="badge bg-label-danger me-2 ms-2">No Facturado</span>
       @endif
+    </h6>
+    <!-- Mostrar el vendedor -->
+    <h6 class="card-title mb-1 mt-1">Vendido por:
+      <span class="me-2 ms-2">{{ $order->cashRegisterLog->cashRegister->user->name }}</span>
     </h6>
     <p class="text-body mb-1">{{ date('d/m/Y', strtotime($order->date)) }} - {{ $order->time }}</p>
 
@@ -140,7 +147,6 @@ $changeTypeTranslations = [
   </div>
 </div>
 
-
 <!-- Order Details Table -->
 <div class="row">
   <div class="col-12 col-lg-8">
@@ -165,9 +171,12 @@ $changeTypeTranslations = [
             @if($order->discount !== null && $order->discount !== 0)
               <div class="d-flex align-items-center me-3">
                 <span class="text-heading">Cupón utilizado:</span>
-                <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
+                @if($order->coupon && $order->coupon->code !== null)
+                  <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
+                @endif
               </div>
             @endif
+
             <div class="order-calculations">
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Subtotal:</span>
@@ -177,19 +186,19 @@ $changeTypeTranslations = [
                 @if($order->discount !== null && $order->discount !== 0)
                   <span class="w-px-100">Descuento:</span>
                   @if($order->discount !== null && $order->discount !== 0)
-                    <span class="text-heading mb-0">-${{ $order->discount }}</span>
+                    <span class="text-heading mb-0">-"{{ $settings->currency_symbol }}{{ $order->discount }}</span>
                   @else
-                    <span class="text-heading mb-0">$0</span>
+                    <span class="text-heading mb-0">{{ $settings->currency_symbol }}0</span>
                   @endif
                 @endif
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Envío:</span>
-                <span class="text-heading">${{ $order->shipping }}</span>
+                <span class="text-heading">{{ $settings->currency_symbol }}{{ $order->shipping }}</span>
               </div>
               <div class="d-flex justify-content-between">
                 <h6 class="w-px-100 mb-0">Total:</h6>
-                <h6 class="mb-0">${{ $order->total }}</h6>
+                <h6 class="mb-0">{{ $settings->currency_symbol }}{{ $order->total }}</h6>
               </div>
             </div>
           </div>
@@ -204,25 +213,25 @@ $changeTypeTranslations = [
             <div class="order-calculations">
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Subtotal:</span>
-                <span class="text-heading">${{ $order->subtotal }}</span>
+                <span class="text-heading">{{ $settings->currency_symbol }}{{ $order->subtotal }}</span>
               </div>
               <div class="d-flex justify-content-between mb-2">
                 @if($order->discount !== null && $order->discount !== 0)
                   <span class="w-px-100">Descuento:</span>
                   @if($order->discount !== null && $order->discount !== 0)
-                    <span class="text-heading mb-0">-${{ $order->discount }}</span>
+                    <span class="text-heading mb-0">>{{ $settings->currency_symbol }}{{ $order->discount }}</span>
                   @else
-                    <span class="text-heading mb-0">$0</span>
+                    <span class="text-heading mb-0">{{ $settings->currency_symbol }}0</span>
                   @endif
                 @endif
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Envío:</span>
-                <span class="text-heading">${{ $order->shipping }}</span>
+                <span class="text-heading">{{ $settings->currency_symbol }}{{ $order->shipping }}</span>
               </div>
               <div class="d-flex justify-content-between">
                 <h6 class="w-px-100 mb-0">Total:</h6>
-                <h6 class="mb-0">${{ $order->total }}</h6>
+                <h6 class="mb-0">{{ $settings->currency_symbol }}{{ $order->total }}</h6>
               </div>
             </div>
           </div>
@@ -236,7 +245,7 @@ $changeTypeTranslations = [
   </div>
   <div class="card-body">
     <ul class="timeline pb-0 mb-0">
-      @if($order->statusChanges == null)
+      @if($order->statusChanges == null || $order->statusChanges->isEmpty())
         <li class="timeline-item timeline-item-transparent border-primary">
           <span class="timeline-point-wrapper"><span class="timeline-point timeline-point-primary"></span></span>
           <div class="timeline-event">
@@ -328,31 +337,46 @@ $changeTypeTranslations = [
   <div class="col-12 col-lg-4">
     <div class="card mb-4">
       <div class="card-header">
-        <h6 class="card-title m-0">Datos del cliente</h6>
+        <h6 class="card-title m-0">Datos del Cliente</h6>
       </div>
       <div class="card-body">
-        <div class="d-flex justify-content-start align-items-center mb-4">
+        <div class="d-flex justify-content-start align-items-center mb-3">
           <div class="d-flex flex-column">
-            <a href="{{url('app/user/view/account')}}" class="text-body text-nowrap">
-              <h6 class="mb-0">{{ $order->client->name }} {{$order->client->lastname}}</h6>
+            <a href="{{ url('app/user/view/account') }}" class="text-body text-nowrap">
+              <h5 class="mb-0">{{ $order->client->name }} {{ $order->client->lastname }}</h5>
             </a>
-            <small class="text-muted">ID: #{{ $order->client->id }}</small></div>
+            <small class="text-muted">ID: #{{ $order->client->id }}</small>
+            <small class="text-muted">Registrado el: {{ $order->client->created_at->format('d/m/Y') }}</small>
+          </div>
         </div>
-        <div class="d-flex justify-content-start align-items-center mb-4">
-          <span class="avatar rounded-circle bg-label-success me-2 d-flex align-items-center justify-content-center"><i class="bx bx-cart-alt bx-sm lh-sm"></i></span>
-          @if($clientOrdersCount > 1)
-            <p class="mb-0">{{ $clientOrdersCount }} Pedidos</p>
-          @else
-            <p class="mb-0">{{ $clientOrdersCount }} Pedido</p>
-          @endif
+
+        <div class="mb-3">
+          <h6 class="card-title mt-4">Información General</h6>
+          <p class="mb-1"><strong>Tipo de Cliente:</strong> {{ $order->client->type === 'company' ? 'Empresa' : 'Persona' }}</p>
+          <p class="mb-1"><strong>{{ $order->client->type === 'company' ? 'RUT' : 'CI' }}:</strong> {{ $order->client->type === 'company' ? $order->client->rut : $order->client->ci }}</p>
         </div>
-        <div class="d-flex justify-content-between">
-          <h6>Información de contacto</h6>
+
+        <div class="mb-3">
+          <h6 class="card-title mt-4">Información de Contacto</h6>
+          <p class="mb-1"><strong>Email:</strong> {{ $order->client->email }}</p>
+          <p class="mb-1"><strong>Teléfono:</strong> {{ $order->client->phone }}</p>
+          <p class="mb-1"><strong>Dirección:</strong> {{ $order->client->address }}, {{ $order->client->city }}, {{ $order->client->state }}, {{ $order->client->country }}</p>
         </div>
-        <p class=" mb-1">Email: {{ $order->client->email }}</p>
-        <p class=" mb-0">Teléfono: {{ $order->client->phone }}</p>
+
+        <div class="mb-3">
+          <h6 class="card-title mt-4">Historial de Pedidos</h6>
+          <div class="d-flex align-items-center">
+            <span class="avatar rounded-circle bg-label-success me-2 d-flex align-items-center justify-content-center">
+              <i class="bx bx-cart-alt bx-sm lh-sm"></i>
+            </span>
+            <p class="mb-0">
+              {{ $clientOrdersCount }} {{ $clientOrdersCount > 1 ? 'Pedidos' : 'Pedido' }}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="card mb-4">
       <div class="card-header">
@@ -382,7 +406,7 @@ $changeTypeTranslations = [
       </div>
     </div>
 
-    <div class="card mb-4">
+    {{-- <div class="card mb-4">
       <div class="card-header d-flex justify-content-between">
         <h6 class="card-title m-0">Dirección de envío</h6>
       </div>
@@ -397,7 +421,7 @@ $changeTypeTranslations = [
       <div class="card-body">
         <p class="mb-4">{{ $order->client->address }}</p>
       </div>
-    </div>
+    </div> --}}
   </div>
 </div>
 

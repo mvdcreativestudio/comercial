@@ -16,6 +16,15 @@
   'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
   'resources/assets/vendor/libs/select2/select2.js'
 ])
+
+@php
+$currencySymbol = $settings->currency_symbol;
+@endphp
+
+<script>
+  window.currencySymbol = '{{ $currencySymbol }}';
+</script>
+
 @endsection
 
 @section('page-script')
@@ -28,6 +37,7 @@
 <h4 class="py-3 mb-4">
   <span class="text-muted fw-light">E-Commerce /</span> Productos
 </h4>
+
 
 @if(session('success'))
   <div class="alert alert-success d-flex" role="alert">

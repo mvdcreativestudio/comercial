@@ -22,7 +22,9 @@
 @vite('resources/assets/js/app-datacenter-salesByStoreChart.js')
 @vite('resources/assets/js/app-datacenter-paymentMethodsChart.js')
 @vite('resources/assets/js/app-datacenter-averageOrdersByHourChart.js')
+@vite('resources/assets/js/app-datacenter-salesBySellerChart.js')
 @endsection
+
 
 
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -38,6 +40,7 @@
 
 <script>
   window.paymentMethodsUrl = '{{ route('datacenter.paymentMethodsData') }}';
+  window.currencySymbol = '{{ $settings->currency_symbol }}';
 </script>
 
 <div class="row sticky-top" style="top: 80px;">
@@ -171,9 +174,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <div class="avatar me-2">
             <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-check"></i></span>
           </div>
-          <h4 class="ms-1 mb-0">{{ $ordersCount['delivered'] }}</h4>
+          <h4 class="ms-1 mb-0">{{ $ordersCount['completed'] }}</h4>
         </div>
-        @if($ordersCount['delivered'] == 1)
+        @if($ordersCount['completed'] == 1)
           <p class="mb-1 fw-medium me-1">Pedido completado</p>
         @else
           <p class="mb-1 fw-medium me-1">Pedidos completados</p>
@@ -214,9 +217,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <h4 class="ms-1 mb-0">{{ $ordersCount['cancelled'] }}</h4>
         </div>
         @if($ordersCount['cancelled'] == 1)
-          <p class="mb-1 fw-medium me-1">Pedido cancelado</p>
+          <p class="mb-1 fw-medium me-1">Pedido fallido</p>
         @else
-          <p class="mb-1">Pedidos cancelados</p>
+          <p class="mb-1">Pedidos fallidos</p>
         @endif
         <p class="mb-0">
           {{-- <span class="fw-medium me-1 text-success">+4.3%</span> --}}
@@ -527,11 +530,25 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           </div>
       </div>
       <div class="card-body">
-          <div id="paymentMethodsChart" style="height: 420px;"></div> <!-- Asegúrate de que tenga dimensiones -->
+          <div id="paymentMethodsChart" style="height: 420px;"></div>
       </div>
     </div>
   </div>
   <!--/ Gráfica métodos de pago -->
+
+  <div class="col-md-4 col-12 mb-4 mt-4">
+    <div class="card" data-aos="zoom-in">
+      <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="card-title mb-0">
+              <h5 class="m-0 me-2">Ventas por Vendedor</h5>
+          </div>
+      </div>
+      <div class="card-body">
+          <div id="salesBySellerChart" style="height: 420px;"></div> <!-- Contenedor para la gráfica -->
+      </div>
+    </div>
+  </div>
+
 
 </div>
 

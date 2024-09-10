@@ -4,6 +4,7 @@ $(document).ready(function() {
     const cashRegisterId = window.cashRegisterId;
     const baseUrl = window.baseUrl;
     const url = `${baseUrl}products/${cashRegisterId}`;
+    let currencySymbol = window.currencySymbol;
     let products = [];
     let cart = [];
     let isListView = true;
@@ -151,22 +152,26 @@ $(document).ready(function() {
 
     // Función para cargar productos
     function loadProducts() {
-        $.ajax({
-            url: `products/${cashRegisterId}`,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response && response.products) {
-                    products = response.products;
-                    displayProductsList(products);
-                } else {
-                    alert('No se encontraron productos.');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error al obtener los productos:', error);
-            }
-        });
+      $.ajax({
+          url: `products/${cashRegisterId}`,
+          type: 'GET',
+          dataType: 'json',
+          success: function(response) {
+              if (response && response.products) {
+                  products = response.products;
+                  if (isListView) {
+                      displayProductsList(products); // Mostrar la vista de lista por defecto
+                  } else {
+                      displayProducts(products);
+                  }
+              } else {
+                  alert('No se encontraron productos.');
+              }
+          },
+          error: function(xhr, status, error) {
+              console.error('Error al obtener los productos:', error);
+          }
+      });
     }
 
     // Cargar variaciones desde el backend
@@ -200,62 +205,103 @@ $(document).ready(function() {
   }
 
 
-  // Función para mostrar productos en formato de tarjetas
-  function displayProducts(productsToDisplay) {
-    let productsHtml = '';
-    productsToDisplay.forEach(product => {
+    // Función para mostrar productos en formato de tarjetas
+    function displayProducts(productsToDisplay) {
+      // Ordenar productos por disponibilidad: los productos agotados al final
+      productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
+
+      if (productsToDisplay.length === 0) {
+        $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
+        return;
+      }
+
+      let productsHtml = '';
+      productsToDisplay.forEach(product => {
         const priceToDisplay = product.price ? product.price : product.old_price;
 
+        const outOfStockLabel = product.stock <= 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-1">Agotado</span>` : '';
+        const inactiveLabel = product.status == 2 ? `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Inactivo</span>` : '';
+
+        const oldPriceHtml = product.price && product.old_price ? `<span class="text-muted" style="font-size: 0.8em;"><del>${currencySymbol}${product.old_price}</del></span>` : '';
+
         productsHtml += `
-          <div class="col-6 col-xxl-4  mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
+          <div class="col-12 col-sm-6 col-xxl-4 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
               <div class="card-product-pos w-100 mb-3 position-relative">
+                  ${outOfStockLabel}
+                  ${inactiveLabel}
                   <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
                   <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
                       <h5 class="card-title-product-pos text-white">${product.name}</h5>
                       <p class="card-text-product-pos">
-                          ${product.price ? `<span class="text-muted" style="font-size: 0.8em;"><del>$${product.old_price}</del></span>` : ''}
-                          <span style="font-size: 1em;">$${priceToDisplay}</span>
+                          ${oldPriceHtml}
+                          <span style="font-size: 1em;">${currencySymbol}${priceToDisplay}</span>
                       </p>
-                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}">Agregar</button>
+                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
                   </div>
               </div>
           </div>
         `;
-    });
-    $('#products-container').html(productsHtml);
-  }
+      });
+      $('#products-container').html(productsHtml);
+    }
+
 
 
     // Función para mostrar productos en formato de lista
     function displayProductsList(productsToDisplay) {
-        let productsHtml = '<ul class="list-group w-100">';
-        productsToDisplay.forEach(product => {
-            const priceToDisplay = product.price ? product.price : product.old_price; // Usar price si existe, de lo contrario old_price
+      // Ordenar productos por disponibilidad: los productos agotados al final
+      productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
 
-            productsHtml += `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <img src="${baseUrl}${product.image}" class="img-thumbnail me-2" alt="${product.name}" style="width: 50px;">
-                        <div>
-                            <h5 class="mb-0">${product.name}</h5>
-                            ${product.price ? `<small class="text-muted"><del>$${product.old_price}</del></small>` : ''}
-                            <p class="mb-0">$${priceToDisplay}</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}">Agregar</button>
-                </li>
-            `;
-        });
-        productsHtml += '</ul>';
-        $('#products-container').html(productsHtml);
+      if (productsToDisplay.length === 0) {
+          $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
+          return;
+      }
+
+      let productsHtml = '<ul class="list-group w-100">';
+      productsToDisplay.forEach(product => {
+          const priceToDisplay = product.price ? product.price.toLocaleString('es-ES') : product.old_price.toLocaleString('es-ES'); // Formatear el precio con separador de miles
+          const oldPriceFormatted = product.old_price ? product.old_price.toLocaleString('es-ES') : ''; // Formatear old_price si existe
+
+          const outOfStockText = product.stock <= 0 ? '<span class="badge bg-danger ms-2">Agotado</span>' : '';
+          const inactiveText = product.status == 2 ? '<span class="badge bg-warning text-dark ms-2">Inactivo</span>' : '';
+
+          const oldPriceHtml = product.price && product.old_price ? `<small class="text-muted"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : '';
+
+          productsHtml += `
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                      <img src="${baseUrl}${product.image}" class="img-thumbnail me-2" alt="${product.name}" style="width: 50px;">
+                      <div>
+                          <h6 class="mb-0">${product.name} ${outOfStockText} ${inactiveText}</h6>
+                          ${oldPriceHtml}
+                          <p class="mb-0">${currencySymbol}${priceToDisplay}</p>
+                      </div>
+                  </div>
+                  <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
+              </li>
+          `;
+      });
+      productsHtml += '</ul>';
+      $('#products-container').html(productsHtml);
     }
 
-    // Función para agregar a un producto al carrito
+
+
+
+
+
+    // Función para agregar un producto al carrito
     function addToCart(productId, productType) {
       const product = products.find(p => p.id === productId);
 
       // Determinar el precio a usar
       const priceToUse = product.price ? product.price : product.old_price;
+
+      // Verificar si el producto tiene stock suficiente antes de agregar
+      if (product.stock <= 0) {
+          mostrarError('No hay suficiente stock de este producto.');
+          return;
+      }
 
       if (productType === 'configurable') {
           // Mostrar el modal para seleccionar variaciones
@@ -289,9 +335,20 @@ $(document).ready(function() {
           const cartItem = cart.find(item => item.id === productId && item.flavors.length === 0);
           var category = categories.find(category => category.product_id == product.id);
           var category_id = category ? category.category_id : null;
+
           if (cartItem) {
+              // Verificar si hay stock suficiente para incrementar la cantidad
+              if (cartItem.quantity + 1 > product.stock) {
+                  mostrarError('No hay suficiente stock para agregar más unidades de este producto.');
+                  return;
+              }
               cartItem.quantity += 1;
           } else {
+              // Verificar si hay stock suficiente para agregar el producto por primera vez
+              if (product.stock <= 0) {
+                  mostrarError('No hay suficiente stock de este producto.');
+                  return;
+              }
               cart.push({
                   id: product.id,
                   name: product.name,
@@ -305,58 +362,55 @@ $(document).ready(function() {
 
           updateCart();
       }
-  }
+    }
 
-  // Función para actualizar el carrito en el DOM
-  function updateCart() {
+    // Función para mostrar errores
+    function mostrarError(mensaje) {
+      $('#errorContainer').text(mensaje).removeClass('d-none'); // Mostrar mensaje de error
+      setTimeout(() => {
+          $('#errorContainer').addClass('d-none'); // Ocultar el mensaje después de 5 segundos
+      }, 5000);
+    }
+
+    // Función para actualizar el carrito en el DOM
+    function updateCart() {
       let cartHtml = '';
       let subtotal = 0;
+      let totalItems = 0;  // Contador de productos
 
       cart.forEach(item => {
-          const itemTotal = item.price * item.quantity;  // Usar el precio ya calculado en addToCart
+          const itemTotal = item.price * item.quantity;  // Calcula el total de cada producto
           subtotal += itemTotal;
+          totalItems += item.quantity;  // Suma la cantidad de cada producto al contador
 
           cartHtml += `
-              <tr>
-                  <td>
-                      <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail img-carrito me-2" style="width: 50px;">
-                      ${item.name}
-                  </td>
-                  <td>
-                      <nav aria-label="Page navigation">
-                          <ul class="pagination">
-                              <li class="page-item">
-                                  <a class="page-link decrease-quantity" href="javascript:void(0);" data-id="${item.id}"><i class="tf-icon bx bx-minus"></i></a>
-                              </li>
-                              <li class="page-item active"><a class="page-link">${item.quantity}</a></li>
-                              <li class="page-item">
-                                  <a class="page-link increase-quantity" href="javascript:void(0);" data-id="${item.id}"><i class="tf-icon bx bx-plus"></i></a>
-                              </li>
-                          </ul>
-                      </nav>
-                  </td>
-                  <td>
-                      $${item.price}  <!-- Mostrar el precio utilizado -->
-                  </td>
-                  <td>
-                      $${itemTotal.toFixed(2)}
-                  </td>
-                  <td>
-                      <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">X</button>
-                  </td>
-              </tr>
-          `;
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>${currencySymbol}${item.price.toLocaleString('es-ES')}</td>
+                <td>${currencySymbol}${itemTotal.toLocaleString('es-ES')}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">X</button>
+                </td>
+            </tr>
+            `;
       });
 
       const total = subtotal;
 
-      $('#cart tbody').html(cartHtml);
-      $('.subtotal').text(`$${subtotal.toFixed(2)}`);
-      $('.total').text(`$${total.toFixed(2)}`);
+      // Actualiza el contenido del carrito
+      $('#cart-items-body').html(cartHtml);
+      $('.subtotal').text(`${currencySymbol}${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
+      $('.total').text(`${currencySymbol}${total.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
+
+      // Actualiza el contador de productos en el botón "Ver Carrito"
+      $('#cart-count').text(totalItems);
 
       // Guardar el carrito en el servidor
       saveCart();
   }
+
+
 
   // Manejar el clic en el botón "Agregar al carrito"
   $(document).on('click', '.add-to-cart', function() {
@@ -367,21 +421,29 @@ $(document).ready(function() {
 
   // Manejar el clic en los botones para aumentar/disminuir cantidad
   $(document).on('click', '.increase-quantity', function() {
-      const productId = $(this).data('id');
-      const cartItem = cart.find(item => item.id === productId);
-      cartItem.quantity += 1;
-      updateCart();
+    const productId = $(this).data('id');
+    const cartItem = cart.find(item => item.id === productId);
+    const product = products.find(p => p.id === productId);
+
+    // Validar si hay suficiente stock antes de incrementar
+    if (cartItem.quantity + 1 > product.stock) {
+        mostrarError('No hay suficiente stock para agregar más unidades de este producto.');
+        return;
+    }
+
+    cartItem.quantity += 1;
+    updateCart();
   });
 
   $(document).on('click', '.decrease-quantity', function() {
-      const productId = $(this).data('id');
-      const cartItem = cart.find(item => item.id === productId);
-      if (cartItem.quantity > 1) {
-          cartItem.quantity -= 1;
-      } else {
-          cart = cart.filter(item => item.id !== productId);
-      }
-      updateCart();
+    const productId = $(this).data('id');
+    const cartItem = cart.find(item => item.id === productId);
+    if (cartItem.quantity > 1) {
+        cartItem.quantity -= 1;
+    } else {
+        cart = cart.filter(item => item.id !== productId);
+    }
+    updateCart();
   });
 
   // Manejar el clic en el botón "Eliminar del carrito"

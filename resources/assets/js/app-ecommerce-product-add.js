@@ -32,11 +32,13 @@
     const stockContainer = document.getElementById('stockContainer');
 
     function toggleFields() {
-      if (productTypeSelect.value === 'configurable') {
+      // Oculta del todo los campos de cantidad de sabores. Si trabaja con productos variables, descomentar la primer linea y eliminar la segunda debajo de este comentario
+      // if (productTypeSelect.value === 'configurable') {
+      if (productTypeSelect.value === 'configurable' || productTypeSelect.value === 'simple') {
         flavorsQuantityContainer.style.display = 'block';
         flavorsContainer.style.display = 'block';
         recipeCard.style.display = 'none';
-        stockContainer.style.display = 'none';
+        stockContainer.style.display = 'block';
         console.log('Producto configurable');
       } else {
         flavorsQuantityContainer.style.display = 'none';

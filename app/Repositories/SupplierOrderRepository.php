@@ -16,7 +16,7 @@ class SupplierOrderRepository
      */
     public function getAll(): Collection
     {
-        if (auth()->user() && auth()->user()->can('view_all_supplier-orders')) {
+        if (auth()->user()->can('view_all_supplier-orders')) {
             return SupplierOrder::with(['supplier', 'rawMaterials', 'store'])->get();
         } else {
             $storeId = auth()->user()->store_id;

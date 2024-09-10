@@ -15,7 +15,7 @@ class SupplierRepository
      */
     public function getAll(): array
     {
-        if (auth()->user() && auth()->user()->can('view_all_suppliers')) {
+        if (auth()->user()->can('view_all_suppliers')) {
           $suppliers = Supplier::with('store')->get();
         } else {
           $storeId = auth()->user()->store_id;

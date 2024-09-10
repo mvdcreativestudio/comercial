@@ -122,7 +122,7 @@
                   <label class="form-label" for="form-repeater-1-1">Tipo de producto</label>
                   <select id="productType" class="select2 form-select" name="type">
                     <option value="simple" @selected($product->type == 'simple')>Simple</option>
-                    <option value="configurable" @selected($product->type == 'configurable')>Variable</option>
+                    {{-- <option value="configurable" @selected($product->type == 'configurable')>Variable</option> --}}
                   </select>
                 </div>
                 <div id="flavorsQuantityContainer" class="mb-3 col-4">
@@ -145,7 +145,7 @@
         </div>
       </div>
       <!-- /Variants -->
-      <!-- Recipe -->
+      {{-- <!-- Recipe -->
       <div class="card mb-4" id="recipeCard" style="display: none;">
         <div class="card-header">
           <h5 class="card-title mb-0">Receta</h5>
@@ -156,7 +156,7 @@
           <button type="button" class="btn btn-primary" id="addRawMaterial">Agregar Materia Prima</button>
           <button type="button" class="btn btn-secondary" id="addUsedFlavor">Agregar Sabor Usado</button>
         </div>
-      </div>
+      </div> --}}
 
     </div>
     <!-- /Second column -->
