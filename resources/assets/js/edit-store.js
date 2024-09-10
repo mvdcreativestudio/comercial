@@ -1,17 +1,27 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // Seleccionar los elementos relevantes
   const mercadoPagoSwitch = document.getElementById('mercadoPagoSwitch');
   const mercadoPagoFields = document.getElementById('mercadoPagoFields');
+  const ecommerceSwitch = document.getElementById('ecommerceSwitch');
+  const ecommerceFields = document.getElementById('ecommerceFields');
+  const invoicesEnabledSwitch = document.getElementById('invoicesEnabledSwitch');
+  const pymoFields = document.getElementById('pymoFields');
 
-  // Verificar el estado inicial del switch al cargar la página
-  const initialState = mercadoPagoSwitch.checked;
+  // Manejar la visibilidad inicial de los campos de PyMo
+  pymoFields.style.display = invoicesEnabledSwitch.checked ? 'block' : 'none';
 
-  if (initialState) {
-    mercadoPagoFields.style.display = 'block';
-  }
+  // Evento para el switch de habilitar facturación
+  invoicesEnabledSwitch.addEventListener('change', function() {
+    pymoFields.style.display = this.checked ? 'block' : 'none';
+  });
 
+  // Verificar el estado inicial de los campos de MercadoPago
+  const mercadoPagoInitialState = mercadoPagoSwitch.checked;
+  mercadoPagoFields.style.display = mercadoPagoInitialState ? 'block' : 'none';
+
+  // Manejar el cambio en el switch de MercadoPago
   mercadoPagoSwitch.addEventListener('change', function () {
-    if (initialState && !this.checked) {
-      // Mostrar Sweet Alert si MercadoPago estaba activado y se desactivó
+    if (mercadoPagoInitialState && !this.checked) {
       Swal.fire({
         title: '¿Estás seguro?',
         text: 'Se perderán los datos de la vinculación con MercadoPago y deberá ser realizada nuevamente',
@@ -23,37 +33,26 @@ document.addEventListener('DOMContentLoaded', function () {
         cancelButtonText: 'Cancelar'
       }).then(result => {
         if (result.isConfirmed) {
-          // Usuario confirma la acción
           mercadoPagoFields.style.display = 'none';
         } else {
-          // Usuario cancela la acción, resetear el switch a su estado inicial
           mercadoPagoSwitch.checked = true;
         }
       });
     } else {
-      // Manejar la visibilidad de los campos normalmente si no se cumple la condición anterior
       mercadoPagoFields.style.display = this.checked ? 'block' : 'none';
     }
   });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-  const ecommerceSwitch = document.getElementById('ecommerceSwitch');
-  const ecommerceFields = document.getElementById('ecommerceFields');
+  // Verificar el estado inicial de los campos de Ecommerce
+  const ecommerceInitialState = ecommerceSwitch.checked;
+  ecommerceFields.style.display = ecommerceInitialState ? 'block' : 'none';
 
-  // Verificar el estado inicial del switch al cargar la página
-  const initialState = ecommerceSwitch.checked;
-
-  if (initialState) {
-    ecommerceFields.style.display = 'block';
-  }
-
+  // Manejar el cambio en el switch de Ecommerce
   ecommerceSwitch.addEventListener('change', function () {
-    if (initialState && !this.checked) {
-      // Mostrar Sweet Alert si MercadoPago estaba activado y se desactivó
+    if (ecommerceInitialState && !this.checked) {
       Swal.fire({
         title: '¿Estás seguro?',
-        text: 'Se perderán los datos de la vinculación con MercadoPago y deberá ser realizada nuevamente',
+        text: 'Se perderán los datos de la vinculación con Ecommerce y deberá ser realizada nuevamente',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -62,26 +61,13 @@ document.addEventListener('DOMContentLoaded', function () {
         cancelButtonText: 'Cancelar'
       }).then(result => {
         if (result.isConfirmed) {
-          // Usuario confirma la acción
           ecommerceFields.style.display = 'none';
         } else {
-          // Usuario cancela la acción, resetear el switch a su estado inicial
           ecommerceSwitch.checked = true;
         }
       });
     } else {
-      // Manejar la visibilidad de los campos normalmente si no se cumple la condición anterior
       ecommerceFields.style.display = this.checked ? 'block' : 'none';
-    }
-  });
-
-
-  document.getElementById('invoicesEnabledSwitch').addEventListener('change', function() {
-    var pymoFields = document.getElementById('pymoFields');
-    if (this.checked) {
-      pymoFields.style.display = 'block';
-    } else {
-      pymoFields.style.display = 'none';
     }
   });
 });

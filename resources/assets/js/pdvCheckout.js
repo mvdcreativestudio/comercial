@@ -612,7 +612,7 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
         pos_sales: posSales,
         discount: discount,
         client_id: client && client.id ? client.id : null,
-        client_type: client && client.type ? client.type : 'individual',
+        client_type: client && client.type ? client.type : 'no-client',
         products: JSON.stringify(cart),
         subtotal: subtotal,
         total: total - discount, //

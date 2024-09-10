@@ -453,7 +453,7 @@ class AccountingRepository
         // Preparar los datos del CFE
         $cfeData = [
             'clientEmissionId' => $order->uuid,
-            'adenda' => 'Orden ' . $order->uuid . ' - Anjos.',
+            'adenda' => 'Orden ' . $order->id . ' - Anjos.',
             'IdDoc' => [
                 'MntBruto' => 1,
                 'FmaPago' => $payType // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
@@ -461,7 +461,6 @@ class AccountingRepository
             'Receptor' => [
                 'TipoDocRecep' => $client ? ($client->type === 'company' ? 2 : 3) : 3, // 2 para RUC, 3 para CI
                 'CodPaisRecep' => 'UY',
-                'DocRecep' => $client ? ($client->type === 'company' ? $client->rut : ($client->ci ?? null)) : null,
                 'RznSocRecep' => $client ? ($client->type === 'company' ? $client->company_name : $client->name . ' ' . $client->lastname) : '',
                 'DirRecep' => $client->address, // Dirección del cliente
                 'CiudadRecep' => $client->city, // Ciudad del cliente
@@ -483,6 +482,15 @@ class AccountingRepository
             ],
             'Items' => $items,
         ];
+
+        
+        if ($client) {
+          if($client->type === 'company') {
+            $cfeData['Receptor']['DocRecep'] = $client->rut;
+          } elseif($client->type === 'individual') {
+            $cfeData['Receptor']['DocRecep'] = $client->ci;
+          }
+        }
 
         if ($cfeType === '101') { // eTicket
             $cfeData['IdDoc']['FchEmis'] = now()->toIso8601String();
@@ -757,7 +765,7 @@ class AccountingRepository
 
         // Construir la URL para obtener el PDF
         $cfeId = $cfe->cfeId;
-        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/invoices/' . $branchOffice . '?id=' . $cfeId;
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/invoices/?id=' . $cfeId;
 
         try {
             // Hacer la solicitud para obtener el PDF
