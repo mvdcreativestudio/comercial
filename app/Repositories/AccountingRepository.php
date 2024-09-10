@@ -14,9 +14,52 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use App\Models\CurrencyRate;
+use Illuminate\Support\Facades\Crypt;
 
 class AccountingRepository
 {
+    /**
+     * Realiza el login en el servicio externo y devuelve las cookies de la sesión.
+     *
+     * @return array|null
+    */
+    public function login(): ?array
+    {
+        $store = auth()->user()->store;
+
+        if (!$store || !$store->pymo_user || !$store->pymo_password) {
+            Log::error('No se encontraron las credenciales de PyMo para la tienda del usuario.');
+            return null;
+        }
+
+        try {
+            Log::info('Contraseña encriptada: ' . $store->pymo_password);
+            $decryptedPassword = Crypt::decryptString($store->pymo_password);
+        } catch (\Exception $e) {
+            Log::error('Error al desencriptar la contraseña de PyMo: ' . $e->getMessage());
+            return null;
+        }
+
+        $loginResponse = Http::post(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/login', [
+            'email' => $store->pymo_user,
+            'password' => $decryptedPassword,
+        ]);
+
+        if ($loginResponse->failed()) {
+            return null;
+        }
+
+        $cookies = $loginResponse->cookies();
+        $cookieJar = [];
+
+        foreach ($cookies as $cookie) {
+            $cookieJar[$cookie->getName()] = $cookie->getValue();
+        }
+
+        return $cookieJar;
+    }
+
+
     /**
      * Obtiene todos los recibos con las relaciones necesarias.
      *
@@ -109,30 +152,6 @@ class AccountingRepository
     }
 
     /**
-     * Obtiene la configuración del RUT de la empresa.
-     *
-     * @return PymoSetting|null
-    */
-    public function getRutSetting(): ?PymoSetting
-    {
-      return PymoSetting::where('settingKey', 'rut')->first();
-    }
-
-    /**
-     * Guarda el RUT de la empresa en la configuración.
-     *
-     * @param string $rut
-     * @return void
-    */
-    public function saveRut(string $rut): void
-    {
-      PymoSetting::updateOrCreate(
-          ['settingKey' => 'rut'],
-          ['settingValue' => $rut]
-      );
-    }
-
-    /**
      * Sube el logo de la empresa.
      *
      * @param string $rut
@@ -163,21 +182,40 @@ class AccountingRepository
     */
     public function getCompanyLogo(string $rut): ?string
     {
-      $cookies = $this->login();
+        $cookies = $this->login();
 
-      if (!$cookies) {
-          return null;
-      }
+        if (!$cookies) {
+            Log::error('No se pudo iniciar sesión para obtener el logo de la empresa.');
+            return null;
+        }
 
-      $logoResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
-          ->get(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/logo');
+        $store = auth()->user()->store;
+        $rut = $store->rut;
 
-      if ($logoResponse->failed()) {
-          return null;
-      }
+        if (!$store || !$rut) {
+            Log::error('No se encontró el RUT de la tienda para obtener el logo de la empresa.');
+            return null;
+        }
 
-      return $this->saveLogoLocally($logoResponse->body());
+        // Construir la URL para obtener el logo de la empresa
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/logo';
+
+        try {
+            $logoResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+                ->get($url);
+
+            if ($logoResponse->failed()) {
+                Log::error('Error al obtener el logo de la empresa: ' . $logoResponse->body());
+                return null;
+            }
+
+            return $this->saveLogoLocally($logoResponse->body());
+        } catch (\Exception $e) {
+            Log::error('Excepción al obtener el logo de la empresa: ' . $e->getMessage());
+            return null;
+        }
     }
+
 
     /**
      * Guarda la imagen del logo en almacenamiento local.
@@ -204,17 +242,35 @@ class AccountingRepository
         $cookies = $this->login();
 
         if (!$cookies) {
+            Log::error('No se pudo iniciar sesión para obtener la información de la empresa.');
             return null;
         }
 
-        $companyResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
-            ->get(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut);
+        $store = auth()->user()->store;
+        $rut = $store->rut;
 
-        if ($companyResponse->failed() || !isset($companyResponse->json()['payload']['company'])) {
+        if (!$store || !$rut) {
+            Log::error('No se encontró el RUT de la tienda para obtener la información de la empresa.');
             return null;
         }
 
-        return $companyResponse->json()['payload']['company'];
+        // Construir la URL para obtener la información de la empresa
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut;
+
+        try {
+            $companyResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+                ->get($url);
+
+            if ($companyResponse->failed() || !isset($companyResponse->json()['payload']['company'])) {
+                Log::error('Error al obtener la información de la empresa: ' . $companyResponse->body());
+                return null;
+            }
+
+            return $companyResponse->json()['payload']['company'];
+        } catch (\Exception $e) {
+            Log::error('Excepción al obtener la información de la empresa: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -234,10 +290,21 @@ class AccountingRepository
             return;
         }
 
-        $rutSetting = PymoSetting::where('settingKey', 'rut')->first();
-        if ($rutSetting) {
-            $rut = $rutSetting->settingValue;
+        $store = $order->store;
+        $rut = $store->rut;
+        $branchOffice = $store->pymo_branch_office;
 
+        if (!$store || !$store->rut) {
+            Log::error('No se encontró el RUT de la tienda para emitir el CFE.');
+            return;
+        }
+
+        if (!$branchOffice) {
+            Log::error('No se encontró la sucursal de la tienda para emitir el CFE.');
+            return;
+        }
+
+        if ($rut) {
             // Obtener el cliente asociado a la orden
             $client = $order->client;
 
@@ -248,7 +315,7 @@ class AccountingRepository
                 $cfeType = $client->type === 'company' ? '111' : '101'; // '111' para empresa, '101' para individuo
             }
 
-            $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/2';
+            $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/' . $branchOffice;
 
             $amountToBill = $amountToBill ?? $order->total;
 
@@ -382,7 +449,7 @@ class AccountingRepository
         // Preparar los datos del CFE
         $cfeData = [
             'clientEmissionId' => $order->uuid,
-            'adenda' => 'Orden ' . $order->uuid . ' - Anjos.',
+            'adenda' => 'Orden ' . $order->id . ' - Anjos.',
             'IdDoc' => [
                 'MntBruto' => 1, // Indica que los montos enviados incluyen IVA
                 'FmaPago' => $payType, // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
@@ -390,7 +457,6 @@ class AccountingRepository
             'Receptor' => [
                 'TipoDocRecep' => $client ? ($client->type === 'company' ? 2 : 3) : 3, // 2 para RUC, 3 para CI
                 'CodPaisRecep' => 'UY',
-                'DocRecep' => $client ? ($client->type === 'company' ? $client->rut : ($client->ci ?? '00000000')) : '00000000',
                 'RznSocRecep' => $client ? ($client->type === 'company' ? $client->company_name : $client->name . ' ' . $client->lastname) : '',
                 'DirRecep' => $client->address, // Dirección del cliente
                 'CiudadRecep' => $client->city, // Ciudad del cliente
@@ -413,6 +479,15 @@ class AccountingRepository
             'Items' => $items,
         ];
 
+        
+        if ($client) {
+          if($client->type === 'company') {
+            $cfeData['Receptor']['DocRecep'] = $client->rut;
+          } elseif($client->type === 'individual') {
+            $cfeData['Receptor']['DocRecep'] = $client->ci;
+          }
+        }
+
         if ($cfeType === '101') { // eTicket
             $cfeData['IdDoc']['FchEmis'] = now()->toIso8601String();
         }
@@ -420,35 +495,6 @@ class AccountingRepository
         return $cfeData;
     }
 
-
-
-
-
-    /**
-     * Realiza el login en el servicio externo y devuelve las cookies de la sesión.
-     *
-     * @return array|null
-    */
-    public function login(): ?array
-    {
-      $loginResponse = Http::post(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/login', [
-          'email' => env('PYMO_USER'),
-          'password' => env('PYMO_PASSWORD'),
-      ]);
-
-      if ($loginResponse->failed()) {
-          return null;
-      }
-
-      $cookies = $loginResponse->cookies();
-      $cookieJar = [];
-
-      foreach ($cookies as $cookie) {
-          $cookieJar[$cookie->getName()] = $cookie->getValue();
-      }
-
-      return $cookieJar;
-    }
 
     /**
      * Obtiene estadísticas para el dashboard contable.
@@ -486,14 +532,18 @@ class AccountingRepository
             throw new \Exception('No se pudo iniciar sesión para emitir la nota.');
         }
 
-        $rutSetting = PymoSetting::where('settingKey', 'rut')->first();
-        if (!$rutSetting) {
-            throw new \Exception('No se encontró el RUT de la empresa para emitir la nota.');
+        $invoice = CFE::findOrFail($invoiceId);
+        $store = $invoice->order->store;
+        $rut = $store->rut;
+        $branchOffice = $store->pymo_branch_office;
+
+        if (!$store || !$rut) {
+            throw new \Exception('No se encontró el RUT de la tienda para emitir la nota.');
         }
 
-        $rut = $rutSetting->settingValue;
-
-        $invoice = CFE::findOrFail($invoiceId);
+        if (!$branchOffice) {
+            throw new \Exception('No se encontró la sucursal de la tienda para emitir la nota.');
+        }
 
         // Validar que el tipo sea eFactura (111) o eTicket (101)
         if (!in_array($invoice->type, [101, 111])) {
@@ -539,7 +589,7 @@ class AccountingRepository
         // Emitir la nota y preparar los datos
         $notaData = $this->prepareNoteData($invoice, $noteAmount, $reason, $noteType);
 
-        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/2';
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/sendCfes/' . $branchOffice;
 
         try {
             $payloadArray = [
@@ -588,6 +638,7 @@ class AccountingRepository
             throw new \Exception('Error al emitir nota: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Prepara los datos necesarios para emitir una nota de crédito o débito.
@@ -688,8 +739,10 @@ class AccountingRepository
     public function getCfePdf(int $cfeId): Response
     {
         $cfe = CFE::findOrFail($cfeId);
+        $store = $cfe->order->store;
+        $rut = $store->rut;
+        $branchOffice = $store->pymo_branch_office;
 
-        // Iniciar sesión para obtener cookies
         $cookies = $this->login();
 
         if (!$cookies) {
@@ -697,16 +750,19 @@ class AccountingRepository
             throw new \Exception('No se pudo iniciar sesión para obtener el PDF del CFE.');
         }
 
-        $rutSetting = PymoSetting::where('settingKey', 'rut')->first();
-        if (!$rutSetting) {
-            Log::error('No se encontró el RUT de la empresa para obtener el PDF del CFE.');
-            throw new \Exception('No se encontró el RUT de la empresa para obtener el PDF del CFE.');
+        if (!$store || !$rut) {
+            Log::error('No se encontró el RUT de la tienda para obtener el PDF del CFE.');
+            throw new \Exception('No se encontró el RUT de la tienda para obtener el PDF del CFE.');
+        }
+
+        if (!$branchOffice) {
+            Log::error('No se encontró la sucursal de la tienda para obtener el PDF del CFE.');
+            throw new \Exception('No se encontró la sucursal de la tienda para obtener el PDF del CFE.');
         }
 
         // Construir la URL para obtener el PDF
-        $rut = $rutSetting->settingValue;
         $cfeId = $cfe->cfeId;
-        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/invoices?id=' . $cfeId;
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/invoices/?id=' . $cfeId;
 
         try {
             // Hacer la solicitud para obtener el PDF
@@ -728,6 +784,33 @@ class AccountingRepository
         } catch (\Exception $e) {
             Log::error('Excepción al obtener el PDF del CFE: ' . $e->getMessage());
             throw new \Exception('Error al obtener el PDF del CFE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtiene los documentos fiscales recibidos de una empresa.
+     *
+     * @param string $rut
+     * @param array $cookies
+     * @return array|null
+    */
+    public function fetchReceivedCfes(string $rut, array $cookies): ?array
+    {
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/inSobres/cfes?l=10000';
+
+        try {
+            $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+                ->get($url);
+
+            if ($response->failed() || !isset($response->json()['payload']['receivedCfe'])) {
+                Log::error('Error al obtener los recibos recibidos: ' . $response->body());
+                return null;
+            }
+
+            return $response->json()['payload']['receivedCfe'];
+        } catch (\Exception $e) {
+            Log::error('Excepción al obtener los recibos recibidos: ' . $e->getMessage());
+            return null;
         }
     }
 }

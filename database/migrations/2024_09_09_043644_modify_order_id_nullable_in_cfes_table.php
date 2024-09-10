@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePymoSettingsTable extends Migration
+class ModifyOrderIdNullableInCfesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreatePymoSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pymo_settings', function (Blueprint $table) {
-            $table->id();
-            $table->string('settingKey');
-            $table->string('settingValue');
-            $table->timestamps();
+        Schema::table('cfes', function (Blueprint $table) {
+            $table->unsignedBigInteger('order_id')->nullable()->change();
         });
     }
 
@@ -28,6 +25,8 @@ class CreatePymoSettingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pymo_settings');
+        Schema::table('cfes', function (Blueprint $table) {
+            $table->unsignedBigInteger('order_id')->nullable(false)->change();
+        });
     }
 }
