@@ -171,9 +171,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <div class="avatar me-2">
             <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-check"></i></span>
           </div>
-          <h4 class="ms-1 mb-0">{{ $ordersCount['delivered'] }}</h4>
+          <h4 class="ms-1 mb-0">{{ $ordersCount['completed'] }}</h4>
         </div>
-        @if($ordersCount['delivered'] == 1)
+        @if($ordersCount['completed'] == 1)
           <p class="mb-1 fw-medium me-1">Pedido completado</p>
         @else
           <p class="mb-1 fw-medium me-1">Pedidos completados</p>
@@ -214,9 +214,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <h4 class="ms-1 mb-0">{{ $ordersCount['cancelled'] }}</h4>
         </div>
         @if($ordersCount['cancelled'] == 1)
-          <p class="mb-1 fw-medium me-1">Pedido cancelado</p>
+          <p class="mb-1 fw-medium me-1">Pedido fallido</p>
         @else
-          <p class="mb-1">Pedidos cancelados</p>
+          <p class="mb-1">Pedidos fallidos</p>
         @endif
         <p class="mb-0">
           {{-- <span class="fw-medium me-1 text-success">+4.3%</span> --}}

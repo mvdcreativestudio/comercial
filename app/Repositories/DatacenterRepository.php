@@ -157,10 +157,9 @@ class DatacenterRepository
         }
 
         return [
-            'delivered' => (clone $orderQuery)->where('shipping_status', 'delivered')->count(),
-            'shipped' => (clone $orderQuery)->where('shipping_status', 'shipped')->count(),
-            'pending' => (clone $orderQuery)->where('shipping_status', 'pending')->count(),
-            'cancelled' => (clone $orderQuery)->where('shipping_status', 'cancelled')->count()
+            'completed' => (clone $orderQuery)->where('payment_status', 'paid')->count(),
+            'pending' => (clone $orderQuery)->where('payment_status', 'pending')->count(),
+            'cancelled' => (clone $orderQuery)->where('payment_status', 'failed')->count()
         ];
     }
 
@@ -521,69 +520,82 @@ class DatacenterRepository
 
 
 
-    /**
-     * Obtener porcentaje de ventas por producto para tabla con filtro de fecha y local.
-     *
-     * @param string $startDate
-     * @param string $endDate
-     * @param int|null $storeId
-     * @return array
-     */
-    public function getSalesPercentByProduct(string $startDate, string $endDate, int $storeId = null): array
-    {
-        // Consulta de pedidos con filtro de fecha y local
-        $query = Order::whereBetween('date', [$startDate, $endDate])
-            ->where('payment_status', 'paid');
+/**
+ * Obtener porcentaje de ventas por producto para tabla con filtro de fecha y local.
+ *
+ * @param string $startDate
+ * @param string $endDate
+ * @param int|null $storeId
+ * @return array
+ */
+public function getSalesPercentByProduct(string $startDate, string $endDate, int $storeId = null): array
+{
+    // Consulta de pedidos con filtro de fecha y local
+    $query = Order::whereBetween('date', [$startDate, $endDate])
+        ->where('payment_status', 'paid');
 
-        if ($storeId) {
-            $query->where('store_id', $storeId);
-        }
+    if ($storeId) {
+        $query->where('store_id', $storeId);
+    }
 
-        $orders = $query->get();
+    $orders = $query->get();
 
-        $productSales = [];
+    $productSales = [];
 
-        // Procesar todos los pedidos
-        foreach ($orders as $order) {
-            $products = json_decode($order->products, true);
+    // Procesar todos los pedidos
+    foreach ($orders as $order) {
+        $products = json_decode($order->products, true);
 
-            if (is_array($products) && count($products) > 0) {
-                foreach ($products as $product) {
-                    if (is_array($product) && isset($product['name'], $product['price'], $product['quantity'])) {
-                        if (!isset($productSales[$product['name']])) {
-                            $productSales[$product['name']] = [
-                                'total' => 0,
-                                'count' => 0
-                            ];
-                        }
-                        $productSales[$product['name']]['total'] += $product['price'] * $product['quantity'];
-                        $productSales[$product['name']]['count'] += $product['quantity'];
+        if (is_array($products) && count($products) > 0) {
+            $subtotal = $order->subtotal; // Total sin descuentos
+            $total = $order->total; // Total cobrado al cliente (después de descuentos)
+
+            foreach ($products as $product) {
+                if (is_array($product) && isset($product['name'], $product['price'], $product['quantity'])) {
+                    if (!isset($productSales[$product['name']])) {
+                        $productSales[$product['name']] = [
+                            'total' => 0,
+                            'count' => 0
+                        ];
                     }
+
+                    // Calcular el porcentaje del subtotal que representa este producto
+                    $productSubtotal = $product['price'] * $product['quantity'];
+                    $productPercentageOfSubtotal = $subtotal > 0 ? $productSubtotal / $subtotal : 0;
+
+                    // Calcular el total ajustado de este producto en base al total cobrado al cliente
+                    $productAdjustedTotal = $productPercentageOfSubtotal * $total;
+
+                    // Acumular las ventas ajustadas y la cantidad
+                    $productSales[$product['name']]['total'] += $productAdjustedTotal;
+                    $productSales[$product['name']]['count'] += $product['quantity'];
                 }
             }
         }
-
-        $totalSales = array_sum(array_map(function ($product) {
-            return $product['total'];
-        }, $productSales));
-
-        $data = [];
-        foreach ($productSales as $name => $info) {
-            $percent = $totalSales > 0 ? ($info['total'] / $totalSales) * 100 : 0;
-            $data[] = [
-                'product' => $name,
-                'percent' => round($percent, 2),
-                'productTotal' => $info['total'],
-            ];
-        }
-
-        // Ordenar los productos por el total de ventas en orden descendente
-        usort($data, function ($a, $b) {
-            return $b['productTotal'] <=> $a['productTotal'];
-        });
-
-        return $data;
     }
+
+    $totalSales = array_sum(array_map(function ($product) {
+        return $product['total'];
+    }, $productSales));
+
+    $data = [];
+    foreach ($productSales as $name => $info) {
+        $percent = $totalSales > 0 ? ($info['total'] / $totalSales) * 100 : 0;
+        $data[] = [
+            'product' => $name,
+            'percent' => round($percent, 2),
+            'productTotal' => $info['total'],
+        ];
+    }
+
+    // Ordenar los productos por el total de ventas en orden descendente
+    usort($data, function ($a, $b) {
+        return $b['productTotal'] <=> $a['productTotal'];
+    });
+
+    return $data;
+}
+
 
 
 
