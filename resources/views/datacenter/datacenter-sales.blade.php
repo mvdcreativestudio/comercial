@@ -22,7 +22,7 @@
 @vite('resources/assets/js/app-datacenter-salesByStoreChart.js')
 @vite('resources/assets/js/app-datacenter-paymentMethodsChart.js')
 @vite('resources/assets/js/app-datacenter-averageOrdersByHourChart.js')
-@vite('resources/assets/js/app-datacenter-salesBySellerChart')
+@vite('resources/assets/js/app-datacenter-salesBySellerChart.js')
 @endsection
 
 
