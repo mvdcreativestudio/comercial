@@ -766,17 +766,22 @@ public function getSalesPercentByProduct(string $startDate, string $endDate, int
 
 
         $paymentMethods = [
-            'MercadoPago' => 0,
+            'Crédito' => 0,
+            'Débito' => 0,
             'Efectivo' => 0,
             'Otro' => 0,
         ];
 
         foreach ($orders as $order) {
             $method = $order->payment_method;
-            if ($method === 'mercadopago') {
-                $paymentMethods['MercadoPago'] += $order->total;
+            if ($method === 'credit') {
+                $paymentMethods['Crédito'] += $order->total;
+            } elseif ($method === 'debit') {
+                $paymentMethods['Débito'] += $order->total;
             } elseif ($method === 'cash') {
                 $paymentMethods['Efectivo'] += $order->total;
+            } else {
+                $paymentMethods['Otro'] += $order->total;
             }
         }
 
