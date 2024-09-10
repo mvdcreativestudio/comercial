@@ -429,10 +429,13 @@ class AccountingRepository
             // Acumular el subtotal con IVA incluido
             $subtotalConIVA += ($productPriceConIVA - $discountAmount) * $adjustedAmount;
 
+            // Limpiar y limitar el nombre del producto a 50 caracteres
+            $cleanedProductName = $this->cleanProductName($product['name']);
+
             return [
                 'NroLinDet' => $index + 1, // Número de línea de detalle
                 'IndFact' => 3, // Gravado a Tasa Básica
-                'NomItem' => preg_replace('/[^A-Za-z0-9\s\-.,]/', '', $product['name']), // Nombre del producto limpio
+                'NomItem' => $cleanedProductName, // Nombre del producto limpio
                 'Cantidad' => $adjustedAmount, // Cantidad del producto
                 'UniMed' => 'N/A', // Unidad de medida, si no tiene usar N/A
                 "DescuentoPct" => $discountPercentage, // % de descuento aplicado
@@ -479,7 +482,7 @@ class AccountingRepository
             'Items' => $items,
         ];
 
-        
+
         if ($client) {
           if($client->type === 'company') {
             $cfeData['Receptor']['DocRecep'] = $client->rut;
@@ -493,6 +496,21 @@ class AccountingRepository
         }
 
         return $cfeData;
+    }
+
+    /**
+     * Limpia el nombre del producto y lo limita a 50 caracteres.
+     *
+     * @param string $productName
+     * @return string
+     */
+    private function cleanProductName(string $productName): string
+    {
+        // Eliminar caracteres especiales no deseados
+        $cleanedName = preg_replace('/[^A-Za-z0-9\s\-.,]/', '', $productName);
+
+        // Limitar el nombre a 80 caracteres
+        return mb_strimwidth($cleanedName, 0, 80);
     }
 
 
