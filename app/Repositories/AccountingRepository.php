@@ -523,7 +523,7 @@ class AccountingRepository
     {
       $invoices = $this->getInvoicesWithRelations();
       $totalReceipts = $invoices->count();
-      $totalIncome = $invoices->sum('total');
+      $totalIncome = $invoices->sum('balance');
       $storeWithMostReceipts = $invoices->groupBy('store_id')
           ->sortByDesc(function ($group) {
               return $group->count();
