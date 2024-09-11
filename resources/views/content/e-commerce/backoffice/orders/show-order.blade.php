@@ -121,7 +121,7 @@ $changeTypeTranslations = [
     </h6>
     <!-- Mostrar el vendedor -->
     <h6 class="card-title mb-1 mt-1">Vendido por:
-      @if($order->cashRegisterLog->cashRegister->user)
+      @if($order->cashRegisterLog !== null)
         <span class="me-2 ms-2">{{ $order->cashRegisterLog->cashRegister->user->name }}</span>
       @else
         <span class="me-2 ms-2">Sin registro</span>
