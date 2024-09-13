@@ -24,6 +24,7 @@ class Store extends Model
         'closed',
         'manual_override_at',
         'automatic_billing',
+        'peya_envios_key',
     ];
 
     /**

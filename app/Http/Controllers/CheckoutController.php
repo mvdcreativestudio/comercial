@@ -60,8 +60,26 @@ class CheckoutController extends Controller
     public function index(): View
     {
         $checkout = $this->checkoutRepository->index();
+
+        // Obtener el ID de la tienda desde la sesión
+        $storeId = session('store.id');
+
+        // Verificar si el storeId es numérico
+        if (!is_numeric($storeId)) {
+            Log::error('El store_id en la sesión no es numérico: ' . $storeId);
+            // Aquí puedes lanzar una excepción o manejar el error según lo necesites
+            abort(404, 'Store ID inválido en la sesión');
+        }
+
+        Log::info('ID de la tienda almacenado en la sesión: ' . session('store.id'));
+
+
+        // Añadir el ID de la tienda a los datos que se pasan a la vista
+        $checkout['store_id'] = $storeId;
+
         return view('content.e-commerce.front.checkout', $checkout);
     }
+
 
     /**
      * Muestra la página de éxito de la compra.
