@@ -460,34 +460,39 @@ class AccountingRepository
 
         // Preparar los datos del CFE
         $cfeData = [
-            'clientEmissionId' => $order->uuid,
-            'adenda' => 'Orden ' . $order->id . ' - Anjos.',
-            'IdDoc' => [
-                'MntBruto' => 1, // Indica que los montos enviados incluyen IVA
-                'FmaPago' => $payType, // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
-            ],
-            'Receptor' => [
-                'TipoDocRecep' => $client ? ($client->type === 'company' ? 2 : 3) : null, // 2 para RUC, 3 para CI
-                'CodPaisRecep' => 'UY',
-                'RznSocRecep' => $client ? ($client->type === 'company' ? $client->company_name : $client->name . ' ' . $client->lastname) : '',
-                'DirRecep' => $client->address, // Dirección del cliente
-                'CiudadRecep' => $client->city, // Ciudad del cliente
-                'DeptoRecep' => $client->state, // Departamento del cliente
-            ],
-            'Totales' => [
-                'TpoMoneda' => 'USD', // Moneda de la factura
-                'TpoCambio' => $exchangeRate, // Tipo de cambio
-            ],
-            'Items' => $items,
+          'clientEmissionId' => $order->uuid,
+          'adenda' => 'Orden ' . $order->id . ' - Anjos.',
+          'IdDoc' => [
+              'MntBruto' => 1, // Indica que los montos enviados incluyen IVA
+              'FmaPago' => $payType, // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
+          ],
+          'Receptor' => (object) [], // Inicializar como objeto vacío
+          'Totales' => [
+              'TpoMoneda' => 'USD', // Moneda de la factura
+              'TpoCambio' => $exchangeRate, // Tipo de cambio
+          ],
+          'Items' => $items,
         ];
 
-        if ($client) {
-          if($client->type === 'company') {
-            $cfeData['Receptor']['DocRecep'] = $client->rut;
-          } elseif($client->type === 'individual') {
-            $cfeData['Receptor']['DocRecep'] = $client->ci;
+        // Comprobar si existe un cliente y no es de tipo 'no-client'
+        if ($client && $client->type !== 'no-client') {
+          $cfeData['Receptor'] = [
+              'TipoDocRecep' => $client->type === 'company' ? 2 : 3, // 2 para RUC, 3 para CI
+              'CodPaisRecep' => 'UY',
+              'RznSocRecep' => $client->type === 'company' ? $client->company_name : $client->name . ' ' . $client->lastname,
+              'DirRecep' => $client->address, // Dirección del cliente
+              'CiudadRecep' => $client->city, // Ciudad del cliente
+              'DeptoRecep' => $client->state, // Departamento del cliente
+          ];
+
+          // Añadir 'DocRecep' según el tipo de cliente
+          if ($client->type === 'company') {
+              $cfeData['Receptor']['DocRecep'] = $client->rut;
+          } elseif ($client->type === 'individual') {
+              $cfeData['Receptor']['DocRecep'] = $client->ci;
           }
         }
+
 
         if ($cfeType === '101') {
             $cfeData['IdDoc']['FchEmis'] = now()->toIso8601String();
@@ -682,68 +687,72 @@ class AccountingRepository
       $docRecep = $invoice->order->document ?? '00000000'; // Tomar el documento del receptor o '12345678' como predeterminado
 
       $notaData = [
-          'clientEmissionId' => $order->uuid,
-          'adenda' => $reason,
-          'IdDoc' => [
-              'FchEmis' => now()->toIso8601String(),
-              'FmaPago' => '1',
-          ],
-          'Receptor' => [
-              'TipoDocRecep' => $tipoDocRecep,
-              'CodPaisRecep' => 'UY',
-              'PaisRecep' => 'Uruguay',
-              'DocRecep' => $docRecep,
-              'RznSocRecep' => $order->client ? ($order->client->type === 'company' ? $order->client->company_name : $order->client->name . ' ' . $order->client->lastname) : '',
-              'DirRecep' => $order->client->address,
-              'CiudadRecep' => $order->client->city,
-              'DeptoRecep' => $order->client->state,
-              'CompraID' => $order->id,
-          ],
-          'Totales' => [
-              'TpoMoneda' => 'USD',
-              'TpoCambio' => $exchangeRate,
-              'MntTotal' => $noteAmount,
-              'CantLinDet' => 1,
-              'MntPagar' => $noteAmount
-          ],
-          'Referencia' => [
-              [
-                  'NroLinRef' => '1',
-                  'IndGlobal' => '1',
-                  'TpoDocRef' => $invoice->type,
-                  'Serie' => $invoice->serie,
-                  'NroCFERef' => $invoice->nro,
-                  'RazonRef' => $reason,
-                  'FechaCFEref' => $invoice->emitionDate->toIso8601String()
-              ]
-          ],
-          'Items' => [
-              [
-                  'NroLinDet' => '1',
-                  'IndFact' => 6,
-                  'NomItem' => 'Nota de ' . (ucfirst($noteType) == 'credit' ? 'Crédito' : 'Débito') . ' - Ajuste',
-                  'Cantidad' => '1',
-                  'UniMed' => 'N/A',
-                  'PrecioUnitario' => $noteAmount,
-                  'MontoItem' => $noteAmount,
-              ]
-          ],
-          'Emisor' => [
-              'GiroEmis' => 'Chelato'
-          ]
+        'clientEmissionId' => $order->uuid,
+        'adenda' => $reason,
+        'IdDoc' => [
+            'FchEmis' => now()->toIso8601String(),
+            'FmaPago' => '1',
+        ],
+        'Receptor' => (object) [], // Inicializar como objeto vacío
+        'Totales' => [
+            'TpoMoneda' => 'USD',
+            'TpoCambio' => $exchangeRate,
+            'MntTotal' => $noteAmount,
+            'CantLinDet' => 1,
+            'MntPagar' => $noteAmount
+        ],
+        'Referencia' => [
+            [
+                'NroLinRef' => '1',
+                'IndGlobal' => '1',
+                'TpoDocRef' => $invoice->type,
+                'Serie' => $invoice->serie,
+                'NroCFERef' => $invoice->nro,
+                'RazonRef' => $reason,
+                'FechaCFEref' => $invoice->emitionDate->toIso8601String()
+            ]
+        ],
+        'Items' => [
+            [
+                'NroLinDet' => '1',
+                'IndFact' => 6,
+                'NomItem' => 'Nota de ' . (ucfirst($noteType) == 'credit' ? 'Crédito' : 'Débito') . ' - Ajuste',
+                'Cantidad' => '1',
+                'UniMed' => 'N/A',
+                'PrecioUnitario' => $noteAmount,
+                'MontoItem' => $noteAmount,
+            ]
+        ],
+        'Emisor' => [
+            'GiroEmis' => 'Chelato'
+        ]
       ];
 
-      if ($invoice->type == 111) {
-          $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
-              'ViaTransp' => '8',
-              'ClauVenta' => 'N/A',
-              'ModVenta' => '90'
-          ]);
-      }
-
-      return $notaData;
+      // Comprobar si existe un cliente y no es de tipo 'no-client'
+      if ($order->client && $order->client->type !== 'no-client') {
+        $notaData['Receptor'] = [
+            'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
+            'CodPaisRecep' => 'UY',
+            'PaisRecep' => 'Uruguay',
+            'DocRecep' => $order->client->type === 'company' ? $order->client->rut : $order->client->ci,
+            'RznSocRecep' => $order->client->type === 'company' ? $order->client->company_name : $order->client->name . ' ' . $order->client->lastname,
+            'DirRecep' => $order->client->address,
+            'CiudadRecep' => $order->client->city,
+            'DeptoRecep' => $order->client->state,
+            'CompraID' => $order->id,
+        ];
     }
 
+    if ($invoice->type == 111) {
+        $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
+            'ViaTransp' => '8',
+            'ClauVenta' => 'N/A',
+            'ModVenta' => '90'
+        ]);
+    }
+
+    return $notaData;
+    }
 
     /**
      * Obtiene el PDF de un CFE (eFactura o eTicket) para una orden específica.
