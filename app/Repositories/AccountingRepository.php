@@ -916,7 +916,7 @@ class AccountingRepository
     */
     private function prepareReceiptData(CFE $invoice): array
     {
-        return [
+      $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
             'adenda' => 'Recibo de Cobranza sobre ' . ($invoice->type == 111 ? 'eFactura' : 'eTicket'),
             'IdDoc' => [
@@ -955,5 +955,15 @@ class AccountingRepository
                 ]
             ]
         ];
+
+        if ($invoice->order->client) {
+          if($invoice->order->client->type === 'company') {
+            $data['Receptor']['DocRecep'] = $invoice->order->client->rut;
+          } elseif($invoice->order->client->type === 'individual') {
+            $data['Receptor']['DocRecep'] = $invoice->order->client->ci;
+          }
+        }
+
+        return $data;
     }
 }
