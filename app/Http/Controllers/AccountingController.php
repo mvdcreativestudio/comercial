@@ -224,4 +224,23 @@ class AccountingController extends Controller
             return redirect()->back()->with('error', 'Error al obtener los recibos recibidos.');
         }
     }
+
+
+    /**
+     * Maneja la emisión de un recibo sobre una factura o eTicket existente.
+     *
+     * @param int $invoiceId
+     * @return RedirectResponse
+    */
+    public function emitReceipt(int $invoiceId): RedirectResponse
+    {
+        try {
+            $this->accountingRepository->emitReceipt($invoiceId);
+            Log::info("Recibo emitido correctamente para la factura {$invoiceId}");
+            return redirect()->back()->with('success', 'Recibo emitido correctamente.');
+        } catch (\Exception $e) {
+            Log::error("Error al emitir recibo para la factura {$invoiceId}: {$e->getMessage()}");
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 }
