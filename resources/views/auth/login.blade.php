@@ -29,7 +29,7 @@ $customizerHidden = 'customizer-hide';
         <!-- Logo -->
         <div class="row mb-5 text-center">
           <a href="{{url('/')}}" class="text-center justify-content-center">
-            <img src="{{ asset('assets/img/branding/chelato-black.png') }}" alt="" class="navbar-logo justify-content-center">
+            <img src="{{ asset($companySettings->logo_black) }}" alt="" class="navbar-logo justify-content-center">
           </a>
         </div>
         <!-- /Logo -->
@@ -87,7 +87,7 @@ $customizerHidden = 'customizer-hide';
 
         @if($companySettings->allow_registration)
         <p class="text-center">
-          <span>¿Eres nuevo en Chelato?</span>
+          <span>¿Eres nuevo en {{$companySettings->name}}?</span>
           @if (Route::has('register'))
           <a href="{{ route('register') }}">
             <span>Crea una cuenta</span>
@@ -97,7 +97,7 @@ $customizerHidden = 'customizer-hide';
         @endif
 
         <div class="divider my-4">
-          <div class="divider-text">MVD Studio</div>
+          <div class="divider-text">Sumeria</div>
         </div>
 
         <!-- Social login buttons removed -->

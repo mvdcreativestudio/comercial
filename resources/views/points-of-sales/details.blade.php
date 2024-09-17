@@ -3,14 +3,15 @@
 @section('title', 'Detalles de la Caja Registradora')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+    'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.js', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.js'])
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
 @endsection
 @section('content')
-    <div class="container my-5">
+    <div class="container-fluid my-5">
     @hasrole('Administrador')
         <!-- Sección de tarjetas -->
         <div class="row mb-4">
@@ -24,7 +25,7 @@
                             </div>
                             <h4 class="ms-1 mb-0">{{ $details->count() }}</h4>
                         </div>
-                        <p class="mb-1 fw-medium me-1">Logs de cajas</p>
+                        <p class="mb-1 fw-medium me-1">Registros de caja</p>
                     </div>
                 </div>
             </div>
@@ -38,7 +39,7 @@
                             </div>
                             <h4 class="ms-1 mb-0">{{$openCount}}</h4>
                         </div>
-                        <p class="mb-1 fw-medium me-1">Logs de cajas abiertas</p>
+                        <p class="mb-1 fw-medium me-1">Registros de cajas abiertas</p>
                     </div>
                 </div>
             </div>
@@ -52,15 +53,28 @@
                                 </div>
                                 <h4 class="ms-1 mb-0">{{$closedCount}}</h4>
                             </div>
-                            <p class="mb-1 fw-medium me-1">Logs de cajas cerradas</p>
+                            <p class="mb-1 fw-medium me-1">Registros de cajas cerradas</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="bg-white p-4 shadow-sm rounded">
 
-            <h2 class="mb-4">Caja Registradora: {{ $cashRegister->id }}</h1>
-                <div class="d-flex">
+            <!-- Tarjeta de Información de la Caja Registradora -->
+            <div class="card mb-4">
+              <div class="card-body">
+                  <div class="d-flex align-items-center">
+                      <div class="avatar avatar-lg me-3">
+                          <span class="avatar-initial rounded-circle bg-label-info"><i class="bx bx-user"></i></span>
+                      </div>
+                      <div>
+                          <h4 class="mb-1">Caja Registradora ID: {{ $cashRegister->id }}</h4>
+                          <p class="mb-0 text-muted">Operada por: <strong>{{ $cashRegister->user->name }}</strong></p>
+                      </div>
+                  </div>
+              </div>
+            </div>
+              <div class="d-flex">
                     <p class="text-muted small">
                         <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches"
                             aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
@@ -180,20 +194,20 @@
                                 <tr>
                                     <td>{{ $detail->id }}</td>
                                     <td class="text-center">
-                                        <strong>{{ \Carbon\Carbon::parse($detail->open_time)->translatedFormat('d \d\e F Y') }}</strong>
+                                        <strong>{{ \Carbon\Carbon::parse($detail->open_time)->translatedFormat('d \d\e F Y') }}</strong><br>
                                         {{ \Carbon\Carbon::parse($detail->open_time)->format('h:i a') }}
                                     </td>
                                     <td class="text-center">
                                         @if($detail->close_time)
-                                            <strong>{{ \Carbon\Carbon::parse($detail->close_time)->translatedFormat('d \d\e F Y') }}</strong>
-                                            {{ \Carbon\Carbon::parse($detail->close_time)->format('h:i a') }}
+                                            <strong>{{ \Carbon\Carbon::parse($detail->close_time)->translatedFormat('d \d\e F Y') }}</strong><br>
+                                          {{ \Carbon\Carbon::parse($detail->close_time)->format('h:i a') }}
                                         @else
                                             No ha cerrado.
                                         @endif
                                     </td>
-                                    <td>{{ $detail->cash_sales }}</td>
-                                    <td>{{ $detail->pos_sales }}</td>
-                                    <td>{{ $detail->cash_float }}</td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format( $detail->cash_sales , 0, ',', '.') }}</td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format( $detail->pos_sales , 0, ',', '.') }}</td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format( $detail->cash_float , 0, ',', '.') }}</td>
                                     <td>
                                         @if (is_null($detail->close_time))
                                             <span class="badge bg-success">ABIERTA</span>
@@ -201,7 +215,7 @@
                                             <span class="badge bg-danger">CERRADA</span>
                                         @endif
                                     </td>
-                                    <td>{{ $detail->cash_sales + $detail->pos_sales }}</td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format($detail->cash_sales + $detail->pos_sales + $detail->cash_float, 0, ',', '.') }}</td>
                                     <td>
                                         <button class="btn btn-outline-primary btn-view-sales"
                                             data-id="{{ $detail->id }}">
@@ -225,7 +239,7 @@
 
         $(document).ready(function() {
             $('.btn-view-sales').click(function() {
-                var detailId = $(this).data('id'); 
+                var detailId = $(this).data('id');
                 window.location.href = baseUrl + 'admin/point-of-sale/details/sales/' +
                 detailId; // Construye la URL completa
             });

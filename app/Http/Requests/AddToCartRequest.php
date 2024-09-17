@@ -36,8 +36,8 @@ class AddToCartRequest extends FormRequest
         return [
             'productId.required' => 'El producto es obligatorio.',
             'productId.exists' => 'El producto seleccionado no existe.',
-            'flavors.array' => 'Los sabores deben ser una lista.',
-            'flavors.*.exists' => 'Algunos sabores seleccionados no existen.'
+            'flavors.array' => 'Los variaciones deben ser una lista.',
+            'flavors.*.exists' => 'Algunos variaciones seleccionados no existen.'
         ];
     }
 }

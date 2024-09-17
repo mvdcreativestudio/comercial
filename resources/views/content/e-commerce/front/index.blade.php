@@ -1,6 +1,6 @@
 @extends('content.e-commerce.front.layouts.ecommerce-layout')
 
-@section('title', 'Chelato')
+@section('title', 'Base')
 
 @section('content')
 
@@ -65,7 +65,7 @@
                       <span class="custom-option-body">
                         <i class="fa-solid fa-store"></i>
                         <span class="custom-option-title">{{$store->name}}</span>
-                        <small class="text-success">Tienda abierta</small>
+                        <small class="text-success">Empresa abierta</small>
                       </span>
                       <input name="slug" class="form-check-input" type="radio" value="{{ $store->slug }}" id="store{{ $store->id }}" {{ $loop->first ? 'checked' : '' }} />
                     </label>
@@ -78,7 +78,7 @@
                       <span class="custom-option-body">
                         <i class="fa-solid fa-store"></i>
                         <span class="custom-option-title">{{$store->name}}</span>
-                        <small class="text-danger">Tienda cerrada</small>
+                        <small class="text-danger">Empresa cerrada</small>
                       </span>
                     </label>
                   </div>
@@ -129,7 +129,7 @@
   <div class="container-fluid">
     <div class="row align-items-center">
       <div class="col-lg-6 col-md-12 text-center quienes-somos-container mb-3 mb-lg-0">
-        <h2>Locales</h2>
+        <h2>Empresas</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam tempor, orci eu lacinia rutrum, mauris metus malesuada neque, a maximus erat turpis quis dolor. In efficitur iaculis feugiat. Sed eget facilisis justo, vel auctor lacus. Donec in velit non orci facilisis aliquet at sed ante. Cras elementum ipsum metus, nec porta lectus porta sit amet. Nunc et tristique arcu, vel tempor neque. Proin placerat, lacus ut consequat vestibulum, lorem ex.</p>
       </div>
       <div class="col-lg-6 col-md-12 p-5 text-end homepage-img-container">

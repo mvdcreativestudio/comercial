@@ -32,7 +32,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Chelato /</span> Clientes
+  <span class="text-muted fw-light">Base /</span> Clientes
 </h4>
 
 @if(session('success'))
@@ -124,6 +124,8 @@
           <th class="col-2">Dirección</th>
           <th class="col-1">Ciudad</th>
           <th class="text-nowrap col-1">Departamento</th>
+          <th class="col-1">Tipo de Documento</th>
+          <th class="col-1">Documento</th>
         </tr>
       </thead>
     </table>

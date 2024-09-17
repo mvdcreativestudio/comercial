@@ -70,7 +70,7 @@ class CartRepository
   }
 
   /**
-   * Obtener los sabores del producto.
+   * Obtener los variaciones del producto.
    *
    * @param array $flavorIds
    * @return array

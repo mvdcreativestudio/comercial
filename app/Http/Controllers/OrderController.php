@@ -78,15 +78,35 @@ class OrderController extends Controller
    * @param  StoreOrderRequest  $request
    * @return RedirectResponse
   */
-  public function store(StoreOrderRequest $request): RedirectResponse
-  {
-      try {
-          $order = $this->orderRepository->store($request);
-          return redirect()->route('checkout.index')->with('success', 'Pedido realizado con éxito. ID de orden: ' . $order->id);
-      } catch (\Exception $e) {
-          return back()->withErrors('Error al procesar el pedido. Por favor, intente nuevamente.')->withInput();
-      }
-  }
+  public function store(StoreOrderRequest $request): JsonResponse
+    {
+        try {
+            $order = $this->orderRepository->store($request);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pedido realizado con éxito.',
+                    'order_id' => $order->id,
+                    'order_uuid' => $order->uuid
+                ]);
+            }
+
+            return redirect()->route('pdv.index')->with('success', 'Pedido realizado con éxito. ID de orden: ' . $order->id);
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al procesar el pedido. Por favor, intente nuevamente.',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            // Manejo de errores para solicitudes normales
+            return back()->withErrors('Error al procesar el pedido. Por favor, intente nuevamente.')->withInput();
+        }
+    }
+
 
   /**
    * Muestra un pedido específico.
@@ -96,6 +116,7 @@ class OrderController extends Controller
   */
   public function show(Order $order): View
   {
+      // Cargar las relaciones necesarias
       $order = $this->orderRepository->loadOrderRelations($order);
       $products = json_decode($order->products, true);
       $clientOrdersCount = $this->orderRepository->getClientOrdersCount($order->client_id);
@@ -174,10 +195,10 @@ class OrderController extends Controller
      * @param int $orderId
      * @return RedirectResponse
     */
-    public function emitirCFE(Request $request, int $orderId): RedirectResponse
+    public function emitCFE(Request $request, int $orderId): RedirectResponse
     {
       try {
-          $this->orderRepository->emitirCFE($orderId, $request->input('monto_factura'));
+          $this->orderRepository->emitCFE($orderId, $request);
           return redirect()->back()->with('success', 'Factura emitida correctamente.');
       } catch (\Exception $e) {
           Log::error("Error al emitir CFE para la orden {$orderId}: {$e->getMessage()}");

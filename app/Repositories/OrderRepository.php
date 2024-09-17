@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Client;
 use App\Models\OrderStatusChange;
+use App\Models\CashRegisterLog;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Repositories\AccountingRepository;
 use Exception;
+use Illuminate\Http\Request;
 
 class OrderRepository
 {
@@ -71,7 +73,7 @@ class OrderRepository
   public function store($request)
   {
     $clientData = $this->extractClientData($request->validated());
-    $orderData = $this->prepareOrderData($request->payment_method);
+    $orderData = $this->prepareOrderData($request->payment_method, $request);
 
     DB::beginTransaction();
 
@@ -82,14 +84,22 @@ class OrderRepository
 
         $order->save();
 
-        $products = json_decode($orderData['products'], true);
+        $products = json_decode($request['products'], true);
         $order->products = $products;
 
         $order->save();
-
         DB::commit();
 
         session()->forget('cart');
+
+        $store = $order->store;
+
+        if ($store->automatic_billing) {
+            $this->accountingRepository->emitCFE($order);
+            $order->update(['is_billed' => true]);
+        } else {
+            $order->update(['is_billed' => false]);
+        }
 
         return $order;
     } catch (\Exception $e) {
@@ -124,7 +134,7 @@ class OrderRepository
    * @param string $paymentMethod
    * @return array
   */
-  private function prepareOrderData(string $paymentMethod): array
+  private function prepareOrderData(string $paymentMethod, $request): array
   {
     $subtotal = array_reduce(session('cart', []), function ($carry, $item) {
         return $carry + ($item['price'] ?? $item['old_price']) * $item['quantity'];
@@ -133,16 +143,22 @@ class OrderRepository
     return [
         'date' => now(),
         'time' => now()->format('H:i:s'),
-        'origin' => 'ecommerce',
+        'origin' => 'physical',
         'store_id' => 1,
         'subtotal' => $subtotal,
         'tax' => 0,
         'shipping' => session('costoEnvio', 0),
-        'total' => $subtotal + session('costoEnvio', 0),
-        'payment_status' => 'pending',
-        'shipping_status' => 'pending',
+        'discount' => $request->discount,
+        'coupon_id' => $request->coupon_id,
+        'coupon_amount' => $request->coupon_amount,
+        'total' => $subtotal + session('costoEnvio', 0) - $request->discount,
+        'payment_status' => 'paid',
+        'shipping_status' => 'delivered',
         'payment_method' => $paymentMethod,
         'shipping_method' => 'peya',
+        'doc_type' => $request->doc_type,
+        'document' => $request->document,
+        'cash_register_log_id' => $request->cash_register_log_id,
     ];
   }
 
@@ -152,10 +168,18 @@ class OrderRepository
    * @param Order $order
    * @return Order
   */
-  public function loadOrderRelations(Order $order): Order
+  public function loadOrderRelations(Order $order)
   {
-    return $order->load(['client', 'statusChanges.user']);
+      // Cargar las relaciones necesarias
+      return $order->load([
+          'client',
+          'statusChanges.user',
+          'store',
+          'coupon',
+          'cashRegisterLog.cashRegister.user'
+      ]);
   }
+
 
   /**
    * Elimina un pedido específico.
@@ -202,16 +226,12 @@ class OrderRepository
                 DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name")
               ])
             ->join('clients', 'orders.client_id', '=', 'clients.id')
-            ->join('stores', 'orders.store_id', '=', 'stores.id')
-            ->orderBy('orders.date', 'desc');
-
+            ->join('stores', 'orders.store_id', '=', 'stores.id');
 
     // Verificar permisos del usuario
     if (!Auth::user()->can('view_all_ecommerce')) {
-        $query->where('orders.store_id', Auth::user()->store_id);
+        $query->where('orders.store_id', Auth::user()->store_id)->orderBy('orders.created_at', 'desc');
     }
-
-    // Ordenar por fecha descendente
 
     $dataTable = DataTables::of($query)->make(true);
 
@@ -328,21 +348,23 @@ class OrderRepository
      * Emite un CFE para una orden.
      *
      * @param int $orderId
-     * @param float|null $montoFactura
+     * @param Request $request
      * @return void
      * @throws Exception
     */
-    public function emitirCFE(int $orderId, ?float $montoFactura = null): void
+    public function emitCFE(int $orderId, Request $request): void
     {
       $order = Order::findOrFail($orderId);
 
-      $montoAFacturar = $montoFactura ?? $order->total;
+      $amountToBill = $request->amountToBill ?? $order->total;
 
-      if ($montoAFacturar > $order->total) {
+      if ($amountToBill > $order->total) {
         throw new Exception('El monto a facturar no puede ser mayor que el total de la orden.');
       }
 
-      $this->accountingRepository->emitirCFE($order, 'eTicket', $montoAFacturar);
+      $payType = $request->payType ?? 1;
+
+      $this->accountingRepository->emitCFE($order, $amountToBill, $payType);
 
       $order->update(['is_billed' => true]);
     }

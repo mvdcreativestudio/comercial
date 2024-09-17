@@ -24,22 +24,23 @@ $(function () {
           }
         },
         columns: [
-          { data: 'id', type: 'num' }, // Especifica que esta columna es numérica
+          { data: 'id', type: 'num' },
           { data: 'date' },
           { data: 'client_name' },
           { data: 'store_name' },
           { data: 'total' },
           { data: 'payment_status' },
-          { data: 'shipping_status' },
           { data: 'is_billed' },
           { data: '' }
         ],
+        order: [[1, 'desc']],
         columnDefs: [
           {
-            targets: 0,
+            targets: 0, // Enlazar el ID del pedido
+            orderable: false,
             render: function (data, type, full, meta) {
               var uuid = full['uuid'];
-              return '<a href="' + baseUrl + 'admin/orders/' + uuid + '/show" class="text-body">' + '#' + data + '</a>';
+              return '<a class="text-muted" href="' + baseUrl + 'admin/orders/' + uuid + '/show">#' + data + '</a>';
             }
           },
           {
@@ -98,15 +99,7 @@ $(function () {
             }
           },
           {
-            targets: 6,
-            render: function (data, type, full, meta) {
-              let badgeClass = data === 'pending' ? 'bg-warning' : data === 'shipped' ? 'bg-info' : 'bg-success';
-              let text = data === 'pending' ? 'PENDIENTE' : data === 'shipped' ? 'ENVIADO' : 'ENTREGADO';
-              return '<span class="badge pill ' + badgeClass + '">' + text + '</span>';
-            }
-          },
-          {
-            targets: 7, // Columna para mostrar si ha sido facturado
+            targets: 6, // Columna para mostrar si ha sido facturado
             render: function (data, type, full, meta) {
               console.log(full);
               return data
