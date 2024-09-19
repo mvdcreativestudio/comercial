@@ -3,9 +3,9 @@ services:
     ####################################################################################################
     # PHP
     ####################################################################################################
-    php_anjosapp:
+    php_conectar:
         build: .docker/php
-        container_name: php_anjosapp
+        container_name: php_conectar
         restart: unless-stopped
         tty: true
         ports:
@@ -19,9 +19,9 @@ services:
     ####################################################################################################
     # Nginx
     ####################################################################################################
-    nginx_anjosapp:
+    nginx_conectar:
         image: nginx
-        container_name: nginx_anjosapp
+        container_name: nginx_conectar
         restart: unless-stopped
         tty: true
         ports:
@@ -31,15 +31,15 @@ services:
             - .docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
             - .docker/nginx/nginx.conf:/etc/nginx/nginx.conf
         depends_on:
-            - php_anjosapp
+            - php_conectar
         networks:
             - mysql_net
     # ####################################################################################################
     # # DATABASE (MySQL)
     # ####################################################################################################
-    # mysql_anjosapp:
+    # mysql_conectar:
     #     image: mysql/mysql-server:8.0
-    #     container_name: mysql_db_anjosapp
+    #     container_name: mysql_db_conectar
     #     restart: unless-stopped
     #     tty: true
     #     ports:
@@ -60,17 +60,17 @@ services:
     # ####################################################################################################
     # # phpMyAdmin
     # ####################################################################################################
-    # phpmyadmin_anjosapp:
+    # phpmyadmin_conectar:
     #     image: phpmyadmin/phpmyadmin
-    #     container_name: phpmyadmin_db_anjosapp
+    #     container_name: phpmyadmin_db_conectar
     #     restart: unless-stopped
     #     tty: true
     #     ports:
     #         - 8080:80
     #     links:
-    #         - mysql_anjosapp
+    #         - mysql_conectar
     #     environment:
-    #         PMA_HOST: mysql_anjosapp
+    #         PMA_HOST: mysql_conectar
     #         PMA_PORT: 3306
     #         PMA_ARBITRARY: 1
     #     volumes:
@@ -81,9 +81,9 @@ services:
     ####################################################################################################
     # Mailpit
     ####################################################################################################
-    mail_anjosapp:
+    mail_conectar:
         image: axllent/mailpit:latest
-        container_name: mail_anjosapp
+        container_name: mail_conectar
         restart: unless-stopped
         tty: true
         ports:
