@@ -16,10 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CheckoutStoreOrderRequest;
 use Illuminate\Http\RedirectResponse;
 use App\Events\OrderCreatedEvent;
-use Illuminate\Support\Facades\Http;
-use App\Models\PymoSetting;
 use Exception;
-use App\Models\Receipt;
 
 class CheckoutRepository
 {

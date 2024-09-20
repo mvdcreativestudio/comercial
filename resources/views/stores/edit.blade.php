@@ -103,6 +103,127 @@
                     </div>
 
 
+                    <div class="mb-3">
+                      <div class="form-check form-switch">
+                        <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
+                        <input type="hidden" name="invoices_enabled" value="0">
+                        <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch" name="invoices_enabled" value="1" {{ $store->invoices_enabled ? 'checked' : '' }}>
+                        <label class="form-check-label" for="invoicesEnabledSwitch">Habilitar Facturación</label>
+                      </div>
+                    </div>
+
+                    @if($store->pymo_user && $store->pymo_password && $store->pymo_branch_office && !empty($companyInfo))
+                      <div class="mb-3">
+                        <div class="form-check form-switch">
+                          <input type="hidden" name="automatic_billing" value="0">
+                          <input class="form-check-input" type="checkbox" id="automaticBillingSwitch" name="automatic_billing" value="1" {{ $store->automatic_billing ? 'checked' : '' }}>
+                          <label class="form-check-label" for="automaticBillingSwitch">Habilitar Facturación Automática</label>
+                        </div>
+                      </div>
+                    @endif
+
+                    <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
+                    <div id="pymoFields" style="display: {{ $store->invoices_enabled ? 'block' : 'none' }};">
+                      <div class="mb-3">
+                        <label class="form-label" for="pymoUser">Usuario PyMo</label>
+                        <input type="text" class="form-control" id="pymoUser" name="pymo_user" placeholder="Usuario PyMo" value="{{ $store->pymo_user }}">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" for="pymoPassword">Contraseña PyMo</label>
+                        <input type="password" class="form-control" id="pymoPassword" name="pymo_password" placeholder="Contraseña PyMo" value="{{ $store->pymo_password }}">
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
+                        <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office" placeholder="Sucursal PyMo" value="{{ $store->pymo_branch_office }}">
+                      </div>
+                    </div>
+
+                    @if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password && !empty($companyInfo))
+                      <div class="col-12 mt-4">
+                          <div class="card">
+                              <div class="card-header">
+                                  <h4 class="card-title">Logo de la empresa en Pymo</h4>
+                              </div>
+                              <div class="card-body">
+                                  @if($logoUrl)
+                                      <div class="mb-3">
+                                          <img src="{{ asset($logoUrl) }}" alt="Company Logo" class="img-thumbnail" style="max-width: 200px;">
+                                      </div>
+                                  @endif
+                                  <form action="{{ route('accounting.uploadLogo') }}" method="POST" enctype="multipart/form-data">
+                                      @csrf
+                                      <div class="form-group">
+                                          <input type="file" class="form-control-file" id="logo" name="logo">
+                                      </div>
+                                      <button type="submit" class="btn btn-primary mt-3">Actualizar Logo</button>
+                                  </form>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div class="col-12 mt-4">
+                          <div class="card">
+                              <div class="card-header">
+                                  <h4 class="card-title">Información de la empresa en Pymo</h4>
+                              </div>
+                              <div class="card-body">
+                                <form>
+                                  @if(!empty($companyInfo['name']))
+                                      <div class="form-group">
+                                          <label for="companyName">Nombre de la Empresa</label>
+                                          <input type="text" class="form-control my-3" id="companyName" value="{{ $companyInfo['name'] }}" disabled>
+                                      </div>
+                                  @endif
+
+                                  @if(!empty($companyInfo['rut']))
+                                      <div class="form-group">
+                                          <label for="companyRUT">RUT</label>
+                                          <input type="text" class="form-control my-3" id="companyRUT" value="{{ $companyInfo['rut'] }}" disabled>
+                                      </div>
+                                  @endif
+
+                                  @if(!empty($companyInfo['socialPurpose']))
+                                      <div class="form-group">
+                                          <label for="socialPurpose">Propósito Social</label>
+                                          <input type="text" class="form-control my-3" id="socialPurpose" value="{{ $companyInfo['socialPurpose'] }}" disabled>
+                                      </div>
+                                  @endif
+
+                                  @if(!empty($companyInfo['resolutionNumber']))
+                                      <div class="form-group">
+                                          <label for="resolutionNumber">Número de Resolución</label>
+                                          <input type="text" class="form-control my-3" id="resolutionNumber" value="{{ $companyInfo['resolutionNumber'] }}" disabled>
+                                      </div>
+                                  @endif
+
+                                  @if(!empty($companyInfo['email']))
+                                      <div class="form-group">
+                                          <label for="companyEmail">Correo Electrónico</label>
+                                          <input type="email" class="form-control my-3" id="companyEmail" value="{{ $companyInfo['email'] }}" disabled>
+                                      </div>
+                                  @endif
+
+                                  @if(!empty($companyInfo['createdAt']))
+                                      <div class="form-group">
+                                          <label for="createdAt">Fecha de Creación</label>
+                                          <input type="text" class="form-control my-3" id="createdAt" value="{{ $companyInfo['createdAt'] }}" disabled>
+                                      </div>
+                                  @endif
+
+                                  @if(!empty($companyInfo['updatedAt']))
+                                      <div class="form-group">
+                                          <label for="updatedAt">Fecha de Actualización</label>
+                                          <input type="text" class="form-control my-3" id="updatedAt" value="{{ $companyInfo['updatedAt'] }}" disabled>
+                                      </div>
+                                  @endif
+                                </form>
+                              </div>
+                          </div>
+                      </div>
+                  @endif
+
                     @if ($errors->any())
                       @foreach ($errors->all() as $error)
                         <div class="alert alert-danger">
