@@ -18,6 +18,12 @@
 
 
 @section('page-script')
+
+@vite([
+  'resources/assets/js/datacenter-sales.js',
+  'resources/assets/js/datacenter/expenses/expenses-datacenter-sales.js',
+])
+
 @vite('resources/assets/js/app-datacenter-totalIncomeChart.js')
 @vite('resources/assets/js/app-datacenter-salesByStoreChart.js')
 @vite('resources/assets/js/app-datacenter-paymentMethodsChart.js')
@@ -159,12 +165,13 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                 </span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
+
+
 
   <!-- Card Border Shadow -->
   <div class="col-sm-6 col-lg-3 mb-4">
@@ -244,6 +251,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
     </div>
   </div>
 
+  <!-- Card Sales -->
+  @include('datacenter.sections.expenses.expense-card-sales')
+  <!--/ Card Sales -->
 
   <!-- Total Income -->
   <div class="col-12 mb-4">
@@ -345,6 +355,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-categories" aria-controls="navs-pills-categories" aria-selected="false">Categorías</button>
+                </li>
+                <li class="nav-item">
+                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-expenses-suppliers" aria-controls="navs-pills-expenses" aria-selected="false">Gastos</button>
                 </li>
             </ul>
         </div>
@@ -488,6 +501,8 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                     </table>
                 </div>
             </div>
+            <!-- Tab Gastos -->
+            @include('datacenter.sections.expenses.expense-table-sales')
         </div>
     </div>
   </div> --}}

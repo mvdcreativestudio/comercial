@@ -67,7 +67,10 @@ class DatacenterController extends Controller
         }
         $averageOrdersByHour = $this->datacenterRepo->getAverageOrdersByHour($startDate, $endDate, $storeIdForChart);
 
-
+        // Datos para las cards de gastos
+        $expenses = $this->datacenterRepo->getExpensesData($startDate, $endDate, $storeId);
+        $averageMonthlyExpenses = $this->datacenterRepo->averageMonthlyExpenses($storeId);
+        $suppliersExpensesData = $this->datacenterRepo->getSuppliersExpensesData($startDate, $endDate, $storeId);
 
         return view('datacenter.datacenter-sales', compact(
             'storesCount',
@@ -90,7 +93,10 @@ class DatacenterController extends Controller
             'endDate',
             'storeIdForView', // Este es para la vista
             'stores', // Pasamos los locales a la vista para el filtro
-            'averageOrdersByHour' // Pasamos los datos de la gráfica a la vista
+            'averageOrdersByHour', // Pasamos los datos de la gráfica a la vista
+            'expenses', // Pasamos los datos de los gastos a la vista
+            'averageMonthlyExpenses', // Pasamos el promedio de gastos mensuales a la vista
+            'suppliersExpensesData' // Pasamos los datos de los proveedores a la vista
         ));
     }
 
@@ -164,7 +170,13 @@ class DatacenterController extends Controller
     }
 
 
-
-
+    // grafica de lineas - Gastos Mensuales
+    public function monthlyExpenses(Request $request)
+    {
+        $currentYear = date('Y');
+        $storeId = $request->input('store_id');
+        $monthlyExpenses = $this->datacenterRepo->getMonthlyExpensesData($storeId);
+        return response()->json($monthlyExpenses);
+    }
 
 }

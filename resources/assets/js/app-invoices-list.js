@@ -149,33 +149,48 @@ $(function () {
               var hideEmitirNota =
                 full['type'].includes('Nota de Crédito') || full['type'].includes('Nota de Débito') ? 'd-none' : '';
 
-              return (
-                '<div class="d-flex justify-content-center align-items-center">' +
-                '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>' +
-                '<div class="dropdown-menu dropdown-menu-end m-0">' +
-                '<a href="' +
-                full['qrUrl'] +
-                '" target="_blank" class="dropdown-item">Ver QR</a>' +
-                '<a href="' +
-                baseUrl +
-                'admin/orders/' +
-                full['order_uuid'] +
-                '" class="dropdown-item">Ver Orden</a>' +
-                '<a href="#" class="dropdown-item btn-ver-detalles" data-id="' +
-                full['id'] +
-                '">Ver Detalles</a>' +
-                '<a href="' +
-                baseUrl +
-                'admin/invoices/download/' + full['id'] +
-                '" class="dropdown-item">Descargar PDF</a>' +
-                '<a href="#" class="dropdown-item btn-emitir-nota ' +
-                hideEmitirNota +
-                '" data-id="' +
-                full['id'] +
-                '">Emitir Nota</a>' +
-                '</div>' +
-                '</div>'
-              );
+              var hideEmitirRecibo = full['is_receipt'] ? 'd-none' : '';
+
+              // Ahora si el invoice tiene hide_emit se oculta el botón de emitir nota
+              var hideEmit = full['hide_emit'] ? 'd-none' : '';
+
+                return (
+                  '<div class="d-flex justify-content-center align-items-center">' +
+                  '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>' +
+                  '<div class="dropdown-menu dropdown-menu-end m-0">' +
+                  '<a href="' +
+                  full['qrUrl'] +
+                  '" target="_blank" class="dropdown-item">Ver QR</a>' +
+                  '<a href="' +
+                  baseUrl +
+                  'admin/orders/' +
+                  full['order_uuid'] +
+                  '" class="dropdown-item">Ver Orden</a>' +
+                  '<a href="#" class="dropdown-item btn-ver-detalles" data-id="' +
+                  full['id'] +
+                  '">Ver Detalles</a>' +
+                  '<a href="' +
+                  baseUrl +
+                  'admin/invoices/download/' +
+                  full['id'] +
+                  '" class="dropdown-item">Descargar PDF</a>' +
+                  '<a href="#" class="dropdown-item btn-emitir-nota ' +
+                  hideEmitirNota +
+                  hideEmitirRecibo +
+                  hideEmit +
+                  '" data-id="' +
+                  full['id'] +
+                  '">Emitir Nota</a>' +
+                  '<a href="#" class="dropdown-item btn-emitir-recibo ' +
+                  hideEmitirNota +
+                  hideEmitirRecibo +
+                  hideEmit +
+                  '" data-id="' +
+                  full['id'] +
+                  '">Emitir Recibo</a>' +
+                  '</div>' +
+                  '</div>'
+                );
             }
           }
         ],
@@ -206,7 +221,7 @@ $(function () {
           renderer: 'bootstrap'
         },
         rowCallback: function (row, data, index) {
-          if (data['type'].includes('Nota de Crédito') || data['type'].includes('Nota de Débito')) {
+          if ((data['type'].includes('Nota de Crédito') || data['type'].includes('Nota de Débito')) || data['is_receipt']) {
             $('td', row).eq(5).css('background-color', '#F5F5F9').css('color', '#566A7F');
           }
         }
@@ -243,6 +258,12 @@ $(function () {
       $('.toggle-column').on('change', function () {
         var column = dt_invoices.column($(this).attr('data-column'));
         column.visible(!column.visible());
+      });
+
+      $('.datatables-invoice tbody').on('click', '.btn-emitir-recibo', function () {
+        var invoiceId = $(this).data('id');
+        $('#emitirReciboForm').attr('action', baseUrl + 'admin/invoices/' + invoiceId + '/emit-receipt');
+        $('#emitirReciboModal').modal('show');
       });
 
       // Estilos buscador y paginación

@@ -582,6 +582,12 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
     const total = parseInt($('.total').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
     const subtotal = parseInt($('.subtotal').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
 
+    // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
+    if (total > 600 && (!client || !client.id)) {
+      mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
+      return;
+  }
+
     if (paymentMethod === 'cash') {
         cashSales = total;
     } else {
@@ -612,7 +618,7 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
         pos_sales: posSales,
         discount: discount,
         client_id: client && client.id ? client.id : null,
-        client_type: client && client.type ? client.type : 'individual',
+        client_type: client && client.type ? client.type : 'no-client',
         products: JSON.stringify(cart),
         subtotal: subtotal,
         total: total - discount, //

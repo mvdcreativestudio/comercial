@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\EmitNoteRequest;
 use Illuminate\Support\Facades\Log;
+use App\Models\CFE;
 
 class AccountingController extends Controller
 {
@@ -48,7 +49,7 @@ class AccountingController extends Controller
     */
     public function entries(): View
     {
-        return view('content.accounting.entries');
+        return view('content.accounting.entries.index');
     }
 
     /**
@@ -58,7 +59,7 @@ class AccountingController extends Controller
     */
     public function entrie(): View
     {
-        return view('content.accounting.entrie');
+        return view('content.accounting.entries.entry-details.index');
     }
 
     /**
@@ -162,6 +163,83 @@ class AccountingController extends Controller
         try {
             return $this->accountingRepository->getCfePdf($cfeId);
         } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Muestra la vista de CFEs recibidos.
+     *
+     * @return View
+    */
+    public function receivedCfes(): View
+    {
+        // Obtener el RUT de la tienda autenticada o de otra fuente
+        $store = auth()->user()->store;
+        $rut = $store->rut;
+
+        if (!$rut) {
+            return redirect()->back()->with('error', 'No se pudo obtener el RUT de la tienda.');
+        }
+
+        try {
+            // Obtener las cookies para la autenticación
+            $cookies = $this->accountingRepository->login();
+
+            if (!$cookies) {
+                return redirect()->back()->with('error', 'Error al iniciar sesión en el servicio PyMo.');
+            }
+
+            // Obtener los recibos desde el endpoint
+            $receivedCfes = $this->accountingRepository->fetchReceivedCfes($rut, $cookies);
+
+            if (!$receivedCfes) {
+                return view('content.accounting.received_cfes', ['cfes' => []]);
+            }
+
+            // Guardar o actualizar los recibos en la base de datos
+            foreach ($receivedCfes as $receivedCfe) {
+                CFE::updateOrCreate(
+                    [
+                        'type' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['TipoCFE'],
+                        'serie' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['Serie'],
+                        'nro' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['Nro']
+                    ],
+                    [
+                        'emitionDate' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['FchEmis'],
+                        'total' => $receivedCfe['CFE']['eFact']['Encabezado']['Totales']['MntTotal'],
+                        'received' => true,
+                    ]
+                );
+            }
+
+            // Obtener los CFEs actualizados de la base de datos para mostrar en la vista
+            $cfes = CFE::where('recibido', true)->get();
+
+            return view('content.accounting.received_cfes', compact('cfes'));
+
+        } catch (\Exception $e) {
+            Log::error('Error al obtener los recibos recibidos: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al obtener los recibos recibidos.');
+        }
+    }
+
+
+    /**
+     * Maneja la emisión de un recibo sobre una factura o eTicket existente.
+     *
+     * @param int $invoiceId
+     * @return RedirectResponse
+    */
+    public function emitReceipt(int $invoiceId): RedirectResponse
+    {
+        try {
+            $this->accountingRepository->emitReceipt($invoiceId);
+            Log::info("Recibo emitido correctamente para la factura {$invoiceId}");
+            return redirect()->back()->with('success', 'Recibo emitido correctamente.');
+        } catch (\Exception $e) {
+            Log::error("Error al emitir recibo para la factura {$invoiceId}: {$e->getMessage()}");
             return redirect()->back()->with('error', $e->getMessage());
         }
     }

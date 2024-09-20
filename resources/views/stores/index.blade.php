@@ -213,7 +213,6 @@
           <th>Dirección</th>
           <th>RUT</th>
           <th>Estado</th>
-          <th>F. Automática</th>
           <th>Miembros</th>
           <th>Acciones</th>
         </tr>
