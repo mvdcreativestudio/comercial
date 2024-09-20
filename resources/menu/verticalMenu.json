@@ -164,6 +164,13 @@
           "icon": "menu-icon tf-icons bx bx-cog",
           "slug": "accounting-settings",
           "url": "/admin/accounting/settings"
+        },
+        {
+          "id": "tour-gastos",
+          "name": "Gastos",
+          "icon": "menu-icon tf-icons bx bx-dollar",
+          "slug": "expenses",
+          "url": "/admin/expenses"
         }
       ]
     },

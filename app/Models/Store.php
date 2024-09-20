@@ -28,6 +28,7 @@ class Store extends Model
         'pymo_user',
         'pymo_password',
         'pymo_branch_office',
+        'peya_envios_key',
     ];
 
     /**

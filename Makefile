@@ -33,6 +33,12 @@ dev_vite:
 dev_migrate:
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate
 
+dev_rollback:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate:rollback
+
+dev_permisos:
+	docker compose -f docker-compose.prod.yml exec $(APP_NAME) php artisan create:modules-permissions
+
 dev_clear:
 	docker compose -f docker-compose.dev.yml down
 
@@ -60,6 +66,9 @@ prod_clear:
 
 prod_migrate:
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) php artisan migrate
+
+prod_permisos:
+	docker compose -f docker-compose.prod.yml exec $(APP_NAME) php artisan create:modules-permissions
 
 prod_vite:
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) npm run build

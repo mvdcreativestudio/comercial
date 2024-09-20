@@ -109,9 +109,13 @@ class CheckoutRepository
         try {
             DB::beginTransaction();
 
+            // Obtener el ID de la tienda desde la sesión
             $storeId = session('store.id');
+
+            // Obtener los datos del cliente
             $clientData = $this->getClientData($request);
 
+            // Obtener los datos de la orden
             $orderData = $this->getOrderData($request);
 
             $order = $this->createOrder($clientData, $orderData);
@@ -125,7 +129,19 @@ class CheckoutRepository
                 $order->update(['is_billed' => false]);
             }
 
+            // Verificar si el método de pago es 'card' (tarjeta)
             if ($request->payment_method === 'card') {
+                // Obtener las credenciales de MercadoPago para la tienda
+                $mercadoPagoAccount = MercadoPagoAccount::where('store_id', $storeId)->first();
+
+                if (!$mercadoPagoAccount) {
+                    throw new \Exception('No se encontraron las credenciales de MercadoPago para la tienda asociada al pedido.');
+                }
+
+                // Configurar el SDK de MercadoPago con las credenciales de la tienda
+                $mercadoPagoService->setCredentials($mercadoPagoAccount->public_key, $mercadoPagoAccount->access_token);
+
+                // Procesar el pago con tarjeta
                 $redirectUrl = $this->processCardPayment($request, $order, $mercadoPagoService, $storeId);
                 DB::commit();
                 session()->forget('cart');
@@ -176,6 +192,7 @@ class CheckoutRepository
             return back()->withErrors('Error al procesar el pedido. Por favor, intente nuevamente.')->withInput();
         }
     }
+
 
 
 

@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('stores:check-hours')->everyMinute();
         $schedule->command('fetch:currencies-rates')->daily();
+        $schedule->command('expenses:update-status')->dailyAt('06:00');
     }
 
     /**

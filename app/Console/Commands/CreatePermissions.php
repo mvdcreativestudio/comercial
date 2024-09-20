@@ -71,10 +71,10 @@ class CreatePermissions extends Command
                         'invoices',
                         'receipts',
                         'entries',
-                        'received-documents',
-                        'accounting-settings'
+                        'accounting-settings',
+                        'expenses',
                     ],
-                    'view_all' => true,
+                    'view_all' => false,
                 ],
                 [
                     'slug' => 'clients',
@@ -114,7 +114,7 @@ class CreatePermissions extends Command
                     'module' => 'marketing',
                     'submenus' => [
                         'coupons',
-                        'settings'
+                        'settings',
                     ],
                     'view_all' => false,
                 ],
@@ -123,7 +123,7 @@ class CreatePermissions extends Command
                     'module' => 'marketing',
                     'submenus' => [
                         'chats',
-                        'settings'
+                        'settings',
                     ],
                     'view_all' => false,
                 ],
@@ -188,6 +188,32 @@ class CreatePermissions extends Command
                     'view_all' => true,
                 ],
                 [
+                    'slug' => 'expenses',
+                    'module' => 'expenses',
+                    'view_all' => true,
+                    "submenus" => [
+                        "delete_expenses",
+                    ],
+                ],
+                [
+                    'slug' => 'entries',
+                    'module' => 'entries',
+                    'view_all' => true,
+                    'submenus' => [
+                        'entry-details',
+                        'delete_entries',
+                        // 'entry-types',
+                        // 'entry-accounts',
+                        // 'entry-currencies',
+                        // 'entry-settings',
+                    ],
+                ],
+                [
+                    'slug' => 'entry-details',
+                    'module' => 'accounting',
+                    'view_all' => false,
+                ],
+                [
                     'slug' => 'composite-products',
                     'module' => 'ecommerce',
                     'view_all' => true,
@@ -211,7 +237,7 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'current-accounts-clients-sales',
                         'current-accounts-clients-payments',
-                        'current-accounts-clients-settings'
+                        'current-accounts-clients-settings',
                     ],
                 ],
                 [
@@ -229,7 +255,7 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'current-accounts-suppliers-purchases',
                         'current-accounts-suppliers-payments',
-                        'current-accounts-suppliers-settings'
+                        'current-accounts-suppliers-settings',
                     ],
                 ],
                 [
@@ -255,8 +281,8 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'delete_current-accounts-suppliers-payments',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // Asegurar que el rol de superadmin existe
@@ -282,7 +308,7 @@ class CreatePermissions extends Command
     {
         // Crear o buscar el permiso base y asignar el módulo
         $permissionName = 'access_' . $slug;
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::updateOrCreate(
             ['name' => $permissionName],
             ['module' => $module]
         );
