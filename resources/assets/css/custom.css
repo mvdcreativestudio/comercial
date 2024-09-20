@@ -666,3 +666,18 @@ tr.odd {
   border: solid 1px #18181859;
   border-radius: 3px;
 }
+
+.check-circle-integrations {
+  background-color: #28a745; /* Fondo verde */
+  border-radius: 50%; /* Hace que el contenedor sea un círculo */
+  width: 36px; /* Ajusta el tamaño del círculo */
+  height: 36px; /* Ajusta el tamaño del círculo */
+  display: flex; /* Centra el ícono dentro del círculo */
+  justify-content: center; /* Centra el ícono horizontalmente */
+  align-items: center; /* Centra el ícono verticalmente */
+}
+
+.check-circle-integrations i {
+  font-size: 24px; /* Ajusta el tamaño del ícono */
+  color: #fff; /* Color blanco para el ícono */
+}

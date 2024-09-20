@@ -38,6 +38,8 @@ Route::post('/mpagohook', [MercadoPagoController::class, 'webhooks'])->name('mpa
 // Pedidos Ya
 Route::post('/pedidos-ya/estimate-order', [PedidosYaController::class, 'estimateOrder'])->name('api.pedidos-ya.estimate-order');
 Route::post('/pedidos-ya/confirm-order', [PedidosYaController::class, 'confirmOrder'])->name('api.pedidos-ya.confirm-order');
+Route::get('/get-pedidosya-key/{store_id}', [PedidosYaController::class, 'getApiKey']);
+
 
 // Scanntech
 Route::get('/scanntech/scanntech_responses', [ScanntechController::class, 'getScanntechResponses']);
