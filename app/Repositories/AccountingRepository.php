@@ -461,7 +461,7 @@ class AccountingRepository
         // Preparar los datos del CFE
         $cfeData = [
           'clientEmissionId' => $order->uuid,
-          'adenda' => 'Orden ' . $order->id . ' - Anjos.',
+          'adenda' => 'Orden ' . $order->id . ' - Sumeria.',
           'IdDoc' => [
               'MntBruto' => 1, // Indica que los montos enviados incluyen IVA
               'FmaPago' => $payType, // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
