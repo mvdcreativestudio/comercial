@@ -2,12 +2,16 @@
 
 namespace App\Repositories;
 
-use App\Models\Store;
+use App\Enums\Expense\ExpenseStatusEnum;
 use App\Models\Client;
+use App\Models\Coupon;
+use App\Models\Expense;
+use App\Models\ExpensePaymentMethod;
+use App\Models\Order;
+use App\Models\PosOrder;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\Order;
-use App\Models\Coupon;
+use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +19,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
-use App\Models\PosOrder;
-
 
 
 class DatacenterRepository
@@ -161,10 +163,9 @@ class DatacenterRepository
             'delivered' => (clone $orderQuery)->where('shipping_status', 'delivered')->count() + $posOrderQuery->count(),
             'shipped' => (clone $orderQuery)->where('shipping_status', 'shipped')->count(),
             'pending' => (clone $orderQuery)->where('shipping_status', 'pending')->count(),
-            'cancelled' => (clone $orderQuery)->where('shipping_status', 'cancelled')->count()
-            ];
+            'cancelled' => (clone $orderQuery)->where('shipping_status', 'cancelled')->count(),
+        ];
     }
-
 
     /**
      * Calcular los ingresos de E-Commerce con filtro de fecha y local.
@@ -219,7 +220,6 @@ class DatacenterRepository
         return number_format($totalPaid, 0, ',', '.');
     }
 
-
     /**
      * Calcular los ingresos totales con filtro de fecha y local.
      *
@@ -249,7 +249,6 @@ class DatacenterRepository
 
         return number_format($totalPaid, 0, ',', '.');
     }
-
 
     /**
      * Calcular la media mensual de ventas históricas.
@@ -297,9 +296,6 @@ class DatacenterRepository
 
         return number_format($averageMonthlySales, 0, ',', '.');
     }
-
-
-
 
     /**
      * Calcular el ticket medio con filtro de fecha y local.
@@ -376,6 +372,7 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
             break;
     }
 
+
     // Consulta de pedidos del módulo de e-commerce
     $orderQuery = Order::select(
         DB::raw('SUM(total) as total'),
@@ -412,9 +409,17 @@ public function getIncomeData(string $startDate, string $endDate, int $storeId =
 
     // Agregar cualquier campo faltante al resultado final
     $filledResults = $this->fillMissingData($combinedResults, $startDate, $endDate, $selectFields);
+        $combinedQuery = DB::table(DB::raw("({$orderQuerySql} UNION ALL {$posOrderQuerySql}) as combined_sales"))
+            ->mergeBindings($orderQuery->getQuery())
+            ->mergeBindings($posOrderQuery->getQuery())
+            ->select(DB::raw('SUM(total) as total'), 'year', 'month')
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc');
 
     return new EloquentCollection($filledResults);
 }
+
 
 /**
  * Rellenar los campos faltantes en los resultados de ingresos.
@@ -531,13 +536,12 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
 
             $data[] = [
                 'store' => $store->name,
-                'percent' => number_format($percent, 2, ',', '.')
+                'percent' => number_format($percent, 2, ',', '.'),
             ];
         }
 
         return $data;
     }
-
 
     /**
      * Obtener porcentaje de ventas por local para tabla con filtro de fecha y local.
@@ -592,8 +596,6 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
         return $data;
     }
 
-
-
     /**
      * Obtener porcentaje de ventas por producto para tabla con filtro de fecha y local.
      *
@@ -631,7 +633,7 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
                             if (!isset($productSales[$product['name']])) {
                                 $productSales[$product['name']] = [
                                     'total' => 0,
-                                    'count' => 0
+                                    'count' => 0,
                                 ];
                             }
                             $productSales[$product['name']]['total'] += $product['price'] * $product['quantity'];
@@ -663,7 +665,6 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
         return $data;
     }
 
-
     /**
      * Obtener datos de uso de cupones con el total descontado y ordenarlos.
      *
@@ -689,7 +690,7 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
             $data[] = [
                 'code' => $coupon->code,
                 'total_discount' => $totalDiscount,
-                'uses' => $coupon->orders->count()
+                'uses' => $coupon->orders->count(),
             ];
         }
 
@@ -746,13 +747,12 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
 
             $result[] = [
                 'store' => $store->name,
-                'data' => $hourlyData
+                'data' => $hourlyData,
             ];
         }
 
         return $result;
     }
-
 
     /**
      * Obtiene los datos de ventas por categoría para tabla comparativa.
@@ -800,7 +800,7 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
                     $categorySales[$product['category_id']] = [
                         'total' => 0,
                         'count' => 0,
-                        'category_name' => ProductCategory::find($product['category_id'])->name ?? 'Sin categoría'
+                        'category_name' => ProductCategory::find($product['category_id'])->name ?? 'Sin categoría',
                     ];
                 }
 
@@ -822,7 +822,7 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
                     $categorySales[$product['category_id']] = [
                         'total' => 0,
                         'count' => 0,
-                        'category_name' => ProductCategory::find($product['category_id'])->name ?? 'Sin categoría'
+                        'category_name' => ProductCategory::find($product['category_id'])->name ?? 'Sin categoría',
                     ];
                 }
 
@@ -910,5 +910,147 @@ private function fillMissingData(EloquentCollection $results, string $startDate,
             ];
         }
         return $paymentMethods;
+    }
+
+    /**
+     * Obtener datos de gastos para las cards de gastos.
+     *
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $storeId
+     * @return array
+     */
+
+    public function getExpensesData(string $startDate, string $endDate, int $storeId = null): array
+    {
+        $query = Expense::whereBetween('created_at', [$startDate, $endDate]);
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        $expenses = $query->get();
+
+        $totalExpenses = $expenses->sum('amount');
+        $paidExpenses = $expenses->where('status', ExpenseStatusEnum::PAID)->count();
+        $partialExpenses = $expenses->where('status', ExpenseStatusEnum::PARTIAL)->count();
+        $unpaidExpenses = $expenses->where('status', ExpenseStatusEnum::UNPAID)->count();
+        $data = [
+            'total' => number_format($totalExpenses, 0, ',', '.'),
+            'count' => $expenses->count(),
+            'paid' => $paidExpenses,
+            'partial' => $partialExpenses,
+            'unpaid' => $unpaidExpenses,
+
+        ];
+
+        return $data;
+    }
+    /**
+     * Calcular la media mensual de gastos históricos.
+     *
+     * @param int|null $storeId
+     * @return string
+     */
+    public function averageMonthlyExpenses(int $storeId = null): string
+    {
+        // Consulta para Expense
+        $expenseQuery = Expense::select(DB::raw('SUM(amount) as total'), DB::raw('YEAR(due_date) as year'), DB::raw('MONTH(due_date) as month'))
+            ->where('status', ExpenseStatusEnum::PAID)
+            ->groupBy(DB::raw('YEAR(due_date)'), DB::raw('MONTH(due_date)'));
+
+        // Consulta para ExpensePaymentMethod
+        $expensePaymentMethodQuery = ExpensePaymentMethod::join('expenses', 'expense_payment_methods.expense_id', '=', 'expenses.id')
+            ->select(DB::raw('SUM(expense_payment_methods.amount_paid) as total'), DB::raw('YEAR(expense_payment_methods.payment_date) as year'), DB::raw('MONTH(expense_payment_methods.payment_date) as month'))
+            ->where('expenses.status', ExpenseStatusEnum::PARTIAL)
+            ->groupBy(DB::raw('YEAR(expense_payment_methods.payment_date)'), DB::raw('MONTH(expense_payment_methods.payment_date)'));
+
+        // Aplicar filtro por store_id si es proporcionado
+        if ($storeId) {
+            $expenseQuery->where('store_id', $storeId);
+            $expensePaymentMethodQuery->where('expenses.store_id', $storeId);
+        }
+
+        // Obtener gastos mensuales combinados de ambas consultas
+        $monthlyExpenses = DB::table(DB::raw("({$expenseQuery->toSql()} UNION ALL {$expensePaymentMethodQuery->toSql()}) as combined_expenses"))
+            ->mergeBindings($expenseQuery->getQuery())
+            ->mergeBindings($expensePaymentMethodQuery->getQuery())
+            ->select(DB::raw('SUM(total) as total'), 'year', 'month')
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        // Calcular promedio mensual
+        if ($monthlyExpenses->isEmpty()) {
+            return '0';
+        }
+
+        $totalExpenses = $monthlyExpenses->sum('total');
+        $countMonths = $monthlyExpenses->count();
+        $averageMonthlyExpenses = $totalExpenses / $countMonths;
+
+        return number_format($averageMonthlyExpenses, 0, ',', '.');
+    }
+
+    public function getMonthlyExpensesData(int $storeId = null): EloquentCollection
+    {
+        $expenseQuery = Expense::select(DB::raw('SUM(amount) as total'), DB::raw('MONTH(due_date) as month'), DB::raw('YEAR(due_date) as year'))
+            ->where('status', ExpenseStatusEnum::PAID)
+            ->groupBy(DB::raw('YEAR(due_date)'), DB::raw('MONTH(due_date)'));
+
+        $expensePaymentMethodQuery = ExpensePaymentMethod::join('expenses', 'expense_payment_methods.expense_id', '=', 'expenses.id')
+            ->select(DB::raw('SUM(expense_payment_methods.amount_paid) as total'), DB::raw('MONTH(expense_payment_methods.payment_date) as month'), DB::raw('YEAR(expense_payment_methods.payment_date) as year'))
+            ->where('expenses.status', ExpenseStatusEnum::PARTIAL)
+            ->groupBy(DB::raw('YEAR(expense_payment_methods.payment_date)'), DB::raw('MONTH(expense_payment_methods.payment_date)'));
+
+        if ($storeId) {
+            $expenseQuery->where('store_id', $storeId);
+            $expensePaymentMethodQuery->where('expenses.store_id', $storeId);
+        }
+
+        $expenseQuerySql = $expenseQuery->toSql();
+        $expensePaymentMethodQuerySql = $expensePaymentMethodQuery->toSql();
+
+        $combinedQuery = DB::table(DB::raw("({$expenseQuerySql} UNION ALL {$expensePaymentMethodQuerySql}) as combined_expenses"))
+            ->mergeBindings($expenseQuery->getQuery())
+            ->mergeBindings($expensePaymentMethodQuery->getQuery())
+            ->select(DB::raw('SUM(total) as total'), 'year', 'month')
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc');
+
+        $monthlyExpenses = $combinedQuery->get();
+
+        return new EloquentCollection($monthlyExpenses);
+    }
+    // proveedores que más dinero se gastó
+    public function getSuppliersExpensesData(string $startDate, string $endDate, int $storeId = null): array
+    {
+        // Construir la consulta base
+        $query = Expense::select('supplier_id', DB::raw('SUM(amount) as total_spent'))
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('supplier_id')
+            ->orderBy('total_spent', 'desc');
+
+        // Aplicar filtro por store_id si es proporcionado
+        if ($storeId) {
+            $query->where('store_id', $storeId);
+        }
+
+        // Ejecutar la consulta y obtener los resultados
+        $expensesData = $query->get();
+
+        // Crear el arreglo de resultados
+        $data = [];
+        foreach ($expensesData as $expense) {
+            $supplier = $expense->supplier; // Obtener el proveedor relacionado
+            $data[] = [
+                'supplier' => $supplier->name, // Aquí asumo que deseas el nombre del proveedor
+                'total' => $expense->total_spent,
+            ];
+        }
+        // dd($data);
+
+        return $data;
     }
 }

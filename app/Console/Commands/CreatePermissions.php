@@ -32,151 +32,178 @@ class CreatePermissions extends Command
      */
     public function handle()
     {
-        $modulesJson = [
-            'menu' => [
-                [
-                    'slug' => 'dashboard',
-                    'module' => 'general',
-                    'view_all' => false,
+      $modulesJson = [
+        'menu' => [
+            [
+                'slug' => 'dashboard',
+                'module' => 'general',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'manufacturing',
+                'module' => 'manufacturing',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'raw-materials',
+                'module' => 'stock',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'suppliers',
+                'module' => 'stock',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'supplier-orders',
+                'module' => 'stock',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'stock',
+                'module' => 'stock',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'accounting',
+                'module' => 'accounting',
+                'submenus' => [
+                    'invoices',
+                    'receipts',
+                    'entries',
+                    'accounting-settings',
+                    'expenses',
                 ],
-                [
-                    'slug' => 'manufacturing',
-                    'module' => 'manufacturing',
-                    'view_all' => false,
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'clients',
+                'module' => 'crm',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'ecommerce',
+                'module' => 'ecommerce',
+                'submenus' => [
+                    'orders',
+                    'products',
+                    'product-categories',
+                    'settings',
+                    'product-flavors'
                 ],
-                [
-                    'slug' => 'raw-materials',
-                    'module' => 'stock',
-                    'view_all' => true,
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'global_products',
+                'module' => 'ecommerce',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'productions',
+                'module' => 'manufacturing',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'bypass_raw_material_check',
+                'module' => 'manufacturing',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'marketing',
+                'module' => 'marketing',
+                'submenus' => [
+                    'coupons',
+                    'settings'
                 ],
-                [
-                    'slug' => 'suppliers',
-                    'module' => 'stock',
-                    'view_all' => true,
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'omnichannel',
+                'module' => 'marketing',
+                'submenus' => [
+                    'chats',
+                    'settings'
                 ],
-                [
-                    'slug' => 'supplier-orders',
-                    'module' => 'stock',
-                    'view_all' => true,
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'datacenter',
+                'module' => 'datacenter',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'crm',
+                'module' => 'crm',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'stores',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'roles',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'company_settings',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'open_close_stores',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'point-of-sale',
+                'module' => 'point-of-sale',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'sales-commerce',
+                'module' => 'ecommerce',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'users',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'user-accounts',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'expenses',
+                'module' => 'expenses',
+                'view_all' => true,
+                "submenus" => [
+                    "delete_expenses"
+                ]
+            ],
+            [
+                'slug' => 'entries',
+                'module' => 'entries',
+                'view_all' => true,
+                'submenus' => [
+                    'entry-details',
+                    'delete_entries',
+                    // 'entry-types',
+                    // 'entry-accounts',
+                    // 'entry-currencies',
+                    // 'entry-settings',
                 ],
-                [
-                    'slug' => 'stock',
-                    'module' => 'stock',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'accounting',
-                    'module' => 'accounting',
-                    'submenus' => [
-                        'invoices',
-                        'receipts',
-                        'entries',
-                        'accounting-settings'
-                    ],
-                    'view_all' => true,
-                ],
-                [
-                    'slug' => 'clients',
-                    'module' => 'crm',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'ecommerce',
-                    'module' => 'ecommerce',
-                    'submenus' => [
-                        'orders',
-                        'products',
-                        'product-categories',
-                        'settings',
-                        'product-flavors'
-                    ],
-                    'view_all' => true,
-                ],
-                [
-                    'slug' => 'global_products',
-                    'module' => 'ecommerce',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'productions',
-                    'module' => 'manufacturing',
-                    'view_all' => true,
-                ],
-                [
-                    'slug' => 'bypass_raw_material_check',
-                    'module' => 'manufacturing',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'marketing',
-                    'module' => 'marketing',
-                    'submenus' => [
-                        'coupons',
-                        'settings'
-                    ],
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'omnichannel',
-                    'module' => 'marketing',
-                    'submenus' => [
-                        'chats',
-                        'settings'
-                    ],
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'datacenter',
-                    'module' => 'datacenter',
-                    'view_all' => true,
-                ],
-                [
-                    'slug' => 'crm',
-                    'module' => 'crm',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'stores',
-                    'module' => 'management',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'roles',
-                    'module' => 'management',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'company_settings',
-                    'module' => 'management',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'open_close_stores',
-                    'module' => 'management',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'point-of-sale',
-                    'module' => 'point-of-sale',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'sales-commerce',
-                    'module' => 'ecommerce',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'users',
-                    'module' => 'management',
-                    'view_all' => false,
-                ],
-                [
-                    'slug' => 'user-accounts',
-                    'module' => 'management',
-                    'view_all' => false,
-                ],
-            ]
-        ];
+            ],
+            [
+                'slug' => 'entry-details',
+                'module' => 'accounting',
+                'view_all' => false,
+            ],
+        ]
+      ];
 
         // Asegurar que el rol de superadmin existe
         $superAdminRole = Role::firstOrCreate(['name' => 'Superadmin']);
@@ -201,7 +228,7 @@ class CreatePermissions extends Command
     {
         // Crear o buscar el permiso base y asignar el módulo
         $permissionName = 'access_' . $slug;
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::updateOrCreate(
             ['name' => $permissionName],
             ['module' => $module]
         );

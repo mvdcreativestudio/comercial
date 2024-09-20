@@ -25,7 +25,8 @@ class AddModuleColumnToPermissionsTable extends Migration
                 'datacenter',
                 'stock',
                 'general',
-                'management'
+                'management',
+                'expenses'
             ])->default('general')
             ->after('guard_name');
         });

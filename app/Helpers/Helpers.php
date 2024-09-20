@@ -211,4 +211,11 @@ class Helpers
       }
     }
   }
+
+  // validate if date is in valid format
+  public static function validateDate($date, $format = 'Y-m-d')
+  {
+    $d = \DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
+  }
 }

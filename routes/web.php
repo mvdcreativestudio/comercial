@@ -33,6 +33,10 @@ use App\Http\Controllers\{
     ProductionController,
     CashRegisterController,
     CashRegisterLogController,
+    EntryController,
+    EntryDetailController,
+    ExpenseController,
+    ExpensePaymentMethodController,
     PosOrderController,
     UserController,
 
@@ -74,6 +78,13 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
+
+    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/expenses/datatable', [ExpenseController::class, 'datatable'])->name('expenses.datatable');
+    Route::get('/expense-payment-methods/datatable/{id}', [ExpensePaymentMethodController::class, 'datatable'])->name('expense-payment-methods.datatable');
+    Route::get('/entries/datatable', [EntryController::class, 'datatable'])->name('entries.datatable');
+    Route::get('/entry-details/datatable/{id}', [EntryDetailController::class, 'datatable'])->name('entry-details.datatable');
+
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
 
 
@@ -95,6 +106,10 @@ Route::middleware([
         'productions' => ProductionController::class,
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
+        'expenses' => ExpenseController::class,
+        'expense-payment-methods' => ExpensePaymentMethodController::class,
+        'entries' => EntryController::class,
+        'entry-details' => EntryDetailController::class,
     ]);
 
 
@@ -133,6 +148,7 @@ Route::middleware([
     Route::get('/api/sales-by-store', [DatacenterController::class, 'salesByStore']);
     Route::get('/sales-by-store', [DatacenterController::class, 'showSalesByStore'])->name('sales.by.store');
     Route::get('/datacenter/payment-methods', [DatacenterController::class, 'paymentMethodsData'])->name('datacenter.paymentMethodsData');
+    Route::get('/api/monthly-expenses', [DatacenterController::class, 'monthlyExpenses'])->name('datacenter.monthlyExpenses');
 
 
     // Gestión de Productos
@@ -172,7 +188,7 @@ Route::middleware([
     // CRM y Contabilidad
     Route::get('crm', [CrmController::class, 'index'])->name('crm');
     Route::get('receipts', [AccountingController::class, 'receipts'])->name('receipts');
-    Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
+    // Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
     Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
     Route::post('invoices/{invoice}/emit-note', [AccountingController::class, 'emitNote'])->name('invoices.emitNote');
@@ -237,6 +253,39 @@ Route::middleware([
       Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
       Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
     });
+
+    // Gastos
+    Route::group(['prefix' => 'expenses'], function () {
+        // show
+        // Route::get('/{expense}/show', [ExpenseController::class, 'show'])->name('expenses.show');
+        Route::post('/delete-multiple', [ExpenseController::class, 'deleteMultiple'])->name('expenses.deleteMultiple');
+    });
+
+    // Métodos de Pago de Gastos
+    Route::group(['prefix' => 'expense-payment-methods'], function () {
+        // show
+        Route::get('/{expense}/detail', [ExpensePaymentMethodController::class, 'detail'])->name('expense-payment-methods.show');
+        // delete multiple
+        Route::post('/delete-multiple', [ExpensePaymentMethodController::class, 'deleteMultiple'])->name('expense-payment-methods.deleteMultiple');
+        // Route::get('/{expensePaymentMethod}/edit', [ExpensePaymentMethodController::class, 'edit'])->name('expense-payment-methods.edit');
+        // Route::post('/{expensePaymentMethod}/update', [ExpensePaymentMethodController::class, 'update'])->name('expense-payment-methods.update');
+        // Route::post('/{expensePaymentMethod}/delete', [ExpensePaymentMethodController::class, 'destroy'])->name('expense-payment-methods.delete');
+    });
+
+    // Asientos Contables
+    Route::group(['prefix' => 'entries'], function () {
+        // show detail entry
+        Route::get('/{entry}/detail', [EntryController::class, 'detail'])->name('entries.show');
+        Route::post('/delete-multiple', [EntryController::class, 'deleteMultiple'])->name('entries.deleteMultiple');
+    });
+    
+    // Detalles de Asientos Contables
+    // Route::group(['prefix' => 'entry-details'], function () {
+    //     // details
+    //     Route::get('/{entryDetail}/detail', [EntryDetailController::class, 'detail'])->name('entry-details.detail');
+    //     // delete multiple
+    //     Route::post('/delete-multiple', [EntryDetailController::class, 'deleteMultiple'])->name('entry-details.deleteMultiple');
+    // });
 });
 
 // Recursos con acceso público
