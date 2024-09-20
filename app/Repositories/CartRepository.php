@@ -20,7 +20,7 @@ class CartRepository
   */
   public function selectStore(SelectStoreRequest $request): RedirectResponse
   {
-    $request->session()->flush();
+    $request->session()->forget(['store', 'cart', 'subtotal']);
 
     $slug = $request->slug;
 
