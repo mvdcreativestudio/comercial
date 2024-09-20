@@ -18,44 +18,54 @@ class DatacenterController extends Controller
     public function sales(Request $request)
     {
         // Filtra según el rango de fechas o periodo predeterminado (año, mes, semana, hoy, siempre)
-        $period = $request->input('period', 'year'); // 'year', 'month', 'week', 'today', 'always', o 'custom'
+        $period = $request->input('period', 'year');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $storeId = $request->input('store_id'); // Nuevo filtro por local
+        $storeIdForView = $request->input('store_id'); // Este es para la vista
 
         // Obtén el rango de fechas basado en el periodo seleccionado
         list($startDate, $endDate) = $this->datacenterRepo->getDateRange($period, $startDate, $endDate);
 
+        // Verifica si el usuario tiene el permiso para ver todas las tiendas
+        if (!auth()->user()->can('view_all_datacenter')) {
+            // Si no tiene permiso, filtra por la tienda asignada al usuario
+            $storeIdForView = auth()->user()->store_id;
+        }
+
         // Filtra los datos con las fechas correspondientes y el filtro por local
         $storesCount = $this->datacenterRepo->countStores();
-        $registredClients = $this->datacenterRepo->countClients($startDate, $endDate, $storeId);
-        $productsCount = $this->datacenterRepo->countProducts($startDate, $endDate, $storeId);
+        $registredClients = $this->datacenterRepo->countClients($startDate, $endDate, $storeIdForView);
+        $productsCount = $this->datacenterRepo->countProducts($startDate, $endDate, $storeIdForView);
         $categoriesCount = $this->datacenterRepo->countCategories();
-        $ordersCount = $this->datacenterRepo->countOrders($startDate, $endDate, $storeId);
+        $ordersCount = $this->datacenterRepo->countOrders($startDate, $endDate, $storeIdForView);
 
         // Ingresos
-        $ecommerceIncomes = $this->datacenterRepo->ecommerceIncomes($startDate, $endDate, $storeId);
-        $physicalIncomes = $this->datacenterRepo->physicalIncomes($startDate, $endDate, $storeId);
-        $totalIncomes = $this->datacenterRepo->totalIncomes($startDate, $endDate, $storeId);
-        $averageMonthlySales = $this->datacenterRepo->averageMonthlySales($storeId);
+        $ecommerceIncomes = $this->datacenterRepo->ecommerceIncomes($startDate, $endDate, $storeIdForView);
+        $physicalIncomes = $this->datacenterRepo->physicalIncomes($startDate, $endDate, $storeIdForView);
+        $totalIncomes = $this->datacenterRepo->totalIncomes($startDate, $endDate, $storeIdForView);
+        $averageMonthlySales = $this->datacenterRepo->averageMonthlySales($storeIdForView);
 
         // Ticket Medio
-        $averageTicket = $this->datacenterRepo->averageTicket($startDate, $endDate, $storeId);
+        $averageTicket = $this->datacenterRepo->averageTicket($startDate, $endDate, $storeIdForView);
 
         // Tabla de Locales / Productos / Cupones
-        $salesByStore = $this->datacenterRepo->getSalesPercentByStore($startDate, $endDate, $storeId);
-        $salesByProduct = $this->datacenterRepo->getSalesPercentByProduct($startDate, $endDate, $storeId);
-        $salesByCategory = $this->datacenterRepo->getSalesPercentByCategory($startDate, $endDate, $storeId);
-        $couponUsage = $this->datacenterRepo->getCouponsUsage($startDate, $endDate, $storeId);
+        $salesByStore = $this->datacenterRepo->getSalesPercentByStore($startDate, $endDate);
+        $salesByProduct = $this->datacenterRepo->getSalesPercentByProduct($startDate, $endDate, $storeIdForView);
+        $salesByCategory = $this->datacenterRepo->getSalesPercentByCategory($startDate, $endDate, $storeIdForView);
+        $couponUsage = $this->datacenterRepo->getCouponsUsage($startDate, $endDate, $storeIdForView);
 
         // Métodos de Pago
-        $paymentMethods = $this->datacenterRepo->getPaymentMethodsData($startDate, $endDate, $storeId);
+        $paymentMethods = $this->datacenterRepo->getPaymentMethodsData($startDate, $endDate, $storeIdForView);
 
         // Obtener todos los locales para el filtro por local
         $stores = Store::all();
 
-        // Datos para la gráfica de promedio de pedidos por hora
-        $averageOrdersByHour = $this->datacenterRepo->getAverageOrdersByHour($startDate, $endDate);
+        // Gráfica de promedio de pedidos por hora
+        $storeIdForChart = null;
+        if (!auth()->user()->can('view_all_datacenter')) {
+            $storeIdForChart = auth()->user()->store_id;
+        }
+        $averageOrdersByHour = $this->datacenterRepo->getAverageOrdersByHour($startDate, $endDate, $storeIdForChart);
 
 
         // Datos para las cards de gastos
@@ -82,7 +92,7 @@ class DatacenterController extends Controller
             'period',
             'startDate',
             'endDate',
-            'storeId', // Pasamos el storeId a la vista
+            'storeIdForView', // Este es para la vista
             'stores', // Pasamos los locales a la vista para el filtro
             'averageOrdersByHour', // Pasamos los datos de la gráfica a la vista
             'expenses', // Pasamos los datos de los gastos a la vista
@@ -91,14 +101,38 @@ class DatacenterController extends Controller
         ));
     }
 
+
+
+
+
     // Gráfica de línea - GMV Mensual
     public function monthlyIncome(Request $request)
     {
-        $currentYear = date('Y');
+        $period = $request->input('time_range', 'year');
         $storeId = $request->input('store_id');
-        $monthlyIncome = $this->datacenterRepo->getMonthlyIncomeData($storeId);
-        return response()->json($monthlyIncome);
+
+        if (!auth()->user()->can('view_all_datacenter')) {
+            $storeId = auth()->user()->store_id;
+        }
+
+        $startDate = null;
+        $endDate = null;
+
+        list($startDate, $endDate) = $this->datacenterRepo->getDateRange($period, $startDate, $endDate);
+
+        $incomeData = $this->datacenterRepo->getIncomeData($startDate, $endDate, $storeId, $period);
+
+        return response()->json($incomeData);
     }
+
+
+
+
+
+
+
+
+
 
     // Gráfica de torta - Ventas por Local en porcentaje
     public function salesByStore(Request $request)
@@ -111,16 +145,22 @@ class DatacenterController extends Controller
     // Gráfica de torta - Métodos de Pago
     public function paymentMethodsData(Request $request)
     {
-        $period = $request->input('period', 'year'); // 'year', 'month', 'week', 'today', 'always', o 'custom'
+        $period = $request->input('period', 'year'); // Default is 'year'
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
-        $storeId = $request->input('store_id'); // Nuevo filtro por local
+        $storeId = $request->input('store_id');
+
+        // Si no se pasa un store_id y el usuario no tiene permisos globales, usar el store_id del usuario.
+        if (!$storeId && !auth()->user()->can('view_all_datacenter')) {
+            $storeId = auth()->user()->store_id;
+        }
 
         list($startDate, $endDate) = $this->datacenterRepo->getDateRange($period, $startDate, $endDate);
 
         $paymentMethods = $this->datacenterRepo->getPaymentMethodsData($startDate, $endDate, $storeId);
         return response()->json($paymentMethods);
     }
+
 
     // grafica de lineas - Gastos Mensuales
     public function monthlyExpenses(Request $request)
@@ -130,4 +170,5 @@ class DatacenterController extends Controller
         $monthlyExpenses = $this->datacenterRepo->getMonthlyExpensesData($storeId);
         return response()->json($monthlyExpenses);
     }
+
 }

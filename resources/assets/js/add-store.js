@@ -11,3 +11,17 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+
+document.addEventListener('DOMContentLoaded', function () {
+  const peyaEnviosSwitch = document.getElementById('peyaEnviosSwitch');
+  const peyaEnviosFields = document.getElementById('peyaEnviosFields');
+
+  peyaEnviosSwitch.addEventListener('change', function() {
+    if (this.checked) {
+      peyaEnviosFields.style.display = 'block';
+    } else {
+      peyaEnviosFields.style.display = 'none';
+    }
+  }
+ );
+});

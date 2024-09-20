@@ -13,8 +13,13 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Store;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
+
 
 class DatacenterRepository
 {
@@ -34,27 +39,29 @@ class DatacenterRepository
 
         switch ($period) {
             case 'today':
-                return [$today, $today->copy()->endOfDay()];
+                return [$today->startOfDay(), $today->endOfDay()];
             case 'week':
-                $weekStart = $today->copy()->startOfWeek(Carbon::MONDAY);
-                $weekEnd = $today->copy()->endOfWeek(Carbon::SUNDAY);
-                return [$weekStart, $weekEnd];
+                return [$today->copy()->subDays(6)->startOfDay(), $today->endOfDay()];
             case 'month':
-                $monthStart = $today->copy()->startOfMonth();
-                $monthEnd = $today->copy()->endOfMonth();
-                return [$monthStart, $monthEnd];
+                $start = $today->copy()->startOfMonth();
+                $end = $today->copy()->endOfMonth();
+                return [$start, $end];
             case 'year':
-                $yearStart = $today->copy()->startOfYear();
-                $yearEnd = $today->copy()->endOfYear();
-                return [$yearStart, $yearEnd];
+                $start = $today->copy()->startOfYear();
+                $end = $today->copy()->endOfYear();
+                return [$start, $end];
             case 'always':
-                return [Carbon::minValue(), Carbon::maxValue()];
+                $firstSale = Order::min('date') ?? PosOrder::min('date');
+                $start = $firstSale ? Carbon::parse($firstSale)->startOfMonth() : Carbon::minValue();
+                $end = $end ?? Carbon::maxValue();
+                return [$start, $end];
             case 'custom':
                 return [$start->startOfDay(), $end->endOfDay()];
             default:
                 return [$today->copy()->startOfYear(), $today->copy()->endOfYear()];
         }
     }
+
 
     /**
      * Contar la cantidad de locales.
@@ -78,8 +85,30 @@ class DatacenterRepository
     {
         $query = Client::whereBetween('created_at', [$startDate, $endDate]);
 
+        // Obtener configuración de companySettings usando el provider
+        $companySettings = App::make('companySettings');
+
+        // Verificar si clients_has_store está habilitado
+        if ($companySettings && $companySettings->clients_has_store == 1) {
+            if (Gate::allows('view_all_datacenter')) {
+                // Si el usuario tiene el permiso, puede ver datos de todas las tiendas
+                if ($storeId) {
+                    $query->where('store_id', $storeId);
+                }
+            } else {
+                // Si no tiene el permiso, solo puede ver datos de su tienda
+                $query->where('store_id', Auth::user()->store_id);
+            }
+        } else {
+            // Si clients_has_store no está habilitado, se filtra por store_id si está definido
+            if ($storeId) {
+                $query->where('store_id', $storeId);
+            }
+        }
+
         return $query->count();
     }
+
 
     /**
      * Contar la cantidad de productos con filtro de fecha y local.
@@ -309,31 +338,77 @@ class DatacenterRepository
         }
     }
 
-    /**
-     * Obtener datos de ventas mensuales.
-     *
-     * @param int|null $storeId
-     * @return EloquentCollection
-     */
-    public function getMonthlyIncomeData(int $storeId = null): EloquentCollection
-    {
-        $orderQuery = Order::select(DB::raw('SUM(total) as total'), DB::raw('MONTH(date) as month'), DB::raw('YEAR(date) as year'))
-            ->where('payment_status', 'paid')
-            ->groupBy(DB::raw('YEAR(date)'), DB::raw('MONTH(date)'));
 
-        $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
-            ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
-            ->select(DB::raw('SUM(pos_orders.total) as total'), DB::raw('MONTH(pos_orders.date) as month'), DB::raw('YEAR(pos_orders.date) as year'))
-            ->groupBy(DB::raw('YEAR(pos_orders.date)'), DB::raw('MONTH(pos_orders.date)'));
 
-        if ($storeId) {
-            $orderQuery->where('store_id', $storeId);
-            $posOrderQuery->where('cash_registers.store_id', $storeId);
-        }
+/**
+ * Obtener datos de ingresos con filtro de fecha y local.
+ *
+ * Este método obtiene los datos de ingresos agrupados por año, mes, día o hora dependiendo del período seleccionado.
+ *
+ * @param string $startDate La fecha de inicio del rango a consultar.
+ * @param string $endDate La fecha de fin del rango a consultar.
+ * @param int|null $storeId El ID del local para filtrar los resultados. Si es null, se consideran todos los locales.
+ * @param string $period El período de agrupación de los resultados ('today', 'week', 'month', 'year', 'always').
+ * @return EloquentCollection La colección de resultados agrupados.
+ */
+public function getIncomeData(string $startDate, string $endDate, int $storeId = null, string $period = 'month'): EloquentCollection
+{
+    // Selección y agrupación dinámica de campos según el periodo
+    switch ($period) {
+        case 'today':
+            $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)'), DB::raw('HOUR(time)')];
+            $selectFields = ['total', 'year', 'month', 'day', 'hour'];
+            break;
+        case 'week':
+        case 'month':
+            $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)'), DB::raw('DAY(date)')];
+            $selectFields = ['total', 'year', 'month', 'day'];
+            break;
+        case 'year':
+        case 'always':
+        default:
+            $groupBy = [DB::raw('YEAR(date)'), DB::raw('MONTH(date)')];
+            $selectFields = ['total', 'year', 'month'];
+            break;
+    }
 
-        $orderQuerySql = $orderQuery->toSql();
-        $posOrderQuerySql = $posOrderQuery->toSql();
 
+    // Consulta de pedidos del módulo de e-commerce
+    $orderQuery = Order::select(
+        DB::raw('SUM(total) as total'),
+        DB::raw('YEAR(date) as year'),
+        DB::raw('MONTH(date) as month'),
+        DB::raw('DAY(date) as day'),
+        DB::raw('HOUR(time) as hour')
+    )
+    ->where('payment_status', 'paid')
+    ->whereBetween('date', [$startDate, $endDate])
+    ->groupBy($groupBy);
+
+    // Consulta de pedidos del módulo de POS
+    $posOrderQuery = PosOrder::join('cash_register_logs', 'pos_orders.cash_register_log_id', '=', 'cash_register_logs.id')
+        ->join('cash_registers', 'cash_register_logs.cash_register_id', '=', 'cash_registers.id')
+        ->select(
+            DB::raw('SUM(pos_orders.total) as total'),
+            DB::raw('YEAR(pos_orders.date) as year'),
+            DB::raw('MONTH(pos_orders.date) as month'),
+            DB::raw('DAY(pos_orders.date) as day'),
+            DB::raw('HOUR(pos_orders.hour) as hour')
+        )
+        ->whereBetween('pos_orders.date', [$startDate, $endDate])
+        ->groupBy($groupBy);
+
+    // Aplicar filtro por store_id si se proporciona
+    if ($storeId) {
+        $orderQuery->where('store_id', $storeId);
+        $posOrderQuery->where('cash_registers.store_id', $storeId);
+    }
+
+    // Unir los resultados de ambas consultas
+    $combinedResults = $orderQuery->unionAll($posOrderQuery)->get();
+
+    // Agregar cualquier campo faltante al resultado final
+    $filledResults = $this->fillMissingData($combinedResults, $startDate, $endDate, $selectFields);
         $combinedQuery = DB::table(DB::raw("({$orderQuerySql} UNION ALL {$posOrderQuerySql}) as combined_sales"))
             ->mergeBindings($orderQuery->getQuery())
             ->mergeBindings($posOrderQuery->getQuery())
@@ -342,10 +417,70 @@ class DatacenterRepository
             ->orderBy('year', 'asc')
             ->orderBy('month', 'asc');
 
-        $monthlySales = $combinedQuery->get();
+    return new EloquentCollection($filledResults);
+}
 
-        return new EloquentCollection($monthlySales);
+
+/**
+ * Rellenar los campos faltantes en los resultados de ingresos.
+ *
+ * Este método recorre un rango de fechas y verifica si para cada fecha existe un registro en la colección de resultados.
+ * Si no existe, rellena los datos faltantes con 0.
+ *
+ * @param EloquentCollection $results La colección original de resultados.
+ * @param string $startDate La fecha de inicio del rango a consultar.
+ * @param string $endDate La fecha de fin del rango a consultar.
+ * @param array $selectFields Los campos seleccionados para el período actual.
+ * @return EloquentCollection La colección de resultados con los campos faltantes rellenados.
+ */
+private function fillMissingData(EloquentCollection $results, string $startDate, string $endDate, array $selectFields): EloquentCollection
+{
+    $filledResults = collect();
+
+    // Crear un rango de fechas basado en el inicio y el final
+    $period = Carbon::parse($startDate)->daysUntil($endDate);
+
+    foreach ($period as $date) {
+        // Busca si existe un registro que coincida con el grupo seleccionado (mes, día, hora, etc.)
+        $matchingResult = $results->first(function ($item) use ($date, $selectFields) {
+            foreach ($selectFields as $field) {
+                // Compara las propiedades según el campo correspondiente
+                switch ($field) {
+                    case 'year':
+                        if ($item->year != $date->year) return false;
+                        break;
+                    case 'month':
+                        if ($item->month != $date->month) return false;
+                        break;
+                    case 'day':
+                        if ($item->day != $date->day) return false;
+                        break;
+                    case 'hour':
+                        if ($item->hour != $date->hour) return false;
+                        break;
+                }
+            }
+            return true;
+        });
+
+        // Si no se encuentra ningún resultado, se rellena con 0
+        $filledResults->push([
+            'year' => $date->year,
+            'month' => $date->month,
+            'day' => in_array('day', $selectFields) ? $date->day : null,
+            'hour' => in_array('hour', $selectFields) ? $date->hour : null,
+            'total' => $matchingResult ? $matchingResult->total : 0
+        ]);
     }
+
+    return new EloquentCollection($filledResults);
+}
+
+
+
+
+
+
 
     /**
      * Obtener ventas por local en porcentaje para gráfica de torta.
@@ -574,9 +709,10 @@ class DatacenterRepository
      * @param int|null $storeId
      * @return array
      */
-    public function getAverageOrdersByHour(string $startDate = null, string $endDate = null): array
+    public function getAverageOrdersByHour(string $startDate = null, string $endDate = null, int $storeId = null): array
     {
-        $stores = Store::all();
+        // Si hay un storeId definido, filtrar solo por ese storeId
+        $stores = $storeId ? Store::where('id', $storeId)->get() : Store::all();
         $result = [];
 
         foreach ($stores as $store) {

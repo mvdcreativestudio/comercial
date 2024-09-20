@@ -24,6 +24,7 @@ class Store extends Model
         'closed',
         'manual_override_at',
         'automatic_billing',
+        'peya_envios_key',
     ];
 
     /**
@@ -116,9 +117,9 @@ class Store extends Model
      *
      * @return HasMany
     */
-    public function receipts(): HasMany
+    public function invoices(): HasMany
     {
-        return $this->hasMany(Receipt::class);
+        return $this->hasMany(CFE::class);
     }
 
 }

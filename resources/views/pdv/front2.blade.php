@@ -17,6 +17,8 @@
     window.cashRegisterId = "{{ Session::get('open_cash_register_id') }}";
     window.baseUrl = "{{ url('') }}/";
     window.frontRoute = "{{ route('pdv.front') }}";
+    // Configuración de las respuestas del POS Scanntech
+    const posResponsesConfig = @json(config('posResponses'));
 </script>
 
 @section('content')
@@ -114,6 +116,13 @@
         <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-light"><i class="bx bx-x"></i>Descartar venta</a>
         <button class="btn btn-secondary"><i class="bx bx-save"></i> Guardar pedido</button>
         <button class="btn btn-success"><i class="bx bx-check"></i> Finalizar venta</button>
+      </div>
+      <!-- Contenedor para el estado de la transacción -->
+      <div id="transaction-status" style="display: none;">
+        <div class="spinner-border text-primary" role="status" id="transaction-spinner" style="display: none;">
+            <span class="sr-only">Procesando...</span>
+        </div>
+        <div id="transaction-message" class="mt-3"></div>
       </div>
     </div>
   </div>

@@ -18,11 +18,19 @@
 
 
 @section('page-script')
+
 @vite([
   'resources/assets/js/datacenter-sales.js',
   'resources/assets/js/datacenter/expenses/expenses-datacenter-sales.js',
 ])
+
+@vite('resources/assets/js/app-datacenter-totalIncomeChart.js')
+@vite('resources/assets/js/app-datacenter-salesByStoreChart.js')
+@vite('resources/assets/js/app-datacenter-paymentMethodsChart.js')
+@vite('resources/assets/js/app-datacenter-averageOrdersByHourChart.js')
+
 @endsection
+
 
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -43,7 +51,7 @@
   <!-- Filtros Temporales -->
   <div class="col-12 text-end" data-aos="fade-right">
     <form method="GET" action="{{ route('datacenter.sales') }}">
-      <div class="d-inline-flex gap-2">
+      <div class="d-inline-flex gap-4">
         <select name="period" class="form-select" id="timePeriodSelector">
           <option value="today" {{ $period == 'today' ? 'selected' : '' }}>Hoy</option>
           <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Esta Semana</option>
@@ -54,12 +62,19 @@
         </select>
 
         <!-- Filtro por Local -->
-        <select name="store_id" class="form-select">
-          <option value="">Todos los Locales</option>
-          @foreach ($stores as $store)
-            <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-          @endforeach
+        <select name="store_id" class="form-select" {{ auth()->user()->can('view_all_datacenter') ? '' : 'disabled' }}>
+          @if(auth()->user()->can('view_all_datacenter'))
+              <option value="">Todos los Locales</option>
+              @foreach ($stores as $store)
+                <option value="{{ $store->id }}" {{ $storeIdForView == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
+              @endforeach
+          @else
+              <option value="{{ auth()->user()->store_id }}" selected>{{ auth()->user()->store->name }}</option>
+          @endif
         </select>
+
+
+
 
         <!-- Fechas Personalizadas -->
         <input type="date" name="start_date" id="startDate" class="form-control" value="{{ $startDate->format('Y-m-d') }}" {{ $period != 'custom' ? 'disabled' : '' }}>
@@ -261,11 +276,11 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
               <button class="btn p-0" type="button" id="totalIncome" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="bx bx-dots-vertical-rounded"></i>
               </button>
-              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="totalIncome">
+              {{-- <div class="dropdown-menu dropdown-menu-end" aria-labelledby="totalIncome">
                 <a class="dropdown-item" href="javascript:void(0);">Última semana</a>
                 <a class="dropdown-item" href="javascript:void(0);">Último mes</a>
                 <a class="dropdown-item" href="javascript:void(0);">Último año</a>
-              </div>
+              </div> --}}
             </div>
           </div>
           <div class="card-body">
@@ -507,6 +522,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
   </div>
 
     <!-- Gráfica venta por locales -->
+    @if(auth()->user()->can('view_all_datacenter'))
     <div class="col-md-4 col-12 mb-4 mt-4">
       <div class="card" data-aos="zoom-in">
         <div class="card-header d-flex align-items-center justify-content-between">
@@ -519,6 +535,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
         </div>
       </div>
     </div>
+    @endif
     <!--/ Gráfica venta por locales -->
 
   <!-- Gráfica métodos de pago -->

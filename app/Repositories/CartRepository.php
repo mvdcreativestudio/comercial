@@ -12,6 +12,7 @@ use App\Http\Requests\SelectStoreRequest;
 
 class CartRepository
 {
+
   /**
    * Seleccionar una tienda y guardar la información en la sesión.
    *
@@ -20,25 +21,44 @@ class CartRepository
   */
   public function selectStore(SelectStoreRequest $request): RedirectResponse
   {
-    $request->session()->flush();
+    $request->session()->forget(['store', 'cart', 'subtotal']);
 
-    $slug = $request->slug;
 
-    $store = Store::where('slug', $slug)->first();
+  
+    /**
+     * Seleccionar una tienda y guardar la información en la sesión.
+     *
+     * @param SelectStoreRequest $request
+     * @return RedirectResponse
+     */
+    public function selectStore(SelectStoreRequest $request): RedirectResponse
+    {
+        // Limpiar la sesión antes de almacenar nuevos datos de la tienda
+        $request->session()->flush();
 
-    if (!$store) {
-        return redirect()->back()->with('error', 'La tienda no existe.');
+        // Obtener el slug de la solicitud
+        $slug = $request->slug;
+
+        // Buscar la tienda por el slug
+        $store = Store::where('slug', $slug)->first();
+
+        if (!$store) {
+            return redirect()->back()->with('error', 'La tienda no existe.');
+        }
+
+        // Almacenar todos los detalles de la tienda en la sesión
+        $request->session()->put('store', [
+            'id' => $store->id,
+            'name' => $store->name,
+            'address' => $store->address,
+            'slug' => $store->slug,
+            // Puedes agregar cualquier otro dato necesario de la tienda aquí
+        ]);
+
+        // Redirigir a la ruta de la tienda seleccionada
+        return redirect()->route('store', ['slug' => $store->slug]);
     }
 
-    $request->session()->put('store', [
-        'id' => $store->id,
-        'name' => $store->name,
-        'address' => $store->address,
-        'slug' => $store->slug
-    ]);
-
-    return redirect()->route('store', ['slug' => $store->slug]);
-  }
 
   /**
    * Añadir producto al carrito.
@@ -70,7 +90,7 @@ class CartRepository
   }
 
   /**
-   * Obtener los sabores del producto.
+   * Obtener los variaciones del producto.
    *
    * @param array $flavorIds
    * @return array

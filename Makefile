@@ -25,7 +25,7 @@ dev_setup:
 dev_migration:
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate:fresh --seed
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan create:modules-permissions
-	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate:fresh --path=database/migrations/custom_migrations
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate --path=database/migrations/custom_migrations
 
 dev_vite:
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) npm run dev --watch

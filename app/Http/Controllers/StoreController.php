@@ -108,21 +108,27 @@ class StoreController extends Controller
   */
   public function update(UpdateStoreRequest $request, Store $store): RedirectResponse
   {
-    $storeData = $request->validated();
-    $this->storeRepository->update($store, Arr::except($storeData, ['mercadoPagoPublicKey', 'mercadoPagoAccessToken', 'mercadoPagoSecretKey', 'accepts_mercadopago']));
+      $storeData = $request->validated();
+      $this->storeRepository->update($store, Arr::except($storeData, ['mercadoPagoPublicKey', 'mercadoPagoAccessToken', 'mercadoPagoSecretKey', 'accepts_mercadopago', 'peya_envios_key', 'accepts_peya_envios']));
 
-    if ($request->boolean('accepts_mercadopago')) {
-        $store->mercadoPagoAccount()->updateOrCreate(['store_id' => $store->id], [
-            'public_key' => $request->input('mercadoPagoPublicKey'),
-            'access_token' => $request->input('mercadoPagoAccessToken'),
-            'secret_key' => $request->input('mercadoPagoSecretKey'),
-        ]);
-    } else {
-        $store->mercadoPagoAccount()->delete();
+      // Gestión de MercadoPago
+      if ($request->boolean('accepts_mercadopago')) {
+          $store->mercadoPagoAccount()->updateOrCreate(['store_id' => $store->id], [
+              'public_key' => $request->input('mercadoPagoPublicKey'),
+              'access_token' => $request->input('mercadoPagoAccessToken'),
+              'secret_key' => $request->input('mercadoPagoSecretKey'),
+          ]);
+      } else {
+          $store->mercadoPagoAccount()->delete();
+      }
+
+      // Gestión de Pedidos Ya Envíos
+      $store->accepts_peya_envios = $request->boolean('accepts_peya_envios');
+      $store->peya_envios_key = $request->boolean('accepts_peya_envios') ? $request->input('peya_envios_key') : null;
+      $store->save();
+
+      return back()->with('success', 'Tienda actualizada con éxito.');
     }
-
-    return redirect()->route('stores.index')->with('success', 'Tienda actualizada con éxito.');
-  }
 
   /**
    * Elimina la tienda.

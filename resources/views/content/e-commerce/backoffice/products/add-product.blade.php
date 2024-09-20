@@ -126,14 +126,14 @@
                   </select>
                 </div>
                 <div id="flavorsQuantityContainer" class="mb-3 col-4">
-                  <label class="form-label" for="max-flavors">Sabores</label>
-                  <input type="text" class="form-control" id="max_flavors" placeholder="Cantidad máxima de sabores" name="max_flavors" aria-label="Cantidad máxima de sabores">
+                  <label class="form-label" for="max-flavors">Variaciones</label>
+                  <input type="text" class="form-control" id="max_flavors" placeholder="Cantidad máxima de variaciones" name="max_flavors" aria-label="Cantidad máxima de variaciones">
                 </div>
               </div>
             </div>
             <div id="flavorsContainer" class="mb-3 col-8">
               <div class="d-flex justify-content-between">
-                <label class="form-label">Sabores disponibles</label>
+                <label class="form-label">Variaciones disponibles</label>
                 <label class="form-label" id="selectAllFlavorsButton">Seleccionar todos</label>
               </div>
               <select class="select2 form-select variationOptions" multiple="multiple" name="flavors[]">
@@ -226,7 +226,7 @@
           </div>
           <!-- Campo oculto para estado desactivado -->
           <input type="hidden" name="status" value="2">
-          <!-- Instock switch -->
+          <!-- Switch estado -->
           <div class="d-flex justify-content-between align-items-center border-top pt-3">
             <span class="mb-0 h6">Estado</span>
             <div class="w-25 d-flex justify-content-end">
@@ -272,7 +272,11 @@
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
               @endforeach
             </select>
-
+          </div>
+          <!-- Stock Inicial -->
+          <div class="mb-3" id="stockContainer">
+            <label class="form-label" for="stock">Stock Inicial</label>
+            <input type="number" class="form-control" id="stock" placeholder="Stock Inicial" name="stock" aria-label="Introduzca el stock inicial">
           </div>
         </div>
       </div>

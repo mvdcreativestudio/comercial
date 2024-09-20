@@ -20,7 +20,7 @@ class CreatePermissions extends Command
      *
      * @var string
      */
-    protected $description = 'Crea permisos basados en los módulos del CRM - MVD';
+    protected $description = 'Crea permisos basados en los módulos del CRM - Sumeria';
 
     public function __construct()
     {
@@ -205,25 +205,26 @@ class CreatePermissions extends Command
         ]
       ];
 
+        // Asegurar que el rol de superadmin existe
+        $superAdminRole = Role::firstOrCreate(['name' => 'Superadmin']);
 
         // Asegurar que el rol de administrador existe
         $adminRole = Role::firstOrCreate(['name' => 'Administrador']);
 
         foreach ($modulesJson['menu'] as $module) {
-          $this->createPermission($module['slug'], $module['view_all'], $adminRole, $module['module']);
+            $this->createPermission($module['slug'], $module['view_all'], $adminRole, $superAdminRole, $module['module']);
 
-          if (array_key_exists('submenus', $module)) {
-              foreach ($module['submenus'] as $submenuSlug) {
-                  $this->createPermission($submenuSlug, false, $adminRole, $module['module']);
-              }
-          }
-      }
+            if (array_key_exists('submenus', $module)) {
+                foreach ($module['submenus'] as $submenuSlug) {
+                    $this->createPermission($submenuSlug, false, $adminRole, $superAdminRole, $module['module']);
+                }
+            }
+        }
 
-
-        $this->info('Todos los permisos han sido creados y asignados al rol Administrador.');
+        $this->info('Todos los permisos han sido creados y asignados al rol Administrador y Superadmin.');
     }
 
-    private function createPermission($slug, $viewAll, $adminRole, $module)
+    private function createPermission($slug, $viewAll, $adminRole, $superAdminRole, $module)
     {
         // Crear o buscar el permiso base y asignar el módulo
         $permissionName = 'access_' . $slug;
@@ -232,7 +233,8 @@ class CreatePermissions extends Command
             ['module' => $module]
         );
         $adminRole->givePermissionTo($permission);
-        $this->info('Permiso creado y asignado al rol Administrador: ' . $permissionName);
+        $superAdminRole->givePermissionTo($permission);
+        $this->info('Permiso creado y asignado a los roles Administrador y Superadmin: ' . $permissionName);
 
         // Si es necesario crear el permiso de vista total
         if ($viewAll) {
@@ -242,8 +244,8 @@ class CreatePermissions extends Command
                 ['module' => $module]
             );
             $adminRole->givePermissionTo($viewAllPermission);
-            $this->info('Permiso de vista total creado y asignado al rol Administrador: ' . $viewAllPermissionName);
+            $superAdminRole->givePermissionTo($viewAllPermission);
+            $this->info('Permiso de vista total creado y asignado a los roles Administrador y Superadmin: ' . $viewAllPermissionName);
         }
     }
 }
-
