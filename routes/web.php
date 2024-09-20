@@ -33,6 +33,9 @@ use App\Http\Controllers\{
     ProductionController,
     CashRegisterController,
     CashRegisterLogController,
+    CompositeProductController,
+    CurrentAccountClientSaleController,
+    CurrentAccountClientSalePaymentController,
     PosOrderController,
     UserController,
 
@@ -74,8 +77,10 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
+    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/composite-products/datatable', [CompositeProductController::class, 'datatable'])->name('composites.datatable');
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
-
+    Route::get('/current-accounts/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
 
     // Recursos con acceso autenticado
     Route::resources([
@@ -95,6 +100,9 @@ Route::middleware([
         'productions' => ProductionController::class,
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
+        'composite-products' => CompositeProductController::class,
+        'current-account-client-sales' => CurrentAccountClientSaleController::class,
+        'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
     ]);
 
 
@@ -242,6 +250,22 @@ Route::middleware([
     Route::group(['prefix' => 'productions'], function () {
       Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
       Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+    });
+
+    // Productos compuestos
+    Route::group(['prefix' => 'composite-products'], function () {
+        Route::get('/{compositeProduct}/details', [CompositeProductController::class, 'details'])->name('composite-products.details');
+        Route::post('/delete-multiple', [CompositeProductController::class, 'deleteMultiple'])->name('composite-products.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Clientes
+    Route::group(['prefix' => 'current-account-client-sales'], function () {
+        Route::post('/delete-multiple', [CurrentAccountClientSaleController::class, 'deleteMultiple'])->name('current-account-client-sales.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Clientes Pagos
+    Route::group(['prefix' => 'current-account-client-payments'], function () {
+        Route::post('/delete-multiple', [CurrentAccountClientSalePaymentController::class, 'deleteMultiple'])->name('current-account-client-payments.deleteMultiple');
     });
 });
 

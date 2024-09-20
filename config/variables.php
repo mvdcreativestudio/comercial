@@ -3,7 +3,7 @@
   return [
     "creatorName" => "MDV Studio",
     "creatorUrl" => "#",
-    "templateName" => "Base",
+    "templateName" => "Craft",
     "templateSuffix" => "",
     "templateVersion" => "2.2.0",
     "templateFree" => false,

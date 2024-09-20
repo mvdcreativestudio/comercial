@@ -88,7 +88,8 @@ class CreatePermissions extends Command
                         'products',
                         'product-categories',
                         'settings',
-                        'product-flavors'
+                        'product-flavors',
+                        'composite-products',
                     ],
                     'view_all' => true,
                 ],
@@ -185,6 +186,75 @@ class CreatePermissions extends Command
                     'module' => 'orders',
                     'view_all' => true,
                 ],
+                [
+                    'slug' => 'composite-products',
+                    'module' => 'ecommerce',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_composite-products',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'current-accounts-clients',
+                        'current-accounts-suppliers',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-clients',
+                    'module' => 'current-accounts',
+                    'view_all' => false,
+                    'submenus' => [
+                        'current-accounts-clients-sales',
+                        'current-accounts-clients-payments',
+                        'current-accounts-clients-settings'
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-clients-sales',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-clients-sales',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-suppliers',
+                    'module' => 'current-accounts',
+                    'view_all' => false,
+                    'submenus' => [
+                        'current-accounts-suppliers-purchases',
+                        'current-accounts-suppliers-payments',
+                        'current-accounts-suppliers-settings'
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-suppliers-purchases',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-suppliers-purchases',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-clients-payments',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-clients-payments',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-suppliers-payments',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-suppliers-payments',
+                    ],
+                ]
             ]
         ];
 
