@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', function () {
           render: function (data, type, row, meta) {
             let actionButton =
               row.status === 1
-                ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Desactivar Tienda</div>"
-                : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Activar Tienda</div>";
+                ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Desactivar Empresa</div>"
+                : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Activar Empresa</div>";
 
             let automaticBillingButton = row.automatic_billing
               ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-file'></i> Desactivar F. Automática</div>"

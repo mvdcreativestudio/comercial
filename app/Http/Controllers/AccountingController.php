@@ -9,6 +9,8 @@ use Yajra\DataTables\DataTables;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\EmitNoteRequest;
+use Illuminate\Support\Facades\Log;
 
 class AccountingController extends Controller
 {
@@ -67,7 +69,7 @@ class AccountingController extends Controller
     public function getSentCfes(): View
     {
         $statistics = $this->accountingRepository->getDashboardStatistics();
-        return view('content.accounting.receipts.index', $statistics);
+        return view('content.accounting.invoices.index', $statistics);
     }
 
     /**
@@ -75,10 +77,10 @@ class AccountingController extends Controller
      *
      * @return JsonResponse
     */
-    public function getReceiptsData(): JsonResponse
+    public function getInvoicesData(): JsonResponse
     {
-        $receiptsData = $this->accountingRepository->getReceiptsDataForDatatables();
-        return DataTables::of($receiptsData)->make(true);
+        $invoicesData = $this->accountingRepository->getInvoicesDataForDatatables();
+        return DataTables::of($invoicesData)->make(true);
     }
 
     /**
@@ -128,5 +130,39 @@ class AccountingController extends Controller
         }
 
         return redirect()->route('accounting.settings')->with('error_logo', 'Error al actualizar el logo.');
+    }
+
+    /**
+     * Maneja la emisión de notas de crédito o débito.
+     *
+     * @param EmitNoteRequest $request
+     * @param int $invoiceId
+     * @return RedirectResponse
+     */
+    public function emitNote(EmitNoteRequest $request, int $invoiceId): RedirectResponse
+    {
+        try {
+            $this->accountingRepository->emitNote($invoiceId, $request);
+            Log::info("Nota emitida correctamente para la factura {$invoiceId}");
+            return redirect()->back()->with('success', 'Nota emitida correctamente.');
+        } catch (\Exception $e) {
+            Log::error("Error al emitir nota para la factura {$invoiceId}: {$e->getMessage()}");
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Descarga el PDF de un CFE.
+     *
+     * @param int $cfeId
+     * @return mixed
+    */
+    public function downloadCfePdf($cfeId)
+    {
+        try {
+            return $this->accountingRepository->getCfePdf($cfeId);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }

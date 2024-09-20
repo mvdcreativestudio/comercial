@@ -17,7 +17,7 @@ class CompanySettingsSeeder extends Seeder
     {
         DB::table('company_settings')->insert([
             [
-                'name' => 'MVD Studio',
+                'name' => 'Base',
                 'address' => '1234 Main Street',
                 'city' => 'Montevideo',
                 'state' => 'Montevideo',

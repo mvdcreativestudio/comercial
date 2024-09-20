@@ -89,10 +89,10 @@
         attachTo: { element: '#tour-productos', on: 'right' },
       },
       {
-        id: 'tour-sabores',
-        title: 'Sabores',
-        text: 'Gestiona los sabores de tus productos. Aquí puedes agregar nuevos sabores, editar los existentes o eliminarlos.',
-        attachTo: { element: '#tour-sabores', on: 'right' },
+        id: 'tour-variaciones',
+        title: 'Variaciones',
+        text: 'Gestiona los variaciones de tus productos. Aquí puedes agregar nuevos variaciones, editar los existentes o eliminarlos.',
+        attachTo: { element: '#tour-variaciones', on: 'right' },
       },
       {
         id: 'tour-categorias',
@@ -156,7 +156,7 @@
       },
       {
         id: 'tour-tiendas',
-        title: 'Tiendas',
+        title: 'Empresas',
         text: 'Gestiona tus tiendas físicas. Puedes ver el estado de cada tienda, actualizar su información y más.',
         attachTo: { element: '#tour-tiendas', on: 'right' },
       },
@@ -276,8 +276,8 @@
       },
       {
         id: 'tour-stores',
-        title: 'Estado de las Tiendas',
-        text: 'Muestra el estado de tus tiendas físicas. Puedes ver si están abiertas, cerradas y modificar su estado.',
+        title: 'Estado de las Empresa',
+        text: 'Muestra el estado de tus Empresas físicas. Puedes ver si están abiertas, cerradas y modificar su estado.',
         attachTo: { element: '#tour-stores', on: 'left' },
       }
     ];

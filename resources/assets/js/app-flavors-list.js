@@ -89,13 +89,13 @@ $(function () {
         '>',
       lengthMenu: [10, 25, 50, 100],
       language: {
-        infoEmpty: 'No hay sabores para mostrar',
+        infoEmpty: 'No hay variaciones para mostrar',
         emptyTable: 'No existe ningún sabor',
         search: '',
         searchPlaceholder: 'Buscar...',
         sLengthMenu: '_MENU_',
-        info: 'Mostrando _START_ a _END_ de _TOTAL_ sabores',
-        infoFiltered: '(filtrados de _MAX_ sabores)',
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ variaciones',
+        infoFiltered: '(filtrados de _MAX_ variaciones)',
         paginate: {
           first: '<<',
           last: '>>',

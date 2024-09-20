@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Sabores')
+@section('title', 'Variaciones')
 
 @section('vendor-style')
 @vite([
@@ -28,7 +28,7 @@
 @section('content')
 
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span> Sabores
+  <span class="text-muted fw-light">E-Commerce /</span> Variaciones
 </h4>
 
 <div class="card mb-4">
@@ -38,7 +38,7 @@
         <div class="col-sm-6 col-lg-4">
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
-              <h6 class="mb-2">Total de Sabores</h6>
+              <h6 class="mb-2">Total de Variaciones</h6>
               <h4 class="mb-2">{{ $totalFlavors }}</h4>
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
@@ -53,7 +53,7 @@
         <div class="col-sm-6 col-lg-4">
           <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
             <div>
-              <h6 class="mb-2">Sabores Activos</h6>
+              <h6 class="mb-2">Variaciones Activos</h6>
               <h4 class="mb-2">{{ $activeFlavors }}</h4>
               <p class="mb-0"><span class="text-muted me-2">Activos</span></p>
             </div>
@@ -68,7 +68,7 @@
         <div class="col-sm-6 col-lg-4">
           <div class="d-flex justify-content-between align-items-start pb-3 pb-sm-0 card-widget-3">
             <div>
-              <h6 class="mb-2">Sabores Inactivos</h6>
+              <h6 class="mb-2">Variaciones Inactivos</h6>
               <h4 class="mb-2">{{ $inactiveFlavors }}</h4>
               <p class="mb-0 text-muted">Inactivos</p>
             </div>
@@ -88,7 +88,7 @@
 <div class="card">
   <div class="card pb-3">
   <div class="card-header">
-    <h5 class="card-title">Sabores</h5>
+    <h5 class="card-title">Variaciones</h5>
     <div class="d-flex">
         <p class="text-muted small">
           <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
@@ -175,7 +175,7 @@
       </table>
     @else
       <div class="text-center py-5">
-        <h4>No hay sabores</h4>
+        <h4>No hay variaciones</h4>
         <p class="text-muted">Agrega un nuevo sabor para comenzar</p>
       </div>
     @endif
