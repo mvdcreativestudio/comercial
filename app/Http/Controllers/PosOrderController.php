@@ -53,9 +53,21 @@ class PosOrderController extends Controller
     public function store(StorePosOrderRequest $request)
     {
         $validatedData = $request->validated();
+
+        // Intentar actualizar el stock de los productos
+        $stockUpdated = $this->posOrderRepo->updateProductStock(json_decode($validatedData['products'], true));
+
+        if (!$stockUpdated) {
+            // Si el stock no se actualizó, retornar un error
+            return response()->json(['error' => 'Stock insuficiente en uno o mas productos'], 400);
+        }
+
+        // Crear la orden después de actualizar el stock
         $order = $this->posOrderRepo->create($validatedData);
+
         return response()->json($order, 201);
     }
+
 
     /**
      * Actualiza una caja registradora ya creada.
@@ -63,7 +75,7 @@ class PosOrderController extends Controller
      * @param UpdatePosOrderRequest $request
      * @param string $id
      * @return JsonResponse
-     * 
+     *
      */
     public function update(UpdatePosOrderRequest $request, $id)
     {

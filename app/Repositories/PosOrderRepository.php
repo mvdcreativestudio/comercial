@@ -140,4 +140,24 @@ class PosOrderRepository
         }
         return $money - $total;
     }
+
+    /**
+     * Actualiza el stock de los productos en la base de datos.
+     *
+     * @param array $products
+     * @return bool
+     */
+    public function updateProductStock($products)
+    {
+    foreach ($products as $productData) {
+        $product = \App\Models\Product::find($productData['id']);
+        if ($product && $product->stock >= $productData['quantity']) {
+            $product->stock -= $productData['quantity'];
+            $product->save();
+        } else {
+            return false; // O manejar el error de stock insuficiente
+        }
+    }
+    return true;
+    }
 }

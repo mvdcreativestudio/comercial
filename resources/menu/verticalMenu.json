@@ -73,6 +73,13 @@
       ]
     },
     {
+      "id": "tour-tiendas",
+      "name": "Empresas",
+      "icon": "menu-icon tf-icons bx bx-store-alt",
+      "slug": "stores",
+      "url": "/admin/stores"
+    },
+    {
       "id": "tour-gestion-proveedores",
       "name": "Fabricación",
       "icon": "menu-icon tf-icons bx bx-briefcase",

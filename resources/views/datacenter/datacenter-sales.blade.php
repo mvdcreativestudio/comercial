@@ -18,8 +18,14 @@
 
 
 @section('page-script')
-@vite(['resources/assets/js/datacenter-sales.js'])
+@vite('resources/assets/js/app-datacenter-totalIncomeChart.js')
+@vite('resources/assets/js/app-datacenter-salesByStoreChart.js')
+@vite('resources/assets/js/app-datacenter-paymentMethodsChart.js')
+@vite('resources/assets/js/app-datacenter-averageOrdersByHourChart.js')
+@vite('resources/assets/js/app-datacenter-salesBySellerChart.js')
 @endsection
+
+
 
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -34,13 +40,14 @@
 
 <script>
   window.paymentMethodsUrl = '{{ route('datacenter.paymentMethodsData') }}';
+  window.currencySymbol = '{{ $settings->currency_symbol }}';
 </script>
 
 <div class="row sticky-top" style="top: 80px;">
   <!-- Filtros Temporales -->
   <div class="col-12 text-end" data-aos="fade-right">
     <form method="GET" action="{{ route('datacenter.sales') }}">
-      <div class="d-inline-flex gap-2">
+      <div class="d-inline-flex gap-4">
         <select name="period" class="form-select" id="timePeriodSelector">
           <option value="today" {{ $period == 'today' ? 'selected' : '' }}>Hoy</option>
           <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Esta Semana</option>
@@ -50,13 +57,20 @@
           <option value="custom" {{ $period == 'custom' ? 'selected' : '' }}>Personalizado</option>
         </select>
 
-        <!-- Filtro por Local -->
-        <select name="store_id" class="form-select">
-          <option value="">Todos los Locales</option>
-          @foreach ($stores as $store)
-            <option value="{{ $store->id }}" {{ $storeId == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-          @endforeach
+        <!-- Filtro por Empresa -->
+        <select name="store_id" class="form-select" {{ auth()->user()->can('view_all_datacenter') ? '' : 'disabled' }}>
+          @if(auth()->user()->can('view_all_datacenter'))
+              <option value="">Todas las Empresas</option>
+              @foreach ($stores as $store)
+                <option value="{{ $store->id }}" {{ $storeIdForView == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
+              @endforeach
+          @else
+              <option value="{{ auth()->user()->store_id }}" selected>{{ auth()->user()->store->name }}</option>
+          @endif
         </select>
+
+
+
 
         <!-- Fechas Personalizadas -->
         <input type="date" name="start_date" id="startDate" class="form-control" value="{{ $startDate->format('Y-m-d') }}" {{ $period != 'custom' ? 'disabled' : '' }}>
@@ -92,9 +106,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                 <div>
                   <h3 class="mb-1">{{ $storesCount }}</h3>
                   @if ($storesCount == 1)
-                    <p class="mb-0">Local</p>
+                    <p class="mb-0">Empresa</p>
                   @else
-                    <p class="mb-0">Locales</p>
+                    <p class="mb-0">Empresas</p>
                   @endif
                 </div>
                 <span class="badge bg-label-secondary rounded p-2 me-sm-4">
@@ -160,9 +174,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <div class="avatar me-2">
             <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-check"></i></span>
           </div>
-          <h4 class="ms-1 mb-0">{{ $ordersCount['delivered'] }}</h4>
+          <h4 class="ms-1 mb-0">{{ $ordersCount['completed'] }}</h4>
         </div>
-        @if($ordersCount['delivered'] == 1)
+        @if($ordersCount['completed'] == 1)
           <p class="mb-1 fw-medium me-1">Pedido completado</p>
         @else
           <p class="mb-1 fw-medium me-1">Pedidos completados</p>
@@ -203,9 +217,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <h4 class="ms-1 mb-0">{{ $ordersCount['cancelled'] }}</h4>
         </div>
         @if($ordersCount['cancelled'] == 1)
-          <p class="mb-1 fw-medium me-1">Pedido cancelado</p>
+          <p class="mb-1 fw-medium me-1">Pedido fallido</p>
         @else
-          <p class="mb-1">Pedidos cancelados</p>
+          <p class="mb-1">Pedidos fallidos</p>
         @endif
         <p class="mb-0">
           {{-- <span class="fw-medium me-1 text-success">+4.3%</span> --}}
@@ -254,11 +268,11 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
               <button class="btn p-0" type="button" id="totalIncome" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="bx bx-dots-vertical-rounded"></i>
               </button>
-              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="totalIncome">
+              {{-- <div class="dropdown-menu dropdown-menu-end" aria-labelledby="totalIncome">
                 <a class="dropdown-item" href="javascript:void(0);">Última semana</a>
                 <a class="dropdown-item" href="javascript:void(0);">Último mes</a>
                 <a class="dropdown-item" href="javascript:void(0);">Último año</a>
-              </div>
+              </div> --}}
             </div>
           </div>
           <div class="card-body">
@@ -315,13 +329,13 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
   <!--/ Total Income -->
 
 
-  <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
+  {{-- <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
     <div class="card h-100 text-center" data-aos="fade-left" data-aos-anchor="#example-anchor" data-aos-offset="500" data-aos-duration="500">
         <div class="card-header">
             <h5 class="card-title text-start pb-4 mb-0">Comparativas</h5>
             <ul class="nav nav-pills nav- card-header-pills" role="tablist">
                 <li class="nav-item">
-                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Locales</button>
+                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Empresa</button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-os" aria-controls="navs-pills-os" aria-selected="false">Productos</button>
@@ -342,7 +356,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Local</th>
+                                <th>Empresa</th>
                                 <th>Ventas</th>
                                 <th class="w-50">Porcentaje del total</th>
                             </tr>
@@ -476,7 +490,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
             </div>
         </div>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Gráfica de promedio de pedidos por hora -->
   <div class="col-12 mb-4 mt-4">
@@ -491,6 +505,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
   </div>
 
     <!-- Gráfica venta por locales -->
+    @if(auth()->user()->can('view_all_datacenter'))
     <div class="col-md-4 col-12 mb-4 mt-4">
       <div class="card" data-aos="zoom-in">
         <div class="card-header d-flex align-items-center justify-content-between">
@@ -503,6 +518,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
         </div>
       </div>
     </div>
+    @endif
     <!--/ Gráfica venta por locales -->
 
   <!-- Gráfica métodos de pago -->
@@ -514,11 +530,25 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           </div>
       </div>
       <div class="card-body">
-          <div id="paymentMethodsChart" style="height: 420px;"></div> <!-- Asegúrate de que tenga dimensiones -->
+          <div id="paymentMethodsChart" style="height: 420px;"></div>
       </div>
     </div>
   </div>
   <!--/ Gráfica métodos de pago -->
+
+  <div class="col-md-4 col-12 mb-4 mt-4">
+    <div class="card" data-aos="zoom-in">
+      <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="card-title mb-0">
+              <h5 class="m-0 me-2">Ventas por Vendedor</h5>
+          </div>
+      </div>
+      <div class="card-body">
+          <div id="salesBySellerChart" style="height: 420px;"></div> <!-- Contenedor para la gráfica -->
+      </div>
+    </div>
+  </div>
+
 
 </div>
 

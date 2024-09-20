@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Agregar Tienda')
+@section('title', 'Agregar Empresa')
 
 @section('page-script')
 @vite([
@@ -11,7 +11,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-    <span class="text-muted fw-light">Tiendas /</span><span> Crear Tienda</span>
+    <span class="text-muted fw-light">Empresas /</span><span> Crear Empresa</span>
 </h4>
 
 <div class="app-ecommerce">
@@ -21,12 +21,12 @@
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Información de la Tienda</h5>
+                    <h5 class="card-title mb-0">Información de la Empresa</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label" for="store-name">Nombre</label>
-                        <input type="text" class="form-control" id="store-name" name="name" required placeholder="Nombre de la tienda">
+                        <input type="text" class="form-control" id="store-name" name="name" required placeholder="Nombre de la Empresa">
                     </div>
 
                     <div class="mb-3">
@@ -36,12 +36,12 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="store-email">Email</label>
-                        <input type="email" class="form-control" id="store-email" name="email" required placeholder="Email de la tienda">
+                        <input type="email" class="form-control" id="store-email" name="email" required placeholder="Email de la Empresa">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="store-rut">RUT</label>
-                        <input type="text" class="form-control" id="store-rut" name="rut" required placeholder="RUT de la tienda">
+                        <input type="text" class="form-control" id="store-rut" name="rut" required placeholder="RUT de la Empresa">
                     </div>
 
                     <div class="mb-3">
@@ -108,7 +108,7 @@
             </div>
 
             <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">Guardar Tienda</button>
+                <button type="submit" class="btn btn-primary">Guardar Empresa</button>
             </div>
             </div>
         </div>

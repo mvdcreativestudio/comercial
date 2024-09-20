@@ -80,36 +80,57 @@
                     <h4 class="card-title">Información de la Empresa</h4>
                 </div>
                 <div class="card-body">
-                    <form>
+                  <form>
+                    @if(!empty($companyInfo['name']))
                         <div class="form-group">
                             <label for="companyName">Nombre de la Empresa</label>
                             <input type="text" class="form-control my-3" id="companyName" value="{{ $companyInfo['name'] }}" disabled>
                         </div>
+                    @endif
+
+                    @if(!empty($companyInfo['rut']))
                         <div class="form-group">
                             <label for="companyRUT">RUT</label>
                             <input type="text" class="form-control my-3" id="companyRUT" value="{{ $companyInfo['rut'] }}" disabled>
                         </div>
+                    @endif
+
+                    @if(!empty($companyInfo['socialPurpose']))
                         <div class="form-group">
                             <label for="socialPurpose">Propósito Social</label>
                             <input type="text" class="form-control my-3" id="socialPurpose" value="{{ $companyInfo['socialPurpose'] }}" disabled>
                         </div>
+                    @endif
+
+                    @if(!empty($companyInfo['resolutionNumber']))
                         <div class="form-group">
                             <label for="resolutionNumber">Número de Resolución</label>
                             <input type="text" class="form-control my-3" id="resolutionNumber" value="{{ $companyInfo['resolutionNumber'] }}" disabled>
                         </div>
+                    @endif
+
+                    @if(!empty($companyInfo['email']))
                         <div class="form-group">
                             <label for="companyEmail">Correo Electrónico</label>
                             <input type="email" class="form-control my-3" id="companyEmail" value="{{ $companyInfo['email'] }}" disabled>
                         </div>
+                    @endif
+
+                    @if(!empty($companyInfo['createdAt']))
                         <div class="form-group">
                             <label for="createdAt">Fecha de Creación</label>
                             <input type="text" class="form-control my-3" id="createdAt" value="{{ $companyInfo['createdAt'] }}" disabled>
                         </div>
+                    @endif
+
+                    @if(!empty($companyInfo['updatedAt']))
                         <div class="form-group">
                             <label for="updatedAt">Fecha de Actualización</label>
                             <input type="text" class="form-control my-3" id="updatedAt" value="{{ $companyInfo['updatedAt'] }}" disabled>
                         </div>
-                    </form>
+                    @endif
+                </form>
+
                 </div>
             </div>
         </div>

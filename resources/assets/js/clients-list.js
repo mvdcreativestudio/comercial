@@ -1,8 +1,7 @@
 'use strict';
 
 // Datatable (jquery)
-$(document).ready(function() {
-
+$(document).ready(function () {
   let borderColor, bodyBg, headingColor;
 
   if (isDarkStyle) {
@@ -35,18 +34,42 @@ $(document).ready(function() {
       ajax: 'clients/datatable',
       columns: [
         { data: 'id', className: 'col-1' },
-        { data: 'name', className: 'col-3' },
-        { data: 'address', className: 'col-5' },
+        { data: 'name', className: 'col-1' },
+        { data: 'address', className: 'col-2' },
         { data: 'city', className: 'col-1' },
-        { data: 'state', className: 'col-1' }
+        { data: 'state', className: 'col-1' },
+        { data: 'doc_type', className: 'col-1' },
+        { data: 'document', className: 'col-1' }
       ],
 
       columnDefs: [
         {
           // Modificación para mostrar nombre completo
           targets: 1,
-          render: function(data, type, row) {
+          render: function (data, type, row) {
             return `${row.name} ${row.lastname}`;
+          }
+        },
+        {
+          targets: 5,
+          render: function (data, type, row) {
+            if (row.type == 'company') {
+              return 'RUT';
+            } else {
+              return 'CI';
+            }
+          }
+        },
+        // Modificación para mostrar CI o RUT dependiendo del tipo de cliente
+        {
+          targets: 6, // Asumiendo que la columna 'document' es la sexta columna
+          render: function (data, type, row) {
+            if (row.type === 'company') {
+              return row.rut ? row.rut : '-';
+            } else if (row.type === 'individual') {
+              return row.ci ? row.ci : '-';
+            }
+            return '-';
           }
         }
       ],
@@ -67,7 +90,7 @@ $(document).ready(function() {
         searchPlaceholder: 'Buscar...',
         sLengthMenu: '_MENU_',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-        infoFiltered: "filtrados de _MAX_ productos",
+        infoFiltered: 'filtrados de _MAX_ productos',
         paginate: {
           first: '<<',
           last: '>>',
@@ -75,9 +98,9 @@ $(document).ready(function() {
           previous: '<'
         },
         emptyTable: 'No hay registros disponibles',
-        pagingType: "full_numbers",
+        pagingType: 'full_numbers',
         dom: 'Bfrtip',
-        renderer: "bootstrap"
+        renderer: 'bootstrap'
       },
       // Buttons with Dropdown
       buttons: [
@@ -96,10 +119,10 @@ $(document).ready(function() {
     // To remove default btn-secondary in export buttons
     $('.dt-buttons > .btn-group > button').removeClass('btn-secondary');
     $('.dt-buttons').addClass('d-flex flex-wrap');
-    $('.toggle-column').on('change', function() {
+    $('.toggle-column').on('change', function () {
       var column = dt_customer.column($(this).attr('data-column'));
       column.visible(!column.visible());
-  });
+    });
   }
 
   // Delete Record
@@ -172,15 +195,15 @@ $(document).ready(function() {
 })();
 
 // Campo CI o RUT dependiendo si es CF o Empresa
-$(document).ready(function() {
+$(document).ready(function () {
   // Escucha cambios en los botones de radio del tipo de cliente
-  $('input[type=radio][name=type]').change(function() {
+  $('input[type=radio][name=type]').change(function () {
     if (this.value == 'individual') {
-      $("#ciField").show();
-      $("#rutField").hide();
+      $('#ciField').show();
+      $('#rutField').hide();
     } else if (this.value == 'company') {
-      $("#ciField").hide();
-      $("#rutField").show();
+      $('#ciField').hide();
+      $('#rutField').show();
     }
   });
 });

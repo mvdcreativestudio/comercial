@@ -33,18 +33,25 @@ class CashRegisterController extends Controller
     public function index()
     {
         $userId = auth()->user()->id;
-
         $openCashRegisterId = $this->cashRegisterLogRepository->hasOpenLogForUser($userId);
 
         if ($openCashRegisterId) {
+            $storeId = $this->cashRegisterRepository->findStoreByCashRegisterId($openCashRegisterId);
+
             Session::put('open_cash_register_id', $openCashRegisterId);
-            return redirect()->route('pdv.front');
+            Session::put('store_id', $storeId);
+
+           //return redirect()->route('pdv.front');
         } else {
-            Session::forget('open_cash_register_id'); 
+            Session::forget('open_cash_register_id');
+            Session::forget('store_id');
             $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
-            return view('points-of-sales.index', compact('cajas', 'userId'));
+            //return view('points-of-sales.index', compact('cajas', 'userId'));
         }
+        $cajas = $this->cashRegisterRepository->getCashRegistersForDatatable($userId);
+        return view('points-of-sales.index', compact('cajas', 'userId'));
     }
+
 
 
     /**
@@ -115,7 +122,7 @@ class CashRegisterController extends Controller
 
     /**
      * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
-     * 
+     *
      * @return JsonResponse
      */
     public function storesForCashRegister()
@@ -126,7 +133,7 @@ class CashRegisterController extends Controller
 
     /**
      * Devuelve los balances y ventas de la caja registradora.
-     * 
+     *
      * @param string $id
      * @return JsonResponse
      */
@@ -140,7 +147,7 @@ class CashRegisterController extends Controller
         $cashRegister = $this->cashRegisterRepository->getCashRegisterById($id);
         $openCount = $details->whereNull('close_time')->count();
         $closedCount = $details->whereNotNull('close_time')->count();
-        
+
         return view('points-of-sales.details', compact('cashRegister','details','openCount','closedCount'));
     }
 
@@ -158,7 +165,7 @@ class CashRegisterController extends Controller
         $totalSales = $sales->count();
         $cashSales = $sales->sum('cash_sales');
         $posSales = $sales->sum('pos_sales');
-        
+
         return view('points-of-sales.sales', compact('sales', 'totalSales', 'cashSales', 'posSales','id'));
     }
 

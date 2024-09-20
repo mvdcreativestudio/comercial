@@ -61,7 +61,7 @@ class ProductionRepository
             })
             ->get();
 
-        // Obtener solo los sabores que tienen al menos una receta
+        // Obtener solo los variaciones que tienen al menos una receta
         $flavors = Flavor::with(['recipes.rawMaterial', 'recipes.usedFlavor'])
             ->whereHas('recipes', function($query) {
                 $query->whereNotNull('raw_material_id')->orWhereNotNull('used_flavor_id');

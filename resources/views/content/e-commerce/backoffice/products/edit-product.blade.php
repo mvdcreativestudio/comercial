@@ -122,17 +122,17 @@
                   <label class="form-label" for="form-repeater-1-1">Tipo de producto</label>
                   <select id="productType" class="select2 form-select" name="type">
                     <option value="simple" @selected($product->type == 'simple')>Simple</option>
-                    <option value="configurable" @selected($product->type == 'configurable')>Variable</option>
+                    {{-- <option value="configurable" @selected($product->type == 'configurable')>Variable</option> --}}
                   </select>
                 </div>
                 <div id="flavorsQuantityContainer" class="mb-3 col-4">
-                  <label class="form-label" for="max-flavors">Sabores</label>
-                  <input type="text" class="form-control" id="max_flavors" value="{{ $product->max_flavors }}" placeholder="Cantidad máxima de sabores" name="max_flavors" aria-label="Cantidad máxima de sabores">
+                  <label class="form-label" for="max-flavors">Variaciones</label>
+                  <input type="text" class="form-control" id="max_flavors" value="{{ $product->max_flavors }}" placeholder="Cantidad máxima de variaciones" name="max_flavors" aria-label="Cantidad máxima de variaciones">
                 </div>
               </div>
             </div>
             <div id="flavorsContainer" class="mb-3 col-8">
-              <label class="form-label">Sabores disponibles</label>
+              <label class="form-label">Variaciones disponibles</label>
               <select class="select2 form-select variationOptions" multiple="multiple" name="flavors[]" data-selected="{{ json_encode($product->flavors->pluck('id')->toArray()) }}">
                 @foreach ($flavors as $flavor)
                   <option value="{{ $flavor->id }}" {{ in_array($flavor->id, $product->flavors->pluck('id')->toArray()) ? 'selected' : '' }}>
@@ -145,7 +145,7 @@
         </div>
       </div>
       <!-- /Variants -->
-      <!-- Recipe -->
+      {{-- <!-- Recipe -->
       <div class="card mb-4" id="recipeCard" style="display: none;">
         <div class="card-header">
           <h5 class="card-title mb-0">Receta</h5>
@@ -156,7 +156,7 @@
           <button type="button" class="btn btn-primary" id="addRawMaterial">Agregar Materia Prima</button>
           <button type="button" class="btn btn-secondary" id="addUsedFlavor">Agregar Sabor Usado</button>
         </div>
-      </div>
+      </div> --}}
 
     </div>
     <!-- /Second column -->
@@ -203,7 +203,7 @@
           <!-- Vendor -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <label class="form-label mb-1" for="vendor">
-              Local
+              Empresa
             </label>
             <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
               @if(auth()->user()->hasPermissionTo('access_global_products'))
@@ -226,6 +226,11 @@
                 </option>
               @endforeach
             </select>
+          </div>
+          <!-- Stock -->
+          <div class="mb-3" id="stockContainer">
+            <label class="form-label" for="stock">Stock</label>
+            <input type="number" class="form-control" id="stock" placeholder="Stock" value="{{$product->stock}}" name="stock" aria-label="Introduzca el stock">
           </div>
         </div>
       </div>

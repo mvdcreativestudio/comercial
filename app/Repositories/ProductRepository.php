@@ -49,7 +49,7 @@ class ProductRepository
       // Se rellenan los campos del producto con los datos del formulario.
       $product->fill($request->only([
           'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-          'price', 'discount', 'store_id', 'status',
+          'price', 'discount', 'store_id', 'status', 'stock',
       ]));
 
       // Manejo de la imagen si se ha subido un archivo
@@ -68,7 +68,7 @@ class ProductRepository
       // Se sincronizan las categorías del producto.
       $product->categories()->sync($request->input('categories', []));
 
-      // Se sincronizan los sabores del producto si se han seleccionado sabores.
+      // Se sincronizan los variaciones del producto si se han seleccionado variaciones.
       if ($request->filled('flavors')) {
           $product->flavors()->sync($request->flavors);
       }
@@ -160,13 +160,14 @@ class ProductRepository
         'price', 'discount', 'store_id', 'status', 'stock'
     ]));
 
-    if ($request->hasFile('image') && !$request->file('image')->getClientOriginalName() === 'existing_image.jpg') {
+    // Manejo de la imagen si se ha subido un archivo
+    if ($request->hasFile('image')) {
       $file = $request->file('image');
       $filename = time() . '.' . $file->getClientOriginalExtension();
       $path = $file->move(public_path('assets/img/ecommerce-images'), $filename);
       if ($path) {
-        $product->image = 'assets/img/ecommerce-images/' . $filename;
-        $product->save();
+          $product->image = 'assets/img/ecommerce-images/' . $filename;
+          $product->save();  // Asegurarse de guardar el producto después de actualizar la imagen
       }
     }
 
@@ -272,7 +273,7 @@ class ProductRepository
   }
 
     /**
-     * Obtiene los sabores de los productos y las estadísticas necesarias para las cards.
+     * Obtiene los variaciones de los productos y las estadísticas necesarias para las cards.
      *
      * @return array
     */
@@ -288,7 +289,7 @@ class ProductRepository
     }
 
   /**
-   * Obtiene los datos de los sabores para DataTables.
+   * Obtiene los datos de los variaciones para DataTables.
    *
    * @return mixed
   */
@@ -305,7 +306,7 @@ class ProductRepository
   }
 
   /**
-   * Almacena los sabores
+   * Almacena los variaciones
    *
    * @param  StoreFlavorRequest  $request
    * @return Flavor
@@ -328,7 +329,7 @@ class ProductRepository
 
 
   /**
-   * Almacena múltiples sabores
+   * Almacena múltiples variaciones
    *
    * @param  StoreMultipleFlavorsRequest  $request
    * @return void

@@ -274,9 +274,15 @@
 
 /* Checkout */
 
-.sabores-carrito {
+.variaciones-carrito {
   font-size: 10px;
   line-height: 1.4;
+}
+
+.img-carrito {
+  border-radius: 7px!important;
+  margin-top: 10px;
+  margin-bottom: 5px;
 }
 
 .success-product-img {
@@ -666,3 +672,75 @@ tr.odd {
   border: solid 1px #18181859;
   border-radius: 3px;
 }
+
+.card-title-product-pos {
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden;    /* Oculta el desbordamiento de texto */
+  text-overflow: ellipsis; /* Añade puntos suspensivos al final del texto si es demasiado largo */
+  max-width: 100%;     /* Asegura que el texto se mantenga dentro del contenedor */
+}
+
+.client-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 5px;
+}
+
+.client-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.client-info {
+  margin-bottom: 4px;
+  color: #6b7280; /* Color gris suave */
+  font-size: 13px; /* Tamaño de fuente reducido */
+}
+
+.btn-select-client {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 5px 8px; /* Botón más pequeño */
+  text-align: center;
+  font-size: 12px; /* Fuente más pequeña */
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-select-client:hover {
+  background-color: #45a049;
+}
+
+.card-title {
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 3px;
+  font-size: 14px; /* Fuente más pequeña */
+}
+
+.client-details {
+  flex: 1; /* Asegurar que el contenido ocupe el espacio restante */
+}
+
+.client-info-card {
+  transition: box-shadow 0.3s ease;
+}
+
+
+.client-details p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.btn-outline-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+
