@@ -38,7 +38,7 @@ class StoreClientRequest extends FormRequest
             'website' => 'nullable|string|max:255',
             'logo' => 'nullable|string|max:255',
             'company_name' => 'nullable|string|max:255',
-            'store_id' => 'required|integer',
+            'store_id' => 'nullable|integer',
         ];
     }
 

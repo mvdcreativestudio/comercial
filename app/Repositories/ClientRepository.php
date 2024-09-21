@@ -7,67 +7,68 @@ use Yajra\DataTables\DataTables;
 
 class ClientRepository
 {
-  /**
-   * Obtiene todos los clientes para la tabla de datos.
-   *
-   * @return mixed
-  */
-  public function getClientsForDatatable(): mixed
-  {
-    $query = Client::select(['id', 'name', 'lastname', 'company_name', 'type', 'rut', 'ci', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document']);
-    return DataTables::of($query)->make(true);
-  }
-
-  /**
-   * Crea un nuevo cliente.
-   *
-   * @param array $data
-   * @return Client
-  */
-  public function createClient(array $data): Client
-  {
-    return Client::create($data);
-  }
-
-  /**
-   * Obtiene un cliente por su ID.
-   *
-   * @param int $id
-   * @return Client|null
-  */
-  public function getClientById(int $id): ?Client
-  {
-    return Client::find($id);
-  }
-
-  /**
-   * Actualiza un cliente existente.
-   *
-   * @param int $id
-   * @param array $data
-   * @return bool
-  */
-  public function updateClient(int $id, array $data): bool
-  {
-    $client = Client::find($id);
-    if ($client) {
-        return $client->update($data);
+    /**
+     * Obtiene todos los clientes para la tabla de datos.
+     *
+     * @return mixed
+     */
+    public function getClientsForDatatable(): mixed
+    {
+        $query = Client::select(['id', 'name', 'lastname', 'company_name', 'type', 'rut', 'ci', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document'])
+            ->orderBy('id', 'desc');
+        return DataTables::of($query)->make(true);
     }
-    return false;
-  }
 
-  /**
-   * Elimina un cliente por su ID.
-   *
-   * @param int $id
-   * @return bool
-  */
-  public function deleteClient(int $id): bool
-  {
-    $client = Client::find($id);
-    if ($client) {
-        return $client->delete();
+    /**
+     * Crea un nuevo cliente.
+     *
+     * @param array $data
+     * @return Client
+     */
+    public function createClient(array $data): Client
+    {
+        return Client::create($data);
     }
-    return false;
-  }
+
+    /**
+     * Obtiene un cliente por su ID.
+     *
+     * @param int $id
+     * @return Client|null
+     */
+    public function getClientById(int $id): ?Client
+    {
+        return Client::find($id);
+    }
+
+    /**
+     * Actualiza un cliente existente.
+     *
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public function updateClient(int $id, array $data): bool
+    {
+        $client = Client::find($id);
+        if ($client) {
+            return $client->update($data);
+        }
+        return false;
+    }
+
+    /**
+     * Elimina un cliente por su ID.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function deleteClient(int $id): bool
+    {
+        $client = Client::find($id);
+        if ($client) {
+            return $client->delete();
+        }
+        return false;
+    }
 }

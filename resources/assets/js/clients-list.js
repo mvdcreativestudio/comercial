@@ -199,12 +199,144 @@ $(document).ready(function () {
 $(document).ready(function () {
   // Escucha cambios en los botones de radio del tipo de cliente
   $('input[type=radio][name=type]').change(function () {
+    clearErrors();
     if (this.value == 'individual') {
       $('#ciField').show();
+      $('#ci').attr('required', true);
       $('#rutField').hide();
+      $('#company_name').removeAttr('required');
+      $('#rut').removeAttr('required');
+      $('#direccionAsterisk').hide();
+      $('#ciudadAsterisk').hide();
+      $('#departamentoAsterisk').hide();
     } else if (this.value == 'company') {
       $('#ciField').hide();
+      $('#ci').removeAttr('required');
       $('#rutField').show();
+      $('#company_name').attr('required', true);
+      $('#rut').attr('required', true);
+      $('#direccionAsterisk').show();
+      $('#ciudadAsterisk').show();
+      $('#departamentoAsterisk').show();
     }
   });
 });
+
+
+document.getElementById('guardarCliente').addEventListener('click', function (e) {
+  e.preventDefault();
+
+  // Obtener los elementos de los campos del formulario
+  const nombre = document.getElementById('ecommerce-customer-add-name');
+  const apellido = document.getElementById('ecommerce-customer-add-lastname');
+  const tipo = document.querySelector('input[name="type"]:checked');  // Seleccionar el tipo de cliente (individual o company)
+  const email = document.getElementById('ecommerce-customer-add-email');
+  const ci = document.getElementById('ci');
+  const rut = document.getElementById('rut');
+  const razonSocial = document.getElementById('company_name');
+  const direccion = document.getElementById('ecommerce-customer-add-address');
+  const ciudad = document.getElementById('ecommerce-customer-add-town');
+  const departamento = document.getElementById('ecommerce-customer-add-state');
+
+  // Limpiar errores anteriores
+  clearErrors();
+
+  // Inicializar el indicador de error
+  let hasError = false;
+
+  // Validar campos obligatorios
+  if (nombre.value.trim() === '') {
+      showError(nombre, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (apellido.value.trim() === '') {
+      showError(apellido, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (email.value.trim() === '') {
+      showError(email, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (tipo.value === 'individual') {
+      // Validar CI para personas individuales
+      if (ci.value.trim() === '') {
+          showError(ci, 'Este campo es obligatorio');
+          hasError = true;
+      }
+      // Ocultar RUT y Razón Social si es individual
+      document.getElementById('rutField').style.display = 'none';
+      document.getElementById('ciField').style.display = 'block';
+  } else if (tipo.value === 'company') {
+      // Validar Razón Social y RUT para empresas
+      if (razonSocial.value.trim() === '') {
+          showError(razonSocial, 'Este campo es obligatorio');
+          hasError = true;
+      }
+
+      if (rut.value.trim() === '') {
+          showError(rut, 'Este campo es obligatorio');
+          hasError = true;
+      }
+
+      // Validar Dirección, Ciudad y Departamento para empresas
+      if (direccion.value.trim() === '') {
+          showError(direccion, 'Este campo es obligatorio');
+          hasError = true;
+      }
+
+      if (ciudad.value.trim() === '') {
+          showError(ciudad, 'Este campo es obligatorio');
+          hasError = true;
+      }
+
+      if (departamento.value.trim() === '') {
+          showError(departamento, 'Este campo es obligatorio');
+          hasError = true;
+      }
+
+      // Mostrar campos RUT, Razón Social, Dirección, Ciudad y Departamento si es empresa
+      document.getElementById('rutField').style.display = 'block';
+      document.getElementById('ciField').style.display = 'none';
+  }
+
+  if (hasError) {
+      return; // Detener la ejecución si hay errores
+  }
+
+  // Crear el objeto de datos a enviar
+  let data = {
+      name: nombre.value.trim(),
+      lastname: apellido.value.trim(),
+      type: tipo.value,
+      email: email.value.trim(),
+      address: direccion.value.trim(),
+      city: ciudad.value.trim(),
+      state: departamento.value.trim(),
+  };
+
+  if (tipo.value === 'individual') {
+      data.ci = ci.value.trim();
+  } else if (tipo.value === 'company') {
+      data.rut = rut.value.trim();
+      data.company_name = razonSocial.value.trim();
+  }
+
+  // Continuar con el envío del formulario
+  document.getElementById('eCommerceCustomerAddForm').submit();
+});
+
+function showError(input, message) {
+  const errorElement = document.createElement('small');
+  errorElement.className = 'text-danger error-message';
+  errorElement.innerText = message;
+  input.parentElement.appendChild(errorElement);
+}
+
+function clearErrors() {
+  // Eliminar solo los mensajes de error previos, no los asteriscos
+  const errors = document.querySelectorAll('.text-danger.error-message');
+  errors.forEach(error => error.remove());
+}
