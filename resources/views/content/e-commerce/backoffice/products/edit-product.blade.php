@@ -171,12 +171,12 @@
         <div class="card-body">
           <!-- Base Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-price">Precio normal</label>
+            <label class="form-label" for="ecommerce-product-price">Precio normal - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" value="{{$product->old_price}}" aria-label="Product price" required>
           </div>
           <!-- Discounted Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado</label>
+            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" value="{{$product->price}}" aria-label="Introduzca el precio rebajado">
           </div>
           <!-- Campo oculto para estado desactivado -->
