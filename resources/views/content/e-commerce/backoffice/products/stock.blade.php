@@ -65,62 +65,25 @@ $currencySymbol = $settings->currency_symbol;
   </div>
   <div class="collapse" id="columnSwitches">
     <div class="mt-0 d-flex flex-wrap">
-      <div class="mx-0">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="0" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Imagen</span>
-        </label>
-      </div>
+      <!-- Controles de las columnas -->
+      @foreach (['Imagen', 'Nombre', 'Stock', 'Local', 'Estado'] as $index => $label)
       <div class="mx-3">
         <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="1" checked>
+          <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
           <span class="switch-toggle-slider">
             <span class="switch-on"><i class="bx bx-check"></i></span>
             <span class="switch-off"><i class="bx bx-x"></i></span>
           </span>
-          <span class="switch-label">Nombre</span>
+          <span class="switch-label">{{ $label }}</span>
         </label>
       </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="4" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Local</span>
-        </label>
-      </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="5" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Estado</span>
-        </label>
-      </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Stock</span>
-        </label>
-      </div>
+      @endforeach
     </div>
   </div>
 </div>
 
 <!-- Product List Cards -->
-<div class="row" id="product-list-container" data-ajax-url="{{ route('products.datatable') }}">
+<div class="row row-cols-1" id="product-list-container" data-ajax-url="{{ route('products.datatable') }}">
   <!-- Aquí se generarán las tarjetas de productos mediante JS -->
 </div>
 

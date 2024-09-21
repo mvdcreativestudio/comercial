@@ -13,7 +13,7 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_product_stock_table = $('#product-list-container'); // Modificamos el selector para que apunte al div
+  var dt_product_stock_table = $('#product-list-container');
 
   if (dt_product_stock_table.length) {
     var ajaxUrl = dt_product_stock_table.data('ajax-url');
@@ -22,8 +22,8 @@ $(function () {
       url: ajaxUrl,
       method: 'GET',
       success: function (response) {
-        var rows = response.data;  // asumiendo que tu respuesta tiene la estructura {data: [...]}
-        var cardContainer = $('#product-list-container').html(''); // Limpiamos el contenedor
+        var rows = response.data;
+        var cardContainer = $('#product-list-container').html('');
 
         rows.forEach(function (rowData) {
           const stockClass =
@@ -34,18 +34,22 @@ $(function () {
           const statusBadgeClass = rowData.status === 1 ? 'bg-success' : 'bg-danger';
 
           const card = `
-            <div class="col-md-4 mb-4">
-              <div class="card">
+            <div class="col-md-6 col-lg-4 col-12 mb-4">
+              <div class="card h-100 shadow-sm">
                 <div class="row g-0">
-                  <div class="col-md-4">
-                    <img src="${baseUrl + rowData.image}" class="img-fluid rounded-start" alt="Imagen del producto">
+                  <div class="col-4 d-flex align-items-center">
+                    <img src="${baseUrl + rowData.image}" class="img-fluid rounded-start w-100 h-auto object-fit-cover" alt="Imagen del producto" style="max-height: 150px;">
                   </div>
-                  <div class="col-md-8">
-                    <div class="card-body">
-                      <h5 class="card-title">${rowData.name}</h5>
-                      <p class="card-text">Stock: <span class="badge ${stockClass}">${rowData.stock}</span></p>
-                      <p class="card-text">Tienda: ${rowData.store_name}</p>
-                      <p class="card-text">Estado: <span class="badge ${statusBadgeClass}">${statusBadge}</span></p>
+                  <div class="col-8">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <div>
+                        <h6 class="card-title">${rowData.name}</h6>
+                        <p class="card-text mb-2">Stock: <span class="badge ${stockClass}">${rowData.stock}</span></p>
+                        <p class="card-text mb-2">Tienda: ${rowData.store_name}</p>
+                      </div>
+                      <div>
+                        <p class="card-text">Estado: <span class="badge ${statusBadgeClass}">${statusBadge}</span></p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -53,7 +57,7 @@ $(function () {
             </div>
           `;
 
-          cardContainer.append(card); // Añadimos la tarjeta al contenedor
+          cardContainer.append(card);
         });
       },
       error: function (xhr, status, error) {
