@@ -484,8 +484,11 @@ $('#quitarDescuento').on('click', function () {
         return;
     }
 
+    console.log(sessionStoreId);  // Verifica si sessionStoreId tiene un valor correcto
+
     // Crear el objeto de datos a enviar
     let data = {
+        store_id: sessionStoreId,
         name: nombre.value.trim(),
         lastname: apellido.value.trim(),
         type: tipo.value,

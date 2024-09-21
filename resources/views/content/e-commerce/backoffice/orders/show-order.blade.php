@@ -111,6 +111,7 @@ $changeTypeTranslations = [
         <span class="me-2 ms-2">Crédito</span>
       @endif
     </h6>
+    @if($store->invoices_enabled)
     <!-- Mostrar si el pedido ha sido facturado -->
     <h6 class="card-title mb-1 mt-1">Estado de la Facturación:
       @if($order->is_billed)
@@ -119,6 +120,7 @@ $changeTypeTranslations = [
         <span class="badge bg-label-danger me-2 ms-2">No Facturado</span>
       @endif
     </h6>
+    @endif
     <!-- Mostrar el vendedor -->
     <h6 class="card-title mb-1 mt-1">Vendido por:
       @if($order->cashRegisterLog !== null)
@@ -134,12 +136,12 @@ $changeTypeTranslations = [
     <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=print" target="_blank" onclick="window.open(this.href, 'print_window', 'left=100,top=100,width=800,height=600').print(); return false;">
         <button class="btn btn-primary">Imprimir</button>
     </a>
-    @if(!$order->is_billed)
+    @if(!$order->is_billed && $store->invoices_enabled)
       <button type="button" class="btn btn-label-info" data-bs-toggle="modal" data-bs-target="#emitirFacturaModal">
         Emitir Factura
       </button>
     @endif
-    <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=download" class="btn btn-label-primary">Descargar PDF</a>
+    <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=download" class="btn btn-label-primary">Descargar Recibo</a>
     <button class="btn btn-label-danger delete-order">Eliminar</button>
   </div>
 </div>

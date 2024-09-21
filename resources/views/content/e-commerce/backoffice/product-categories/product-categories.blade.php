@@ -38,7 +38,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span> Categorias
+  <span class="text-muted fw-light"></span> Categorias
 </h4>
 
 @php
@@ -181,23 +181,23 @@
           <input type="text" class="form-control" id="ecommerce-category-title" placeholder="Ingrese el nombre de la categoría" name="name" aria-label="category title">
         </div>
         <!-- Slug -->
-        <div class="mb-3">
+        <div class="mb-3" style="display: none;">
           <label class="form-label" for="ecommerce-category-slug">Slug</label>
           <input type="text" id="ecommerce-category-slug" class="form-control" placeholder="Ingrese el slug" aria-label="slug" name="slug">
         </div>
-        <!-- Image -->
+        {{-- <!-- Image -->
         <div class="mb-3">
           <label class="form-label" for="ecommerce-category-image">Imagen</label>
           <input class="form-control" name="image" type="file" id="ecommerce-category-image">
-        </div>
-        <!-- Parent category -->
+        </div> --}}
+        {{-- <!-- Parent category -->
         <div class="mb-3 ecommerce-select2-dropdown">
           <label class="form-label" for="ecommerce-category-parent-category">Categoría padre</label>
           <select id="ecommerce-category-parent-category" class="select2 form-select" data-placeholder="Seleccione la categoría padre">
             <option value="">Seleccione la categoría padre</option>
           </select>
-        </div>
-        <!-- Description -->
+        </div> --}}
+        {{-- <!-- Description -->
         <div class="mb-3">
           <label class="form-label">Descripción</label>
           <input type="hidden" name="description" id="hidden-description">
@@ -217,11 +217,11 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> --}}
         <!-- Hidden status field -->
         <input type="hidden" name="status" value="2">
         <!-- Instock switch -->
-        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+        <div class="d-flex justify-content-between align-items-center border-top pt-3 pb-3">
           <span class="mb-0 h6">Estado</span>
           <div class="w-25 d-flex justify-content-end">
             <label class="switch switch-primary switch-sm me-4 pe-2">

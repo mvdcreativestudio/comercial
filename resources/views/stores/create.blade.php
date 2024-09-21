@@ -60,7 +60,7 @@
               </select>
             </div>
 
-            <!-- E-Commerce -->
+            {{-- <!-- E-Commerce -->
             <div class="mb-3">
               <div class="form-check form-switch">
                 <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
@@ -161,7 +161,7 @@
                     placeholder="API Key">
                 </div>
               </div>
-            </div>
+            </div> --}}
 
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">Guardar Empresa</button>

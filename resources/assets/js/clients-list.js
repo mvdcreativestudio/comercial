@@ -34,10 +34,11 @@ $(document).ready(function () {
       ajax: 'clients/datatable',
       columns: [
         { data: 'id', className: 'col-1' },
-        { data: 'name', className: 'col-1' },
-        { data: 'address', className: 'col-2' },
-        { data: 'city', className: 'col-1' },
-        { data: 'state', className: 'col-1' },
+        { data: 'name', className: 'col-3' },
+        { data: 'company_name', className: 'col-3' },
+        // { data: 'address', className: 'col-2' },
+        // { data: 'city', className: 'col-1' },
+        // { data: 'state', className: 'col-1' },
         { data: 'doc_type', className: 'col-1' },
         { data: 'document', className: 'col-1' }
       ],
@@ -51,7 +52,7 @@ $(document).ready(function () {
           }
         },
         {
-          targets: 5,
+          targets: 3,
           render: function (data, type, row) {
             if (row.type == 'company') {
               return 'RUT';
@@ -62,7 +63,7 @@ $(document).ready(function () {
         },
         // Modificación para mostrar CI o RUT dependiendo del tipo de cliente
         {
-          targets: 6, // Asumiendo que la columna 'document' es la sexta columna
+          targets: 4, // Asumiendo que la columna 'document' es la sexta columna
           render: function (data, type, row) {
             if (row.type === 'company') {
               return row.rut ? row.rut : '-';

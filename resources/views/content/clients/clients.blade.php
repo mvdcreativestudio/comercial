@@ -83,7 +83,7 @@
             <span class="switch-label">Cliente</span>
           </label>
         </div>
-        <div class="mx-3">
+        {{-- <div class="mx-3">
           <label class="switch switch-square">
             <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
             <span class="switch-toggle-slider">
@@ -112,7 +112,7 @@
             </span>
             <span class="switch-label">Departamento</span>
           </label>
-        </div>
+        </div> --}}
   </div>
 </div>
   <div class="card-datatable table-responsive">
@@ -121,9 +121,10 @@
         <tr>
           <th class="text-nowrap col-1">Id</th>
           <th class="col-2">Cliente</th>
-          <th class="col-2">Dirección</th>
+          <th class="col-2">Razón Social</th>
+          {{-- <th class="col-2">Dirección</th>
           <th class="col-1">Ciudad</th>
-          <th class="text-nowrap col-1">Departamento</th>
+          <th class="text-nowrap col-1">Departamento</th> --}}
           <th class="col-1">Tipo de Documento</th>
           <th class="col-1">Documento</th>
         </tr>
@@ -177,7 +178,7 @@
           </div>
           <div>
             <label class="form-label" for="ecommerce-customer-add-contact">Teléfono</label>
-            <input type="text" id="ecommerce-customer-add-contact" class="form-control phone-mask" placeholder="+(598) 123 456" aria-label="+(598) 123 456" name="phone" />
+            <input type="text" id="ecommerce-customer-add-contact" class="form-control phone-mask" placeholder="098123456" aria-label="098123456" name="phone" />
           </div>
         </div>
 
@@ -212,20 +213,6 @@
 
 
 
-        </div>
-
-        <div class="d-sm-flex mb-3 pt-3">
-          <div class="me-auto mb-2 mb-md-0">
-            <h6 class="mb-0">Use as a billing address?</h6>
-            <small class="text-muted">If you need more info, please check budget.</small>
-          </div>
-          <label class="switch m-auto pe-2">
-            <input type="checkbox" class="switch-input" />
-            <span class="switch-toggle-slider">
-              <span class="switch-on"></span>
-              <span class="switch-off"></span>
-            </span>
-          </label>
         </div>
         <div class="pt-3">
           <button type="submit" class="btn btn-primary me-sm-3 me-1 data-submit">Crear cliente</button>

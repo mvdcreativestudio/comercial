@@ -46,6 +46,7 @@ class ClientController extends Controller
   public function store(StoreClientRequest $request): RedirectResponse
   {
     $validatedData = $request->validated();
+
     $this->clientRepository->createClient($validatedData);
     return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente.');
   }
