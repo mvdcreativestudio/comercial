@@ -61,6 +61,16 @@ class ProductController extends Controller
       return view('content.e-commerce.backoffice.products.products');
   }
 
+    /**
+   * Muestra una lista de todos los productos para Stock.
+   *
+   * @return View
+   */
+  public function stock(): View
+  {
+      return view('content.e-commerce.backoffice.products.stock');
+  }
+
   /**
    * Muestra el formulario para crear un nuevo producto.
    *

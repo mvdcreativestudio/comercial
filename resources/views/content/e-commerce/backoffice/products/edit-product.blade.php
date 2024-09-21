@@ -203,7 +203,7 @@
           <!-- Vendor -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <label class="form-label mb-1" for="vendor">
-              Local
+              Empresa
             </label>
             <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
               @if(auth()->user()->hasPermissionTo('access_global_products'))
@@ -231,6 +231,11 @@
           <div class="mb-3" id="stockContainer">
             <label class="form-label" for="stock">Stock</label>
             <input type="number" class="form-control" id="stock" placeholder="Stock" value="{{$product->stock}}" name="stock" aria-label="Introduzca el stock">
+          </div>
+          <!-- Margen de seguridad - Stock -->
+          <div class="mb-3" id="safetyMarginContaier">
+            <label class="form-label" for="stock">Margen de Seguridad</label>
+            <input type="number" class="form-control" id="safety_margin" placeholder="Stock" value="{{$product->safety_margin}}" name="safety_margin" aria-label="Introduzca el margen de seguridad">
           </div>
         </div>
       </div>

@@ -229,7 +229,7 @@ $currencySymbol = $settings->currency_symbol;
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Local</span>
+            <span class="switch-label">Empresa</span>
           </label>
         </div>
         <div class="mx-3">
@@ -285,7 +285,7 @@ $currencySymbol = $settings->currency_symbol;
           <th>Precio</th>
           <th>Precio rebajado</th>
           <th>Categoría</th>
-          <th>Local</th>
+          <th>Empresa</th>
           <th>Estado</th>
           <th>Stock</th>
           <th>Acciones</th>

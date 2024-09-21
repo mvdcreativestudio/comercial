@@ -127,14 +127,14 @@
           xaxis: {
             categories: labels,
             labels: {
-              offsetX: 0,
-              rotate: -45,
-              style: {
-                colors: '#757575',
-                fontSize: '13px'
-              }
+                offsetX: 0,
+                rotate: -45, // Mantener los labels rotados si hay muchos días
+                style: {
+                    colors: '#757575',
+                    fontSize: '13px'
+                }
             },
-            tickAmount: labels.length > 12 ? 12 : labels.length,
+            tickAmount: labels.length, // Asegura que se muestre un tick por cada label
           },
           yaxis: {
             labels: {

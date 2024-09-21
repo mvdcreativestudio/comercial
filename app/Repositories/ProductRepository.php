@@ -49,7 +49,7 @@ class ProductRepository
       // Se rellenan los campos del producto con los datos del formulario.
       $product->fill($request->only([
           'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-          'price', 'discount', 'store_id', 'status', 'stock',
+          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
       ]));
 
       // Manejo de la imagen si se ha subido un archivo
@@ -105,7 +105,7 @@ class ProductRepository
   public function getProductsForDataTable(): mixed
   {
     $query = Product::with(['categories:id,name', 'store:id,name'])
-        ->select(['id', 'name', 'sku', 'description', 'type', 'old_price', 'price', 'discount', 'image', 'store_id', 'status', 'draft', 'stock'])
+        ->select(['id', 'name', 'sku', 'description', 'type', 'old_price', 'price', 'discount', 'image', 'store_id', 'status', 'draft', 'stock', 'safety_margin'])
         ->where('is_trash', '!=', 1);
 
     // Filtrar por rol del usuario
@@ -157,7 +157,7 @@ class ProductRepository
 
     $product->update($request->only([
         'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-        'price', 'discount', 'store_id', 'status', 'stock'
+        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
     ]));
 
     // Manejo de la imagen si se ha subido un archivo

@@ -12,11 +12,21 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\Client;
 use App\Services\EmailService;
+use Illuminate\Support\Facades\Auth;
 
 
 
 class CashRegisterLogRepository
 {
+
+    protected $companySettings;
+
+    public function __construct($companySettings)
+    {
+        // Asigna companySettings al repositorio
+        $this->companySettings = $companySettings;
+    }
+
 
     public function hasOpenLogForUser(int $userId): ?int
     {
@@ -252,20 +262,33 @@ class CashRegisterLogRepository
     }
 
     /**
-     * Obtiene todos los clientes.
+     * Obtiene todos los clientes según la configuración de clients_has_store.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllClients(): \Illuminate\Database\Eloquent\Collection
     {
-        $clients = Client::select('id', 'name', 'lastname', 'ci', 'rut','type','company_name','phone','address','email')
-                     ->get()
-                     ->map(function ($client) {
-                         $client->ci = $client->ci ?? 'No CI';
-                         $client->rut = $client->rut ?? 'No RUT';
-                         return $client;
-                     });
-
-        return $clients;
+        if ($this->companySettings && $this->companySettings->clients_has_store == 1) {
+            // Filtrar los clientes que tienen el mismo store_id que el usuario autenticado
+            return Client::select('id', 'name', 'lastname', 'ci', 'rut', 'type', 'company_name', 'phone', 'address', 'email')
+                ->where('store_id', Auth::user()->store_id)  // Filtra por store_id del usuario autenticado
+                ->get()
+                ->map(function ($client) {
+                    $client->ci = $client->ci ?? 'No CI';
+                    $client->rut = $client->rut ?? 'No RUT';
+                    return $client;
+                });
+        } else {
+            // Si clients_has_store es 0, mostrar todos los clientes
+            return Client::select('id', 'name', 'lastname', 'ci', 'rut', 'type', 'company_name', 'phone', 'address', 'email')
+                ->get()
+                ->map(function ($client) {
+                    $client->ci = $client->ci ?? 'No CI';
+                    $client->rut = $client->rut ?? 'No RUT';
+                    return $client;
+                });
+        }
     }
+
+
 }
