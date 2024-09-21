@@ -28,7 +28,8 @@ class Product extends Model
         'image',
         'store_id',
         'status',
-        'stock'
+        'stock',
+        'safety_margin'
       ];
 
 

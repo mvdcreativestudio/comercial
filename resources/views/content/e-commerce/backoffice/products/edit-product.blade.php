@@ -232,6 +232,11 @@
             <label class="form-label" for="stock">Stock</label>
             <input type="number" class="form-control" id="stock" placeholder="Stock" value="{{$product->stock}}" name="stock" aria-label="Introduzca el stock">
           </div>
+          <!-- Margen de seguridad - Stock -->
+          <div class="mb-3" id="safetyMarginContaier">
+            <label class="form-label" for="stock">Margen de Seguridad</label>
+            <input type="number" class="form-control" id="safety_margin" placeholder="Stock" value="{{$product->safety_margin}}" name="safety_margin" aria-label="Introduzca el margen de seguridad">
+          </div>
         </div>
       </div>
       <!-- Media -->

@@ -59,7 +59,7 @@
     </div>
     <div class="d-flex align-content-center flex-wrap gap-3">
       <button type="button" class="btn btn-label-secondary" id="discardButton">Descartar</button>
-      <button type="submit" name="action" value="save_draft" class="btn btn-label-primary">Guardar borrador</button>
+      {{-- <button type="submit" name="action" value="save_draft" class="btn btn-label-primary">Guardar borrador</button> --}}
       <button type="submit" name="action" value="publish" class="btn btn-primary">Publicar</button>
     </div>
 
@@ -167,10 +167,20 @@
     <div class="col-12 col-lg-4">
       <!-- Pricing Card -->
       <div class="card mb-4">
-        <div class="card-header">
-          <h5 class="card-title mb-0">Precio</h5>
-        </div>
         <div class="card-body">
+          <!-- Campo oculto para estado desactivado -->
+          <input type="hidden" name="status" value="2">
+          <!-- Switch estado -->
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-1">
+            <span class="mb-0 h6">Estado</span>
+            <div class="w-25 d-flex justify-content-end">
+              <label class="switch switch-primary switch-sm me-4 pe-2">
+                <input type="checkbox" class="switch-input" value="1" id="statusSwitch" checked name="status">
+                <span class="switch-toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
           <!-- Base Price -->
           <div class="mb-3">
             <label class="form-label" for="ecommerce-product-price">Precio normal</label>
@@ -181,18 +191,7 @@
             <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado</label>
             <input type="number" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" aria-label="Introduzca el precio rebajado">
           </div>
-          <!-- Campo oculto para estado desactivado -->
-          <input type="hidden" name="status" value="2">
-          <!-- Switch estado -->
-          <div class="d-flex justify-content-between align-items-center border-top pt-3">
-            <span class="mb-0 h6">Estado</span>
-            <div class="w-25 d-flex justify-content-end">
-              <label class="switch switch-primary switch-sm me-4 pe-2">
-                <input type="checkbox" class="switch-input" value="1" id="statusSwitch" checked name="status">
-                <span class="switch-toggle-slider"></span>
-              </label>
-            </div>
-          </div>
+
         </div>
       </div>
       <!-- /Pricing Card -->
@@ -202,6 +201,31 @@
           <h5 class="card-title mb-0">Organizar</h5>
         </div>
         <div class="card-body">
+
+          <!-- Stock Inicial -->
+          <div class="mb-3" id="stockContainer">
+            <div class="stock-inicial mb-3">
+              <label class="form-label" for="stock">Stock Inicial</label>
+              <input type="number" class="form-control" id="stock" placeholder="Stock Inicial" name="stock" aria-label="Introduzca el stock inicial">
+            </div>
+            <div class="stock-margen">
+              <label class="form-label" for="safety_margin">Margen de Seguridad</label>
+              <input type="number" class="form-control" id="safety_margin" placeholder="¿Cuántas unidades es el minimo por el que desea ser notificado?" name="safety_margin" aria-label="Introduzca el margen de seguridad">
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="mb-3 col ecommerce-select2-dropdown">
+            <label class="form-label mb-1 d-flex justify-content-between align-items-center" for="category-org">
+              <span>Categoría</span><a href="{{ route('product-categories.index') }}" class="fw-medium">Crear categoría</a>
+            </label>
+            <select id="category-org" class="select2 form-select" data-placeholder="Seleccione la categoría" name="categories[]" multiple>
+              @foreach ($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
           <!-- Vendor -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <label class="form-label mb-1" for="vendor">
@@ -223,23 +247,6 @@
             @endif
           </div>
 
-
-          <!-- Category -->
-          <div class="mb-3 col ecommerce-select2-dropdown">
-            <label class="form-label mb-1 d-flex justify-content-between align-items-center" for="category-org">
-              <span>Categoría</span><a href="{{ route('product-categories.index') }}" class="fw-medium">Crear categoría</a>
-            </label>
-            <select id="category-org" class="select2 form-select" data-placeholder="Seleccione la categoría" name="categories[]" multiple>
-              @foreach ($categories as $category)
-                <option value="{{ $category->id }}">{{ $category->name }}</option>
-              @endforeach
-            </select>
-          </div>
-          <!-- Stock Inicial -->
-          <div class="mb-3" id="stockContainer">
-            <label class="form-label" for="stock">Stock Inicial</label>
-            <input type="number" class="form-control" id="stock" placeholder="Stock Inicial" name="stock" aria-label="Introduzca el stock inicial">
-          </div>
         </div>
       </div>
       <!-- Media -->

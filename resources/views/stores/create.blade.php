@@ -132,24 +132,8 @@
                 <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
                 <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office"
                   placeholder="Sucursal PyMo">
-                <!-- Acepta Pedidos Ya Envíos Switch -->
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                    <input type="hidden" name="accepts_peya_envios" value="0">
-                    <input class="form-check-input" type="checkbox" id="peyaEnviosSwitch" name="accepts_peya_envios">
-                    <label class="form-check-label" for="peyaEnviosSwitch">Acepta Pedidos Ya Envíos</label>
-                  </div>
+              </div>
 
-                  <!-- Campo Pedidos Ya Key (oculto por defecto) -->
-                  <div id="peyaEnviosFields" style="display: none;">
-                    <div class="mb-3 mt-3">
-                      <label class="form-label" for="peyaEnviosKey">API Key de Pedidos Ya Envíos</label>
-                      <input type="text" class="form-control" id="peyaEnviosKey" name="peya_envios_key"
-                        placeholder="API Key">
-                    </div>
-                  </div>
-                </div>
 
                 @if ($errors->any())
                 @foreach ($errors->all() as $error)
@@ -158,6 +142,24 @@
                 </div>
                 @endforeach
                 @endif
+              </div>
+            </div>
+
+            <!-- Acepta Pedidos Ya Envíos Switch -->
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
+                <input type="hidden" name="accepts_peya_envios" value="0">
+                <input class="form-check-input" type="checkbox" id="peyaEnviosSwitch" name="accepts_peya_envios">
+                <label class="form-check-label" for="peyaEnviosSwitch">Acepta Pedidos Ya Envíos</label>
+              </div>
+              <!-- Campo Pedidos Ya Key (oculto por defecto) -->
+              <div id="peyaEnviosFields" style="display: none;">
+                <div class="mb-3 mt-3">
+                  <label class="form-label" for="peyaEnviosKey">API Key de Pedidos Ya Envíos</label>
+                  <input type="text" class="form-control" id="peyaEnviosKey" name="peya_envios_key"
+                    placeholder="API Key">
+                </div>
               </div>
             </div>
 

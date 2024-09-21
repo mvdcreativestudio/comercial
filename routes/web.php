@@ -89,6 +89,12 @@ Route::middleware([
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
     Route::get('/current-accounts/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
 
+
+    // Stock de productos
+    Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
+
+
+
     // Recursos con acceso autenticado
     Route::resources([
         'stores' => StoreController::class,

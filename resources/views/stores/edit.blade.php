@@ -12,6 +12,27 @@
 @endsection
 
 @section('content')
+
+<style>
+  /* Estilos para mejorar la visualización de las cards de Pymo */
+.card {
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 15px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+</style>
+
+
 <h4 class="py-3 mb-4">
     <span class="text-muted fw-light">Empresas /</span> Editar Empresa
 </h4>
@@ -82,9 +103,9 @@
                         </div>
 
                         <!-- Tarjetas de Integraciones -->
-                        <div class="row">
+                        <div class="row pt-3">
                             <!-- Integración Ecommerce -->
-                            <div class="col-lg-4 col-sm-6 mb-4">
+                            <div class="col-lg-3 col-sm-6 mb-4">
                                 <div class="card position-relative border">
                                     <div class="card-header text-center bg-light">
                                         <div class="border-0 rounded-circle mx-auto">
@@ -110,7 +131,7 @@
                             </div>
 
                             <!-- Integración MercadoPago -->
-                            <div class="col-lg-4 col-sm-6 mb-4">
+                            <div class="col-lg-3 col-sm-6 mb-4">
                                 <div class="card position-relative border">
                                     <div class="card-header text-center bg-light">
                                         <div class="border-0 rounded-circle mx-auto">
@@ -131,7 +152,7 @@
                                         <!-- Campos MercadoPago (ocultos por defecto) -->
                                         <div id="mercadoPagoFields" class="integration-fields" style="display: none;">
                                             <div class="mb-3">
-                                                <label class="form-label" for="mercadoPagoPublicKey">Public Key</label>
+                                                <label class="form-label mt-2" for="mercadoPagoPublicKey">Public Key</label>
                                                 <input type="text" class="form-control" id="mercadoPagoPublicKey"
                                                     name="mercadoPagoPublicKey" placeholder="Public Key de MercadoPago"
                                                     value="{{ $store->mercadoPagoAccount->public_key ?? '' }}">
@@ -162,7 +183,7 @@
                             </div>
 
                             <!-- Integración Pedidos Ya Envíos -->
-                            <div class="col-lg-4 col-sm-6 mb-4">
+                            <div class="col-lg-3 col-sm-6 mb-4">
                                 <div class="card position-relative border">
                                     <div class="card-header text-center bg-light">
                                         <div class="border-0 rounded-circle mx-auto">
@@ -171,25 +192,25 @@
                                         </div>
                                     </div>
                                     <div class="card-body text-center">
-                                        <h3 class="card-title mb-1 me-2">Pedidos Ya Envíos</h3>
-                                        <small class="d-block mb-2">Ofrece envíos a través de Pedidos Ya</small>
-                                        <div class="form-check form-switch d-flex justify-content-center">
-                                            <input type="hidden" name="accepts_peya_envios" value="0">
-                                            <input class="form-check-input" type="checkbox" id="peyaEnviosSwitch"
-                                                name="accepts_peya_envios" value="1" {{ $store->accepts_peya_envios ?
-                                            'checked' : '' }}>
-                                        </div>
-                                        <!-- Campos Pedidos Ya (ocultos por defecto) -->
-                                        <div id="peyaEnviosFields" class="integration-fields" style="display: none;">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="peyaEnviosKey">API Key de Pedidos Ya
-                                                    Envíos</label>
-                                                <input type="text" class="form-control" id="peyaEnviosKey"
-                                                    name="peya_envios_key" placeholder="API Key de Pedidos Ya"
-                                                    value="{{ $store->peya_envios_key ?? '' }}">
-                                            </div>
-                                        </div>
+                                      <h3 class="card-title mb-1 me-2">Pedidos Ya Envíos</h3>
+                                      <small class="d-block mb-2">Ofrece envíos a través de Pedidos Ya</small>
+                                      <div class="form-check form-switch d-flex justify-content-center">
+                                        <!-- Campo oculto para asegurar que se envíe el valor '0' si el checkbox no está marcado -->
+                                        <input type="hidden" name="accepts_peya_envios" value="0">
+                                        <input class="form-check-input" type="checkbox" id="peyaEnviosSwitch"
+                                               name="accepts_peya_envios" value="1" {{ $store->accepts_peya_envios ? 'checked' : '' }}>
+                                      </div>
+                                      <!-- Campos Pedidos Ya (ocultos por defecto) -->
+                                      <div id="peyaEnviosFields" class="integration-fields" style="display: none;">
+                                          <div class="mb-3">
+                                              <label class="form-label mt-2" for="peyaEnviosKey">API Key de Pedidos Ya Envíos</label>
+                                              <input type="text" class="form-control" id="peyaEnviosKey"
+                                                     name="peya_envios_key" placeholder="API Key de Pedidos Ya"
+                                                     value="{{ $store->peya_envios_key ?? '' }}">
+                                          </div>
+                                      </div>
                                     </div>
+
                                     @if ($store->accepts_peya_envios)
                                     <span class="check-circle-integrations position-absolute top-0 end-0 m-2">
                                         <i class="bx bx-check text-white"></i>
@@ -197,96 +218,62 @@
                                     @endif
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Acepta MercadoPago Switch -->
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                                <input type="hidden" name="accepts_mercadopago" value="0">
-                                <input class="form-check-input" type="checkbox" id="mercadoPagoSwitch"
-                                    name="accepts_mercadopago" value="1" {{ $store->mercadoPagoAccount ? 'checked' : ''
-                                }}>
-                                <label class="form-check-label" for="mercadoPagoSwitch">Acepta MercadoPago</label>
-                            </div>
-                        </div>
+                            <!-- Integración Pymo -->
+                            <div class="col-lg-3 col-sm-6 mb-4">
+                              <div class="card position-relative border">
+                                  <div class="card-header text-center bg-light">
+                                      <div class="border-0 rounded-circle mx-auto">
+                                          <img src="{{ asset('assets/img/integrations/pymo-logo.png') }}" alt="Pymo Logo" class="img-fluid" style="width: 80px;">
+                                      </div>
+
+                                      <!-- Icono de check para mostrar la vinculación activa -->
+                                      @if ($store->invoices_enabled)
+                                      <span class="position-absolute top-0 end-0 translate-middle p-2 bg-success rounded-circle">
+                                          <i class="bx bx-check text-white"></i>
+                                      </span>
+                                      @endif
+                                  </div>
+                                  <div class="card-body text-center">
+                                      <h3 class="card-title mb-1 me-2">Pymo</h3>
+                                      <small class="d-block mb-2">Facturación Electrónica a través de Pymo</small>
+                                      <div class="form-check form-switch d-flex justify-content-center">
+                                        <!-- Campo oculto para asegurar que se envíe el valor '0' si el checkbox no está marcado -->
+                                        <input type="hidden" name="invoices_enabled" value="0">
+                                        <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch"
+                                               name="invoices_enabled" value="1" {{ $store->invoices_enabled ? 'checked' : '' }}>
+                                      </div>
+
+                                      <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
+                                      <div id="pymoFields" style="display: none;">
+                                      <div class="mb-3">
+                                        <label class="form-label mt-2" for="pymoUser">Usuario PyMo</label>
+                                        <input type="text" class="form-control" id="pymoUser" name="pymo_user" value="{{ $store->pymo_user }}">
+                                      </div>
+
+                                      <div class="mb-3">
+                                        <label class="form-label" for="pymoPassword">Contraseña PyMo</label>
+                                        <input type="password" class="form-control" id="pymoPassword" name="pymo_password" value="{{ $store->pymo_password }}">
+                                      </div>
+
+                                      <div class="mb-3">
+                                        <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
+                                        <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office" value="{{ $store->pymo_branch_office}}">
+                                      </div>
 
 
+                                      @if($store->pymo_user && $store->pymo_password && $store->pymo_branch_office && !empty($companyInfo))
+                                      <div class="d-flex align-items-center justify-content-between mt-4">
+                                          <label class="form-label mb-0" for="automaticBillingSwitch">¿Facturar automáticamente?</label>
+                                          <div class="form-check form-switch ms-3">
+                                              <input type="hidden" name="automatic_billing" value="0">
+                                              <input class="form-check-input" type="checkbox" id="automaticBillingSwitch"
+                                                     name="automatic_billing" value="1" {{ $store->automatic_billing ? 'checked' : '' }}>
+                                          </div>
+                                      </div>
+                                      @endif
 
-                        <!-- Campos MercadoPago (ocultos por defecto) -->
-                        <div id="mercadoPagoFields" style="display: none;">
-                            <!-- Public Key -->
-                            <div class="mb-3">
-                                <label class="form-label" for="mercadoPagoPublicKey">Public Key</label>
-                                <input type="text" class="form-control" id="mercadoPagoPublicKey"
-                                    name="mercadoPagoPublicKey" placeholder="Public Key de MercadoPago"
-                                    value="{{ $store->mercadoPagoAccount->public_key ?? '' }}">
-                            </div>
-
-                            <!-- Access Token -->
-                            <div class="mb-3">
-                                <label class="form-label" for="mercadoPagoAccessToken">Access Token</label>
-                                <input type="text" class="form-control" id="mercadoPagoAccessToken"
-                                    name="mercadoPagoAccessToken" placeholder="Access Token de MercadoPago"
-                                    value="{{ $store->mercadoPagoAccount->access_token ?? '' }}">
-                            </div>
-
-                            <!-- Secret Key -->
-                            <div class="mb-3">
-                                <label class="form-label" for="mercadoPagoSecretKey">Clave Secreta</label>
-                                <input type="text" class="form-control" id="mercadoPagoSecreyKey"
-                                    name="mercadoPagoSecretKey" placeholder="Clave secreta de MercadoPago"
-                                    value="{{ $store->mercadoPagoAccount->secret_key ?? ''}}">
-                            </div>
-                        </div>
-
-
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                                <input type="hidden" name="invoices_enabled" value="0">
-                                <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch"
-                                    name="invoices_enabled" value="1" {{ $store->invoices_enabled ? 'checked' : '' }}>
-                                <label class="form-check-label" for="invoicesEnabledSwitch">Habilitar
-                                    Facturación</label>
-                            </div>
-                        </div>
-
-                        @if($store->pymo_user && $store->pymo_password && $store->pymo_branch_office &&
-                        !empty($companyInfo))
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input type="hidden" name="automatic_billing" value="0">
-                                <input class="form-check-input" type="checkbox" id="automaticBillingSwitch"
-                                    name="automatic_billing" value="1" {{ $store->automatic_billing ? 'checked' : '' }}>
-                                <label class="form-check-label" for="automaticBillingSwitch">Habilitar Facturación
-                                    Automática</label>
-                            </div>
-                        </div>
-                        @endif
-
-                        <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
-                        <div id="pymoFields" style="display: {{ $store->invoices_enabled ? 'block' : 'none' }};">
-                            <div class="mb-3">
-                                <label class="form-label" for="pymoUser">Usuario PyMo</label>
-                                <input type="text" class="form-control" id="pymoUser" name="pymo_user"
-                                    placeholder="Usuario PyMo" value="{{ $store->pymo_user }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label" for="pymoPassword">Contraseña PyMo</label>
-                                <input type="password" class="form-control" id="pymoPassword" name="pymo_password"
-                                    placeholder="Contraseña PyMo" value="{{ $store->pymo_password }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
-                                <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office"
-                                    placeholder="Sucursal PyMo" value="{{ $store->pymo_branch_office }}">
-                            </div>
-                        </div>
-
-                        @if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password &&
+                                      @if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password &&
                         !empty($companyInfo))
                         <div class="col-12 mt-4">
                             <div class="card">
@@ -380,6 +367,23 @@
                         </div>
                         @endif
 
+
+                                      @if ($errors->any())
+                                        @foreach ($errors->all() as $error)
+                                        <div class="alert alert-danger">
+                                          {{ $error }}
+                                        </div>
+                                        @endforeach
+                                      @endif
+                                    </div>
+                                  </div>
+                              </div>
+                            </div>
+                        </div>
+
+
+
+
                         @if ($errors->any())
                         @foreach ($errors->all() as $error)
                         <div class="alert alert-danger">
@@ -389,10 +393,11 @@
                         @endif
                     </div>
                 </div>
-                <!-- Botones -->
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">Actualizar Empresa</button>
+                <!-- Botón fijo en la parte inferior derecha -->
+                <div class="fixed-bottom d-flex justify-content-end p-3 mb-5">
+                  <button type="submit" class="btn btn-primary">Actualizar Empresa</button>
                 </div>
+
             </div>
         </div>
     </form>
