@@ -90,14 +90,14 @@ $changeTypeTranslations = [
       @if($order->shipping_status === 'pending' && $order->shipping_method !== 'pickup')
         <span class="badge bg-label-warning">No enviado</span>
       @elseif($order->shipping_method === 'pickup')
-        <span class="badge bg-label-primary">Retira en tienda</span>
+        <span class="badge bg-label-primary">Retira en Empresa</span>
       @elseif($order->shipping_status === 'shipped')
         <span class="badge bg-label-success">Enviado</span>
       @elseif($order->shipping_status === 'delivered')
         <span class="badge bg-label-info">Entregado</span>
       @endif
     </h6>
-    <h6 class="card-title mb-1 mt-1">Tienda:
+    <h6 class="card-title mb-1 mt-1">Empresa:
       <span class="mb-1 me-2 ms-2">{{ $order->store->name }}</span>
     </h6>
     <h6 class="card-title mb-1 mt-1">Método de pago:

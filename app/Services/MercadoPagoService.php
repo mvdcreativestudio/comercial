@@ -32,7 +32,7 @@ class MercadoPagoService
     public function __construct()
     {
       // Cargar la secret key desde la configuración
-      $this->secretKey = config('services.mercadopago.secret_key');
+      $this->secretKey = 'd9a801275bb607f1a2279c89ab21e014e023041158f1ed210fae7fdd157359c5';
       $this->client = new Client();
 
       // Configurar el acceso a la API de MercadoPago
@@ -87,14 +87,14 @@ class MercadoPagoService
 
       // Configurar las URLs de retorno
       $preference->back_urls = [
-          "success" => config('services.checkout.return_url') . "/success/{$order->uuid}",
-          "failure" => config('services.checkout.return_url') . "/failure/{$order->uuid}",
-          "pending" => config('services.checkout.return_url') . "/pending/{$order->uuid}"
+        "success" => config('services.checkout.return_url') . "/success/{$order->uuid}",
+        "failure" => config('services.checkout.return_url') . "/failure/{$order->uuid}",
+        "pending" => config('services.checkout.return_url') . "/pending/{$order->uuid}"
       ];
       $preference->auto_return = "all";
 
       // URL para las notificaciones webhooks
-      $preference->notification_url = 'https://cce5-2800-a4-1650-ad00-b5d7-6e7-6d71-b1ac.ngrok-free.app/api/mpagohook?source_news=webhooks';
+      $preference->notification_url = 'https://cd65-2800-a4-1756-6f00-61bd-b9eb-ccc6-7b8e.ngrok-free.app/api/mpagohook?source_news=webhooks';
 
       // Configurar los envíos
       $preference->shipments = (object) [
@@ -157,7 +157,13 @@ class MercadoPagoService
     */
     public function setCredentials(string $publicKey, string $accessToken): void
     {
-      SDK::setPublicKey($publicKey);
-      SDK::setAccessToken($accessToken);
+        SDK::setPublicKey($publicKey);
+        SDK::setAccessToken($accessToken);
+
+        Log::info('Credenciales de MercadoPago configuradas:', [
+            'public_key' => $publicKey,
+            'access_token' => $accessToken
+        ]);
     }
+
 }

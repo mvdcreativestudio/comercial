@@ -35,14 +35,22 @@ class UpdateStoreRequest extends FormRequest
             'status' => 'sometimes|boolean',
             'accepts_mercadopago' => 'required|boolean',
             'invoices_enabled' => 'boolean',
+            'accepts_peya_envios' => 'sometimes|boolean',
         ];
 
         if ($this->boolean('invoices_enabled')) {
             $rules += [
                 'pymo_user' => 'required|string|max:255',
-                'pymo_password' => 'required|string|max:255',
+                'pymo_password' => 'nullable|string|max:255', // nullable permite que sea opcional
                 'pymo_branch_office' => 'required|string|max:255',
                 'automatic_billing' => 'boolean',
+            ];
+        }
+
+
+        if ($this->boolean('accepts_peya_envios')) {
+            $rules += [
+                'peya_envios_key' => 'required|string|max:255',
             ];
         }
 

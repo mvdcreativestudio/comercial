@@ -60,7 +60,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Tienda</th>
+                    <th>Empresa</th>
                     <th>Usuario</th>
                     <th>Ultima Apertura</th>
                     <th>Ultimo Cierre</th>
@@ -157,7 +157,7 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="store_id" class="form-label">ID de Tienda:</label>
+                    <label for="store_id" class="form-label">ID de Empresa:</label>
                     <input type="text" id="store_id" name="store_id" class="form-control">
                 </div>
                 <input type="hidden" id="user_id" name="user_id" value="{{ $userId }}">
@@ -179,7 +179,7 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="edit_store_id" class="form-label">ID de Tienda:</label>
+                    <label for="edit_store_id" class="form-label">ID de Empresa:</label>
                     <input type="text" id="edit_store_id" name="edit_store_id" class="form-control">
                 </div>
                 <div class="mb-3">

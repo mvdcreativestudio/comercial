@@ -43,5 +43,14 @@ return [
   'view_all_ecommerce' => 'Datos globales de E-Commerce',
   'view_all_datacenter' => 'Datos globales de Datacenter',
   'access_accounting-settings' => 'Acceder a configuración de contabilidad',
+
+  'view_all_expenses' => 'Ver todos los Gastos',
+  'access_expenses' => 'Acceder a Gastos',
+  'access_delete_expenses' => 'Eliminar Gastos',
+  'view_all_entries' => 'Ver todos los Asientos',
+  'access_entries' => 'Acceder a Asientos',
+  'access_delete_entries' => 'Eliminar Asientos',
+
   'view_all_accounting' => 'Ver todas las transacciones contables',
+
 ];

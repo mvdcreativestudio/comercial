@@ -156,7 +156,7 @@
       },
       {
         id: 'tour-tiendas',
-        title: 'Tiendas',
+        title: 'Empresas',
         text: 'Gestiona tus tiendas físicas. Puedes ver el estado de cada tienda, actualizar su información y más.',
         attachTo: { element: '#tour-tiendas', on: 'right' },
       },
@@ -276,8 +276,8 @@
       },
       {
         id: 'tour-stores',
-        title: 'Estado de las Tiendas',
-        text: 'Muestra el estado de tus tiendas físicas. Puedes ver si están abiertas, cerradas y modificar su estado.',
+        title: 'Estado de las Empresa',
+        text: 'Muestra el estado de tus Empresas físicas. Puedes ver si están abiertas, cerradas y modificar su estado.',
         attachTo: { element: '#tour-stores', on: 'left' },
       }
     ];

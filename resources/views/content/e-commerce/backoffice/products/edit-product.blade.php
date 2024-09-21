@@ -171,12 +171,12 @@
         <div class="card-body">
           <!-- Base Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-price">Precio normal</label>
+            <label class="form-label" for="ecommerce-product-price">Precio normal - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" value="{{$product->old_price}}" aria-label="Product price" required>
           </div>
           <!-- Discounted Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado</label>
+            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" value="{{$product->price}}" aria-label="Introduzca el precio rebajado">
           </div>
           <!-- Campo oculto para estado desactivado -->
@@ -203,7 +203,7 @@
           <!-- Vendor -->
           <div class="mb-3 col ecommerce-select2-dropdown">
             <label class="form-label mb-1" for="vendor">
-              Local
+              Empresa
             </label>
             <select id="vendor" class="select2 form-select" data-placeholder="Seleccionar local" name="store_id" required>
               @if(auth()->user()->hasPermissionTo('access_global_products'))
@@ -231,6 +231,11 @@
           <div class="mb-3" id="stockContainer">
             <label class="form-label" for="stock">Stock</label>
             <input type="number" class="form-control" id="stock" placeholder="Stock" value="{{$product->stock}}" name="stock" aria-label="Introduzca el stock">
+          </div>
+          <!-- Margen de seguridad - Stock -->
+          <div class="mb-3" id="safetyMarginContaier">
+            <label class="form-label" for="stock">Margen de Seguridad</label>
+            <input type="number" class="form-control" id="safety_margin" placeholder="Stock" value="{{$product->safety_margin}}" name="safety_margin" aria-label="Introduzca el margen de seguridad">
           </div>
         </div>
       </div>

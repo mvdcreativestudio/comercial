@@ -279,6 +279,12 @@
   line-height: 1.4;
 }
 
+.img-carrito {
+  border-radius: 7px !important;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
 .success-product-img {
   border-radius: 20px;
 }
@@ -669,9 +675,9 @@ tr.odd {
 
 .card-title-product-pos {
   white-space: nowrap; /* Evita que el texto se divida en varias líneas */
-  overflow: hidden;    /* Oculta el desbordamiento de texto */
+  overflow: hidden; /* Oculta el desbordamiento de texto */
   text-overflow: ellipsis; /* Añade puntos suspensivos al final del texto si es demasiado largo */
-  max-width: 100%;     /* Asegura que el texto se mantenga dentro del contenedor */
+  max-width: 100%; /* Asegura que el texto se mantenga dentro del contenedor */
 }
 
 .client-card {
@@ -695,7 +701,7 @@ tr.odd {
 }
 
 .btn-select-client {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border: none;
   color: white;
   padding: 5px 8px; /* Botón más pequeño */
@@ -724,7 +730,6 @@ tr.odd {
   transition: box-shadow 0.3s ease;
 }
 
-
 .client-details p {
   font-size: 14px;
   margin: 0;
@@ -737,4 +742,27 @@ tr.odd {
   padding: 0;
 }
 
+.check-circle-integrations {
+  background-color: #28a745; /* Fondo verde */
+  border-radius: 50%; /* Hace que el contenedor sea un círculo */
+  width: 36px; /* Ajusta el tamaño del círculo */
+  height: 36px; /* Ajusta el tamaño del círculo */
+  display: flex; /* Centra el ícono dentro del círculo */
+  justify-content: center; /* Centra el ícono horizontalmente */
+  align-items: center; /* Centra el ícono verticalmente */
+}
+
+.check-circle-integrations i {
+  font-size: 24px; /* Ajusta el tamaño del ícono */
+  color: #fff; /* Color blanco para el ícono */
+}
+
+#updateButtonContainer {
+  transition: opacity 0.5s ease;
+}
+
+#updateButtonContainer.show {
+  opacity: 1;
+  display: flex !important;
+}
 

@@ -49,7 +49,7 @@ class AccountingController extends Controller
     */
     public function entries(): View
     {
-        return view('content.accounting.entries');
+        return view('content.accounting.entries.index');
     }
 
     /**
@@ -59,7 +59,7 @@ class AccountingController extends Controller
     */
     public function entrie(): View
     {
-        return view('content.accounting.entrie');
+        return view('content.accounting.entries.entry-details.index');
     }
 
     /**

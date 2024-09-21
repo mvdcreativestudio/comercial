@@ -583,8 +583,8 @@ document.getElementById('tipoCliente').addEventListener('change', function () {
     const subtotal = parseInt($('.subtotal').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
 
     // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
-    if (total > 600 && (!client || !client.id)) {
-      mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
+    if (total > 24000 && (!client || !client.id)) {
+      mostrarError('Para ventas mayores a UYU24.000, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
       return;
   }
 

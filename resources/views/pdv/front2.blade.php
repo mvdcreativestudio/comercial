@@ -1,6 +1,6 @@
 @extends('layouts.layoutMaster')
 
-@section('title', 'Pago - MVD')
+@section('title', 'Pago - Sumeria')
 
 @section('vendor-style')
 @vite([
@@ -193,7 +193,7 @@
           </div>
       </div>
       <!-- Lista de clientes, que será scrollable si hay muchos clientes -->
-      <ul id="client-list" class="list-group flex-grow-1 overflow-auto">
+      <ul id="client-list" class="list-group flex-grow-1 ">
           <!-- Aquí se cargarán los clientes -->
       </ul>
   </div>
