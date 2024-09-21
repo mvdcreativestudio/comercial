@@ -127,7 +127,7 @@ class AccountingRepository
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
               'type' => $typeCFEs[$invoice->type] ?? 'N/A',
-              'currency' => 'USD',
+              'currency' => 'UYU',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
               'order_uuid' => $invoice->order->uuid,
@@ -407,13 +407,13 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
-        $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+        // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
-        if ($usdRate) {
-            $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
-        } else {
-            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
+        // if ($usdRate) {
+        //     $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+        // } else {
+        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        // }
 
         $proportion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
@@ -468,8 +468,8 @@ class AccountingRepository
           ],
           'Receptor' => (object) [], // Inicializar como objeto vacío
           'Totales' => [
-              'TpoMoneda' => 'USD', // Moneda de la factura
-              'TpoCambio' => $exchangeRate, // Tipo de cambio
+              'TpoMoneda' => 'UYU', // Moneda de la factura
+              // 'TpoCambio' => $exchangeRate, // Tipo de cambio
           ],
           'Items' => $items,
         ];
@@ -674,13 +674,13 @@ class AccountingRepository
   {
       $order = $invoice->order;
 
-      $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+      // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
-      if ($usdRate) {
-          $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
-      } else {
-          throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-      }
+      // if ($usdRate) {
+      //     $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+      // } else {
+      //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+      // }
 
       // Utilizar los datos del receptor del CFE existente
       $tipoDocRecep = $invoice->type == 111 ? 2 : 3; // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
@@ -695,8 +695,8 @@ class AccountingRepository
         ],
         'Receptor' => (object) [], // Inicializar como objeto vacío
         'Totales' => [
-            'TpoMoneda' => 'USD',
-            'TpoCambio' => $exchangeRate,
+            'TpoMoneda' => 'UYU',
+            // 'TpoCambio' => $exchangeRate,
             'MntTotal' => $noteAmount,
             'CantLinDet' => 1,
             'MntPagar' => $noteAmount
