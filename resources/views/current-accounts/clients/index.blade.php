@@ -140,7 +140,7 @@
                                 <span class="switch-on"><i class="bx bx-check"></i></span>
                                 <span class="switch-off"><i class="bx bx-x"></i></span>
                             </span>
-                            <span class="switch-label">Importe</span>
+                            <span class="switch-label">Debe</span>
                         </label>
                     </div>
                     <div class="mx-3">
@@ -150,7 +150,7 @@
                                 <span class="switch-on"><i class="bx bx-check"></i></span>
                                 <span class="switch-off"><i class="bx bx-x"></i></span>
                             </span>
-                            <span class="switch-label">Abonado</span>
+                            <span class="switch-label">Haber</span>
                         </label>
                     </div>
                     <div class="mx-3">

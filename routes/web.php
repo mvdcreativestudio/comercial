@@ -275,6 +275,12 @@ Route::middleware([
 
     // Cuentas Corrientes Clientes Pagos
     Route::group(['prefix' => 'current-account-client-payments'], function () {
+        // add payment and show form with id param
+        Route::get('/{currentAccountId}/add-payment', [CurrentAccountClientSalePaymentController::class, 'create'])->name('current-account-client-payments.create');
+
+        // edit payment
+        Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountClientSalePaymentController::class, 'edit'])->name('current-account-client-payments.edit');
+
         Route::post('/delete-multiple', [CurrentAccountClientSalePaymentController::class, 'deleteMultiple'])->name('current-account-client-payments.deleteMultiple');
     });
     // Gastos
