@@ -15,6 +15,8 @@ use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\CurrentAccountClientSaleController;
 use App\Http\Controllers\CurrentAccountClientSalePaymentController;
+use App\Http\Controllers\CurrentAccountSupplierPurchaseController;
+use App\Http\Controllers\CurrentAccountSupplierPurchasePaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatacenterController;
 use App\Http\Controllers\EcommerceController;
@@ -39,7 +41,10 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierOrderController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\WhatsAppController;use Illuminate\Support\Facades\Auth;use Illuminate\Support\Facades\Gate;use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WhatsAppController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -87,7 +92,9 @@ Route::middleware([
     Route::get('/entry-details/datatable/{id}', [EntryDetailController::class, 'datatable'])->name('entry-details.datatable');
 
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
-    Route::get('/current-accounts/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
+    Route::get('/current-account-clients/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
+    // suppliers
+    Route::get('/current-account-suppliers/datatable', [CurrentAccountSupplierPurchaseController::class, 'datatable'])->name('current-account-suppliers.datatable');
 
     // Recursos con acceso autenticado
     Route::resources([
@@ -108,12 +115,14 @@ Route::middleware([
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
         'composite-products' => CompositeProductController::class,
-        'current-account-client-sales' => CurrentAccountClientSaleController::class,
-        'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
         'expenses' => ExpenseController::class,
         'expense-payment-methods' => ExpensePaymentMethodController::class,
         'entries' => EntryController::class,
         'entry-details' => EntryDetailController::class,
+        'current-account-client-sales' => CurrentAccountClientSaleController::class,
+        'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
+        'current-account-supplier-purs' => CurrentAccountSupplierPurchaseController::class,
+        'current-account-supplier-pays' => CurrentAccountSupplierPurchasePaymentController::class,
     ]);
 
     // Puntos de venta
@@ -283,6 +292,24 @@ Route::middleware([
 
         Route::post('/delete-multiple', [CurrentAccountClientSalePaymentController::class, 'deleteMultiple'])->name('current-account-client-payments.deleteMultiple');
     });
+
+    // Cuentas Corrientes Proveedores
+    Route::group(['prefix' => 'current-account-supplier-purs'], function () {
+        Route::post('/delete-multiple', [CurrentAccountSupplierPurchaseController::class, 'deleteMultiple'])->name('current-account-supplier-purchases.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Proveedores Pagos
+
+    Route::group(['prefix' => 'current-account-supplier-pays'], function () {
+        // add payment and show form with id param
+        Route::get('/{currentAccountId}/add-payment', [CurrentAccountSupplierPurchasePaymentController::class, 'create'])->name('current-account-supplier-pays.create');
+
+        // edit payment
+        Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountSupplierPurchasePaymentController::class, 'edit'])->name('current-account-supplier-pays.edit');
+
+        Route::post('/delete-multiple', [CurrentAccountSupplierPurchasePaymentController::class, 'deleteMultiple'])->name('current-account-supplier-pays.deleteMultiple');
+    });
+
     // Gastos
     Route::group(['prefix' => 'expenses'], function () {
         // show

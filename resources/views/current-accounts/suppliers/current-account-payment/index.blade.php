@@ -24,10 +24,7 @@
 
 @section('page-script')
 @vite([
-// 'resources/assets/js/expenses/expenses-payments-methods/app-expenses-payments-methods-list.js',
-// 'resources/assets/js/expenses/expenses-payments-methods/app-expenses-payments-methods-add.js',
-// 'resources/assets/js/expenses/expenses-payments-methods/app-expenses-payments-methods-edit.js',
-'resources/assets/js/client-current-account/client-current-account-payment/app-client-current-account-payment-delete.js',
+'resources/assets/js/supplier-current-account/supplier-current-account-payment/app-supplier-current-account-payment-delete.js',
 ])
 @endsection
 
@@ -47,7 +44,7 @@ $status = $currentAccount->status->value;
         <span class="text-muted">/ #{{ $currentAccount->id ?? '' }}</span>
       </h4>
       <!-- Botón para abrir modal de agregar pago -->
-      <a href="{{ route('current-account-client-payments.create', $currentAccount->id) }}"
+      <a href="{{ route('current-account-supplier-pays.create', $currentAccount->id) }}"
         class="btn btn-primary">Agregar Pago</a>
     </div>
     <div class="card-body">
@@ -59,7 +56,7 @@ $status = $currentAccount->status->value;
         </div>
         <div class="mb-3 col-4">
           <label for="formFile" class="form-label">Cliente</label>
-          <input class="form-control" type="text" value="{{ $currentAccount->client->name ?? 'N/A' }}" disabled>
+          <input class="form-control" type="text" value="{{ $currentAccount->supplier->name ?? 'N/A' }}" disabled>
         </div>
         <div class="mb-3 col-2">
           <label for="formFile" class="form-label">Moneda</label>
@@ -77,7 +74,7 @@ $status = $currentAccount->status->value;
 
 
     <div class="card-datatable table-responsive">
-      <table class="dt-responsive table border-top datatables-current-account-payments-client-sales">
+      <table class="dt-responsive table border-top datatables-current-account-payments-supplier-pays">
         <thead class="text-center table-dark">
           <tr>
             <th class="font-white">Método de Pago</th>
@@ -112,7 +109,7 @@ $status = $currentAccount->status->value;
               <th>{{ $payment->currentAccount->currency->name ?? 'N/A' }}</th>
               <th>{{ $payment->payment_date->format('d/m/Y') }}</th>
               <th>
-                <a href="{{ route('current-account-client-payments.edit', $payment->id) }}"
+                <a href="{{ route('current-account-supplier-pays.edit', $payment->id) }}"
                   class="btn btn-sm btn-warning">Editar</a>
                 <a class="btn btn-sm btn-danger delete-record text-white" data-id="{{ $payment->id }}">Eliminar</a>
               </th>
@@ -139,7 +136,7 @@ $status = $currentAccount->status->value;
     </div>
 
     <div class="d-flex justify-content-end m-2">
-      <a href="{{ route('current-account-client-sales.index') }}" class="btn btn-secondary">Volver</a>
+      <a href="{{ route('current-account-supplier-purs.index') }}" class="btn btn-secondary">Volver</a>
     </div>
   </div>
 </div>

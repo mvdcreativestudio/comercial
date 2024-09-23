@@ -254,7 +254,7 @@
               "name": "Compras",
               "icon": "menu-icon tf-icons bx bx-dollar",
               "slug": "current-accounts-suppliers-purchases",
-              "url": "/admin/current-accounts-supplier-purchases"
+              "url": "/admin/current-account-supplier-purs"
             },
             {
               "id": "tour-cuentas-corrientes-proveedores-configuracion",

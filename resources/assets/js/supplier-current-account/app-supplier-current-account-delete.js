@@ -1,6 +1,6 @@
 $(document).ready(function () {
   // Eliminar registro de cuenta corriente
-  $('.datatables-current-account-clients tbody').on('click', '.delete-record', function () {
+  $('.datatables-current-account-supplier-purchase tbody').on('click', '.delete-record', function () {
     var recordId = $(this).data('id');
     deleteCurrentAccount(recordId);
   });
@@ -9,7 +9,7 @@ $(document).ready(function () {
   $('#deleteSelected').on('click', function () {
     var selectedIds = [];
 
-    $('.datatables-current-account-clients tbody input[type="checkbox"]:checked').each(function () {
+    $('.datatables-current-account-supplier-purchase tbody input[type="checkbox"]:checked').each(function () {
       selectedIds.push($(this).data('id'));
     });
 
@@ -47,7 +47,7 @@ $(document).ready(function () {
           success: function (result) {
             if (result.success) {
               Swal.fire('Eliminado!', 'La cuenta corriente ha sido eliminada.', 'success');
-              $('.datatables-current-account-clients').DataTable().ajax.reload();
+              $('.datatables-current-account-supplier-purchase').DataTable().ajax.reload();
             } else {
               Swal.fire('Error!', 'No se pudo eliminar la cuenta corriente. Intente de nuevo.', 'error');
             }
@@ -89,7 +89,7 @@ $(document).ready(function () {
           success: function (result) {
             if (result.success) {
               Swal.fire('Eliminado!', 'Las cuentas corrientes seleccionadas han sido eliminadas.', 'success');
-              $('.datatables-current-account-clients').DataTable().ajax.reload();
+              $('.datatables-current-account-supplier-purchase').DataTable().ajax.reload();
             } else {
               Swal.fire('Error!', 'No se pudieron eliminar las cuentas corrientes seleccionadas. Intente de nuevo.', 'error');
             }

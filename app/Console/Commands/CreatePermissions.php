@@ -253,17 +253,17 @@ class CreatePermissions extends Command
                     'module' => 'current-accounts',
                     'view_all' => false,
                     'submenus' => [
-                        'current-accounts-suppliers-purchases',
+                        'current-accounts-suppliers-purs',
                         'current-accounts-suppliers-payments',
                         'current-accounts-suppliers-settings',
                     ],
                 ],
                 [
-                    'slug' => 'current-accounts-suppliers-purchases',
+                    'slug' => 'current-accounts-suppliers-purs',
                     'module' => 'current-accounts',
                     'view_all' => true,
                     'submenus' => [
-                        'delete_current-accounts-suppliers-purchases',
+                        'delete_current-accounts-suppliers-purs',
                     ],
                 ],
                 [
