@@ -206,16 +206,15 @@ $(document).ready(function () {
       $('#rutField').hide();
       $('#company_name').removeAttr('required');
       $('#rut').removeAttr('required');
-      $('#direccionAsterisk').hide();
       $('#ciudadAsterisk').hide();
       $('#departamentoAsterisk').hide();
     } else if (this.value == 'company') {
       $('#ciField').hide();
       $('#ci').removeAttr('required');
       $('#rutField').show();
+      $('#razonSocialField').show();
       $('#company_name').attr('required', true);
       $('#rut').attr('required', true);
-      $('#direccionAsterisk').show();
       $('#ciudadAsterisk').show();
       $('#departamentoAsterisk').show();
     }
@@ -260,6 +259,11 @@ document.getElementById('guardarCliente').addEventListener('click', function (e)
       hasError = true;
   }
 
+  if (direccion.value.trim() === '') {
+      showError(direccion, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
   if (tipo.value === 'individual') {
       // Validar CI para personas individuales
       if (ci.value.trim() === '') {
@@ -271,35 +275,33 @@ document.getElementById('guardarCliente').addEventListener('click', function (e)
       document.getElementById('ciField').style.display = 'block';
   } else if (tipo.value === 'company') {
       // Validar Razón Social y RUT para empresas
-      if (razonSocial.value.trim() === '') {
-          showError(razonSocial, 'Este campo es obligatorio');
-          hasError = true;
-      }
+    if (razonSocial.value.trim() === '') {
+      showError(razonSocial, 'Este campo es obligatorio');
+      hasError = true;
+    }
 
-      if (rut.value.trim() === '') {
-          showError(rut, 'Este campo es obligatorio');
-          hasError = true;
-      }
+    if (rut.value.trim() === '') {
+        // Validar solo una vez el RUT
+        if (!rut.parentElement.querySelector('.error-message')) {
+            showError(rut, 'Este campo es obligatorio');
+        }
+        hasError = true;
+    }
 
-      // Validar Dirección, Ciudad y Departamento para empresas
-      if (direccion.value.trim() === '') {
-          showError(direccion, 'Este campo es obligatorio');
-          hasError = true;
-      }
+    if (ciudad.value.trim() === '') {
+        showError(ciudad, 'Este campo es obligatorio');
+        hasError = true;
+    }
 
-      if (ciudad.value.trim() === '') {
-          showError(ciudad, 'Este campo es obligatorio');
-          hasError = true;
-      }
+    if (departamento.value.trim() === '') {
+        showError(departamento, 'Este campo es obligatorio');
+        hasError = true;
+    }
 
-      if (departamento.value.trim() === '') {
-          showError(departamento, 'Este campo es obligatorio');
-          hasError = true;
-      }
-
-      // Mostrar campos RUT, Razón Social, Dirección, Ciudad y Departamento si es empresa
-      document.getElementById('rutField').style.display = 'block';
-      document.getElementById('ciField').style.display = 'none';
+    // Mostrar campos RUT, Razón Social, Dirección, Ciudad y Departamento si es empresa
+    document.getElementById('rutField').style.display = 'block';
+    document.getElementById('razonSocialField').style.display = 'block';
+    document.getElementById('ciField').style.display = 'none';
   }
 
   if (hasError) {

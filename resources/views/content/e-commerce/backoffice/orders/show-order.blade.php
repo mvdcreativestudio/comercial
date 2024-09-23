@@ -124,7 +124,7 @@ $changeTypeTranslations = [
     <!-- Mostrar el vendedor -->
     <h6 class="card-title mb-1 mt-1">Vendido por:
       @if($order->cashRegisterLog !== null)
-        <span class="me-2 ms-2">{{ $order->cashRegisterLog->cashRegister->user->name }}</span>
+        <span class="me-2 ms-2">{{ ucwords($order->cashRegisterLog->cashRegister->user->name) }}</span>
       @else
         <span class="me-2 ms-2">Sin registro</span>
       @endif
@@ -341,48 +341,6 @@ $changeTypeTranslations = [
   </div>
 
   <div class="col-12 col-lg-4">
-    <div class="card mb-4">
-      <div class="card-header">
-        <h6 class="card-title m-0">Datos del Cliente</h6>
-      </div>
-      <div class="card-body">
-        <div class="d-flex justify-content-start align-items-center mb-3">
-          <div class="d-flex flex-column">
-            <a href="{{ url('app/user/view/account') }}" class="text-body text-nowrap">
-              <h5 class="mb-0">{{ $order->client->name }} {{ $order->client->lastname }}</h5>
-            </a>
-            <small class="text-muted">ID: #{{ $order->client->id }}</small>
-            <small class="text-muted">Registrado el: {{ $order->client->created_at->format('d/m/Y') }}</small>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <h6 class="card-title mt-4">Información General</h6>
-          <p class="mb-1"><strong>Tipo de Cliente:</strong> {{ $order->client->type === 'company' ? 'Empresa' : 'Persona' }}</p>
-          <p class="mb-1"><strong>{{ $order->client->type === 'company' ? 'RUT' : 'CI' }}:</strong> {{ $order->client->type === 'company' ? $order->client->rut : $order->client->ci }}</p>
-        </div>
-
-        <div class="mb-3">
-          <h6 class="card-title mt-4">Información de Contacto</h6>
-          <p class="mb-1"><strong>Email:</strong> {{ $order->client->email }}</p>
-          <p class="mb-1"><strong>Teléfono:</strong> {{ $order->client->phone }}</p>
-          <p class="mb-1"><strong>Dirección:</strong> {{ $order->client->address }}, {{ $order->client->city }}, {{ $order->client->state }}, {{ $order->client->country }}</p>
-        </div>
-
-        <div class="mb-3">
-          <h6 class="card-title mt-4">Historial de Pedidos</h6>
-          <div class="d-flex align-items-center">
-            <span class="avatar rounded-circle bg-label-success me-2 d-flex align-items-center justify-content-center">
-              <i class="bx bx-cart-alt bx-sm lh-sm"></i>
-            </span>
-            <p class="mb-0">
-              {{ $clientOrdersCount }} {{ $clientOrdersCount > 1 ? 'Pedidos' : 'Pedido' }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
     <div class="card mb-4">
       <div class="card-header">
@@ -412,22 +370,54 @@ $changeTypeTranslations = [
       </div>
     </div>
 
-    {{-- <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between">
-        <h6 class="card-title m-0">Dirección de envío</h6>
+    
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="card-title m-0">Datos del Cliente</h6>
       </div>
       <div class="card-body">
-        <p class="mb-0">{{ $order->client->address }}</p>
+        <div class="d-flex justify-content-start align-items-center mb-3">
+          <div class="d-flex flex-column">
+            <a href="{{ url('app/user/view/account') }}" class="text-body text-nowrap">
+              <h5 class="mb-0">{{ ucwords($order->client->name) }} {{ ucwords($order->client->lastname) }}</h5>
+            </a>
+            <small class="text-muted">ID: #{{ $order->client->id }}</small>
+            <small class="text-muted">Registrado el: {{ $order->client->created_at->format('d/m/Y') }}</small>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="card-title mt-4">Información General</h6>
+          <p class="mb-1"><strong>Tipo de Cliente:</strong> {{ $order->client->type === 'company' ? 'Empresa' : 'Persona' }}</p>
+          @if($order->client->type === 'company')
+            <p class="mb-1"><strong>Razón Social:</strong> {{ ucwords($order->client->company_name) }}</p>
+          @endif
+          <p class="mb-1"><strong>{{ $order->client->type === 'company' ? 'RUT' : 'CI' }}:</strong> {{ $order->client->type === 'company' ? $order->client->rut : $order->client->ci }}</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="card-title mt-4">Información de Contacto</h6>
+          <p class="mb-1"><strong>Email:</strong> {{ $order->client->email }}</p>
+          <p class="mb-1"><strong>Teléfono:</strong> {{ $order->client->phone }}</p>
+          <p class="mb-1"><strong>Dirección:</strong> {{ ucwords($order->client->address) }}, {{ ucwords($order->client->city) }}, {{ ucwords($order->client->state) }}, {{ $order->client->country }}</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="card-title mt-4">Historial de Pedidos</h6>
+          <div class="d-flex align-items-center">
+            <span class="avatar rounded-circle bg-label-success me-2 d-flex align-items-center justify-content-center">
+              <i class="bx bx-cart-alt bx-sm lh-sm"></i>
+            </span>
+            <p class="mb-0">
+              {{ $clientOrdersCount }} {{ $clientOrdersCount > 1 ? 'Pedidos' : 'Pedido' }}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="card mb-4">
-      <div class="card-header d-flex justify-content-between">
-        <h6 class="card-title m-0">Dirección de facturación</h6>
-      </div>
-      <div class="card-body">
-        <p class="mb-4">{{ $order->client->address }}</p>
-      </div>
-    </div> --}}
+
+
+
   </div>
 </div>
 

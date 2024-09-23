@@ -192,13 +192,17 @@
               </div>
 
               <!-- Campo Razón Social y RUT para Empresa -->
-              <div class="mb-3" id="rutField" style="display: none;">
+              <div class="mb-3" id="razonSocialField" style="display: none;">
                 <label class="form-label" for="company_name">Razón Social <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="company_name" placeholder="Ingrese la razón social"
                   name="company_name" />
+              </div>
+
+              <div class="mb-3" id="rutField" style="display: none;">
                 <label class="form-label" for="rut">RUT <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="rut" placeholder="Ingrese el RUT" name="rut" />
               </div>
+
 
               <!-- Campo Email (requerido para ambos) -->
               <div class="mb-3">
@@ -219,10 +223,9 @@
             <!-- Campos adicionales compartidos -->
             <div class="ecommerce-customer-add-shiping mb-3 pt-2">
               <div class="mb-3">
-                <label class="form-label" for="address">Dirección <span id="direccionAsterisk" class="text-danger"
-                    style="display: none;">*</span></label>
+                <label class="form-label" for="address">Dirección <span id="direccionAsterisk" class="text-danger">*</span></label>
                 <input type="text" id="ecommerce-customer-add-address" class="form-control"
-                  placeholder="Ingrese la dirección" name="address" />
+                  placeholder="Ingrese la dirección" name="address" required/>
               </div>
               <div class="mb-3">
                 <label class="form-label" for="city">Ciudad <span id="ciudadAsterisk" class="text-danger"
@@ -230,13 +233,11 @@
                 <input type="text" id="ecommerce-customer-add-town" class="form-control" placeholder="Ingrese la ciudad"
                   name="city" />
               </div>
-              <div class="row mb-3">
-                <div class="col-12 col-sm-6">
-                  <label class="form-label" for="state">Departamento <span id="departamentoAsterisk" class="text-danger"
-                      style="display: none;">*</span></label>
-                  <input type="text" id="ecommerce-customer-add-state" class="form-control"
-                    placeholder="Ingrese el departamento" name="state" />
-                </div>
+              <div class="mb-3">
+                <label class="form-label" for="state">Departamento <span id="departamentoAsterisk" class="text-danger"
+                    style="display: none;">*</span></label>
+                <input type="text" id="ecommerce-customer-add-state" class="form-control"
+                  placeholder="Ingrese el departamento" name="state" />
               </div>
               <div>
                 <label for="country" class="form-label">País</label>

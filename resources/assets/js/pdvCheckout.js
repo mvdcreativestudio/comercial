@@ -419,11 +419,26 @@ $('#quitarDescuento').on('click', function () {
     loadClients();
   });
 
+  // Mostrar/Ocultar campos según el tipo de cliente seleccionado
+  document.getElementById('tipoCliente').addEventListener('change', function () {
+    let tipo = this.value;
+    if (tipo === 'individual') {
+        document.getElementById('ciField').style.display = 'block';
+        document.getElementById('rutField').style.display = 'none';
+        document.getElementById('razonSocialField').style.display = 'none';
+    } else if (tipo === 'company') {
+        document.getElementById('ciField').style.display = 'none';
+        document.getElementById('rutField').style.display = 'block';
+        document.getElementById('razonSocialField').style.display = 'block';
+    }
+  });
+
+  // Guardar cliente con validaciones
   document.getElementById('guardarCliente').addEventListener('click', function () {
     // Obtener los elementos de los campos del formulario
     const nombre = document.getElementById('nombreCliente');
     const apellido = document.getElementById('apellidoCliente');
-    const tipo = document.getElementById('tipoCliente');
+    const tipo = document.getElementById('tipoCliente').value;
     const email = document.getElementById('emailCliente');
     const ci = document.getElementById('ciCliente');
     const rut = document.getElementById('rutCliente');
@@ -447,11 +462,6 @@ $('#quitarDescuento').on('click', function () {
         hasError = true;
     }
 
-    if (tipo.value.trim() === '') {
-        showError(tipo, 'Este campo es obligatorio');
-        hasError = true;
-    }
-
     if (email.value.trim() === '') {
         showError(email, 'Este campo es obligatorio');
         hasError = true;
@@ -462,12 +472,12 @@ $('#quitarDescuento').on('click', function () {
         hasError = true;
     }
 
-    if (tipo.value === 'individual' && ci.value.trim() === '') {
+    if (tipo === 'individual' && ci.value.trim() === '') {
         showError(ci, 'Este campo es obligatorio');
         hasError = true;
     }
 
-    if (tipo.value === 'company') {
+    if (tipo === 'company') {
         if (rut.value.trim() === '') {
             showError(rut, 'Este campo es obligatorio');
             hasError = true;
@@ -484,26 +494,24 @@ $('#quitarDescuento').on('click', function () {
         return;
     }
 
-    console.log(sessionStoreId);  // Verifica si sessionStoreId tiene un valor correcto
-
     // Crear el objeto de datos a enviar
     let data = {
         store_id: sessionStoreId,
         name: nombre.value.trim(),
         lastname: apellido.value.trim(),
-        type: tipo.value,
+        type: tipo,
         email: email.value.trim(),
-        address: direccion.value.trim()
+        address: direccion.value.trim(),
     };
 
-    if (tipo.value === 'individual') {
+    if (tipo === 'individual') {
         data.ci = ci.value.trim();
-    } else if (tipo.value === 'company') {
+    } else if (tipo === 'company') {
         data.rut = rut.value.trim();
         data.company_name = razonSocial.value.trim();
     }
 
-    // Realizar la solicitud de creación del cliente
+    // Enviar los datos del cliente
     fetch('client', {
         method: 'POST',
         headers: {
@@ -521,23 +529,23 @@ $('#quitarDescuento').on('click', function () {
     .catch((error) => {
         mostrarError('Error al guardar el cliente: ' + error);
     });
-});
+  });
 
-// Función para mostrar el mensaje de error
-function showError(input, message) {
+  // Función para mostrar errores
+  function showError(input, message) {
     const errorElement = document.createElement('small');
     errorElement.className = 'text-danger';
     errorElement.innerText = message;
     input.parentElement.appendChild(errorElement);
-}
+  }
 
-// Función para limpiar los mensajes de error anteriores
-function clearErrors() {
+  // Función para limpiar errores
+  function clearErrors() {
     const errorMessages = document.querySelectorAll('.text-danger');
     errorMessages.forEach(function (error) {
         error.remove();
     });
-}
+  }
 
 
 document.getElementById('tipoCliente').addEventListener('change', function () {
