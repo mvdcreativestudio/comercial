@@ -204,6 +204,7 @@
         </div>
         <div class="modal-body">
           <p>¿Está seguro de que desea emitir un recibo sobre esta factura?</p>
+          <p>No podrás emitir más notas de crédito o débito sobre esta factura.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

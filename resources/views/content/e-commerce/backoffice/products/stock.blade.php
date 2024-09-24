@@ -56,72 +56,83 @@ $currencySymbol = $settings->currency_symbol;
   </div>
 @endif
 
-<!-- Ver / Ocultar columnas de la tabla -->
-<div class="card mb-4">
-  <div class="card-header d-flex justify-content-between">
-    <p class="text-muted small">
-      <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
-    </p>
+<!-- Filtros de búsqueda -->
+<div class="row mb-4 g-2 align-items-end">
+  <!-- Búsqueda por nombre de producto -->
+  <div class="col-lg-4 col-md-6">
+    <div class="input-group">
+      <span class="input-group-text bg-light">
+        <i class="bx bx-search"></i>
+      </span>
+      <input type="text" id="searchProduct" class="form-control" placeholder="Buscar producto por Nombre...">
+    </div>
   </div>
-  <div class="collapse" id="columnSwitches">
-    <div class="mt-0 d-flex flex-wrap">
-      <div class="mx-0">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="0" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Imagen</span>
-        </label>
-      </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="1" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Nombre</span>
-        </label>
-      </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="4" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Local</span>
-        </label>
-      </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="5" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Estado</span>
-        </label>
-      </div>
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">Stock</span>
-        </label>
-      </div>
+
+  <!-- Filtro por tienda -->
+  <div class="col-lg-4 col-md-6">
+    <div class="input-group">
+      <span class="input-group-text bg-light">
+        <i class="bx bx-store"></i>
+      </span>
+      <select id="storeFilter" class="form-select">
+        <option value="">Todas las tiendas</option>
+        @foreach($stores as $store)
+          <option value="{{ $store->id }}">{{ $store->name }}</option>
+        @endforeach
+      </select>
+    </div>
+  </div>
+
+  <!-- Filtro por estado -->
+  <div class="col-lg-2 col-md-6">
+    <div class="input-group">
+      <span class="input-group-text bg-light">
+        <i class="bx bx-check-circle"></i>
+      </span>
+      <select id="statusFilter" class="form-select">
+        <option value="">Todos los estados</option>
+        <option value="1">Activo</option>
+        <option value="0">Inactivo</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Filtro por rango de stock -->
+  <div class="col-lg-2 col-md-6">
+    <div class="input-group">
+      <span class="input-group-text bg-light">
+        <i class="bx bx-layer"></i>
+      </span>
+      <input type="number" id="minStockFilter" class="form-control" placeholder="Mín. stock" min="0">
+      <span class="input-group-text">a</span>
+      <input type="number" id="maxStockFilter" class="form-control" placeholder="Máx. stock" min="0">
+    </div>
+  </div>
+
+  <div class="col-lg-4 col-md-6">
+    <div class="input-group">
+      <span class="input-group-text bg-light">
+        <i class="bx bx-sort"></i>
+      </span>
+      <select id="sortStockFilter" class="form-select">
+        <option value="">Ordenar por</option>
+        <option value="high_stock">Mayor Stock</option>
+        <option value="low_stock">Menor Stock</option>
+        <option value="no_stock">Sin Stock</option>
+      </select>
     </div>
   </div>
 </div>
 
+
+
 <!-- Product List Cards -->
-<div class="row" id="product-list-container" data-ajax-url="{{ route('products.datatable') }}">
+<div class="row row-cols-1" id="product-list-container" data-ajax-url="{{ route('products.datatable') }}">
   <!-- Aquí se generarán las tarjetas de productos mediante JS -->
 </div>
+
+<style>
+
+</style>
 
 @endsection

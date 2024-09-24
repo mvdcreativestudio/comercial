@@ -24,7 +24,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-    <span class="text-muted fw-light">E-commerce /</span> Detalle del Producto Compuesto
+    <span class="text-muted fw-light"></span> Detalle del Producto Compuesto
 </h4>
 
 <!-- Botones Volver y Editar -->

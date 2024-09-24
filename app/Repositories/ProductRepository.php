@@ -16,6 +16,7 @@ use App\Http\Requests\StoreFlavorRequest;
 use App\Http\Requests\StoreMultipleFlavorsRequest;
 use App\Http\Requests\UpdateFlavorRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 
 
@@ -102,28 +103,82 @@ class ProductRepository
    *
    * @return mixed
   */
-  public function getProductsForDataTable(): mixed
+  public function getProductsForDataTable(Request $request): mixed
   {
-    $query = Product::with(['categories:id,name', 'store:id,name'])
-        ->select(['id', 'name', 'sku', 'description', 'type', 'old_price', 'price', 'discount', 'image', 'store_id', 'status', 'draft', 'stock', 'safety_margin'])
-        ->where('is_trash', '!=', 1);
 
-    // Filtrar por rol del usuario
-    if (!Auth::user()->hasRole('Administrador')) {
-        $query->where('store_id', Auth::user()->store_id);
-    }
+      // Iniciar la consulta
+      $query = Product::with(['categories:id,name', 'store:id,name'])
+          ->select([
+              'id', 'name', 'sku', 'description', 'type', 'old_price', 'price',
+              'discount', 'image', 'store_id', 'status', 'draft', 'stock', 'safety_margin'
+          ])
+          ->where('is_trash', '!=', 1);
 
-    $dataTable = DataTables::of($query)
-      ->addColumn('category', function ($product) {
-        return $product->categories->implode('name', ', ');
-      })
-      ->addColumn('store_name', function ($product) {
-        return $product->store->name;
-      })
-      ->make(true);
+      // Filtrar por rol del usuario
+      if (!Auth::user()->hasRole('Administrador')) {
+          $query->where('store_id', Auth::user()->store_id);
+      }
 
-    return $dataTable;
+      // Aplicar filtros si están presentes en la solicitud
+      if ($request->has('search') && !empty($request->search)) {
+          $query->where('name', 'like', '%' . $request->search . '%');
+      }
+
+      if ($request->has('store_id') && !empty($request->store_id)) {
+          $query->where('store_id', $request->store_id);
+      }
+
+      if ($request->has('status') && isset($request->status)) {
+          $query->where('status', $request->status);
+      }
+
+      // Filtrar por rango de stock
+      if ($request->has('min_stock') && isset($request->min_stock)) {
+          $query->where('stock', '>=', $request->min_stock);
+      }
+
+      if ($request->has('max_stock') && isset($request->max_stock)) {
+          $query->where('stock', '<=', $request->max_stock);
+      }
+
+      if ($request->has('category_id') && !empty($request->category_id)) {
+        $query->whereHas('categories', function ($q) use ($request) {
+            $q->where('product_categories.id', $request->category_id); // Especificamos que el 'id' viene de la tabla 'product_categories'
+        });
+      }
+
+
+
+      // Aplicar la lógica de ordenamiento por stock
+      if ($request->has('sort_stock')) {
+          switch ($request->sort_stock) {
+              case 'high_stock':
+                  $query->orderBy('stock', 'desc');  // Mayor stock
+                  break;
+              case 'low_stock':
+                  $query->orderBy('stock', 'asc');   // Menor stock
+                  break;
+              case 'no_stock':
+                  $query->where('stock', '=', 0);    // Sin stock
+                  break;
+          }
+      }
+
+      // Preparar los datos para DataTables
+      $dataTable = DataTables::of($query)
+          ->addColumn('category', function ($product) {
+              return $product->categories->implode('name', ', ');
+          })
+          ->addColumn('store_name', function ($product) {
+              return $product->store->name;
+          })
+          ->make(true);
+
+      return $dataTable;
   }
+
+
+
 
   /**
    * Devuelve un producto específico.
@@ -425,4 +480,38 @@ class ProductRepository
     $flavor = Flavor::findOrFail($id);
     return $flavor->delete();
   }
+
+  public function getProductsForExport(array $filters)
+  {
+      // Iniciar la consulta
+      $query = Product::with(['categories:id,name', 'store:id,name'])
+          ->select([
+              'id', 'name', 'sku', 'description', 'type', 'old_price', 'price',
+              'discount', 'image', 'store_id', 'status', 'draft', 'stock', 'safety_margin'
+          ])
+          ->where('is_trash', '!=', 1);
+
+      // Aplicar filtros
+      if (!empty($filters['search'])) {
+          $query->where('name', 'like', '%' . $filters['search'] . '%');
+      }
+
+      if (!empty($filters['store_id'])) {
+          $query->where('store_id', $filters['store_id']);
+      }
+
+      if (!empty($filters['category_id'])) {
+          $query->whereHas('categories', function ($q) use ($filters) {
+              $q->where('product_categories.id', $filters['category_id']);
+          });
+      }
+
+      if (!empty($filters['status'])) {
+          $query->where('status', $filters['status']);
+      }
+
+      return $query->get();
+  }
+
+
 }

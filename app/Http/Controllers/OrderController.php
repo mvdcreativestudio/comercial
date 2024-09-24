@@ -119,9 +119,10 @@ class OrderController extends Controller
       // Cargar las relaciones necesarias
       $order = $this->orderRepository->loadOrderRelations($order);
       $products = json_decode($order->products, true);
+      $store = $order->store;
       $clientOrdersCount = $this->orderRepository->getClientOrdersCount($order->client_id);
 
-      return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'products', 'clientOrdersCount'));
+      return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount'));
   }
 
 

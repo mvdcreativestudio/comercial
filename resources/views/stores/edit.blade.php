@@ -112,6 +112,13 @@
                                             <img src="{{ asset('assets/img/integrations/ecommerce-logo.png') }}"
                                                 alt="E-Commerce Logo" class="img-fluid" style="width: 80px;">
                                         </div>
+                                        <!-- Icono de check para mostrar la vinculación activa -->
+                                        @if ($store->ecommerce)
+                                        <span class="position-absolute top-0 end-0 translate-middle p-2 bg-success rounded-circle">
+                                            <i class="bx bx-check text-white"></i>
+                                        </span>
+                                        @endif
+                                            
                                     </div>
                                     <div class="card-body text-center">
                                         <h3 class="card-title mb-1 me-2">E-Commerce</h3>
@@ -122,11 +129,6 @@
                                                 name="ecommerce" value="1" {{ $store->ecommerce ? 'checked' : '' }}>
                                         </div>
                                     </div>
-                                    @if ($store->ecommerce)
-                                    <span class="check-circle-integrations position-absolute top-0 end-0 m-2">
-                                        <i class="bx bx-check text-white"></i>
-                                    </span>
-                                    @endif
                                 </div>
                             </div>
 
@@ -138,6 +140,12 @@
                                             <img src="{{ asset('assets/img/integrations/mercadopago-logo.png') }}"
                                                 alt="MercadoPago Logo" class="img-fluid" style="width: 80px;">
                                         </div>
+                                        <!-- Icono de check para mostrar la vinculación activa -->
+                                        @if ($store->accepts_mercadopago)
+                                        <span class="position-absolute top-0 end-0 translate-middle p-2 bg-success rounded-circle">
+                                            <i class="bx bx-check text-white"></i>
+                                        </span>
+                                        @endif
                                     </div>
                                     <div class="card-body text-center">
                                         <h3 class="card-title mb-1 me-2">MercadoPago</h3>
@@ -174,11 +182,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    @if ($store->mercadoPagoAccount)
-                                    <span class="check-circle-integrations position-absolute top-0 end-0 m-2">
-                                        <i class="bx bx-check text-white"></i>
-                                    </span>
-                                    @endif
                                 </div>
                             </div>
 
@@ -190,6 +193,12 @@
                                             <img src="{{ asset('assets/img/integrations/peya-logo.png') }}"
                                                 alt="Pedidos Ya Envíos Logo" class="img-fluid" style="width: 80px;">
                                         </div>
+                                        <!-- Icono de check para mostrar la vinculación activa -->
+                                        @if ($store->accepts_peya_envios)
+                                        <span class="position-absolute top-0 end-0 translate-middle p-2 bg-success rounded-circle">
+                                            <i class="bx bx-check text-white"></i>
+                                        </span>
+                                        @endif
                                     </div>
                                     <div class="card-body text-center">
                                       <h3 class="card-title mb-1 me-2">Pedidos Ya Envíos</h3>
@@ -210,12 +219,6 @@
                                           </div>
                                       </div>
                                     </div>
-
-                                    @if ($store->accepts_peya_envios)
-                                    <span class="check-circle-integrations position-absolute top-0 end-0 m-2">
-                                        <i class="bx bx-check text-white"></i>
-                                    </span>
-                                    @endif
                                 </div>
                             </div>
 
@@ -243,6 +246,13 @@
                                         <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch"
                                                name="invoices_enabled" value="1" {{ $store->invoices_enabled ? 'checked' : '' }}>
                                       </div>
+
+                                      @if($store->invoices_enabled == 0)
+                                      <div class="mt-4">
+                                        <small class="">¿Aún no tienes cuenta? <a href="https://pymo.uy/" target="_blank">Registrate aquí</a></small>
+                                      </div>
+                                      @endif
+
 
                                       <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
                                       <div id="pymoFields" style="display: none;">

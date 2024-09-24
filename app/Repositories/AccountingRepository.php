@@ -407,13 +407,19 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
-        // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+        $usdRate = CurrencyRate::where('name', 'Dólar')
+            ->first()
+            ->histories()
+            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+            ->first(); // Obtener la tasa de cambio más cercana a la fecha de la orden
 
-        // if ($usdRate) {
-        //     $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
-        // } else {
-        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        // }
+        Log::info('Tasa de cambio: ' . $usdRate);
+
+        if ($usdRate) {
+            $exchangeRate = (float) $usdRate->sell;
+        } else {
+            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        }
 
         $proportion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
@@ -671,9 +677,8 @@ class AccountingRepository
      * @return array
     */
     private function prepareNoteData(CFE $invoice, float $noteAmount, string $reason, string $noteType): array
-  {
-      $order = $invoice->order;
-
+    {
+        $order = $invoice->order;
       // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
       // if ($usdRate) {
@@ -741,17 +746,31 @@ class AccountingRepository
             'DeptoRecep' => $order->client->state,
             'CompraID' => $order->id,
         ];
-    }
 
-    if ($invoice->type == 111) {
-        $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
-            'ViaTransp' => '8',
-            'ClauVenta' => 'N/A',
-            'ModVenta' => '90'
-        ]);
-    }
+        // Comprobar si existe un cliente y no es de tipo 'no-client'
+        if ($order->client && $order->client->type !== 'no-client') {
+          $notaData['Receptor'] = [
+              'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
+              'CodPaisRecep' => 'UY',
+              'PaisRecep' => 'Uruguay',
+              'DocRecep' => $order->client->type === 'company' ? $order->client->rut : $order->client->ci,
+              'RznSocRecep' => $order->client->type === 'company' ? $order->client->company_name : $order->client->name . ' ' . $order->client->lastname,
+              'DirRecep' => $order->client->address,
+              'CiudadRecep' => $order->client->city,
+              'DeptoRecep' => $order->client->state,
+              'CompraID' => $order->id,
+          ];
+        }
 
-    return $notaData;
+        if ($invoice->type == 111) {
+            $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
+                'ViaTransp' => '8',
+                'ClauVenta' => 'N/A',
+                'ModVenta' => '90'
+            ]);
+        }
+
+        return $notaData;
     }
 
     /**
@@ -925,23 +944,32 @@ class AccountingRepository
     */
     private function prepareReceiptData(CFE $invoice): array
     {
-      $data = [
+        $order = $invoice->order;
+
+        // Obtener la tasa de cambio del historial de CurrencyRate
+        $usdRate = CurrencyRate::where('name', 'Dólar')
+            ->first()
+            ->histories()
+            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+            ->first();
+
+        if ($usdRate) {
+            $exchangeRate = (float) $usdRate->sell;
+        } else {
+            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        }
+
+        $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
             'adenda' => 'Recibo de Cobranza sobre ' . ($invoice->type == 111 ? 'eFactura' : 'eTicket'),
             'IdDoc' => [
                 'IndCobPropia' => '1',
                 'FmaPago' => '1',
             ],
-            'Receptor' => [
-                'TipoDocRecep' => $invoice->type == 111 ? 2 : 3,
-                'CodPaisRecep' => 'UY',
-                'RznSocRecep' => $invoice->order->client ? ($invoice->order->client->type === 'company' ? $invoice->order->client->company_name : $invoice->order->client->name . ' ' . $invoice->order->client->lastname) : '',
-                'DirRecep' => $invoice->order->client->address,
-                'CiudadRecep' => $invoice->order->client->city,
-                'DeptoRecep' => $invoice->order->client->state,
-            ],
+            'Receptor' => (object) [], // Inicializar como objeto vacío
             'Totales' => [
-                'TpoMoneda' => 'UYU',
+                'TpoMoneda' => 'USD',
+                'TpoCambio' => $exchangeRate, // Tasa de cambio en USD
             ],
             'Referencia' => [
                 [
@@ -965,14 +993,26 @@ class AccountingRepository
             ]
         ];
 
-        if ($invoice->order->client) {
-          if($invoice->order->client->type === 'company') {
-            $data['Receptor']['DocRecep'] = $invoice->order->client->rut;
-          } elseif($invoice->order->client->type === 'individual') {
-            $data['Receptor']['DocRecep'] = $invoice->order->client->ci;
-          }
+        // Comprobar si existe un cliente y no es de tipo 'no-client'
+        if ($invoice->order->client && $invoice->order->client->type !== 'no-client') {
+            $data['Receptor'] = [
+                'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
+                'CodPaisRecep' => 'UY',
+                'RznSocRecep' => $invoice->order->client->type === 'company' ? $invoice->order->client->company_name : $invoice->order->client->name . ' ' . $invoice->order->client->lastname,
+                'DirRecep' => $invoice->order->client->address,
+                'CiudadRecep' => $invoice->order->client->city,
+                'DeptoRecep' => $invoice->order->client->state,
+            ];
+
+            // Agregar documento receptor si es una empresa o individuo
+            if ($invoice->order->client->type === 'company') {
+                $data['Receptor']['DocRecep'] = $invoice->order->client->rut;
+            } elseif ($invoice->order->client->type === 'individual') {
+                $data['Receptor']['DocRecep'] = $invoice->order->client->ci;
+            }
         }
 
         return $data;
     }
+
 }
