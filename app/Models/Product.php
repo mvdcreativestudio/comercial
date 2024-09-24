@@ -119,5 +119,34 @@ class Product extends Model
         // Agrega más filtros según sea necesario
         return $query;
     }
+    
+    /**
+     * Setea el precio del producto.
+     * @param float $value
+     * @return void
+    */
+    public function setPriceAttribute(float $value): void
+    {
+        $this->attributes['price'] = round($value, 2);
+    }
 
+    /**
+     * Setea el precio anterior del producto.
+     * @param float $value
+     * @return void
+    */
+    public function setOldPriceAttribute(float $value): void
+    {
+        $this->attributes['old_price'] = round($value, 2);
+    }
+
+    /**
+     * Setea el descuento del producto.
+     * @param float $value
+     * @return void
+    */
+    public function setDiscountAttribute(float $value): void
+    {
+        $this->attributes['discount'] = round($value, 2);
+    }
 }
