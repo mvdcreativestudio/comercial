@@ -115,18 +115,19 @@ $(function () {
                   </div>
                 </div>
               </div>
+
             `;
 
             cardContainer.append(card);
           });
         }
+
       },
       error: function (xhr, status, error) {
         console.error('Error al obtener los datos:', error);
       }
     });
   }
-
 
   // Fetch products on page load
   fetchProducts();

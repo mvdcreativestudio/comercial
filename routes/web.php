@@ -93,11 +93,13 @@ Route::middleware([
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
+
     // Exportaciones
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
 
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
 
 
 

@@ -105,6 +105,7 @@ class ProductRepository
   */
   public function getProductsForDataTable(Request $request): mixed
   {
+
       // Iniciar la consulta
       $query = Product::with(['categories:id,name', 'store:id,name'])
           ->select([

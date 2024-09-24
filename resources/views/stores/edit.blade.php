@@ -219,7 +219,6 @@
                                           </div>
                                       </div>
                                     </div>
-
                                 </div>
                             </div>
 
@@ -247,11 +246,13 @@
                                         <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch"
                                                name="invoices_enabled" value="1" {{ $store->invoices_enabled ? 'checked' : '' }}>
                                       </div>
+
                                       @if($store->invoices_enabled == 0)
                                       <div class="mt-4">
                                         <small class="">¿Aún no tienes cuenta? <a href="https://pymo.uy/" target="_blank">Registrate aquí</a></small>
                                       </div>
                                       @endif
+
 
                                       <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
                                       <div id="pymoFields" style="display: none;">

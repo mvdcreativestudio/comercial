@@ -56,7 +56,6 @@
                 <option value="0">Inactivo</option>
               </select>
             </div>
-
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">Guardar Empresa</button>
             </div>
