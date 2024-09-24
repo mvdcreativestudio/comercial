@@ -93,6 +93,13 @@ Route::middleware([
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
+    // Exportaciones
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
+
+    // Importaciones Bulk
+    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
+
 
 
     // Recursos con acceso autenticado
@@ -315,6 +322,10 @@ Route::middleware([
     //     // delete multiple
     //     Route::post('/delete-multiple', [EntryDetailController::class, 'deleteMultiple'])->name('entry-details.deleteMultiple');
     // });
+
+
+
+
 });
 
 // Recursos con acceso público

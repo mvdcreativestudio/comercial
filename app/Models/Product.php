@@ -94,4 +94,30 @@ class Product extends Model
     {
         return $this->hasMany(Production::class);
     }
+
+    /**
+     * Obtiene los filtros para la exportación de productos.
+     *
+     * @param $query
+     * @param $filters
+     * @return mixed
+     */
+    public function scopeFilterData($query, $filters)
+    {
+        if (!empty($filters['search'])) {
+            $query->where('name', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if (!empty($filters['store_id'])) {
+            $query->where('store_id', $filters['store_id']);
+        }
+
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        // Agrega más filtros según sea necesario
+        return $query;
+    }
+
 }

@@ -33,9 +33,32 @@
 @endsection
 
 @section('content')
-<h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span><span> Editar producto</span>
-</h4>
+
+<form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+  @csrf
+  @method('PUT')
+  
+<div class="d-flex flex-wrap align-items-center justify-content-between bg-light p-4 mb-3 rounded shadow sticky-top">
+
+  <!-- Título del formulario -->
+  <div class="d-flex flex-column justify-content-center">
+    <h4 class="mb-0">
+      <i class="bx bx-edit-alt me-2"></i> Editar Producto
+    </h4>
+  </div>
+
+  <!-- Botones de acciones -->
+  <div class="d-flex justify-content-end gap-3">
+    <button type="button" class="btn btn-outline-secondary" onclick="history.back();">
+      <i class="bx bx-x me-1"></i> Cancelar
+    </button>
+    <button type="submit" class="btn btn-primary">
+      <i class="bx bx-save me-1"></i> Guardar Cambios
+    </button>
+  </div>
+
+</div>
+
 
 @if ($errors->any())
     <div class="alert alert-danger">
@@ -50,20 +73,8 @@
 <div class="app-ecommerce" data-raw-materials='@json($rawMaterials)' data-recipes='@json($product->recipes)' data-flavors='@json($flavors)'>
 
   <!-- Add Product -->
-  <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
-    @csrf
-    @method('PUT')
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
 
-    <div class="d-flex flex-column justify-content-center">
-      <h4 class="mb-1 mt-3">Editar un producto existente</h4>
-    </div>
-    <div class="d-flex justify-content-end gap-3">
-      <button type="button" class="btn btn-label-secondary" onclick="history.back();">Cancelar</button>
-      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-    </div>
 
-  </div>
 
   <div class="row">
 

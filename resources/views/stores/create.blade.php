@@ -3,9 +3,6 @@
 @section('title', 'Agregar Empresa')
 
 @section('page-script')
-@vite([
-'resources/assets/js/add-store.js'
-])
 <script
   src="https://maps.googleapis.com/maps/api/js?key={{ $googleMapsApiKey }}&libraries=places&callback=initAutocomplete"
   async defer></script>
@@ -59,109 +56,6 @@
                 <option value="0">Inactivo</option>
               </select>
             </div>
-
-            {{-- <!-- E-Commerce -->
-            <div class="mb-3">
-              <div class="form-check form-switch">
-                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                <input type="hidden" name="ecommerce" value="0">
-                <input class="form-check-input" type="checkbox" id="ecommerceSwitch" name="ecommerce" value="1">
-                <label class="form-check-label" for="ecommerceSwitch">¿Vende por E-Commerce?</label>
-              </div>
-            </div>
-
-            <!-- MercadoPago -->
-            <div class="mb-3">
-              <div class="form-check form-switch">
-                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                <input type="hidden" name="accepts_mercadopago" value="0">
-                <input class="form-check-input" type="checkbox" id="mercadoPagoSwitch" name="accepts_mercadopago"
-                  value="1">
-                <label class="form-check-label" for="mercadoPagoSwitch">Acepta MercadoPago</label>
-              </div>
-            </div>
-
-            <!-- Campos MercadoPago (ocultos por defecto) -->
-            <div id="mercadoPagoFields" style="display: none;">
-              <!-- Public Key -->
-              <div class="mb-3">
-                <label class="form-label" for="mercadoPagoPublicKey">Public Key</label>
-                <input type="text" class="form-control" id="mercadoPagoPublicKey" name="mercadoPagoPublicKey"
-                  placeholder="Public Key de MercadoPago">
-              </div>
-
-              <!-- Access Token -->
-              <div class="mb-3">
-                <label class="form-label" for="mercadoPagoAccessToken">Access Token</label>
-                <input type="text" class="form-control" id="mercadoPagoAccessToken" name="mercadoPagoAccessToken"
-                  placeholder="Access Token de MercadoPago">
-              </div>
-
-              <!-- Secret Key -->
-              <div class="mb-3">
-                <label class="form-label" for="mercadoPagoSecretKey">Clave Secreta</label>
-                <input type="text" class="form-control" id="mercadoPagoSecreyKey" name="mercadoPagoSecretKey"
-                  placeholder="Clave secreta de MercadoPago">
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <div class="form-check form-switch">
-                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                <input type="hidden" name="invoices_enabled" value="0">
-                <input class="form-check-input" type="checkbox" id="invoicesEnabledSwitch" name="invoices_enabled"
-                  value="1">
-                <label class="form-check-label" for="invoicesEnabledSwitch">Habilitar Facturación</label>
-              </div>
-            </div>
-
-            <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
-            <div id="pymoFields" style="display: none;">
-              <div class="mb-3">
-                <label class="form-label" for="pymoUser">Usuario PyMo</label>
-                <input type="text" class="form-control" id="pymoUser" name="pymo_user" placeholder="Usuario PyMo">
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label" for="pymoPassword">Contraseña PyMo</label>
-                <input type="password" class="form-control" id="pymoPassword" name="pymo_password"
-                  placeholder="Contraseña PyMo">
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
-                <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office"
-                  placeholder="Sucursal PyMo">
-              </div>
-
-
-                @if ($errors->any())
-                @foreach ($errors->all() as $error)
-                <div class="alert alert-danger">
-                  {{ $error }}
-                </div>
-                @endforeach
-                @endif
-              </div>
-            </div>
-
-            <!-- Acepta Pedidos Ya Envíos Switch -->
-            <div class="mb-3">
-              <div class="form-check form-switch">
-                <!-- Campo oculto para asegurar que un valor falso se envíe si el checkbox no está marcado -->
-                <input type="hidden" name="accepts_peya_envios" value="0">
-                <input class="form-check-input" type="checkbox" id="peyaEnviosSwitch" name="accepts_peya_envios">
-                <label class="form-check-label" for="peyaEnviosSwitch">Acepta Pedidos Ya Envíos</label>
-              </div>
-              <!-- Campo Pedidos Ya Key (oculto por defecto) -->
-              <div id="peyaEnviosFields" style="display: none;">
-                <div class="mb-3 mt-3">
-                  <label class="form-label" for="peyaEnviosKey">API Key de Pedidos Ya Envíos</label>
-                  <input type="text" class="form-control" id="peyaEnviosKey" name="peya_envios_key"
-                    placeholder="API Key">
-                </div>
-              </div>
-            </div> --}}
 
             <div class="d-flex justify-content-end">
               <button type="submit" class="btn btn-primary">Guardar Empresa</button>

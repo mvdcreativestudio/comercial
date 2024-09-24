@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFlavorRequest;
 use App\Repositories\ProductRepository;
+use App\Models\ProductCategory;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\View\View;
@@ -12,6 +13,16 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Requests\SwitchProductStatusRequest;
 use App\Http\Requests\StoreMultipleFlavorsRequest;
 use App\Http\Requests\UpdateFlavorRequest;
+use App\Models\Store;
+use Illuminate\Http\Request;
+use App\Services\ExportService;
+use App\Models\Product;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\GenericExport;
+use App\Imports\ProductsImport;
+
+
+
 
 class ProductController extends Controller
 {
@@ -58,7 +69,9 @@ class ProductController extends Controller
   */
   public function index(): View
   {
-      return view('content.e-commerce.backoffice.products.products');
+    $stores = Store::select('id', 'name')->get();
+    $categories = ProductCategory::select('id', 'name')->get();
+    return view('content.e-commerce.backoffice.products.products', compact('stores', 'categories'));
   }
 
     /**
@@ -68,7 +81,9 @@ class ProductController extends Controller
    */
   public function stock(): View
   {
-      return view('content.e-commerce.backoffice.products.stock');
+      $stores = Store::select('id', 'name')->get();
+
+      return view('content.e-commerce.backoffice.products.stock', compact('stores'));
   }
 
   /**
@@ -102,9 +117,10 @@ class ProductController extends Controller
    *
    * @return mixed
   */
-  public function datatable(): mixed
+  public function datatable(Request $request): mixed
   {
-    return $this->productRepo->getProductsForDataTable();
+      // Pasa el request al repositorio
+      return $this->productRepo->getProductsForDataTable($request);
   }
 
   /**
@@ -249,4 +265,52 @@ class ProductController extends Controller
     $this->productRepo->switchFlavorStatus($id);
     return response()->json(['success' => true, 'message' => 'Estado del sabor actualizado correctamente.']);
   }
+
+  /**
+   * Exporta los productos a un archivo de Excel.
+   *
+   * @param Request $request
+   * @return mixed
+   */
+  public function exportToExcel(Request $request)
+  {
+      $filters = $request->all();  // Capturar todos los filtros
+      $products = Product::filterData($filters)->get()->toArray();  // Asegúrate de convertir los datos a array
+
+      return Excel::download(new GenericExport($products), 'productos_filtrados.xlsx');
+  }
+
+  /**
+   * Importa productos desde un archivo de Excel.
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
+  public function import(Request $request)
+  {
+      $request->validate([
+          'file' => 'required|mimes:xlsx'
+      ]);
+
+      // Log para ver si el archivo fue recibido correctamente
+      if ($request->hasFile('file')) {
+          \Log::info('Archivo recibido: ' . $request->file('file')->getClientOriginalName());
+      } else {
+          \Log::error('No se recibió ningún archivo.');
+      }
+
+      // Ahora intenta la importación
+      try {
+          Excel::import(new ProductsImport, $request->file('file'));
+          \Log::info('Importación exitosa.');
+      } catch (\Exception $e) {
+          \Log::error('Error durante la importación: ' . $e->getMessage());
+      }
+
+      return redirect()->route('products.index')->with('success', 'Productos importados correctamente.');
+  }
+
+
+
+
 }
