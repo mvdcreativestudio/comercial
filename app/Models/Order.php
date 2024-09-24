@@ -119,4 +119,54 @@ class Order extends Model
     {
         return $this->hasMany(CFE::class);
     }
+
+    /**
+     * Setea el valor redondeado de subtotal.
+     * @param float $value
+     * @return void
+    */
+    public function setSubtotalAttribute($value)
+    {
+        $this->attributes['subtotal'] = round($value, 2);
+    }
+
+    /**
+     * Setea el valor redondeado del total.
+     * @param float $value
+     * @return void
+    */
+    public function setTotalAttribute($value)
+    {
+        $this->attributes['total'] = round($value, 2);
+    }
+
+    /**
+     * Setea el valor redondeado del impuesto.
+     * @param float $value
+     * @return void
+    */
+    public function setTaxAttribute($value)
+    {
+        $this->attributes['tax'] = round($value, 2);
+    }
+
+    /**
+     * Setea el valor redondeado del envío.
+     * @param float $value
+     * @return void
+    */
+    public function setShippingAttribute($value)
+    {
+        $this->attributes['shipping'] = round($value, 2);
+    }
+
+    /**
+     * Setea el valor redondeado del descuento.
+     * @param float $value
+     * @return void
+    */
+    public function setDiscountAttribute($value)
+    {
+        $this->attributes['discount'] = round($value, 2);
+    }
 }

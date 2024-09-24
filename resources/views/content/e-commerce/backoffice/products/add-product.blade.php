@@ -174,12 +174,12 @@
           <!-- Base Price -->
           <div class="mb-3">
             <label class="form-label" for="ecommerce-product-price">Precio normal</label>
-            <input type="number" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" aria-label="Product price" required>
+            <input type="number" min="0" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" aria-label="Product price" required>
           </div>
           <!-- Discounted Price -->
           <div class="mb-3">
             <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado</label>
-            <input type="number" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" aria-label="Introduzca el precio rebajado">
+            <input type="number" step=".01" min="0" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" aria-label="Introduzca el precio rebajado">
           </div>
           <!-- Campo oculto para estado desactivado -->
           <input type="hidden" name="status" value="2">
