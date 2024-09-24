@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
       fieldsId: 'mercadoPagoFields',
       requiredFields: ['mercadoPagoPublicKey', 'mercadoPagoAccessToken', 'mercadoPagoSecretKey']
     },
-    { id: 'ecommerceSwitch', fieldsId: null }
+    { id: 'ecommerceSwitch', fieldsId: null },
+    { id: 'invoicesEnabledSwitch', fieldsId: 'pymoFields', requiredFields: ['pymoUser', 'pymoPassword', 'pymoBranchOffice'] }
   ];
 
   // Añadir animación de transición
@@ -23,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     toggleSwitch.addEventListener('change', function () {
+      console.log('Checkbox invoices_enabled changed:', this.checked); // Para verificar si se detecta el cambio
+
       if (!this.checked && fields) {
         Swal.fire({
           title: '¿Estás seguro?',
@@ -40,7 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
               fields.style.display = 'none';
               fields.style.opacity = 1;
             }, 500);
-            fields.querySelectorAll('input').forEach(input => (input.value = ''));
+            // Limpia los campos al desactivar la integración
+            fields.querySelectorAll('input').forEach(input => input.value = '');
             fields.querySelectorAll('.error-message').forEach(error => error.remove());
           } else {
             toggleSwitch.checked = true;
@@ -54,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 10);
       }
     });
+
+
   });
 
   // Validación en tiempo real

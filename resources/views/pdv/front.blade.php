@@ -168,9 +168,6 @@ $currencySymbol = $settings->currency_symbol;
 </div>
 
 
-
-
-
 <!-- Offcanvas Crear Cliente -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="crearClienteOffcanvas"
   aria-labelledby="crearClienteOffcanvasLabel">

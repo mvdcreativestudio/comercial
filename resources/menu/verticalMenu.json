@@ -58,6 +58,13 @@
           "url": "/admin/products"
         },
         {
+          "id": "stock",
+          "name": "Stock",
+          "icon": "menu-icon tf-icons bx bx-border-all",
+          "slug": "stock",
+          "url": "/admin/products/stock"
+        },
+        {
           "id": "tour-productos-compuestos",
           "name": "Productos Compuestos",
           "icon": "menu-icon tf-icons bx bx-box",

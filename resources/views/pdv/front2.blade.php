@@ -193,7 +193,7 @@
           </div>
       </div>
       <!-- Lista de clientes, que será scrollable si hay muchos clientes -->
-      <ul id="client-list" class="list-group flex-grow-1 overflow-auto">
+      <ul id="client-list" class="list-group flex-grow-1 ">
           <!-- Aquí se cargarán los clientes -->
       </ul>
   </div>
@@ -217,39 +217,48 @@
         </select>
       </div>
       <div class="mb-3">
-        <label for="nombreCliente" class="form-label">Nombre</label>
-        <input type="text" class="form-control" id="nombreCliente" required>
+        <label for="nombreCliente" class="form-label">Nombre <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="nombreCliente" placeholder="Ingrese el nombre" required>
       </div>
       <div class="mb-3">
-        <label for="apellidoCliente" class="form-label">Apellido</label>
-        <input type="text" class="form-control" id="apellidoCliente" required>
+        <label for="apellidoCliente" class="form-label">Apellido <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="apellidoCliente" placeholder="Ingrese el apellido" required>
       </div>
+
+      <!-- Campo CI para Persona -->
       <div class="mb-3" id="ciField">
-        <label for="ciCliente" class="form-label">CI</label>
-        <input type="text" class="form-control" id="ciCliente">
+        <label for="ciCliente" class="form-label">CI <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="ciCliente" placeholder="Ingrese el CI">
       </div>
-      <div class="mb-3" id="rutField" style="display: none;">
-        <label for="rutCliente" class="form-label">RUT</label>
-        <input type="text" class="form-control" id="rutCliente">
-      </div>
-      <!-- Campo Razón Social -->
+
+      <!-- Campo RUT y Razón Social para Empresa -->
       <div class="mb-3" id="razonSocialField" style="display: none;">
-        <label for="razonSocialCliente" class="form-label">Razón Social</label>
-        <input type="text" class="form-control" id="razonSocialCliente">
+        <label for="razonSocialCliente" class="form-label">Razón Social <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="razonSocialCliente" placeholder="Ingrese la razón social">
       </div>
-      <!-- Campo Dirección -->
+
+      <div class="mb-3" id="rutField" style="display: none;">
+        <label for="rutCliente" class="form-label">RUT <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="rutCliente" placeholder="Ingrese el RUT">
+      </div>
+
+      <!-- Campo Dirección (requerido para ambos tipos de cliente) -->
       <div class="mb-3">
-        <label for="direccionCliente" class="form-label">Dirección</label>
-        <input type="text" class="form-control" id="direccionCliente" required>
+        <label for="direccionCliente" class="form-label">Dirección <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="direccionCliente" placeholder="Ingrese la dirección" required>
       </div>
+
+      <!-- Campo Email (requerido para ambos) -->
       <div class="mb-3">
-        <label for="emailCliente" class="form-label">Correo Electrónico</label>
-        <input type="email" class="form-control" id="emailCliente" required>
+        <label for="emailCliente" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+        <input type="email" class="form-control" id="emailCliente" placeholder="Ingrese el correo electrónico" required>
       </div>
+
       <button type="button" class="btn btn-primary" id="guardarCliente">Guardar</button>
     </form>
   </div>
 </div>
+
 
 <!-- Modal de venta exitosa -->
 <div class="modal fade" id="ventaExitosaModal" tabindex="-1" aria-labelledby="ventaExitosaModalLabel" aria-hidden="true">

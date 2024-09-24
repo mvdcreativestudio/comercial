@@ -89,6 +89,19 @@ Route::middleware([
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
     Route::get('/current-accounts/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
 
+
+    // Stock de productos
+    Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
+
+    // Exportaciones
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
+
+    // Importaciones Bulk
+    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
+
+
+
     // Recursos con acceso autenticado
     Route::resources([
         'stores' => StoreController::class,
@@ -309,6 +322,10 @@ Route::middleware([
     //     // delete multiple
     //     Route::post('/delete-multiple', [EntryDetailController::class, 'deleteMultiple'])->name('entry-details.deleteMultiple');
     // });
+
+
+
+
 });
 
 // Recursos con acceso público

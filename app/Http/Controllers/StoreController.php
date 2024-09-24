@@ -145,6 +145,7 @@ class StoreController extends Controller
     {
         $storeData = $request->validated();
 
+        // Actualización de la tienda excluyendo los datos de integraciones específicas
         $this->storeRepository->update($store, Arr::except($storeData, [
             'mercadoPagoPublicKey',
             'mercadoPagoAccessToken',
@@ -153,40 +154,104 @@ class StoreController extends Controller
             'pymo_user',
             'pymo_password',
             'pymo_branch_office',
+            'accepts_peya_envios',
+            'peya_envios_key'
         ]));
 
+        // Manejo de la integración de MercadoPago
+        $this->handleMercadoPagoIntegration($request, $store);
+
+        // Manejo de la integración de Pedidos Ya Envíos
+        $this->handlePedidosYaEnviosIntegration($request, $store);
+
+        // Manejo de la integración de Pymo (Facturación Electrónica)
+        $this->handlePymoIntegration($request, $store);
+
+        return redirect()->route('stores.index')->with('success', 'Empresa actualizada con éxito.');
+    }
+
+    /**
+     * Maneja la lógica de la integración con MercadoPago.
+     *
+     * @param UpdateStoreRequest $request
+     * @param Store $store
+     */
+    private function handleMercadoPagoIntegration(UpdateStoreRequest $request, Store $store): void
+    {
         if ($request->boolean('accepts_mercadopago')) {
-            $store->mercadoPagoAccount()->updateOrCreate(['store_id' => $store->id], [
-                'public_key' => $request->input('mercadoPagoPublicKey'),
-                'access_token' => $request->input('mercadoPagoAccessToken'),
-                'secret_key' => $request->input('mercadoPagoSecretKey'),
-            ]);
+            $store->mercadoPagoAccount()->updateOrCreate(
+                ['store_id' => $store->id],
+                [
+                    'public_key' => $request->input('mercadoPagoPublicKey'),
+                    'access_token' => $request->input('mercadoPagoAccessToken'),
+                    'secret_key' => $request->input('mercadoPagoSecretKey'),
+                ]
+            );
         } else {
             $store->mercadoPagoAccount()->delete();
         }
+    }
 
-        // Actualizar solo si invoices_enabled es true
+    /**
+     * Maneja la lógica de la integración con Pedidos Ya Envíos.
+     *
+     * @param UpdateStoreRequest $request
+     * @param Store $store
+     */
+    private function handlePedidosYaEnviosIntegration(UpdateStoreRequest $request, Store $store): void
+    {
+        if ($request->boolean('accepts_peya_envios')) {
+            $store->update([
+                'accepts_peya_envios' => true,
+                'peya_envios_key' => $request->input('peya_envios_key'),
+            ]);
+        } else {
+            $store->update([
+                'accepts_peya_envios' => false,
+                'peya_envios_key' => null,
+            ]);
+        }
+    }
+
+    /**
+     * Maneja la lógica de la integración con Pymo (Facturación Electrónica).
+     *
+     * @param UpdateStoreRequest $request
+     * @param Store $store
+     */
+    private function handlePymoIntegration(UpdateStoreRequest $request, Store $store): void
+    {
         if ($request->boolean('invoices_enabled')) {
             $updateData = [
+                'invoices_enabled' => true,
                 'pymo_user' => $request->input('pymo_user'),
                 'pymo_branch_office' => $request->input('pymo_branch_office'),
             ];
 
-            if ($request->filled('pymo_password') && $request->input('pymo_password') !== $store->pymo_password) {
+            // Solo encriptar la nueva contraseña si es enviada
+            if ($request->filled('pymo_password')) {
                 $updateData['pymo_password'] = Crypt::encryptString($request->input('pymo_password'));
+            }
+
+            if ($request->boolean('automatic_billing')) {
+                $updateData['automatic_billing'] = true;
+            } else {
+                $updateData['automatic_billing'] = false;
             }
 
             $store->update($updateData);
         } else {
             $store->update([
+                'invoices_enabled' => false,
                 'pymo_user' => null,
                 'pymo_password' => null,
                 'pymo_branch_office' => null,
+                'automatic_billing' => false,
             ]);
         }
-
-        return redirect()->route('stores.index')->with('success', 'Empresa actualizada con éxito.');
     }
+
+
 
     /**
      * Elimina la Empresa.

@@ -2,7 +2,6 @@
 
 $(function () {
   let borderColor, bodyBg, headingColor;
-  let currencySymbol = window.currencySymbol;
 
   if (isDarkStyle) {
     borderColor = config.colors_dark.borderColor;
@@ -14,35 +13,40 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_product_list_container = $('#product-list-container');
+  var dt_product_stock_table = $('#product-list-container');
   var searchInput = $('#searchProduct');
   var storeFilter = $('#storeFilter');
-  var categoryFilter = $('#categoryFilter');
   var statusFilter = $('#statusFilter');
+  var minStockFilter = $('#minStockFilter');
+  var maxStockFilter = $('#maxStockFilter');
 
   function isFilterApplied() {
     return (
       searchInput.val().trim() !== '' ||
       storeFilter.val() !== '' ||
-      categoryFilter.val() !== '' ||
-      statusFilter.val() !== ''
+      statusFilter.val() !== '' ||
+      minStockFilter.val() !== '' ||
+      maxStockFilter.val() !== ''
     );
   }
 
   function resetFilters() {
     searchInput.val('');
     storeFilter.val('');
-    categoryFilter.val('');
     statusFilter.val('');
+    minStockFilter.val('');
+    maxStockFilter.val('');
     fetchProducts();
   }
 
   function fetchProducts() {
-    var ajaxUrl = dt_product_list_container.data('ajax-url');
+    var ajaxUrl = dt_product_stock_table.data('ajax-url');
     var searchQuery = searchInput.val();
     var storeId = storeFilter.val();
-    var categoryId = categoryFilter.val();
     var status = statusFilter.val();
+    var minStock = minStockFilter.val();
+    var maxStock = maxStockFilter.val();
+    var sortStock = $('#sortStockFilter').val(); // Nueva variable para el orden de stock
 
     $.ajax({
       url: ajaxUrl,
@@ -50,18 +54,21 @@ $(function () {
       data: {
         search: searchQuery,
         store_id: storeId,
-        category_id: categoryId,
-        status: status
+        status: status,
+        min_stock: minStock,
+        max_stock: maxStock,
+        sort_stock: sortStock
       },
       success: function (response) {
         var rows = response.data;
         var cardContainer = $('#product-list-container').html(''); // Limpiar el contenedor
 
         if (rows.length === 0) {
+          // Si no hay productos y hay filtros aplicados
           if (isFilterApplied()) {
             cardContainer.html(`
               <div class="alert alert-warning text-center w-100">
-                <i class="bx bx-filter-alt"></i> No hay productos que coincidan con los filtros.
+                <i class="bx bx-filter-alt"></i> No existen productos que concuerden con el filtro.
                 <br>
                 <button id="clearFilters" class="btn btn-outline-danger mt-3">Borrar filtros</button>
               </div>
@@ -77,6 +84,7 @@ $(function () {
             `);
           }
         } else {
+          // Mostrar productos si hay resultados
           rows.forEach(function (rowData) {
             const stockClass =
               rowData.stock === 0 ? 'bg-danger' :
@@ -84,25 +92,24 @@ $(function () {
 
             const statusText = rowData.status === 1 ? 'Activo' : 'Inactivo';
             const statusTextClass = rowData.status === 1 ? 'text-success' : 'text-danger';
-            const truncatedName = rowData.name.length > 25 ? rowData.name.substring(0, 25) + '...' : rowData.name;
 
             const card = `
               <div class="col-md-6 col-lg-4 col-12 mb-4">
-                <div class="product-card">
-                  <div class="col-4 d-flex align-items-center">
-                    <img src="${baseUrl + rowData.image}" class="img-fluid product-card-img" alt="Imagen del producto">
-                  </div>
-                  <div class="col-8">
-                    <div class="product-card-body">
-                      <h5 class="product-title">${truncatedName}</h5>
-                      <p class="product-category text-muted small">${rowData.category || 'Sin categoría'}</p>
-                      <h6 class="product-price">${currencySymbol}${parseFloat(rowData.price).toFixed(2)}</h6>
-                      <p class="product-stock"><span class="badge ${stockClass}">${rowData.stock}</span></p>
-                      <p class="product-status ${statusTextClass}">${statusText}</p>
-                      <div class="product-card-actions">
-                        <a href="${baseUrl}admin/products/${rowData.id}/edit" class="btn btn-sm btn-icon">
-                          <i class="bx bx-edit"></i>
-                        </a>
+                <div class="card h-100 shadow-sm">
+                  <div class="row g-0">
+                    <div class="col-4 d-flex align-items-center">
+                      <img src="${baseUrl + rowData.image}" class="img-fluid rounded-start w-100 h-auto object-fit-cover" alt="Imagen del producto" style="max-height: 150px;">
+                    </div>
+                    <div class="col-8">
+                      <div class="card-body p-1 d-flex flex-column justify-content-between">
+                        <div>
+                          <h6 class="card-title">${rowData.name}</h6>
+                          <p class="card-text mb-2">Stock: <span class="badge ${stockClass}">${rowData.stock}</span></p>
+                          <p class="card-text mb-2">Tienda: ${rowData.store_name}</p>
+                        </div>
+                        <div>
+                          <p class="card-text">Estado: <span class="${statusTextClass}">${statusText}</span></p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -120,10 +127,6 @@ $(function () {
     });
   }
 
-  // Abrir el modal de importación
-  $('#openImportModal').on('click', function () {
-    $('#importModal').modal('show');
-  });
 
   // Fetch products on page load
   fetchProducts();
@@ -138,42 +141,21 @@ $(function () {
     fetchProducts();
   });
 
-  categoryFilter.on('change', function () {
-    fetchProducts();
-  });
-
   statusFilter.on('change', function () {
     fetchProducts();
   });
 
-  // Abrir y cerrar el modal de filtros
-  $('#openFilters').on('click', function () {
-    $('#filterModal').addClass('open');
+  // Trigger fetch on stock range change
+  minStockFilter.on('input', function () {
+    fetchProducts();
   });
 
-  $('#closeFilterModal').on('click', function () {
-    $('#filterModal').removeClass('open');
+  maxStockFilter.on('input', function () {
+    fetchProducts();
   });
 
-  // Capturar los filtros y enviarlos para exportar a Excel
-  $('#exportExcel').on('click', function () {
-    var searchQuery = searchInput.val();
-    var storeId = storeFilter.val();
-    var categoryId = categoryFilter.val();
-    var status = statusFilter.val();
-
-    var params = {
-      search: searchQuery,
-      store_id: storeId,
-      category_id: categoryId,
-      status: status
-    };
-
-    var queryString = $.param(params);
-
-    console.log(exportUrl + '?' + queryString);
-
-    window.location.href = exportUrl + '?' + queryString;
+  $('#sortStockFilter').on('change', function () {
+    fetchProducts();
   });
 
 });

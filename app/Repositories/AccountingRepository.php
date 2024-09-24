@@ -127,7 +127,7 @@ class AccountingRepository
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
               'type' => $typeCFEs[$invoice->type] ?? 'N/A',
-              'currency' => 'USD',
+              'currency' => 'UYU',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
               'order_uuid' => $invoice->order->uuid,
@@ -467,15 +467,15 @@ class AccountingRepository
         // Preparar los datos del CFE
         $cfeData = [
           'clientEmissionId' => $order->uuid,
-          'adenda' => 'Orden ' . $order->id . ' - Anjos.',
+          'adenda' => 'Orden ' . $order->id . ' - Sumeria.',
           'IdDoc' => [
               'MntBruto' => 1, // Indica que los montos enviados incluyen IVA
               'FmaPago' => $payType, // Al facturar manualmente se puede elegir si fue crédito o contado, si no asume que es contado.
           ],
           'Receptor' => (object) [], // Inicializar como objeto vacío
           'Totales' => [
-              'TpoMoneda' => 'USD', // Moneda de la factura
-              'TpoCambio' => $exchangeRate, // Tipo de cambio
+              'TpoMoneda' => 'UYU', // Moneda de la factura
+              // 'TpoCambio' => $exchangeRate, // Tipo de cambio
           ],
           'Items' => $items,
         ];
