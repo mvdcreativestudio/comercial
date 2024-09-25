@@ -407,19 +407,20 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
-        $usdRate = CurrencyRate::where('name', 'Dólar')
-            ->first()
-            ->histories()
-            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
-            ->first(); // Obtener la tasa de cambio más cercana a la fecha de la orden
+        // Activar si se necesita obtener la tasa de cambio más cercana a la fecha de la orden (se vende en USD)
+        // $usdRate = CurrencyRate::where('name', 'Dólar')
+        //     ->first()
+        //     ->histories()
+        //     ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+        //     ->first(); // Obtener la tasa de cambio más cercana a la fecha de la orden
 
-        Log::info('Tasa de cambio: ' . $usdRate);
+        // Log::info('Tasa de cambio: ' . $usdRate);
 
-        if ($usdRate) {
-            $exchangeRate = (float) $usdRate->sell;
-        } else {
-            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
+        // if ($usdRate) {
+        //     $exchangeRate = (float) $usdRate->sell;
+        // } else {
+        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        // }
 
         $proportion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
@@ -689,7 +690,7 @@ class AccountingRepository
 
       // Utilizar los datos del receptor del CFE existente
       $tipoDocRecep = $invoice->type == 111 ? 2 : 3; // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
-      $docRecep = $invoice->order->document ?? '00000000'; // Tomar el documento del receptor o '12345678' como predeterminado
+      $docRecep = $invoice->order->document ?? '12345678'; // Tomar el documento del receptor o '12345678' como predeterminado
 
       $notaData = [
         'clientEmissionId' => $order->uuid,
@@ -729,7 +730,7 @@ class AccountingRepository
             ]
         ],
         'Emisor' => [
-            'GiroEmis' => 'Chelato'
+            'GiroEmis' => 'base'
         ]
       ];
 
@@ -747,8 +748,6 @@ class AccountingRepository
             'CompraID' => $order->id,
         ];
 
-      }
-
         if ($invoice->type == 111) {
             $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
                 'ViaTransp' => '8',
@@ -756,6 +755,7 @@ class AccountingRepository
                 'ModVenta' => '90'
             ]);
         }
+      }
 
         return $notaData;
     }
@@ -903,7 +903,7 @@ class AccountingRepository
                         'caeNumber' => $cfe['caeNumber'],
                         'caeRange' => json_encode($cfe['caeRange']),
                         'caeExpirationDate' => $cfe['caeExpirationDate'],
-                        'total' => $invoice->total,
+                        'total' => $invoice->balance,
                         'emitionDate' => $cfe['emitionDate'],
                         'sentXmlHash' => $cfe['sentXmlHash'],
                         'securityCode' => $cfe['securityCode'],
@@ -933,18 +933,19 @@ class AccountingRepository
     {
         $order = $invoice->order;
 
-        // Obtener la tasa de cambio del historial de CurrencyRate
-        $usdRate = CurrencyRate::where('name', 'Dólar')
-            ->first()
-            ->histories()
-            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
-            ->first();
+        // Modificar si se vende en USD
+        // // Obtener la tasa de cambio del historial de CurrencyRate
+        // $usdRate = CurrencyRate::where('name', 'Dólar')
+        //     ->first()
+        //     ->histories()
+        //     ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+        //     ->first();
 
-        if ($usdRate) {
-            $exchangeRate = (float) $usdRate->sell;
-        } else {
-            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
+        // if ($usdRate) {
+        //     $exchangeRate = (float) $usdRate->sell;
+        // } else {
+        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        // }
 
         $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
@@ -955,8 +956,9 @@ class AccountingRepository
             ],
             'Receptor' => (object) [], // Inicializar como objeto vacío
             'Totales' => [
-                'TpoMoneda' => 'USD',
-                'TpoCambio' => $exchangeRate, // Tasa de cambio en USD
+                'TpoMoneda' => 'UYU',
+                // Activar si se vende en USD
+                // 'TpoCambio' => $exchangeRate, // Tasa de cambio en USD
             ],
             'Referencia' => [
                 [
