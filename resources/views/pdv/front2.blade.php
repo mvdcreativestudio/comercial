@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="card shadow-sm p-3">
-            <h5>Productos comprados</h5>
+            <h5>Productos de la venta</h5>
             <!-- Listado de items seleccionados -->
             <ul class="list-group list-group-flush">
               <!-- Aquí se insertarán los items del carrito dinámicamente -->
@@ -89,7 +89,7 @@
 
     <div class="col-md-4">
       <div class="card shadow-sm p-3 mb-3">
-        <h5>Resumen del pedido</h5>
+        <h5>Resumen de la venta</h5>
         <div class="d-flex justify-content-between">
           <span>Subtotal de productos</span>
           <span class="subtotal">$0.00</span>
@@ -138,9 +138,9 @@
         <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="cash" checked>
           <label class="form-check-label" for="cash">Efectivo</label>
-          <input type="text" id="valorRecibido" class="form-control mt-2 mb-3" placeholder="Valor recibido">
+          <input type="number" id="valorRecibido" class="form-control mt-2 mb-3" placeholder="Valor recibido">
           <p class="text-muted">Vuelto: <span id="vuelto">0</span></p>
-          <small id="mensajeError" class="text-danger d-none">El valor recibido es menor al total de la compra.</small>
+          <small id="mensajeError" class="text-danger d-none mb-4">El valor recibido es menor al total de la compra.</small>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="debit">
@@ -160,9 +160,8 @@
         </div> --}}
       </div>
       <div class="demo-inline-spacing d-flex justify-content-between">
-        <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-light"><i class="bx bx-x"></i>Descartar venta</a>
-        <button class="btn btn-secondary"><i class="bx bx-save"></i> Guardar pedido</button>
-        <button class="btn btn-success"><i class="bx bx-check"></i> Finalizar venta</button>
+        <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-outline-primary"><i class="bx bx-x"></i>Descartar</a>
+        <button class="btn btn-primary w-100"><i class="bx bx-check"></i> Finalizar venta</button>
       </div>
       <!-- Contenedor para el estado de la transacción -->
       <div id="transaction-status" style="display: none;">

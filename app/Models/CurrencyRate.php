@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CurrencyRate extends Model
 {
@@ -23,19 +24,15 @@ class CurrencyRate extends Model
     */
     protected $fillable = [
         'name',
-        'date',
-        'buy',
-        'sell'
     ];
 
     /**
-     * Los atributos que deben ser convertidos a tipos nativos.
+     * Obtiene el historial de tasas de cambio asociado a la tasa de cambio.
      *
-     * @var array
+     * @return HasMany
     */
-    protected $casts = [
-        'date' => 'date',
-        'buy' => 'decimal:5',
-        'sell' => 'decimal:5',
-    ];
+    public function histories(): HasMany
+    {
+        return $this->hasMany(CurrencyRateHistory::class);
+    }
 }

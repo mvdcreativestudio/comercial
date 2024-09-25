@@ -118,7 +118,7 @@
                                             <i class="bx bx-check text-white"></i>
                                         </span>
                                         @endif
-                                            
+
                                     </div>
                                     <div class="card-body text-center">
                                         <h3 class="card-title mb-1 me-2">E-Commerce</h3>
@@ -219,7 +219,6 @@
                                           </div>
                                       </div>
                                     </div>
-
                                 </div>
                             </div>
 
@@ -252,6 +251,13 @@
                                         <small class="">¿Aún no tienes cuenta? <a href="https://pymo.uy/" target="_blank">Registrate aquí</a></small>
                                       </div>
                                       @endif
+
+                                      @if($store->invoices_enabled == 0)
+                                      <div class="mt-4">
+                                        <small class="">¿Aún no tienes cuenta? <a href="https://pymo.uy/" target="_blank">Registrate aquí</a></small>
+                                      </div>
+                                      @endif
+
 
                                       <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
                                       <div id="pymoFields" style="display: none;">

@@ -101,6 +101,15 @@ Route::middleware([
 
 
 
+    // Exportaciones
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
+
+    // Importaciones Bulk
+    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
+
+
+
 
     // Recursos con acceso autenticado
     Route::resources([

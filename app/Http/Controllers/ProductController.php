@@ -86,6 +86,7 @@ class ProductController extends Controller
       return view('content.e-commerce.backoffice.products.stock', compact('stores'));
   }
 
+
   /**
    * Muestra el formulario para crear un nuevo producto.
    *
