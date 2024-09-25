@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateClientRequest;
 use App\Repositories\ClientRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use App\Models\CompanySettings;
 
 class ClientController extends Controller
 {
@@ -34,7 +35,8 @@ class ClientController extends Controller
      */
     public function index(): View
     {
-        return view('content.clients.clients');
+      $companySettings = CompanySettings::first();
+      return view('content.clients.clients', compact('companySettings'));
     }
 
     /**
