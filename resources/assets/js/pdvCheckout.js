@@ -183,6 +183,27 @@ $(document).ready(function () {
     }
   }
 
+  function aplicarDescuentoPorCupon(couponResponse) {
+    coupon = couponResponse;
+    let subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    if (coupon.coupon.type === 'percentage') {
+        discount = (coupon.coupon.amount / 100) * subtotal;
+    } else if (coupon.coupon.type === 'fixed') {
+        discount = coupon.coupon.amount;
+    }
+
+    if (discount > subtotal) {
+        discount = subtotal;
+    }
+
+    discount = Math.round(discount);
+    $('.discount-amount').text(`${currencySymbol}${discount.toFixed(0)}`);
+
+    calcularTotal();
+    $('#quitarDescuento').show(); // Mostrar el botón de eliminar descuento
+  }
+
   function aplicarDescuentoFijo() {
     const discountType = $('input[name="discount-type"]:checked').val();
     const discountValue = parseFloat($('#fixed-discount').val());
@@ -581,8 +602,8 @@ $(document).ready(function () {
     let posSales = 0;
 
     // Convertir los valores de texto formateados a números enteros
-    const total = parseInt($('.total').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
-    const subtotal = parseInt($('.subtotal').text().replace(/[^\d]/g, ''), 10) || 0; // Remover todo excepto dígitos y convertir a entero
+    const total = parseFloat($('.total').text().replace(/[^\d.-]/g, '')) || 0;
+    const subtotal = parseFloat($('.subtotal').text().replace(/[^\d.-]/g, '')) || 0;
 
     // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
     if (total > 24000 && (!client || !client.id)) {
