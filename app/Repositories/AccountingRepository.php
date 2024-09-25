@@ -747,20 +747,7 @@ class AccountingRepository
             'CompraID' => $order->id,
         ];
 
-        // Comprobar si existe un cliente y no es de tipo 'no-client'
-        if ($order->client && $order->client->type !== 'no-client') {
-          $notaData['Receptor'] = [
-              'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
-              'CodPaisRecep' => 'UY',
-              'PaisRecep' => 'Uruguay',
-              'DocRecep' => $order->client->type === 'company' ? $order->client->rut : $order->client->ci,
-              'RznSocRecep' => $order->client->type === 'company' ? $order->client->company_name : $order->client->name . ' ' . $order->client->lastname,
-              'DirRecep' => $order->client->address,
-              'CiudadRecep' => $order->client->city,
-              'DeptoRecep' => $order->client->state,
-              'CompraID' => $order->id,
-          ];
-        }
+      }
 
         if ($invoice->type == 111) {
             $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
@@ -1016,3 +1003,4 @@ class AccountingRepository
     }
 
 }
+
