@@ -78,7 +78,7 @@ $currencySymbol = $settings->currency_symbol;
         <i class="bx bx-store"></i>
       </span>
       <select id="storeFilter" class="form-select">
-        <option value="">Todas las tiendas</option>
+        <option value="">Todas las Empresas</option>
         @foreach($stores as $store)
           <option value="{{ $store->id }}">{{ $store->name }}</option>
         @endforeach

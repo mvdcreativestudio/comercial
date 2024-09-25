@@ -112,9 +112,9 @@ $currencySymbol = $settings->currency_symbol;
 
     <!-- Filtro por tienda -->
     <div class="mb-3">
-      <label for="storeFilter" class="form-label">Tienda</label>
+      <label for="storeFilter" class="form-label">Empresa</label>
       <select id="storeFilter" class="form-select">
-        <option value="">Todas las tiendas</option>
+        <option value="">Todas las Empresas</option>
         @foreach($stores as $store)
           <option value="{{ $store->id }}">{{ $store->name }}</option>
         @endforeach

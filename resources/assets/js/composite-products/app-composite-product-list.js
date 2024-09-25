@@ -125,11 +125,11 @@ $(function () {
             .columns(3)
             .every(function () {
               var column = this;
-              var select = $('<select class="form-select"><option value="">Todas las tiendas</option></select>')
+              var select = $('<select class="form-select"><option value="">Todas las empresas</option></select>')
                 .appendTo('.store_filter')
                 .on('change', function () {
                   var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                  if (val == 'Sin tienda') {
+                  if (val == 'Sin empresa') {
                     val = '^$';
                   }
                   column.search(val ? `^${val}$` : '', true, false).draw();
@@ -141,7 +141,7 @@ $(function () {
                 .sort()
                 .each(function (d, j) {
                   if (d == null) {
-                    d = 'Sin tienda';
+                    d = 'Sin empresa';
                   }
                   select.append(`<option value="${d}">${d}</option>`);
                 });

@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
       language: {
         searchPlaceholder: 'Buscar...',
         sLengthMenu: '_MENU_',
-        info: 'Mostrando _START_ a _END_ de _TOTAL_ tiendas',
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ empresas',
         paginate: {
           first: 'Primero',
           last: 'Último',
@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingRecords: 'Cargando...',
         processing: 'Procesando...',
         search: '',
-        infoFiltered: '(filtrado de un total de _MAX_ tiendas)',
-        infoEmpty: 'Mostrando 0 a 0 de 0 tiendas'
+        infoFiltered: '(filtrado de un total de _MAX_ empresas)',
+        infoEmpty: 'Mostrando 0 a 0 de 0 empresas'
       },
       dom:
         '<"card-header d-flex border-top rounded-0 flex-wrap py-md-0"' +
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var form = $(this).closest('form');
     Swal.fire({
       title: '¿Seguro?',
-      text: 'Estás a punto de cambiar el estado de la tienda',
+      text: 'Estás a punto de cambiar el estado de la empresa',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
         /* Read more about handling dismissals below */
         result.dismiss === Swal.DismissReason.cancel
       ) {
-        Swal.fire('Cancelado', 'El estado de la tienda está seguro :)', 'error');
+        Swal.fire('Cancelado', 'El estado de la empresa está seguro :)', 'error');
       }
     });
   });

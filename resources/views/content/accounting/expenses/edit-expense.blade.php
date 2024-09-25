@@ -44,9 +44,9 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="storeIdEdit" class="form-label">Tienda</label>
+            <label for="storeIdEdit" class="form-label">Empresa</label>
             <select class="form-select" id="storeIdEdit" name="store_id" required>
-              <option value="" disabled selected>Seleccione una tienda</option>
+              <option value="" disabled selected>Seleccione una empresa</option>
               @foreach($stores as $store)
                 <option value="{{ $store->id }}">{{ $store->name }}</option>
               @endforeach

@@ -370,7 +370,7 @@ $changeTypeTranslations = [
       </div>
     </div>
 
-    
+
     <div class="card mb-4">
       <div class="card-header">
         <h6 class="card-title m-0">Datos del Cliente</h6>

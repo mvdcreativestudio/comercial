@@ -137,7 +137,7 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="store_id" class="form-label">ID de Tienda:</label>
+                    <label for="store_id" class="form-label">ID de Empresa:</label>
                     <input type="text" id="store_id" name="store_id" class="form-control">
                 </div>
                 <input type="hidden" id="user_id" name="user_id" value="{{ $userId }}">
@@ -265,7 +265,7 @@
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error al obtener las tiendas: ' + xhr.responseText);
+                alert('Error al obtener las Empresas: ' + xhr.responseText);
             }
         });
 

@@ -48,7 +48,7 @@
                 <p>{{ $compositeProduct->title }}</p>
             </div>
             <div class="col-md-6">
-                <h6 class="mb-2">Tienda:</h6>
+                <h6 class="mb-2">Empresa:</h6>
                 <p>{{ $compositeProduct->store->name }}</p>
             </div>
             <div class="col-md-6">

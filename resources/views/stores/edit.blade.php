@@ -122,7 +122,7 @@
                                     </div>
                                     <div class="card-body text-center">
                                         <h3 class="card-title mb-1 me-2">E-Commerce</h3>
-                                        <small class="d-block mb-2">Activa la venta en línea para tu tienda</small>
+                                        <small class="d-block mb-2">Activa la venta en línea para tu empresa</small>
                                         <div class="form-check form-switch d-flex justify-content-center">
                                             <input type="hidden" name="ecommerce" value="0">
                                             <input class="form-check-input" type="checkbox" id="ecommerceSwitch"
@@ -251,13 +251,6 @@
                                         <small class="">¿Aún no tienes cuenta? <a href="https://pymo.uy/" target="_blank">Registrate aquí</a></small>
                                       </div>
                                       @endif
-
-                                      @if($store->invoices_enabled == 0)
-                                      <div class="mt-4">
-                                        <small class="">¿Aún no tienes cuenta? <a href="https://pymo.uy/" target="_blank">Registrate aquí</a></small>
-                                      </div>
-                                      @endif
-
 
                                       <!-- Campos de Configuración de PyMo (ocultos por defecto) -->
                                       <div id="pymoFields" style="display: none;">
