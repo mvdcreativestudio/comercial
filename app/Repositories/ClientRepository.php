@@ -4,20 +4,41 @@ namespace App\Repositories;
 
 use App\Models\Client;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Auth;
+
 
 class ClientRepository
 {
+
+    protected $companySettings;
+
+    public function __construct($companySettings)
+    {
+        // Asigna companySettings al repositorio
+        $this->companySettings = $companySettings;
+    }
+
     /**
-     * Obtiene todos los clientes para la tabla de datos.
+     * Obtiene todos los clientes para la tabla de datos según la configuración de clients_has_store.
      *
      * @return mixed
      */
     public function getClientsForDatatable(): mixed
     {
+        // Iniciar la consulta básica
         $query = Client::select(['id', 'name', 'lastname', 'company_name', 'type', 'rut', 'ci', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document'])
             ->orderBy('id', 'desc');
+
+        // Verificar la configuración de clients_has_store
+        if ($this->companySettings && $this->companySettings->clients_has_store == 1) {
+            // Filtrar clientes por el store_id del usuario autenticado
+            $query->where('store_id', Auth::user()->store_id);
+        }
+
+        // Retornar los resultados formateados para DataTables
         return DataTables::of($query)->make(true);
     }
+
 
     /**
      * Crea un nuevo cliente.

@@ -245,21 +245,29 @@ class CashRegisterLogRepository
     }
 
     /**
-     * Busca el ID del registro de caja dado un ID de caja registradora.
+     * Busca el ID del registro de caja dado un ID de caja registradora y devuelve el store_id.
      *
      * @param string $id
      *
-     * @return int|null
+     * @return array|null
      */
-    public function getCashRegisterLog(string $id)
+    public function getCashRegisterLogWithStore(string $id)
     {
         $openLog = CashRegisterLog::where('cash_register_id', $id)
             ->whereNull('close_time')
             ->first();
 
-        // Devuelve el ID del registro de caja si existe, de lo contrario, null
-        return $openLog ? $openLog->id : null;
+        if ($openLog) {
+            $cashRegister = $openLog->cashRegister; // Relación con CashRegister (asegúrate de tener la relación definida)
+            return [
+                'cash_register_log_id' => $openLog->id,
+                'store_id' => $cashRegister->store_id
+            ];
+        }
+
+        return null;
     }
+
 
     /**
      * Obtiene todos los clientes según la configuración de clients_has_store.

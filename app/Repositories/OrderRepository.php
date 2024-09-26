@@ -144,7 +144,7 @@ class OrderRepository
         'date' => now(),
         'time' => now()->format('H:i:s'),
         'origin' => 'physical',
-        'store_id' => 1,
+        'store_id' => $request->store_id,
         'subtotal' => $subtotal,
         'tax' => 0,
         'shipping' => session('costoEnvio', 0),
