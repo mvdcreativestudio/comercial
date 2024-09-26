@@ -3,16 +3,14 @@
 namespace App\Repositories;
 
 use App\Enums\CurrentAccounts\StatusPaymentEnum;
-use App\Models\Client;
-use App\Models\Currency;
 use App\Models\CurrentAccount;
 use App\Models\CurrentAccountPayment;
 use App\Models\CurrentAccountSettings;
 use App\Models\PaymentMethod;
+use App\Models\Supplier;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
 
-class CurrentAccountPaymentClientSaleRepository
+class CurrentAccountPaymentSupplierPurchaseRepository
 {
     /**
      * Obtiene todos los pagos de cuentas corrientes filtrados por tipo de transacción.
@@ -23,7 +21,7 @@ class CurrentAccountPaymentClientSaleRepository
     public function getAllCurrentAccountPayments(int $id): array
     {
         // Obtiene los pagos de las cuentas corrientes
-        $currentAccountPayments = CurrentAccountPayment::with(['currentAccount.client', 'currentAccount.currency'])
+        $currentAccountPayments = CurrentAccountPayment::with(['currentAccount.supplier', 'currentAccount.currency'])
             ->where('current_account_id', $id)
             ->get();
 
@@ -240,9 +238,9 @@ class CurrentAccountPaymentClientSaleRepository
      *
      * @return Collection
      */
-    public function getClientByCurrentAccount($currentAccountId)
+    public function getSupplierByCurrentAccount($currentAccountId)
     {
-        return Client::whereHas('currentAccount', function($query) use ($currentAccountId) {
+        return Supplier::whereHas('currentAccount', function($query) use ($currentAccountId) {
             $query->where('id', $currentAccountId);
         })->first();
     }

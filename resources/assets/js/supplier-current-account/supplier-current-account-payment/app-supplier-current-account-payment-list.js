@@ -1,7 +1,7 @@
 $(function () {
   // Variables para colores y símbolos
   let borderColor, bodyBg, headingColor;
-  let $currencySymbol = $('.datatables-current-account-clients').data('symbol');
+  let $currencySymbol = $('.datatables-expenses-payments-methods').data('symbol');
 
   // Configuración de colores basada en el estilo (oscuro o claro)
   if (isDarkStyle) {
@@ -14,21 +14,15 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_account_table = $('.datatables-current-account-clients');
-
-  // traduccion de estados
-  const statusMap = {
-    Paid: { class: 'bg-success', text: 'PAGADO' },
-    Unpaid: { class: 'bg-danger', text: 'NO PAGADO' },
-    Partial: { class: 'bg-warning', text: 'PARCIALMENTE PAGO' }
-  };
+  var dt_expense_payment_method_table = $('.datatables-expenses-payments-methods');
 
   try {
     // Inicializa DataTable si el elemento existe
-    if (dt_account_table.length) {
-      var dt_accounts = dt_account_table.DataTable({
+
+    if (dt_expense_payment_method_table.length) {
+      var dt_expense_payment_method = dt_expense_payment_method_table.DataTable({
         ajax: {
-          url: 'current-account-clients/datatable',
+          url: `${baseUrl}admin/expense-payment-methods/datatable/${expenseId}`,
           data: function (d) {
             d.start_date = $('#startDate').val();
             d.end_date = $('#endDate').val();
@@ -37,11 +31,9 @@ $(function () {
         columns: [
           { data: 'switch', orderable: false, searchable: false },
           { data: 'id', type: 'num' },
-          { data: 'transaction_date' },
-          { data: 'client_name' },
-          { data: 'total_debit' },
-          { data: 'payment_amount' },
-          { data: 'status' },
+          { data: 'amount_paid' },
+          { data: 'payment_date' },
+          { data: 'payment_method' },
           { data: '' }
         ],
         columnDefs: [
@@ -54,11 +46,17 @@ $(function () {
           {
             targets: 1,
             render: function (data, type, full, meta) {
-              return `<a href="${baseUrl}admin/current-account-client-payments/${data}" class="text-body">#${data}</a>`;
+              return `<a href="${baseUrl}admin/expenses/${data}/show" class="text-body">#${data}</a>`;
             }
           },
           {
             targets: 2,
+            render: function (data, type, full, meta) {
+              return $currencySymbol + parseFloat(data).toFixed(2);
+            }
+          },
+          {
+            targets: 3,
             render: function (data, type, full, meta) {
               return moment(data).locale('es').format('DD/MM/YY');
             }
@@ -66,19 +64,7 @@ $(function () {
           {
             targets: 4,
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
-            }
-          },
-          {
-            targets: 5,
-            render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
-            }
-          },
-          {
-            targets: 6,
-            render: function (data, type, full, meta) {
-              return `<span class="badge pill ${statusMap[data].class}">${statusMap[data].text}</span>`;
+              return data.description;
             }
           },
           {
@@ -93,8 +79,7 @@ $(function () {
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end m-0">
-                    <a href="${baseUrl}admin/current-account-client-payments/${full['id']}" class="dropdown-item detail-record" data-id="${full['id']}">Ver Detalle Cuenta</a>
-                    <a href="${baseUrl}admin/current-account-client-sales/${full['id']}/edit" class="dropdown-item edit-record" data-id="${full['id']}">Editar</a>
+                    <a href="javascript:void(0);" class="dropdown-item edit-record" data-id="${full['id']}">Editar</a>
                     <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Eliminar</a>
                   </div>
                 </div>`;
@@ -111,7 +96,7 @@ $(function () {
           searchPlaceholder: 'Buscar...',
           sLengthMenu: '_MENU_',
           info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-          infoFiltered: 'filtrados de _MAX_ cuentas',
+          infoFiltered: 'filtrados de _MAX_ gastos',
           paginate: {
             first: '<<',
             last: '>>',
@@ -126,11 +111,11 @@ $(function () {
         initComplete: function () {
           // Filtros personalizados para columnas
           this.api()
-            .columns(3)
+            .columns(4)
             .every(function () {
               var column = this;
-              var select = $('<select class="form-select"><option value="">Todos los clientes</option></select>')
-                .appendTo('.client_filter')
+              var select = $('<select class="form-select"><option value="">Todos los metodo de pago</option></select>')
+                .appendTo('.payment_method')
                 .on('change', function () {
                   var val = $.fn.dataTable.util.escapeRegex($(this).val());
                   column.search(val ? `^${val}$` : '', true, false).draw();
@@ -141,35 +126,15 @@ $(function () {
                 .unique()
                 .sort()
                 .each(function (d, j) {
-                  select.append(`<option value="${d}">${d}</option>`);
-                });
-            });
-
-          this.api()
-            .columns(6)
-            .every(function () {
-              var column = this;
-              var select = $('<select class="form-select"><option value="">Todos los estados</option></select>')
-                .appendTo('.status_filter')
-                .on('change', function () {
-                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                  column.search(val ? `^${statusMap[val].text}$` : '', true, false).draw();
-                });
-
-              column
-                .data()
-                .unique()
-                .sort()
-                .each(function (d, j) {
-                  select.append(`<option value="${d}">${statusMap[d].text}</option>`);
+                  select.append(`<option value="${d.description}">${d.description}</option>`);
                 });
             });
         },
         renderer: 'bootstrap'
       });
 
-      $('.toggle-column').on('change', function () {
-        var column = dt_accounts.column($(this).attr('data-column'));
+      $('.toggle-column').on('change', function() {
+        var column = dt_expense_payment_method.column($(this).attr('data-column'));
         column.visible(!column.visible());
       });
 
@@ -179,38 +144,38 @@ $(function () {
 
       // Check/uncheck todos los checkboxes
       $('#checkAll').on('change', function () {
-        var checkboxes = $('.datatables-current-account-clients tbody input[type="checkbox"]');
+        var checkboxes = $('.datatables-expenses-payments-methods tbody input[type="checkbox"]');
         checkboxes.prop('checked', $(this).prop('checked'));
         toggleActionsMenu();
       });
 
       // Activar desactivar checkbox principal
-      $('.datatables-current-account-clients tbody').on('change', 'input[type="checkbox"]', function () {
+      $('.datatables-expenses-payments-methods tbody').on('change', 'input[type="checkbox"]', function () {
         toggleActionsMenu();
         var allChecked =
-          $('.datatables-current-account-clients tbody input[type="checkbox"]').length ===
-          $('.datatables-current-account-clients tbody input[type="checkbox"]:checked').length;
+          $('.datatables-expenses-payments-methods tbody input[type="checkbox"]').length ===
+          $('.datatables-expenses-payments-methods tbody input[type="checkbox"]:checked').length;
         $('#checkAll').prop('checked', allChecked);
       });
 
+
       // Eliminar filtros de búsqueda
       $(document).on('click', '#clear-filters', function () {
-        $('.client_filter select').val('').trigger('change');
-        $('.status_filter select').val('').trigger('change');
+        $('.payment_method select').val('').trigger('change');
         $('#startDate').val('');
         $('#endDate').val('');
-        dt_accounts.search('');
-        dt_accounts.ajax.reload();
+        dt_expense_payment_method.search('');
+        dt_expense_payment_method.ajax.reload();
       });
 
       // Filtrar por fechas
       $('#startDate, #endDate').on('change', function () {
-        dt_accounts.ajax.reload();
+        dt_expense_payment_method.ajax.reload();
       });
 
       function toggleActionsMenu() {
         // Muestra u oculta el menú de acciones dependiendo de la cantidad de checkboxes seleccionados
-        var selectedCount = $('.datatables-current-account-clients tbody input[type="checkbox"]:checked').length;
+        var selectedCount = $('.datatables-expenses-payments-methods tbody input[type="checkbox"]:checked').length;
         if (selectedCount >= 2) {
           $('#dropdownMenuButton').removeClass('d-none');
           $('#columnSwitches').collapse('show');
@@ -219,6 +184,7 @@ $(function () {
           $('#columnSwitches').collapse('hide');
         }
       }
+
     }
   } catch (error) {
     console.error('Error al inicializar DataTable:', error);

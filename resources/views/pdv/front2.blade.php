@@ -161,7 +161,7 @@
       </div>
       <div class="demo-inline-spacing d-flex justify-content-between">
         <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-outline-primary"><i class="bx bx-x"></i>Descartar</a>
-        <button class="btn btn-primary w-100"><i class="bx bx-check"></i> Finalizar venta</button>
+        <button class="btn btn-success w-100"><i class="bx bx-check"></i> Finalizar venta</button>
       </div>
       <!-- Contenedor para el estado de la transacción -->
       <div id="transaction-status" style="display: none;">

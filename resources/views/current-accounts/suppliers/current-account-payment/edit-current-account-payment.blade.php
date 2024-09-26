@@ -4,7 +4,7 @@
 
 @section('page-script')
 @vite([
-    'resources/assets/js/client-current-account/client-current-account-payment/app-client-current-account-payment-edit.js'
+    'resources/assets/js/supplier-current-account/supplier-current-account-payment/app-supplier-current-account-payment-edit.js'
 ])
 @endsection
 
@@ -16,21 +16,21 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between">
     <h5 class="card-title">Editar Pago</h5>
-    <a href="{{ route('current-account-client-payments.show', $currentAccount->id) }}" class="btn btn-primary">Volver</a>
+    <a href="{{ route('current-account-supplier-pays.show', $currentAccount->id) }}" class="btn btn-primary">Volver</a>
   </div>
   <div class="card-body">
-    <form id="editPaymentForm" method="POST" action="{{ route('current-account-client-payments.update', $payment->id) }}">
+    <form id="editPaymentForm" method="POST" action="{{ route('current-account-supplier-pays.update', $payment->id) }}">
       @csrf
       @method('PUT') <!-- Usamos PUT para la edición -->
 
       <input type="hidden" name="current_account_id" value="{{ $currentAccount->id }}">
       <input type="hidden" name="current_account_payment_id" value="{{ $payment->id }}">
-      <!-- Cliente -->
+      <!-- Proveedor -->
       <div class="mb-3">
-        <label for="client_id" class="form-label">Cliente</label>
-        <select class="form-select" id="client_id" name="client_id" required disabled>
-          <option value="{{ $client->id }}">{{ $client->name }}</option>
-          <input type="hidden" name="client_id" value="{{ $client->id }}">
+        <label for="supplier_id" class="form-label">Proveedor</label>
+        <select class="form-select" id="supplier_id" name="supplier_id" required disabled>
+          <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+          <input type="hidden" name="supplier_id" value="{{ $supplier->id }}">
         </select>
       </div>
 

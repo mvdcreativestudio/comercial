@@ -21,21 +21,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        DB::table('current_account_settings')->insert([
-            ['transaction_type' => TransactionTypeEnum::SALE, 'late_fee' => 0.05, 'payment_terms' => 5],
-            ['transaction_type' => TransactionTypeEnum::SALE, 'late_fee' => 0.05, 'payment_terms' => 7],
-            ['transaction_type' => TransactionTypeEnum::SALE, 'late_fee' => 0.10, 'payment_terms' => 15],
-            ['transaction_type' => TransactionTypeEnum::SALE, 'late_fee' => 0.05, 'payment_terms' => 30],
-            ['transaction_type' => TransactionTypeEnum::SALE, 'late_fee' => 0.05, 'payment_terms' => 60],
-            ['transaction_type' => TransactionTypeEnum::SALE, 'late_fee' => 0.05, 'payment_terms' => 90],
-            ['transaction_type' => TransactionTypeEnum::PURCHASE, 'late_fee' => 0.10, 'payment_terms' => 5],
-            ['transaction_type' => TransactionTypeEnum::PURCHASE, 'late_fee' => 0.10, 'payment_terms' => 7],
-            ['transaction_type' => TransactionTypeEnum::PURCHASE, 'late_fee' => 0.10, 'payment_terms' => 15],
-            ['transaction_type' => TransactionTypeEnum::PURCHASE, 'late_fee' => 0.10, 'payment_terms' => 30],
-            ['transaction_type' => TransactionTypeEnum::PURCHASE, 'late_fee' => 0.10, 'payment_terms' => 60],
-            ['transaction_type' => TransactionTypeEnum::PURCHASE, 'late_fee' => 0.10, 'payment_terms' => 90],
-        ]);
     }
 
     /**

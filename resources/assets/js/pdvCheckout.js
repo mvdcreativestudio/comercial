@@ -11,6 +11,9 @@ $(document).ready(function () {
   let currencySymbol = window.currencySymbol;
   $('#client-info').hide();
 
+  console.log(sessionStoreId);
+
+
   // Función para verificar si el usuario tiene permiso para ver las ordenes
   function userHasPermission(permission) {
     // Chequear si la lista de permisos contiene el permiso buscado
@@ -32,6 +35,9 @@ $(document).ready(function () {
         type: 'GET',
         success: function (response) {
           cashRegisterLogId = response.cash_register_log_id;
+          sessionStoreId = response.store_id; // Ahora obtenemos el store_id directamente
+          console.log("ID de cash register log obtenido:", cashRegisterLogId);
+          console.log("Store ID obtenido:", sessionStoreId);
         },
         error: function (xhr) {
           mostrarError('Error al obtener el ID de cash register log: ' + xhr.responseText);
@@ -41,6 +47,8 @@ $(document).ready(function () {
       console.error('ID de caja registradora no definido');
     }
   }
+
+
 
   function loadCartFromSession() {
     $.ajax({
@@ -443,23 +451,18 @@ $(document).ready(function () {
 
   // Guardar cliente con validaciones
   document.getElementById('guardarCliente').addEventListener('click', function () {
-    // Obtener los elementos de los campos del formulario
     const nombre = document.getElementById('nombreCliente');
     const apellido = document.getElementById('apellidoCliente');
-    const tipo = document.getElementById('tipoCliente').value;
+    const tipo = document.getElementById('tipoCliente'); // Accede al elemento
     const email = document.getElementById('emailCliente');
     const ci = document.getElementById('ciCliente');
     const rut = document.getElementById('rutCliente');
     const direccion = document.getElementById('direccionCliente');
     const razonSocial = document.getElementById('razonSocialCliente');
 
-    // Inicializar el indicador de error
     let hasError = false;
-
-    // Limpiar errores anteriores
     clearErrors();
 
-    // Validar cada campo
     if (nombre.value.trim() === '') {
       showError(nombre, 'Este campo es obligatorio');
       hasError = true;
@@ -470,6 +473,7 @@ $(document).ready(function () {
       hasError = true;
     }
 
+    // Aquí accedes al valor del campo select tipoCliente
     if (tipo.value.trim() === '') {
       showError(tipo, 'Este campo es obligatorio');
       hasError = true;
@@ -502,17 +506,15 @@ $(document).ready(function () {
       }
     }
 
-    // Si hay errores, detener el envío del formulario
     if (hasError) {
       return;
     }
 
-    // Crear el objeto de datos a enviar
     let data = {
       store_id: sessionStoreId,
       name: nombre.value.trim(),
       lastname: apellido.value.trim(),
-      type: tipo.value,
+      type: tipo.value, // Aquí se usa tipo.value para obtener el valor del select
       email: email.value.trim(),
       address: direccion.value.trim()
     };
@@ -524,7 +526,6 @@ $(document).ready(function () {
       data.company_name = razonSocial.value.trim();
     }
 
-    // Enviar los datos del cliente
     fetch('client', {
       method: 'POST',
       headers: {
@@ -543,6 +544,7 @@ $(document).ready(function () {
         mostrarError('Error al guardar el cliente: ' + error);
       });
   });
+
 
   // Función para mostrar el mensaje de error
   function showError(input, message) {
@@ -644,8 +646,9 @@ $(document).ready(function () {
       client_type: client && client.type ? client.type : 'no-client',
       products: JSON.stringify(cart),
       subtotal: subtotal,
-      total: total - discount, //
-      notes: $('textarea').val() || ''
+      total: total - discount,
+      notes: $('textarea').val() || '',
+      store_id: sessionStoreId
     };
 
     // Primero, hacer el POST a pos-orders

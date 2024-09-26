@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Cuentas Corrientes Clientes')
+@section('title', 'Cuentas Corrientes Proveedores')
 
 @section('vendor-style')
 @vite([
@@ -24,17 +24,17 @@
 
 @section('page-script')
 @vite([
-    'resources/assets/js/client-current-account/app-client-current-account-list.js',
-    'resources/assets/js/client-current-account/app-client-current-account-delete.js',
+    'resources/assets/js/supplier-current-account/app-supplier-current-account-list.js',
+    'resources/assets/js/supplier-current-account/app-supplier-current-account-delete.js',
 ])
 @endsection
 
 @section('content')
 <h4 class="py-3 mb-4">
-    <span class="text-muted fw-light">Contabilidad /</span> Cuentas Corrientes Clientes
+    <span class="text-muted fw-light">Contabilidad /</span> Cuentas Corrientes Proveedores
 </h4>
 
-@if (Auth::user()->can('access_current-accounts-clients-sales'))
+@if (Auth::user()->can('access_current-accounts-suppliers-purs'))
 <div class="card mb-4">
     <div class="card-body card-widget-separator">
         <div class="row gy-4 gy-sm-1">
@@ -99,11 +99,11 @@
 <div class="card">
     <div class="card pb-3">
         <h5 class="card-header pb-0">
-            Cuentas Corrientes Clientes
+            Cuentas Corrientes de Proveedores
             {{-- <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addAccountModal">
                 Agregar Cuenta
             </button> --}}
-            <a href="{{ route('current-account-client-sales.create') }}" class="btn btn-primary float-end">Agregar Cuenta</a>
+            <a href="{{ route('current-account-supplier-purs.create') }}" class="btn btn-primary float-end">Agregar Cuenta</a>
             <div class="d-flex">
                 <p class="text-muted small">
                     <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches"
@@ -130,7 +130,7 @@
                                 <span class="switch-on"><i class="bx bx-check"></i></span>
                                 <span class="switch-off"><i class="bx bx-x"></i></span>
                             </span>
-                            <span class="switch-label">Cliente</span>
+                            <span class="switch-label">Proveedor</span>
                         </label>
                     </div>
                     <div class="mx-3">
@@ -186,8 +186,8 @@
             </div>
             <!-- Filter for current accounts -->
             <div class="d-flex justify-content-start align-items-center row py-3 gap-3 mb-0 pb-0 gap-md-0">
-                <div class="col-md-2 client_filter">
-                    <label for="client">Cliente</label>
+                <div class="col-md-2 supplier_filter">
+                    <label for="supplier">Proveedor</label>
                 </div>
                 <div class="col-md-2 status_filter">
                     <label for="status">Estado Pago</label>
@@ -210,7 +210,7 @@
     </div>
     <div class="card-datatable table-responsive pt-0">
         @if($currentAccounts->count() > 0)
-        <table class="table datatables-current-account-clients" data-symbol="{{ $settings->currency_symbol }}">
+        <table class="table datatables-current-account-supplier-purchase" data-symbol="{{ $settings->currency_symbol }}">
             <thead>
                 <tr>
                     <th>
@@ -220,7 +220,7 @@
                     </th>
                     <th>N°</th>
                     <th>Fecha</th>
-                    <th>Cliente</th>
+                    <th>Proveedor</th>
                     <th>Debe</th>
                     <th>Haber</th>
                     <th>Estado de Pago</th>

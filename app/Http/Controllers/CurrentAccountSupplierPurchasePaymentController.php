@@ -3,38 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCurrentAccountPaymentRequest; // Cambiar el request si es necesario
-use App\Http\Requests\UpdateCurrentAccountPaymentRequest;
-use App\Models\CurrentAccountPayment;
-use App\Repositories\CurrentAccountPaymentClientSaleRepository;
-use Illuminate\Support\Facades\Log;
-use Illuminate\View\View;
+use App\Http\Requests\StoreCurrentAccountPaymentSupplierRequest;
+use App\Http\Requests\UpdateCurrentAccountPaymentSupplierRequest;
+use App\Repositories\CurrentAccountPaymentSupplierPurchaseRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
-class CurrentAccountClientSalePaymentController extends Controller
+class CurrentAccountSupplierPurchasePaymentController extends Controller
 {
-    protected $currentAccountPaymentClientSaleRepository;
+    protected $currentAccountPaymentSupplierPurchaseRepository;
 
-    public function __construct(CurrentAccountPaymentClientSaleRepository $currentAccountPaymentClientSaleRepository)
+    public function __construct(CurrentAccountPaymentSupplierPurchaseRepository $currentAccountPaymentSupplierPurchaseRepository)
     {
-        $this->middleware(['check_permission:access_current-accounts-clients-payments'])->only(
+        $this->middleware(['check_permission:access_current-accounts-suppliers-payments'])->only(
             [
                 'index',
                 'create',
                 'show',
                 'datatable',
-                'accountPaymentsDatatable'
+                'accountPaymentsDatatable',
             ]
         );
 
-        $this->middleware(['check_permission:access_delete_current-accounts-clients-payments'])->only(
+        $this->middleware(['check_permission:access_delete_current-accounts-suppliers-payments'])->only(
             [
                 'destroy',
-                'deleteMultiple'
+                'deleteMultiple',
             ]
         );
 
-        $this->currentAccountPaymentClientSaleRepository = $currentAccountPaymentClientSaleRepository;
+        $this->currentAccountPaymentSupplierPurchaseRepository = $currentAccountPaymentSupplierPurchaseRepository;
     }
 
     /**
@@ -45,7 +45,7 @@ class CurrentAccountClientSalePaymentController extends Controller
      */
     // public function index(Request $request): View
     // {
-        
+
     // }
 
     /**
@@ -55,11 +55,11 @@ class CurrentAccountClientSalePaymentController extends Controller
      */
     public function create(Request $request, $currentAccountId): View
     {
-        $currentAccount = $this->currentAccountPaymentClientSaleRepository->getCurrentAccount($currentAccountId);
-        $paymentMethods = $this->currentAccountPaymentClientSaleRepository->getPaymentMethods();
-        $client = $this->currentAccountPaymentClientSaleRepository->getClientByCurrentAccount($currentAccountId);
+        $currentAccount = $this->currentAccountPaymentSupplierPurchaseRepository->getCurrentAccount($currentAccountId);
+        $paymentMethods = $this->currentAccountPaymentSupplierPurchaseRepository->getPaymentMethods();
+        $supplier = $this->currentAccountPaymentSupplierPurchaseRepository->getSupplierByCurrentAccount($currentAccountId);
 
-        return view('current-accounts.clients.current-account-payment.add-current-account-payment', compact('paymentMethods', 'client', 'currentAccount'));
+        return view('current-accounts.suppliers.current-account-payment.add-current-account-payment', compact('paymentMethods', 'supplier', 'currentAccount'));
     }
 
     /**
@@ -68,10 +68,10 @@ class CurrentAccountClientSalePaymentController extends Controller
      * @param StoreCurrentAccountPaymentRequest $request
      * @return JsonResponse
      */
-    public function store(StoreCurrentAccountPaymentRequest $request): JsonResponse
+    public function store(StoreCurrentAccountPaymentSupplierRequest $request): JsonResponse
     {
         try {
-            $currentAccountPayment = $this->currentAccountPaymentClientSaleRepository->storePayment($request->validated());
+            $currentAccountPayment = $this->currentAccountPaymentSupplierPurchaseRepository->storePayment($request->validated());
             return response()->json($currentAccountPayment);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -87,13 +87,13 @@ class CurrentAccountClientSalePaymentController extends Controller
      */
     public function show(int $id): View
     {
-        $currentAccount = $this->currentAccountPaymentClientSaleRepository->getCurrentAccount($id);
-        $currentAccountPayments = $this->currentAccountPaymentClientSaleRepository->getAllCurrentAccountPayments($id);
-        $paymentMethods = $this->currentAccountPaymentClientSaleRepository->getPaymentMethods();
-        $currentAccountStatus = $this->currentAccountPaymentClientSaleRepository->getCurrentAccountStatus();
+        $currentAccount = $this->currentAccountPaymentSupplierPurchaseRepository->getCurrentAccount($id);
+        $currentAccountPayments = $this->currentAccountPaymentSupplierPurchaseRepository->getAllCurrentAccountPayments($id);
+        $paymentMethods = $this->currentAccountPaymentSupplierPurchaseRepository->getPaymentMethods();
+        $currentAccountStatus = $this->currentAccountPaymentSupplierPurchaseRepository->getCurrentAccountStatus();
 
         $mergeData = array_merge($currentAccountPayments, compact('paymentMethods', 'currentAccountStatus', 'currentAccount'));
-        return view('current-accounts.clients.current-account-payment.index', $mergeData);
+        return view('current-accounts.suppliers.current-account-payment.index', $mergeData);
     }
 
     /**
@@ -104,12 +104,12 @@ class CurrentAccountClientSalePaymentController extends Controller
      */
     public function edit(int $id): View
     {
-        $payment = $this->currentAccountPaymentClientSaleRepository->getPaymentById($id);
-        $paymentMethods = $this->currentAccountPaymentClientSaleRepository->getPaymentMethods();
-        $currentAccount = $this->currentAccountPaymentClientSaleRepository->getCurrentAccount($payment->current_account_id);
-        $client = $this->currentAccountPaymentClientSaleRepository->getClientByCurrentAccount($payment->current_account_id);
+        $payment = $this->currentAccountPaymentSupplierPurchaseRepository->getPaymentById($id);
+        $paymentMethods = $this->currentAccountPaymentSupplierPurchaseRepository->getPaymentMethods();
+        $currentAccount = $this->currentAccountPaymentSupplierPurchaseRepository->getCurrentAccount($payment->current_account_id);
+        $supplier = $this->currentAccountPaymentSupplierPurchaseRepository->getSupplierByCurrentAccount($payment->current_account_id);
 
-        return view('current-accounts.clients.current-account-payment.edit-current-account-payment', compact('payment', 'paymentMethods', 'currentAccount', 'client'));
+        return view('current-accounts.suppliers.current-account-payment.edit-current-account-payment', compact('payment', 'paymentMethods', 'currentAccount', 'supplier'));
     }
 
     /**
@@ -119,10 +119,10 @@ class CurrentAccountClientSalePaymentController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateCurrentAccountPaymentRequest $request, int $id): JsonResponse
+    public function update(UpdateCurrentAccountPaymentSupplierRequest $request, int $id): JsonResponse
     {
         try {
-            $payment = $this->currentAccountPaymentClientSaleRepository->updatePayment($id, $request->validated());
+            $payment = $this->currentAccountPaymentSupplierPurchaseRepository->updatePayment($id, $request->validated());
             return response()->json($payment);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -139,7 +139,7 @@ class CurrentAccountClientSalePaymentController extends Controller
     public function destroy(int $id): JsonResponse
     {
         try {
-            $this->currentAccountPaymentClientSaleRepository->destroyPayment($id);
+            $this->currentAccountPaymentSupplierPurchaseRepository->destroyPayment($id);
             return response()->json(['success' => true, 'message' => 'Pago de cuenta corriente eliminado correctamente.']);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -156,7 +156,7 @@ class CurrentAccountClientSalePaymentController extends Controller
     public function deleteMultiple(Request $request): JsonResponse
     {
         try {
-            $this->currentAccountPaymentClientSaleRepository->deleteMultiple($request->input('ids'));
+            $this->currentAccountPaymentSupplierPurchaseRepository->deleteMultiple($request->input('ids'));
             return response()->json(['success' => true, 'message' => 'Pagos de cuentas corrientes eliminados correctamente.']);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -171,6 +171,6 @@ class CurrentAccountClientSalePaymentController extends Controller
      */
     public function datatable(Request $request): mixed
     {
-        return $this->currentAccountPaymentClientSaleRepository->getPaymentsForDataTable($request->account_id);
+        return $this->currentAccountPaymentSupplierPurchaseRepository->getPaymentsForDataTable($request->account_id);
     }
 }
