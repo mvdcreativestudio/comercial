@@ -239,24 +239,25 @@ class CashRegisterLogController extends Controller
   }
 
     /**
-     * Busca el id del cashregister log dado un id de caja registradora.
+     * Busca el id del cashregister log y el store_id dado un id de caja registradora.
      *
-     *  @param string $id
+     * @param string $id
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getCashRegisterLog(string $id)
     {
         try {
-            $cashRegisterLogId = $this->cashRegisterLogRepository->getCashRegisterLog($id);
-            if ($cashRegisterLogId === null) {
+            $result = $this->cashRegisterLogRepository->getCashRegisterLogWithStore($id);
+            if ($result === null) {
                 return response()->json(['error' => 'No open log found'], 404);
             }
-            return response()->json(['cash_register_log_id' => $cashRegisterLogId]);
+            return response()->json($result); // Devuelve tanto el cash_register_log_id como el store_id
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
 
     /**
      * Obtiene todos los clientes en formato JSON.
