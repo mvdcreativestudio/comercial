@@ -26,4 +26,13 @@ class Currency extends Model
     {
         return $this->hasMany(CurrentAccountPayment::class);
     }
+    /**
+     * Obtiene los asientos asociados a esta moneda.
+     *
+     * @return HasMany
+     */
+    public function entries()
+    {
+        return $this->hasMany(Entry::class);
+    }
 }

@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="card shadow-sm p-3">
-            <h5>Productos comprados</h5>
+            <h5>Productos de la venta</h5>
             <!-- Listado de items seleccionados -->
             <ul class="list-group list-group-flush">
               <!-- Aquí se insertarán los items del carrito dinámicamente -->
@@ -89,7 +89,7 @@
 
     <div class="col-md-4">
       <div class="card shadow-sm p-3 mb-3">
-        <h5>Resumen del pedido</h5>
+        <h5>Resumen de la venta</h5>
         <div class="d-flex justify-content-between">
           <span>Subtotal de productos</span>
           <span class="subtotal">$0.00</span>
@@ -138,9 +138,9 @@
         <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="cash" checked>
           <label class="form-check-label" for="cash">Efectivo</label>
-          <input type="text" id="valorRecibido" class="form-control mt-2 mb-3" placeholder="Valor recibido">
+          <input type="number" id="valorRecibido" class="form-control mt-2 mb-3" placeholder="Valor recibido">
           <p class="text-muted">Vuelto: <span id="vuelto">0</span></p>
-          <small id="mensajeError" class="text-danger d-none">El valor recibido es menor al total de la compra.</small>
+          <small id="mensajeError" class="text-danger d-none mb-4">El valor recibido es menor al total de la compra.</small>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="debit">
@@ -160,9 +160,8 @@
         </div> --}}
       </div>
       <div class="demo-inline-spacing d-flex justify-content-between">
-        <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-light"><i class="bx bx-x"></i>Descartar venta</a>
-        <button class="btn btn-secondary"><i class="bx bx-save"></i> Guardar pedido</button>
-        <button class="btn btn-success"><i class="bx bx-check"></i> Finalizar venta</button>
+        <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-outline-primary"><i class="bx bx-x"></i>Descartar</a>
+        <button class="btn btn-primary w-100"><i class="bx bx-check"></i> Finalizar venta</button>
       </div>
       <!-- Contenedor para el estado de la transacción -->
       <div id="transaction-status" style="display: none;">
@@ -193,7 +192,7 @@
           </div>
       </div>
       <!-- Lista de clientes, que será scrollable si hay muchos clientes -->
-      <ul id="client-list" class="list-group flex-grow-1 overflow-auto">
+      <ul id="client-list" class="list-group flex-grow-1 ">
           <!-- Aquí se cargarán los clientes -->
       </ul>
   </div>
@@ -217,39 +216,48 @@
         </select>
       </div>
       <div class="mb-3">
-        <label for="nombreCliente" class="form-label">Nombre</label>
-        <input type="text" class="form-control" id="nombreCliente" required>
+        <label for="nombreCliente" class="form-label">Nombre <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="nombreCliente" placeholder="Ingrese el nombre" required>
       </div>
       <div class="mb-3">
-        <label for="apellidoCliente" class="form-label">Apellido</label>
-        <input type="text" class="form-control" id="apellidoCliente" required>
+        <label for="apellidoCliente" class="form-label">Apellido <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="apellidoCliente" placeholder="Ingrese el apellido" required>
       </div>
+
+      <!-- Campo CI para Persona -->
       <div class="mb-3" id="ciField">
-        <label for="ciCliente" class="form-label">CI</label>
-        <input type="text" class="form-control" id="ciCliente">
+        <label for="ciCliente" class="form-label">CI <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="ciCliente" placeholder="Ingrese el CI">
       </div>
-      <div class="mb-3" id="rutField" style="display: none;">
-        <label for="rutCliente" class="form-label">RUT</label>
-        <input type="text" class="form-control" id="rutCliente">
-      </div>
-      <!-- Campo Razón Social -->
+
+      <!-- Campo RUT y Razón Social para Empresa -->
       <div class="mb-3" id="razonSocialField" style="display: none;">
-        <label for="razonSocialCliente" class="form-label">Razón Social</label>
-        <input type="text" class="form-control" id="razonSocialCliente">
+        <label for="razonSocialCliente" class="form-label">Razón Social <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="razonSocialCliente" placeholder="Ingrese la razón social">
       </div>
-      <!-- Campo Dirección -->
+
+      <div class="mb-3" id="rutField" style="display: none;">
+        <label for="rutCliente" class="form-label">RUT <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="rutCliente" placeholder="Ingrese el RUT">
+      </div>
+
+      <!-- Campo Dirección (requerido para ambos tipos de cliente) -->
       <div class="mb-3">
-        <label for="direccionCliente" class="form-label">Dirección</label>
-        <input type="text" class="form-control" id="direccionCliente" required>
+        <label for="direccionCliente" class="form-label">Dirección <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="direccionCliente" placeholder="Ingrese la dirección" required>
       </div>
+
+      <!-- Campo Email (requerido para ambos) -->
       <div class="mb-3">
-        <label for="emailCliente" class="form-label">Correo Electrónico</label>
-        <input type="email" class="form-control" id="emailCliente" required>
+        <label for="emailCliente" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+        <input type="email" class="form-control" id="emailCliente" placeholder="Ingrese el correo electrónico" required>
       </div>
+
       <button type="button" class="btn btn-primary" id="guardarCliente">Guardar</button>
     </form>
   </div>
 </div>
+
 
 <!-- Modal de venta exitosa -->
 <div class="modal fade" id="ventaExitosaModal" tabindex="-1" aria-labelledby="ventaExitosaModalLabel" aria-hidden="true">

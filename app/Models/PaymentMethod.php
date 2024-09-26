@@ -14,4 +14,24 @@ class PaymentMethod extends Model
     protected $fillable = [
         'name',
     ];
+
+    /**
+     * Obtiene los gastos asociados al método de pago.
+     *
+     * @return HasMany
+     */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    /**
+     * Obtiene los pagos parciales asociados al método de pago.
+     *
+     * @return HasMany
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(ExpensePaymentMethod::class);
+    }
 }

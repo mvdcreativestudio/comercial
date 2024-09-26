@@ -33,9 +33,32 @@
 @endsection
 
 @section('content')
-<h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span><span> Editar producto</span>
-</h4>
+
+<form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+  @csrf
+  @method('PUT')
+
+<div class="d-flex flex-wrap align-items-center justify-content-between bg-light p-4 mb-3 rounded shadow sticky-top">
+
+  <!-- Título del formulario -->
+  <div class="d-flex flex-column justify-content-center">
+    <h4 class="mb-0">
+      <i class="bx bx-edit-alt me-2"></i> Editar Producto
+    </h4>
+  </div>
+
+  <!-- Botones de acciones -->
+  <div class="d-flex justify-content-end gap-3">
+    <button type="button" class="btn btn-outline-secondary" onclick="history.back();">
+      <i class="bx bx-x me-1"></i> Cancelar
+    </button>
+    <button type="submit" class="btn btn-primary">
+      <i class="bx bx-save me-1"></i> Guardar Cambios
+    </button>
+  </div>
+
+</div>
+
 
 @if ($errors->any())
     <div class="alert alert-danger">
@@ -50,20 +73,8 @@
 <div class="app-ecommerce" data-raw-materials='@json($rawMaterials)' data-recipes='@json($product->recipes)' data-flavors='@json($flavors)'>
 
   <!-- Add Product -->
-  <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
-    @csrf
-    @method('PUT')
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
 
-    <div class="d-flex flex-column justify-content-center">
-      <h4 class="mb-1 mt-3">Editar un producto existente</h4>
-    </div>
-    <div class="d-flex justify-content-end gap-3">
-      <button type="button" class="btn btn-label-secondary" onclick="history.back();">Cancelar</button>
-      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-    </div>
 
-  </div>
 
   <div class="row">
 
@@ -171,12 +182,12 @@
         <div class="card-body">
           <!-- Base Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-price">Precio normal</label>
+            <label class="form-label" for="ecommerce-product-price">Precio normal - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" value="{{$product->old_price}}" aria-label="Product price" required>
           </div>
           <!-- Discounted Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado</label>
+            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" value="{{$product->price}}" aria-label="Introduzca el precio rebajado">
           </div>
           <!-- Campo oculto para estado desactivado -->
@@ -231,6 +242,11 @@
           <div class="mb-3" id="stockContainer">
             <label class="form-label" for="stock">Stock</label>
             <input type="number" class="form-control" id="stock" placeholder="Stock" value="{{$product->stock}}" name="stock" aria-label="Introduzca el stock">
+          </div>
+          <!-- Margen de seguridad - Stock -->
+          <div class="mb-3" id="safetyMarginContaier">
+            <label class="form-label" for="stock">Margen de Seguridad</label>
+            <input type="number" class="form-control" id="safety_margin" placeholder="Stock" value="{{$product->safety_margin}}" name="safety_margin" aria-label="Introduzca el margen de seguridad">
           </div>
         </div>
       </div>

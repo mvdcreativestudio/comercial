@@ -2,6 +2,33 @@
 
 (function () {
   document.addEventListener('DOMContentLoaded', function () {
+
+    function limitTwoDecimals(event) {
+      const input = event.target;
+      let value = input.value;
+
+      // Expresión regular que permite números con hasta dos decimales
+      const regex = /^\d+(\.\d{0,2})?$/;
+
+      if (!regex.test(value)) {
+        // Si el valor no coincide con la expresión regular, recortamos a dos decimales
+        input.value = parseFloat(value).toFixed(2);
+      }
+    }
+
+    // Seleccionamos los campos de precio
+    const priceInput = document.getElementById('ecommerce-product-price');
+    const discountPriceInput = document.getElementById('ecommerce-product-discount-price');
+
+    // Si los inputs existen, añadimos el evento input para limitar a dos decimales
+    if (priceInput) {
+      priceInput.addEventListener('input', limitTwoDecimals);
+    }
+
+    if (discountPriceInput) {
+      discountPriceInput.addEventListener('input', limitTwoDecimals);
+    }
+
     const commentEditorElement = document.querySelector('.comment-editor');
 
     if (commentEditorElement) {

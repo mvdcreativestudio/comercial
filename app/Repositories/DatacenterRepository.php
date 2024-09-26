@@ -38,7 +38,7 @@ class DatacenterRepository
         switch ($period) {
             case 'today':
                 $start = $today->copy()->startOfDay();
-                $end = $today->copy()->endOfDay(); 
+                $end = $today->copy()->endOfDay();
                 return [$start, $end];
             case 'week':
                 return [$today->copy()->subDays(6)->startOfDay(), $today->endOfDay()];

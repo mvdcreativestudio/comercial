@@ -1,7 +1,7 @@
 $(function () {
   // Variables para colores y símbolos
   let borderColor, bodyBg, headingColor;
-  let $currencySymbol = $('.datatables-current-accounts').data('symbol');
+  let $currencySymbol = $('.datatables-current-account-clients').data('symbol');
 
   // Configuración de colores basada en el estilo (oscuro o claro)
   if (isDarkStyle) {
@@ -14,7 +14,7 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_account_table = $('.datatables-current-accounts');
+  var dt_account_table = $('.datatables-current-account-clients');
 
   // traduccion de estados
   const statusMap = {
@@ -28,7 +28,7 @@ $(function () {
     if (dt_account_table.length) {
       var dt_accounts = dt_account_table.DataTable({
         ajax: {
-          url: 'current-accounts/datatable',
+          url: 'current-account-clients/datatable',
           data: function (d) {
             d.start_date = $('#startDate').val();
             d.end_date = $('#endDate').val();
@@ -54,7 +54,7 @@ $(function () {
           {
             targets: 1,
             render: function (data, type, full, meta) {
-              return `<a href="${baseUrl}admin/current-accounts/${data}/show" class="text-body">#${data}</a>`;
+              return `<a href="${baseUrl}admin/current-account-client-payments/${data}" class="text-body">#${data}</a>`;
             }
           },
           {
@@ -179,17 +179,17 @@ $(function () {
 
       // Check/uncheck todos los checkboxes
       $('#checkAll').on('change', function () {
-        var checkboxes = $('.datatables-current-accounts tbody input[type="checkbox"]');
+        var checkboxes = $('.datatables-current-account-clients tbody input[type="checkbox"]');
         checkboxes.prop('checked', $(this).prop('checked'));
         toggleActionsMenu();
       });
 
       // Activar desactivar checkbox principal
-      $('.datatables-current-accounts tbody').on('change', 'input[type="checkbox"]', function () {
+      $('.datatables-current-account-clients tbody').on('change', 'input[type="checkbox"]', function () {
         toggleActionsMenu();
         var allChecked =
-          $('.datatables-current-accounts tbody input[type="checkbox"]').length ===
-          $('.datatables-current-accounts tbody input[type="checkbox"]:checked').length;
+          $('.datatables-current-account-clients tbody input[type="checkbox"]').length ===
+          $('.datatables-current-account-clients tbody input[type="checkbox"]:checked').length;
         $('#checkAll').prop('checked', allChecked);
       });
 
@@ -210,7 +210,7 @@ $(function () {
 
       function toggleActionsMenu() {
         // Muestra u oculta el menú de acciones dependiendo de la cantidad de checkboxes seleccionados
-        var selectedCount = $('.datatables-current-accounts tbody input[type="checkbox"]:checked').length;
+        var selectedCount = $('.datatables-current-account-clients tbody input[type="checkbox"]:checked').length;
         if (selectedCount >= 2) {
           $('#dropdownMenuButton').removeClass('d-none');
           $('#columnSwitches').collapse('show');

@@ -87,7 +87,7 @@ $customizerHidden = 'customizer-hide';
 
         @if($companySettings->allow_registration)
         <p class="text-center">
-          <span>¿Eres nuevo en Craft?</span>
+          <span>¿Eres nuevo en {{$companySettings->name}}?</span>
           @if (Route::has('register'))
           <a href="{{ route('register') }}">
             <span>Crea una cuenta</span>

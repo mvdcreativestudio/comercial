@@ -97,6 +97,7 @@ class DatacenterController extends Controller
 
 
 
+
     // Gráfica de línea - GMV Mensual
     public function monthlyIncome(Request $request)
     {

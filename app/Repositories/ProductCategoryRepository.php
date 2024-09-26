@@ -31,7 +31,12 @@ class ProductCategoryRepository
   {
     $category = new ProductCategory();
     $category->name = $request->name;
-    $category->slug = $request->slug;
+    // Si no se proporciona slug, se genera automáticamente a partir del nombre
+    if (empty($request->slug)) {
+      $category->slug = \Str::slug($request->name);
+    } else {
+      $category->slug = $request->slug;
+    }
     $category->description = $request->description;
     $category->parent_id = $request->parent_id;
     $category->status = $request->status;

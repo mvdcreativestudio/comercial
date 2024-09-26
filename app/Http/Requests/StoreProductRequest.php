@@ -20,6 +20,7 @@ class StoreProductRequest extends FormRequest
             'store_id' => 'required|exists:stores,id',
             'status' => 'required|boolean',
             'stock' => 'nullable|integer',
+            'safety_margin' => 'nullable|numeric',
             'categories' => 'required|array',
             'categories.*' => 'exists:product_categories,id',
             'flavors' => 'nullable|array',

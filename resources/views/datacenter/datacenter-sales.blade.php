@@ -57,10 +57,10 @@
           <option value="custom" {{ $period == 'custom' ? 'selected' : '' }}>Personalizado</option>
         </select>
 
-        <!-- Filtro por Empresa -->
+        <!-- Filtro por Local -->
         <select name="store_id" class="form-select" {{ auth()->user()->can('view_all_datacenter') ? '' : 'disabled' }}>
           @if(auth()->user()->can('view_all_datacenter'))
-              <option value="">Todas las Empresas</option>
+              <option value="">Todos los Locales</option>
               @foreach ($stores as $store)
                 <option value="{{ $store->id }}" {{ $storeIdForView == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
               @endforeach
@@ -106,9 +106,9 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                 <div>
                   <h3 class="mb-1">{{ $storesCount }}</h3>
                   @if ($storesCount == 1)
-                    <p class="mb-0">Empresa</p>
+                    <p class="mb-0">Local</p>
                   @else
-                    <p class="mb-0">Empresas</p>
+                    <p class="mb-0">Locales</p>
                   @endif
                 </div>
                 <span class="badge bg-label-secondary rounded p-2 me-sm-4">
@@ -329,13 +329,13 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
   <!--/ Total Income -->
 
 
-  {{-- <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
+  <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
     <div class="card h-100 text-center" data-aos="fade-left" data-aos-anchor="#example-anchor" data-aos-offset="500" data-aos-duration="500">
         <div class="card-header">
             <h5 class="card-title text-start pb-4 mb-0">Comparativas</h5>
             <ul class="nav nav-pills nav- card-header-pills" role="tablist">
                 <li class="nav-item">
-                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Empresa</button>
+                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Locales</button>
                 </li>
                 <li class="nav-item">
                     <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-os" aria-controls="navs-pills-os" aria-selected="false">Productos</button>
@@ -356,7 +356,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Empresa</th>
+                                <th>Local</th>
                                 <th>Ventas</th>
                                 <th class="w-50">Porcentaje del total</th>
                             </tr>
@@ -490,7 +490,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
             </div>
         </div>
     </div>
-  </div> --}}
+  </div>
 
   <!-- Gráfica de promedio de pedidos por hora -->
   <div class="col-12 mb-4 mt-4">

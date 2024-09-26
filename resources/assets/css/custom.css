@@ -280,7 +280,7 @@
 }
 
 .img-carrito {
-  border-radius: 7px!important;
+  border-radius: 7px !important;
   margin-top: 10px;
   margin-bottom: 5px;
 }
@@ -675,9 +675,9 @@ tr.odd {
 
 .card-title-product-pos {
   white-space: nowrap; /* Evita que el texto se divida en varias líneas */
-  overflow: hidden;    /* Oculta el desbordamiento de texto */
+  overflow: hidden; /* Oculta el desbordamiento de texto */
   text-overflow: ellipsis; /* Añade puntos suspensivos al final del texto si es demasiado largo */
-  max-width: 100%;     /* Asegura que el texto se mantenga dentro del contenedor */
+  max-width: 100%; /* Asegura que el texto se mantenga dentro del contenedor */
 }
 
 .client-card {
@@ -701,7 +701,7 @@ tr.odd {
 }
 
 .btn-select-client {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border: none;
   color: white;
   padding: 5px 8px; /* Botón más pequeño */
@@ -730,7 +730,6 @@ tr.odd {
   transition: box-shadow 0.3s ease;
 }
 
-
 .client-details p {
   font-size: 14px;
   margin: 0;
@@ -743,4 +742,83 @@ tr.odd {
   padding: 0;
 }
 
+.check-circle-integrations {
+  background-color: #28a745; /* Fondo verde */
+  border-radius: 50%; /* Hace que el contenedor sea un círculo */
+  width: 36px; /* Ajusta el tamaño del círculo */
+  height: 36px; /* Ajusta el tamaño del círculo */
+  display: flex; /* Centra el ícono dentro del círculo */
+  justify-content: center; /* Centra el ícono horizontalmente */
+  align-items: center; /* Centra el ícono verticalmente */
+}
+
+.check-circle-integrations i {
+  font-size: 24px; /* Ajusta el tamaño del ícono */
+  color: #fff; /* Color blanco para el ícono */
+}
+
+#updateButtonContainer {
+  transition: opacity 0.5s ease;
+}
+
+#updateButtonContainer.show {
+  opacity: 1;
+  display: flex !important;
+}
+
+/** Modal de productos - PDV */
+
+.product-cart-card {
+  display: flex;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+  height: 150px;
+  margin-bottom: 15px;
+}
+
+.product-cart-card:hover {
+  transform: translateY(-3px);
+}
+
+.product-cart-card-img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  max-height: 150px;
+}
+
+.product-cart-card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.product-cart-title {
+  font-size: .9rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.product-cart-category {
+  font-size: 0.75rem;
+  margin-bottom: 5px;
+}
+
+.product-cart-price {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+
+
+.product-cart-remove {
+  color: #dc3545;
+  cursor: pointer;
+}
 

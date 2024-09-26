@@ -34,7 +34,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-commerce /</span> Productos Compuestos
+  <span class="text-muted fw-light"></span> Productos Compuestos
 </h4>
 
 @if (Auth::user()->can('access_composite-products'))
@@ -100,7 +100,7 @@
             aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
         </p>
       </div>
-      
+
       <div class="collapse" id="columnSwitches">
         <div class="mt-0 d-flex justify-content-between align-items-start flex-wrap">
             <div class="d-flex flex-wrap">
@@ -156,7 +156,7 @@
                     </label>
                 </div>
             </div>
-    
+
             <!-- Dropdown de acciones -->
             <div class="dropdown d-inline mx-2">
                 <button class="btn btn-primary dropdown-toggle d-none" type="button" id="dropdownMenuButton"

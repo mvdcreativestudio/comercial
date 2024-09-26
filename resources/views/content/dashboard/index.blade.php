@@ -34,8 +34,8 @@
 
 <div class="row">
 
-  {{-- <!-- Botón de Modo Ayuda -->
-  <div class="col-2">
+  <!-- Botón de Modo Ayuda -->
+  {{-- <div class="col-2">
     <button id="help-mode-toggle" class="btn btn-primary">Activar Modo Ayuda</button>
   </div> --}}
 
