@@ -21,27 +21,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        DB::table('current_account_payments')->insert([
-            [
-                'payment_amount' => 1000,
-                'payment_date' => '2024-09-15',
-                'current_account_id' => 1,
-                'payment_method_id' => 1,
-            ],
-            [
-                'payment_amount' => 2000,
-                'payment_date' => '2024-09-15',
-                'current_account_id' => 2,
-                'payment_method_id' => 1,
-            ],
-            [
-                'payment_amount' => 3000,
-                'payment_date' => '2024-09-15',
-                'current_account_id' => 3,
-                'payment_method_id' => 1,
-            ],
-        ]);
     }
 
     /**

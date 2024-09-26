@@ -21,15 +21,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        // Insertar registros de ejemplo en español
-        DB::table('entry_details')->insert([
-            ['entry_id' => 1, 'entry_account_id' => 4, 'amount_debit' => 0, 'amount_credit' => 1000.00],
-            ['entry_id' => 1, 'entry_account_id' => 2, 'amount_debit' => 1000.00, 'amount_credit' => 0],
-            ['entry_id' => 2, 'entry_account_id' => 3, 'amount_debit' => 500.00, 'amount_credit' => 0],
-            ['entry_id' => 2, 'entry_account_id' => 1, 'amount_debit' => 0, 'amount_credit' => 500.00],
-            ['entry_id' => 3, 'entry_account_id' => 3, 'amount_debit' => 0, 'amount_credit' => 700.00],
-        ]);
     }
 
     /**

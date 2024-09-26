@@ -29,53 +29,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        DB::table('current_accounts')->insert([
-            [
-                'voucher' => '0001-00000001',
-                'total_debit' => 1000,
-                'transaction_date' => '2024-09-15',
-                'due_date' => '2024-09-30',
-                'status' => StatusPaymentEnum::PAID,
-                'transaction_type' => TransactionTypeEnum::SALE,
-                'client_id' =>302,
-                'currency_id' => 1,
-                'current_account_settings_id' => 1,
-            ],
-            [
-                'voucher' => '0001-00000002',
-                'total_debit' => 2000,
-                'transaction_date' => '2024-09-15',
-                'due_date' => '2024-09-30',
-                'status' => StatusPaymentEnum::PARTIAL,
-                'transaction_type' => TransactionTypeEnum::SALE,
-                'client_id' =>303,
-                'currency_id' => 1,
-                'current_account_settings_id' => 1,
-            ],
-            [
-                'voucher' => '0001-00000003',
-                'total_debit' => 3000,
-                'transaction_date' => '2024-09-15',
-                'due_date' => '2024-09-30',
-                'status' => StatusPaymentEnum::UNPAID,
-                'transaction_type' => TransactionTypeEnum::PURCHASE,
-                'client_id' => 304,
-                'currency_id' => 1,
-                'current_account_settings_id' => 1,
-            ],
-            [
-                'voucher' => '0001-00000004',
-                'total_debit' => 4000,
-                'transaction_date' => '2024-09-15',
-                'due_date' => '2024-09-30',
-                'status' => StatusPaymentEnum::PARTIAL,
-                'transaction_type' => TransactionTypeEnum::PURCHASE,
-                'client_id' => 305,
-                'currency_id' => 1,
-                'current_account_settings_id' => 1,
-            ],
-        ]);
     }
 
     /**
