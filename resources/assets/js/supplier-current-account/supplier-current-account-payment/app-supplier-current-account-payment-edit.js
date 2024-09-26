@@ -9,7 +9,7 @@ $(document).ready(function () {
   function submitEditPayment() {
     // Valida si todos los campos requeridos están llenos
     if (
-      !$('#client_id').val() ||
+      !$('#supplier_id').val() ||
       !$('#payment_amount').val() ||
       !$('#payment_method_id').val() ||
       !$('#payment_date').val()
@@ -29,7 +29,7 @@ $(document).ready(function () {
     var formData = {
       current_account_id: $('input[name="current_account_id"]').val(),
       current_account_payment_id: $('input[name="current_account_payment_id"]').val(),
-      client_id: $('input[name="client_id"]').val(),
+      supplier_id: $('input[name="supplier_id"]').val(),
       payment_amount: $('#payment_amount').val(),
       payment_method_id: $('#payment_method_id').val(),
       payment_date: $('#payment_date').val(),
@@ -50,7 +50,7 @@ $(document).ready(function () {
           title: 'Pago Actualizado',
           text: 'El pago ha sido actualizado correctamente.'
         }).then(result => {
-          window.location.href = `${baseUrl}admin/current-account-client-payments/${response.current_account_id}`; // Redirige a la lista de cuentas corrientes
+          window.location.href = `${baseUrl}admin/current-account-supplier-pays/${response.current_account_id}`; // Redirige a la lista de cuentas corrientes
         });
       },
       error: function (xhr) {

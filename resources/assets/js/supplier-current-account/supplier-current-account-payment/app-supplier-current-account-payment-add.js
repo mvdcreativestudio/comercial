@@ -1,15 +1,15 @@
 $(document).ready(function () {
   // Evento para el botón de guardar el pago
-  $('#submitEditPaymentBtn').on('click', function (e) {
+  $('#submitPaymentBtn').on('click', function (e) {
     e.preventDefault(); // Evita el comportamiento predeterminado del formulario
-    submitEditPayment();
+    submitNewPayment();
   });
 
-  // Función para enviar los datos de la edición del pago
-  function submitEditPayment() {
+  // Función para enviar los datos del nuevo pago
+  function submitNewPayment() {
     // Valida si todos los campos requeridos están llenos
     if (
-      !$('#client_id').val() ||
+      !$('#supplier_id').val() ||
       !$('#payment_amount').val() ||
       !$('#payment_method_id').val() ||
       !$('#payment_date').val()
@@ -17,19 +17,18 @@ $(document).ready(function () {
       Swal.fire({
         icon: 'error',
         title: 'Campos requeridos',
-        text: 'Por favor, completa todos los campos obligatorios.'
+        text: 'Por favor, completa todos los campos obligat orios.'
       });
       return;
     }
 
     // Obtener la ruta de acción del formulario
-    var route = $('#editPaymentForm').attr('action');
+    var route = $('#addNewPaymentForm').attr('action');
 
     // Recopilar los datos del formulario
     var formData = {
       current_account_id: $('input[name="current_account_id"]').val(),
-      current_account_payment_id: $('input[name="current_account_payment_id"]').val(),
-      client_id: $('input[name="client_id"]').val(),
+      supplier_id: $('input[name="supplier_id"]').val(),
       payment_amount: $('#payment_amount').val(),
       payment_method_id: $('#payment_method_id').val(),
       payment_date: $('#payment_date').val(),
@@ -39,7 +38,7 @@ $(document).ready(function () {
     // Realizar la petición AJAX
     $.ajax({
       url: route,
-      type: 'PUT',
+      type: 'POST',
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
@@ -47,10 +46,10 @@ $(document).ready(function () {
       success: function (response) {
         Swal.fire({
           icon: 'success',
-          title: 'Pago Actualizado',
-          text: 'El pago ha sido actualizado correctamente.'
+          title: 'Pago Registrado',
+          text: 'El pago ha sido agregado correctamente.'
         }).then(result => {
-          window.location.href = `${baseUrl}admin/current-account-client-payments/${response.current_account_id}`; // Redirige a la lista de cuentas corrientes
+          window.location.href = `${baseUrl}admin/current-account-supplier-pays/${response.current_account_id}`; // Redirige a la lista de cuentas corrientes
         });
       },
       error: function (xhr) {

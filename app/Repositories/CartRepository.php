@@ -19,9 +19,9 @@ class CartRepository
    * @param SelectStoreRequest $request
    * @return RedirectResponse
   */
-  public function selectStore(SelectStoreRequest $request): RedirectResponse
-  {
-    $request->session()->forget(['store', 'cart', 'subtotal']);
+  // public function selectStore(SelectStoreRequest $request): RedirectResponse
+  // {
+  //   $request->session()->forget(['store', 'cart', 'subtotal']);
 
 
   

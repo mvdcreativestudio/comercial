@@ -1,6 +1,6 @@
 $(document).ready(function () {
   // Eliminar registro de pago
-  $('.datatables-current-account-payments-client-sales tbody').on('click', '.delete-record', function () {
+  $('.datatables-current-account-payments-supplier-pays tbody').on('click', '.delete-record', function () {
     var recordId = $(this).data('id');
     deletePayment(recordId); // Cambiar a la función deletePayment
   });
@@ -19,8 +19,7 @@ $(document).ready(function () {
     }).then(result => {
       if (result.isConfirmed) {
         $.ajax({
-          // url: 'current-account-client-payments/' + recordId,
-          url : `${baseUrl}admin/current-account-client-payments/${recordId}`,
+          url : `${baseUrl}admin/current-account-supplier-pays/${recordId}`,
           type: 'DELETE',
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
