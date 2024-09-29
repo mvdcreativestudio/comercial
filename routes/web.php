@@ -21,8 +21,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatacenterController;
 use App\Http\Controllers\EcommerceController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\EntryAccountController;
 use App\Http\Controllers\EntryController;
 use App\Http\Controllers\EntryDetailController;
+use App\Http\Controllers\EntryTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpensePaymentMethodController;
 use App\Http\Controllers\InvoiceController;use App\Http\Controllers\language\LanguageController;
@@ -90,7 +92,8 @@ Route::middleware([
     Route::get('/expense-payment-methods/datatable/{id}', [ExpensePaymentMethodController::class, 'datatable'])->name('expense-payment-methods.datatable');
     Route::get('/entries/datatable', [EntryController::class, 'datatable'])->name('entries.datatable');
     Route::get('/entry-details/datatable/{id}', [EntryDetailController::class, 'datatable'])->name('entry-details.datatable');
-
+    Route::get('/entry-types/datatable', [EntryTypeController::class, 'datatable'])->name('entry-types.datatable');
+    Route::get('/entry-accounts/datatable', [EntryAccountController::class, 'datatable'])->name('entry-accounts.datatable');
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
     Route::get('/current-account-clients/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
     // suppliers
@@ -106,10 +109,6 @@ Route::middleware([
 
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
-
-
-
-
 
     // Recursos con acceso autenticado
     Route::resources([
@@ -134,6 +133,8 @@ Route::middleware([
         'expense-payment-methods' => ExpensePaymentMethodController::class,
         'entries' => EntryController::class,
         'entry-details' => EntryDetailController::class,
+        'entry-types' => EntryTypeController::class,
+        'entry-accounts' => EntryAccountController::class,
         'current-account-client-sales' => CurrentAccountClientSaleController::class,
         'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
         'current-account-supplier-purs' => CurrentAccountSupplierPurchaseController::class,
@@ -345,21 +346,19 @@ Route::middleware([
 
     // Asientos Contables
     Route::group(['prefix' => 'entries'], function () {
-        // show detail entry
         Route::get('/{entry}/detail', [EntryController::class, 'detail'])->name('entries.show');
         Route::post('/delete-multiple', [EntryController::class, 'deleteMultiple'])->name('entries.deleteMultiple');
     });
 
-    // Detalles de Asientos Contables
-    // Route::group(['prefix' => 'entry-details'], function () {
-    //     // details
-    //     Route::get('/{entryDetail}/detail', [EntryDetailController::class, 'detail'])->name('entry-details.detail');
-    //     // delete multiple
-    //     Route::post('/delete-multiple', [EntryDetailController::class, 'deleteMultiple'])->name('entry-details.deleteMultiple');
-    // });
+    // Tipos de Asientos Contables
+    Route::group(['prefix' => 'entry-types'], function () {
+        Route::post('/delete-multiple', [EntryTypeController::class, 'deleteMultiple'])->name('entry-types.deleteMultiple');
+    });
 
-
-
+    // Cuentas Contables
+    Route::group(['prefix' => 'entry-accounts'], function () {
+        Route::post('/delete-multiple', [EntryAccountController::class, 'deleteMultiple'])->name('entry-accounts.deleteMultiple');
+    });
 
 });
 

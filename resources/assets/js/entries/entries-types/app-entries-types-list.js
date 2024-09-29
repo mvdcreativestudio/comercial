@@ -13,14 +13,14 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_entry_table = $('.datatables-entries');
+  var dt_entry_type_table = $('.datatables-entry-types');
 
   try {
     // Inicializa DataTable si el elemento existe
-    if (dt_entry_table.length) {
-      var dt_entries = dt_entry_table.DataTable({
+    if (dt_entry_type_table.length) {
+      var dt_entry_type = dt_entry_type_table.DataTable({
         ajax: {
-          url: 'entries/datatable',
+          url: `${baseUrl}admin/entry-types/datatable`, // Ruta actualizada para los tipos de asientos
           data: function (d) {
             d.start_date = $('#startDate').val();
             d.end_date = $('#endDate').val();
@@ -29,13 +29,8 @@ $(function () {
         columns: [
           { data: 'switch', orderable: false, searchable: false },
           { data: 'id', type: 'num' },
-          { data: 'entry_date' },
-          { data: 'entry_type_name' },
-          { data: 'currency_name' },
-          { data: 'concept' },
-          { data: 'total_debit' },
-          { data: 'total_credit' },
-          { data: 'is_balanced' },
+          { data: 'name' },
+          { data: 'description' },
           { data: '' }
         ],
         columnDefs: [
@@ -48,31 +43,19 @@ $(function () {
           {
             targets: 1,
             render: function (data, type, full, meta) {
-              return `<a href="${baseUrl}admin/entries/${data}/show" class="text-body">#${data}</a>`;
+              return `<a class="text-body">#${data}</a>`;
             }
           },
           {
             targets: 2,
             render: function (data, type, full, meta) {
-              return moment(data).locale('es').format('DD/MM/YY');
+              return data;
             }
           },
           {
-            targets: 6,
+            targets: 3,
             render: function (data, type, full, meta) {
-              return parseFloat(data).toFixed(2);
-            }
-          },
-          {
-            targets: 7,
-            render: function (data, type, full, meta) {
-              return parseFloat(data).toFixed(2);
-            }
-          },
-          {
-            targets: 8,
-            render: function (data, type, full, meta) {
-              return data ? '<span class="badge bg-success">BALANCEADO</span>' : '<span class="badge bg-danger">NO BALANCEADO</span>';
+              return data || 'Sin descripción'; // Maneja el caso de descripciones vacías
             }
           },
           {
@@ -87,8 +70,7 @@ $(function () {
                     <i class="bx bx-dots-vertical-rounded"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end m-0">
-                    <a href="${baseUrl}admin/entry-details/${full['id']}" class="dropdown-item detail-record" data-id="${full['id']}">Ver Detalle Asiento</a>
-                    <a href="${baseUrl}admin/entries/${full['id']}/edit" class="dropdown-item edit-record" data-id="${full['id']}">Editar</a>
+                    <a href="javascript:void(0);" class="dropdown-item edit-record" data-id="${full['id']}">Editar</a>
                     <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Eliminar</a>
                   </div>
                 </div>`;
@@ -105,7 +87,7 @@ $(function () {
           searchPlaceholder: 'Buscar...',
           sLengthMenu: '_MENU_',
           info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-          infoFiltered: 'filtrados de _MAX_ asientos',
+          infoFiltered: 'filtrados de _MAX_ tipos de asientos',
           paginate: {
             first: '<<',
             last: '>>',
@@ -120,31 +102,11 @@ $(function () {
         initComplete: function () {
           // Filtros personalizados para columnas
           this.api()
-            .columns(3)
+            .columns(2)
             .every(function () {
               var column = this;
               var select = $('<select class="form-select"><option value="">Todos los tipos de asientos</option></select>')
                 .appendTo('.entry_type_filter')
-                .on('change', function () {
-                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                  column.search(val ? `^${val}$` : '', true, false).draw();
-                });
-
-              column
-                .data()
-                .unique()
-                .sort()
-                .each(function (d, j) {
-                  select.append(`<option value="${d}">${d}</option>`);
-                });
-            });
-
-          this.api()
-            .columns(4)
-            .every(function () {
-              var column = this;
-              var select = $('<select class="form-select"><option value="">Todas las monedas</option></select>')
-                .appendTo('.currency_filter')
                 .on('change', function () {
                   var val = $.fn.dataTable.util.escapeRegex($(this).val());
                   column.search(val ? `^${val}$` : '', true, false).draw();
@@ -163,7 +125,7 @@ $(function () {
       });
 
       $('.toggle-column').on('change', function() {
-        var column = dt_entries.column($(this).attr('data-column'));
+        var column = dt_entry_type.column($(this).attr('data-column'));
         column.visible(!column.visible());
       });
 
@@ -173,39 +135,37 @@ $(function () {
 
       // Check/uncheck todos los checkboxes
       $('#checkAll').on('change', function () {
-        var checkboxes = $('.datatables-entries tbody input[type="checkbox"]');
+        var checkboxes = $('.datatables-entry-types tbody input[type="checkbox"]');
         checkboxes.prop('checked', $(this).prop('checked'));
         toggleActionsMenu();
       });
 
       // Activar desactivar checkbox principal
-      $('.datatables-entries tbody').on('change', 'input[type="checkbox"]', function () {
+      $('.datatables-entry-types tbody').on('change', 'input[type="checkbox"]', function () {
         toggleActionsMenu();
         var allChecked =
-          $('.datatables-entries tbody input[type="checkbox"]').length ===
-          $('.datatables-entries tbody input[type="checkbox"]:checked').length;
+          $('.datatables-entry-types tbody input[type="checkbox"]').length ===
+          $('.datatables-entry-types tbody input[type="checkbox"]:checked').length;
         $('#checkAll').prop('checked', allChecked);
       });
-
 
       // Eliminar filtros de búsqueda
       $(document).on('click', '#clear-filters', function () {
         $('.entry_type_filter select').val('').trigger('change');
-        $('.currency_filter select').val('').trigger('change');
         $('#startDate').val('');
         $('#endDate').val('');
-        dt_entries.search('');
-        dt_entries.ajax.reload();
+        dt_entry_type.search('');
+        dt_entry_type.ajax.reload();
       });
 
       // Filtrar por fechas
       $('#startDate, #endDate').on('change', function () {
-        dt_entries.ajax.reload();
+        dt_entry_type.ajax.reload();
       });
 
       function toggleActionsMenu() {
         // Muestra u oculta el menú de acciones dependiendo de la cantidad de checkboxes seleccionados
-        var selectedCount = $('.datatables-entries tbody input[type="checkbox"]:checked').length;
+        var selectedCount = $('.datatables-entry-types tbody input[type="checkbox"]:checked').length;
         if (selectedCount >= 2) {
           $('#dropdownMenuButton').removeClass('d-none');
           $('#columnSwitches').collapse('show');

@@ -156,7 +156,31 @@
           "name": "Asientos",
           "icon": "menu-icon tf-icons bx bx-book",
           "slug": "entries",
-          "url": "/admin/entries"
+          "url": "/admin/entries",
+          "submenu": [
+            {
+              "id": "tour-asientos",
+              "name": "Ver Asientos",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entries",
+              "url": "/admin/entries"
+            },
+            {
+              "id": "tour-asientos-tipos",
+              "name": "Tipo de Asiento",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-types",
+              "url": "/admin/entry-types"
+            },
+            {
+              "id": "tour-asientos-cuentas",
+              "name": "Cuentas Contables",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-accounts",
+              "url": "/admin/entry-accounts"
+            }
+
+          ]
         },
         {
           "id": "tour-documentos-recibidos",

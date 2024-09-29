@@ -78,6 +78,10 @@ prod_vite:
 build_vite:
 	docker compose -f docker-compose.manual.yml run --rm vite-build
 
+# Comando para ver rutas
+dev_routes:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan route:list
+
 # Comandos para los contenedores
 
 # acceso a la terminal de los contenedores

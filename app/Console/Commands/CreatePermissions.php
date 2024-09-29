@@ -200,10 +200,10 @@ class CreatePermissions extends Command
                     'module' => 'entries',
                     'view_all' => true,
                     'submenus' => [
-                        'entry-details',
                         'delete_entries',
-                        // 'entry-types',
-                        // 'entry-accounts',
+                        'entry-details',
+                        'entry-types',
+                        'entry-accounts',
                         // 'entry-currencies',
                         // 'entry-settings',
                     ],
@@ -212,6 +212,22 @@ class CreatePermissions extends Command
                     'slug' => 'entry-details',
                     'module' => 'accounting',
                     'view_all' => false,
+                ],
+                [
+                    'slug' => 'entry-types',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entry-types',
+                    ],
+                ],
+                [
+                    'slug' => 'entry-accounts',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entry-accounts',
+                    ],
                 ],
                 [
                     'slug' => 'composite-products',
