@@ -60,8 +60,8 @@
 
     function toggleFields() {
       // Oculta del todo los campos de cantidad de sabores. Si trabaja con productos variables, descomentar la primer linea y eliminar la segunda debajo de este comentario
-      // if (productTypeSelect.value === 'configurable') {
-      if (productTypeSelect.value === 'configurable' || productTypeSelect.value === 'simple') {
+      if (productTypeSelect.value === 'configurable') {
+      // if (productTypeSelect.value === 'configurable' || productTypeSelect.value === 'simple') {
         flavorsQuantityContainer.style.display = 'block';
         flavorsContainer.style.display = 'block';
         recipeCard.style.display = 'none';

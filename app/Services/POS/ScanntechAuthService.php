@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\POS;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 
 class ScanntechAuthService
 {
-    private $authUrl = 'https://sso-dev.scanntech.com/auth/realms/scannsae/protocol/openid-connect/token'; // URL de autenticación de Scanntech
-    private $clientId = 'scannsae-client'; // ID de cliente de prueba Scanntech
-    private $username = 'mvdstudio'; // Usuario de prueba Scanntech
-    private $password = 'Mvdstudio.2024'; // Contraseña de prueba Scanntech
+    private $authUrl = 'https://sso-dev.scanntech.com/auth/realms/scannsae/protocol/openid-connect/token';
+    private $clientId = 'scannsae-client';
+    private $username = 'mvdstudio';
+    private $password = 'Mvdstudio.2024';
 
     /**
      * Obtener el token de acceso desde Scanntech.
