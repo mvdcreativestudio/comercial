@@ -114,11 +114,6 @@
                         <label class="form-label" for="pymoPassword">Contraseña PyMo</label>
                         <input type="password" class="form-control" id="pymoPassword" name="pymo_password" placeholder="Contraseña PyMo">
                       </div>
-
-                      <div class="mb-3">
-                        <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
-                        <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office" placeholder="Sucursal PyMo">
-                      </div>
                     </div>
 
                     @if ($errors->any())

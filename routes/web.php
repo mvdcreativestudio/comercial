@@ -75,7 +75,7 @@ Route::middleware([
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
-
+    Route::get('/cfes/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('cfes.received.datatable');
 
     // Recursos con acceso autenticado
     Route::resources([

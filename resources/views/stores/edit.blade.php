@@ -21,6 +21,13 @@
     @method('PUT')
     <div class="row">
         <div class="col-12">
+            @if ($errors->any())
+              @foreach ($errors->all() as $error)
+                <div class="alert alert-danger">
+                  {{ $error }}
+                </div>
+              @endforeach
+            @endif
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Información de la Tienda</h5>
@@ -134,10 +141,24 @@
                         <input type="password" class="form-control" id="pymoPassword" name="pymo_password" placeholder="Contraseña PyMo" value="{{ $store->pymo_password }}">
                       </div>
 
-                      <div class="mb-3">
-                        <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
-                        <input type="text" class="form-control" id="pymoBranchOffice" name="pymo_branch_office" placeholder="Sucursal PyMo" value="{{ $store->pymo_branch_office }}">
-                      </div>
+                      @if ($branchOffices)
+                        <div class="mb-3">
+                          <label class="form-label" for="pymoBranchOfficeSelect">Seleccionar Sucursal</label>
+                          <select id="pymoBranchOfficeSelect" name="pymo_branch_office" class="form-select">
+                              <option value="">Selecciona una sucursal</option>
+                              @foreach ($branchOffices as $branchOffice)
+                                  <option value="{{ $branchOffice['number'] }}" data-callback-url="{{ $branchOffice['callbackNotificationUrl'] }}" {{ $store->pymo_branch_office == $branchOffice['number'] ? 'selected' : '' }}>
+                                      {{ $branchOffice['fiscalAddress'] }}, {{ $branchOffice['city'] }}, {{ $branchOffice['state'] }} | Sucursal: {{ $branchOffice['number'] }}
+                                  </option>
+                              @endforeach
+                          </select>
+                        </div>
+
+                        <div class="mb-3 d-none">
+                          <label class="form-label" for="callbackNotificationUrl">URL de notificaciones de la Sucursal</label>
+                          <input type="text" class="form-control" id="callbackNotificationUrl" name="callbackNotificationUrl" value="">
+                        </div>
+                      @endif
                     </div>
 
                     @if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password && !empty($companyInfo))
@@ -157,6 +178,8 @@
                                       <div class="form-group">
                                           <input type="file" class="form-control-file" id="logo" name="logo">
                                       </div>
+                                      <!-- Paso el id de  la store para poder asociar el logo con la empresa en Pymo -->
+                                      <input type="hidden" name="store_id" value="{{ $store->id }}">
                                       <button type="submit" class="btn btn-primary mt-3">Actualizar Logo</button>
                                   </form>
                               </div>
@@ -223,14 +246,6 @@
                           </div>
                       </div>
                   @endif
-
-                    @if ($errors->any())
-                      @foreach ($errors->all() as $error)
-                        <div class="alert alert-danger">
-                          {{ $error }}
-                        </div>
-                      @endforeach
-                    @endif
                 </div>
             </div>
             <!-- Botones -->
@@ -266,5 +281,23 @@
       });
     }
   }
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const branchOfficeSelect = document.getElementById('pymoBranchOfficeSelect');
+    const callbackInput = document.getElementById('callbackNotificationUrl');
+
+    function updateCallbackUrl() {
+      const selectedOption = branchOfficeSelect.options[branchOfficeSelect.selectedIndex];
+      const callbackUrl = selectedOption.getAttribute('data-callback-url');
+      callbackInput.value = callbackUrl;
+    }
+
+    // Update on page load based on selected option
+    updateCallbackUrl();
+
+    // Update callback URL when branch office changes
+    branchOfficeSelect.addEventListener('change', updateCallbackUrl);
+  });
 </script>
 @endsection

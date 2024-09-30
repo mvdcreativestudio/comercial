@@ -127,14 +127,19 @@ class StoreController extends Controller
 
       $companyInfo = null;
       $logoUrl = null;
+      $branchOffices = [];
+
+      Log::info('Store: ' . $store->rut);
 
       if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password) {
-          $companyInfo = $this->accountingRepository->getCompanyInfo($store->rut);
-          $logoUrl = $this->accountingRepository->getCompanyLogo($store->rut);
+          $companyInfo = $this->accountingRepository->getCompanyInfo($store);
+          $logoUrl = $this->accountingRepository->getCompanyLogo($store);
+          $branchOffices = $companyInfo['branchOffices'] ?? [];
       }
 
-      return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl'));
+      return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl', 'branchOffices'));
   }
+
 
 
   /**
@@ -148,6 +153,7 @@ class StoreController extends Controller
   {
       $storeData = $request->validated();
 
+      // Actualizar los campos regulares de la tienda
       $this->storeRepository->update($store, Arr::except($storeData, [
           'mercadoPagoPublicKey',
           'mercadoPagoAccessToken',
@@ -155,7 +161,8 @@ class StoreController extends Controller
           'accepts_mercadopago',
           'pymo_user',
           'pymo_password',
-          'pymo_branch_office'
+          'pymo_branch_office',
+          'callbackNotificationUrl'
       ]));
 
       if ($request->boolean('accepts_mercadopago')) {
@@ -168,27 +175,15 @@ class StoreController extends Controller
           $store->mercadoPagoAccount()->delete();
       }
 
-      // Actualizar solo si invoices_enabled es true
       if ($request->boolean('invoices_enabled')) {
-        $updateData = [
-            'pymo_user' => $request->input('pymo_user'),
-            'pymo_branch_office' => $request->input('pymo_branch_office'),
-        ];
-
-        if ($request->filled('pymo_password') && $request->input('pymo_password') !== $store->pymo_password) {
-            $updateData['pymo_password'] = Crypt::encryptString($request->input('pymo_password'));
-        }
-
-        $store->update($updateData);
-    } else {
-        $store->update([
-            'pymo_user' => null,
-            'pymo_password' => null,
-            'pymo_branch_office' => null,
-        ]);
-    }
-
-
+          $this->accountingRepository->updateStoreWithPymo($store, $request->input('pymo_branch_office'), $request->input('callbackNotificationUrl'), $request->input('pymo_password'));
+      } else {
+          $store->update([
+              'pymo_user' => null,
+              'pymo_password' => null,
+              'pymo_branch_office' => null,
+          ]);
+      }
 
       return redirect()->route('stores.index')->with('success', 'Tienda actualizada con éxito.');
   }

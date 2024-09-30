@@ -39,7 +39,6 @@ class StoreStoreRequest extends FormRequest
         if ($this->boolean('invoices_enabled')) {
             $rules['pymo_user'] = 'required|string|max:255';
             $rules['pymo_password'] = 'required|string|max:255';
-            $rules['pymo_branch_office'] = 'required|string|max:255';
         }
 
         if ($this->boolean('accepts_mercadopago')) {
