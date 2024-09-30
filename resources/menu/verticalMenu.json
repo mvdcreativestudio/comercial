@@ -156,7 +156,31 @@
           "name": "Asientos",
           "icon": "menu-icon tf-icons bx bx-book",
           "slug": "entries",
-          "url": "/admin/entries"
+          "url": "/admin/entries",
+          "submenu": [
+            {
+              "id": "tour-asientos",
+              "name": "Ver Asientos",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entries",
+              "url": "/admin/entries"
+            },
+            {
+              "id": "tour-asientos-tipos",
+              "name": "Tipo de Asiento",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-types",
+              "url": "/admin/entry-types"
+            },
+            {
+              "id": "tour-asientos-cuentas",
+              "name": "Cuentas Contables",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-accounts",
+              "url": "/admin/entry-accounts"
+            }
+
+          ]
         },
         {
           "id": "tour-documentos-recibidos",
@@ -178,6 +202,36 @@
           "icon": "menu-icon tf-icons bx bx-dollar",
           "slug": "expenses",
           "url": "/admin/expenses"
+        },
+        {
+          "id": "tour-ingresos",
+          "name": "Ingresos",
+          "icon": "menu-icon tf-icons bx bx-line-chart",
+          "slug": "incomes",
+          "url": "/admin/incomes",
+          "submenu": [
+            {
+              "id": "tour-ingresos-clients",
+              "name": "Clientes",
+              "icon": "menu-icon tf-icons bx bx-user",
+              "slug": "incomes-clients",
+              "url": "/admin/incomes-clients"
+            },
+            {
+              "id": "tour-ingresos-suppliers",
+              "name": "Proveedores",
+              "icon": "menu-icon tf-icons bx bx-briefcase",
+              "slug": "incomes-suppliers",
+              "url": "/admin/incomes-suppliers"
+            },
+            {
+              "id": "tour-ingresos-categorias",
+              "name": "Categorías",
+              "icon": "menu-icon tf-icons bx bx-category",
+              "slug": "income-categories",
+              "url": "/admin/income-categories"
+            }
+          ]
         }
       ]
     },

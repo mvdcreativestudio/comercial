@@ -81,16 +81,16 @@ services:
     ####################################################################################################
     # Mailpit
     ####################################################################################################
-    mail_base:
-        image: axllent/mailpit:latest
-        container_name: mail_base
-        restart: unless-stopped
-        tty: true
-        ports:
-            - 8025:8025
-            - 1025:1025
-        networks:
-            - mysql_net
+    # mail_base:
+    #     image: axllent/mailpit:latest
+    #     container_name: mail_base
+    #     restart: unless-stopped
+    #     tty: true
+    #     ports:
+    #         - 8025:8025
+    #         - 1025:1025
+    #     networks:
+    #         - mysql_net
 
 networks:
     mysql_net:
