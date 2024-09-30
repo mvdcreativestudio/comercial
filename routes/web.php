@@ -110,6 +110,7 @@ Route::middleware([
 
 
 
+    Route::get('/cfes/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('cfes.received.datatable');
 
     // Recursos con acceso autenticado
     Route::resources([
