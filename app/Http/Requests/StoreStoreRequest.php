@@ -28,11 +28,10 @@ class StoreStoreRequest extends FormRequest
         $rules = [
             'name' => 'required|string|max:255',
             'address' => 'string|max:255',
-            'email' => 'required|email|unique:stores,email',
-            'rut' => 'required|string|max:255|unique:stores,rut',
+            'email' => 'required|email',
+            'rut' => 'required|string|max:255',
             'status' => 'required|boolean',
         ];
-
 
         return $rules;
     }

@@ -684,13 +684,13 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
   document.getElementById('tipoCliente').addEventListener('change', function () {
     let tipo = this.value;
     if (tipo === 'individual') {
-        document.getElementById('ciField').style.display = 'block';
-        document.getElementById('rutField').style.display = 'none';
-        document.getElementById('razonSocialField').style.display = 'none';
+      document.getElementById('ciField').style.display = 'block';
+      document.getElementById('rutField').style.display = 'none';
+      document.getElementById('razonSocialField').style.display = 'none';
     } else if (tipo === 'company') {
-        document.getElementById('ciField').style.display = 'none';
-        document.getElementById('rutField').style.display = 'block';
-        document.getElementById('razonSocialField').style.display = 'block';
+      document.getElementById('ciField').style.display = 'none';
+      document.getElementById('rutField').style.display = 'block';
+      document.getElementById('razonSocialField').style.display = 'block';
     }
   });
 
@@ -984,7 +984,7 @@ $.ajax({
         mostrarError('Error al guardar la orden en /admin/orders: ' + xhr.responseText);
       }
     });
-    
+
   },
   error: function (xhr) {
     console.error('Error al guardar en /admin/pos-orders:', xhr);  // Capturar error de pos-orders
@@ -1055,6 +1055,8 @@ $.ajax({
 
 
     var vuelto = valorRecibido - total;
+
+    console.log(vuelto)
 
     // Verificar si el valor recibido es menor que el total
     if (valorRecibido < total) {

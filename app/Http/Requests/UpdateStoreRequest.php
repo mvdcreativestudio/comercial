@@ -41,9 +41,8 @@ class UpdateStoreRequest extends FormRequest
         if ($this->boolean('invoices_enabled')) {
             $rules += [
                 'pymo_user' => 'required|string|max:255',
-                'pymo_password' => 'nullable|string|max:255', // nullable permite que sea opcional
-                'pymo_branch_office' => 'required|string|max:255',
-                'automatic_billing' => 'boolean',
+                'pymo_password' => 'required|string|max:255',
+               // 'automatic_billing' => 'boolean',
             ];
         }
 

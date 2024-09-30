@@ -50,7 +50,7 @@
     @endif
 
     <div class="app-ecommerce">
-        <!-- Formulario para editar Empresa -->
+        <!-- Formulario para editar tienda -->
         <form action="{{ route('stores.update', $store->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -58,15 +58,14 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Información de la Empresa</h5>
+                            <h5 class="card-title mb-0">Información de la Tienda</h5>
                         </div>
                         <div class="card-body">
-                            <!-- Campos del formulario -->
                             <!-- Nombre -->
                             <div class="mb-3">
                                 <label class="form-label" for="store-name">Nombre</label>
                                 <input type="text" class="form-control" id="store-name" name="name" required
-                                    placeholder="Nombre de la Empresa" value="{{ $store->name }}">
+                                    placeholder="Nombre de la tienda" value="{{ $store->name }}">
                             </div>
 
                             <!-- Dirección -->
@@ -283,184 +282,156 @@
                                                         name="pymo_password" value="{{ $store->pymo_password }}">
                                                 </div>
 
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="pymoBranchOffice">Sucursal PyMo</label>
-                                                    <input type="text" class="form-control" id="pymoBranchOffice"
-                                                        name="pymo_branch_office"
-                                                        value="{{ $store->pymo_branch_office }}">
-                                                </div>
+                                                @if ($branchOffices)
+                                                  <div class="mb-3">
+                                                    <label class="form-label" for="pymoBranchOfficeSelect">Seleccionar Sucursal</label>
+                                                    <select id="pymoBranchOfficeSelect" name="pymo_branch_office" class="form-select">
+                                                        <option value="">Selecciona una sucursal</option>
+                                                        @foreach ($branchOffices as $branchOffice)
+                                                            <option value="{{ $branchOffice['number'] }}" data-callback-url="{{ $branchOffice['callbackNotificationUrl'] }}" {{ $store->pymo_branch_office == $branchOffice['number'] ? 'selected' : '' }}>
+                                                                {{ $branchOffice['fiscalAddress'] }}, {{ $branchOffice['city'] }}, {{ $branchOffice['state'] }} | Sucursal: {{ $branchOffice['number'] }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                  </div>
 
-
-                                                @if ($store->pymo_user && $store->pymo_password && $store->pymo_branch_office && !empty($companyInfo))
-                                                    <div class="d-flex align-items-center justify-content-between mt-4">
-                                                        <label class="form-label mb-0"
-                                                            for="automaticBillingSwitch">¿Facturar automáticamente?</label>
-                                                        <div class="form-check form-switch ms-3">
-                                                            <input type="hidden" name="automatic_billing"
-                                                                value="0">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                id="automaticBillingSwitch" name="automatic_billing"
-                                                                value="1"
-                                                                {{ $store->automatic_billing ? 'checked' : '' }}>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password && !empty($companyInfo))
-                                                    <div class="col-12 mt-4">
-                                                        <div class="card">
-                                                            <div class="card-header">
-                                                                <h4 class="card-title">Logo de la empresa en Pymo</h4>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                @if ($logoUrl)
-                                                                    <div class="mb-3">
-                                                                        <img src="{{ asset($logoUrl) }}"
-                                                                            alt="Company Logo" class="img-thumbnail"
-                                                                            style="max-width: 200px;">
-                                                                    </div>
-                                                                @endif
-                                                                <form action="{{ route('accounting.uploadLogo') }}"
-                                                                    method="POST" enctype="multipart/form-data">
-                                                                    @csrf
-                                                                    <div class="form-group">
-                                                                        <input type="file" class="form-control-file"
-                                                                            id="logo" name="logo">
-                                                                    </div>
-                                                                    <button type="submit"
-                                                                        class="btn btn-primary mt-3">Actualizar
-                                                                        Logo</button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-12 mt-4">
-                                                        <div class="card">
-                                                            <div class="card-header">
-                                                                <h4 class="card-title">Información de la empresa en Pymo
-                                                                </h4>
-                                                            </div>
-                                                            <div class="card-body">
-                                                                <form>
-                                                                    @if (!empty($companyInfo['name']))
-                                                                        <div class="form-group">
-                                                                            <label for="companyName">Nombre de la
-                                                                                Empresa</label>
-                                                                            <input type="text"
-                                                                                class="form-control my-3" id="companyName"
-                                                                                value="{{ $companyInfo['name'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-
-                                                                    @if (!empty($companyInfo['rut']))
-                                                                        <div class="form-group">
-                                                                            <label for="companyRUT">RUT</label>
-                                                                            <input type="text"
-                                                                                class="form-control my-3" id="companyRUT"
-                                                                                value="{{ $companyInfo['rut'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-
-                                                                    @if (!empty($companyInfo['socialPurpose']))
-                                                                        <div class="form-group">
-                                                                            <label for="socialPurpose">Propósito
-                                                                                Social</label>
-                                                                            <input type="text"
-                                                                                class="form-control my-3"
-                                                                                id="socialPurpose"
-                                                                                value="{{ $companyInfo['socialPurpose'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-
-                                                                    @if (!empty($companyInfo['resolutionNumber']))
-                                                                        <div class="form-group">
-                                                                            <label for="resolutionNumber">Número de
-                                                                                Resolución</label>
-                                                                            <input type="text"
-                                                                                class="form-control my-3"
-                                                                                id="resolutionNumber"
-                                                                                value="{{ $companyInfo['resolutionNumber'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-
-                                                                    @if (!empty($companyInfo['email']))
-                                                                        <div class="form-group">
-                                                                            <label for="companyEmail">Correo
-                                                                                Electrónico</label>
-                                                                            <input type="email"
-                                                                                class="form-control my-3"
-                                                                                id="companyEmail"
-                                                                                value="{{ $companyInfo['email'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-
-                                                                    @if (!empty($companyInfo['createdAt']))
-                                                                        <div class="form-group">
-                                                                            <label for="createdAt">Fecha de
-                                                                                Creación</label>
-                                                                            <input type="text"
-                                                                                class="form-control my-3" id="createdAt"
-                                                                                value="{{ $companyInfo['createdAt'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-
-                                                                    @if (!empty($companyInfo['updatedAt']))
-                                                                        <div class="form-group">
-                                                                            <label for="updatedAt">Fecha de
-                                                                                Actualización</label>
-                                                                            <input type="text"
-                                                                                class="form-control my-3" id="updatedAt"
-                                                                                value="{{ $companyInfo['updatedAt'] }}"
-                                                                                disabled>
-                                                                        </div>
-                                                                    @endif
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                                @if ($errors->any())
-                                                    @foreach ($errors->all() as $error)
-                                                        <div class="alert alert-danger">
-                                                            {{ $error }}
-                                                        </div>
-                                                    @endforeach
+                                                  <div class="mb-3 d-none">
+                                                    <label class="form-label" for="callbackNotificationUrl">URL de notificaciones de la Sucursal</label>
+                                                    <input type="text" class="form-control" id="callbackNotificationUrl" name="callbackNotificationUrl" value="">
+                                                  </div>
                                                 @endif
                                             </div>
+
+                                            @if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password && !empty($companyInfo))
+                                                <div class="col-12 mt-4">
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <h4 class="card-title">Logo de la empresa en Pymo</h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            @if ($logoUrl)
+                                                                <div class="mb-3">
+                                                                    <img src="{{ asset($logoUrl) }}" alt="Company Logo"
+                                                                        class="img-thumbnail" style="max-width: 200px;">
+                                                                </div>
+                                                            @endif
+                                                            <form action="{{ route('accounting.uploadLogo') }}"
+                                                                method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <div class="form-group">
+                                                                    <input type="file" class="form-control-file"
+                                                                        id="logo" name="logo">
+                                                                </div>
+                                                                <button type="submit"
+                                                                    class="btn btn-primary mt-3">Actualizar Logo</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 mt-4">
+                                                    <div class="card">
+                                                        <div class="card-header">
+                                                            <h4 class="card-title">Información de la empresa en Pymo
+                                                            </h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <form>
+                                                                @if (!empty($companyInfo['name']))
+                                                                    <div class="form-group">
+                                                                        <label for="companyName">Nombre de la
+                                                                            Empresa</label>
+                                                                        <input type="text" class="form-control my-3"
+                                                                            id="companyName"
+                                                                            value="{{ $companyInfo['name'] }}" disabled>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if (!empty($companyInfo['rut']))
+                                                                    <div class="form-group">
+                                                                        <label for="companyRUT">RUT</label>
+                                                                        <input type="text" class="form-control my-3"
+                                                                            id="companyRUT"
+                                                                            value="{{ $companyInfo['rut'] }}" disabled>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if (!empty($companyInfo['socialPurpose']))
+                                                                    <div class="form-group">
+                                                                        <label for="socialPurpose">Propósito
+                                                                            Social</label>
+                                                                        <input type="text" class="form-control my-3"
+                                                                            id="socialPurpose"
+                                                                            value="{{ $companyInfo['socialPurpose'] }}"
+                                                                            disabled>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if (!empty($companyInfo['resolutionNumber']))
+                                                                    <div class="form-group">
+                                                                        <label for="resolutionNumber">Número de
+                                                                            Resolución</label>
+                                                                        <input type="text" class="form-control my-3"
+                                                                            id="resolutionNumber"
+                                                                            value="{{ $companyInfo['resolutionNumber'] }}"
+                                                                            disabled>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if (!empty($companyInfo['email']))
+                                                                    <div class="form-group">
+                                                                        <label for="companyEmail">Correo
+                                                                            Electrónico</label>
+                                                                        <input type="email" class="form-control my-3"
+                                                                            id="companyEmail"
+                                                                            value="{{ $companyInfo['email'] }}" disabled>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if (!empty($companyInfo['createdAt']))
+                                                                    <div class="form-group">
+                                                                        <label for="createdAt">Fecha de
+                                                                            Creación</label>
+                                                                        <input type="text" class="form-control my-3"
+                                                                            id="createdAt"
+                                                                            value="{{ $companyInfo['createdAt'] }}"
+                                                                            disabled>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if (!empty($companyInfo['updatedAt']))
+                                                                    <div class="form-group">
+                                                                        <label for="updatedAt">Fecha de
+                                                                            Actualización</label>
+                                                                        <input type="text" class="form-control my-3"
+                                                                            id="updatedAt"
+                                                                            value="{{ $companyInfo['updatedAt'] }}"
+                                                                            disabled>
+                                                                    </div>
+                                                                @endif
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            @if ($errors->any())
+                                                @foreach ($errors->all() as $error)
+                                                    <div class="alert alert-danger">
+                                                        {{ $error }}
+                                                    </div>
+                                                @endforeach
+                                            @endif
                                         </div>
+                                    </div>
+                                    <!-- Botones -->
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary">Actualizar Tienda</button>
                                     </div>
                                 </div>
                             </div>
-
-
-
-
-                            @if ($errors->any())
-                                @foreach ($errors->all() as $error)
-                                    <div class="alert alert-danger">
-                                        {{ $error }}
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-                    <!-- Botón fijo en la parte inferior derecha -->
-                    <div class="fixed-bottom d-flex justify-content-end p-3 mb-5">
-                        <button type="submit" class="btn btn-primary">Actualizar Empresa</button>
-                    </div>
-
-                </div>
-            </div>
         </form>
     </div>
-
     <script>
         let autocomplete;
 

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class StoreController extends Controller
 {
@@ -72,32 +73,7 @@ class StoreController extends Controller
     {
         $storeData = $request->validated();
 
-        $store = $this->storeRepository->create(Arr::except($storeData, [
-            'mercadoPagoPublicKey',
-            'mercadoPagoAccessToken',
-            'mercadoPagoSecretKey',
-            'accepts_mercadopago',
-            'pymo_user',
-            'pymo_password',
-            'pymo_branch_office',
-        ]));
-
-        if ($request->boolean('accepts_mercadopago')) {
-            $store->mercadoPagoAccount()->create([
-                'store_id' => $store->id,
-                'public_key' => $request->input('mercadoPagoPublicKey'),
-                'access_token' => $request->input('mercadoPagoAccessToken'),
-                'secret_key' => $request->input('mercadoPagoSecretKey'),
-            ]);
-        }
-
-        if ($request->boolean('invoices_enabled')) {
-            $store->update([
-                'pymo_user' => $request->input('pymo_user'),
-                'pymo_password' => Crypt::encryptString($request->input('pymo_password')),
-                'pymo_branch_office' => $request->input('pymo_branch_office'),
-            ]);
-        }
+        $store = $this->storeRepository->create($storeData);
 
         return redirect()->route('stores.index')->with('success', 'Empresa creada con éxito.');
     }
@@ -123,16 +99,22 @@ class StoreController extends Controller
     {
         $googleMapsApiKey = config('services.google.maps_api_key');
 
-        $companyInfo = null;
-        $logoUrl = null;
+      $companyInfo = null;
+      $logoUrl = null;
+      $branchOffices = [];
 
-        if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password) {
-            $companyInfo = $this->accountingRepository->getCompanyInfo($store->rut);
-            $logoUrl = $this->accountingRepository->getCompanyLogo($store->rut);
-        }
+      Log::info('Store: ' . $store->rut);
 
-        return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl'));
-    }
+      if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password) {
+          $companyInfo = $this->accountingRepository->getCompanyInfo($store);
+          $logoUrl = $this->accountingRepository->getCompanyLogo($store);
+          $branchOffices = $companyInfo['branchOffices'] ?? [];
+      }
+
+      return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl', 'branchOffices'));
+  }
+
+
 
     /**
      * Actualiza una Empresa específica en la base de datos.
@@ -155,7 +137,8 @@ class StoreController extends Controller
             'pymo_password',
             'pymo_branch_office',
             'accepts_peya_envios',
-            'peya_envios_key'
+            'peya_envios_key',
+            'callbackNotificationUrl'
         ]));
 
         // Manejo de la integración de MercadoPago
@@ -165,7 +148,16 @@ class StoreController extends Controller
         $this->handlePedidosYaEnviosIntegration($request, $store);
 
         // Manejo de la integración de Pymo (Facturación Electrónica)
-        $this->handlePymoIntegration($request, $store);
+        if ($request->boolean('invoices_enabled')) {
+          $this->accountingRepository->updateStoreWithPymo($store, $request->input('pymo_branch_office'), $request->input('callbackNotificationUrl'), $request->input('pymo_user'), $request->input('pymo_password'));
+        } else {
+            $store->update([
+                'pymo_user' => null,
+                'pymo_password' => null,
+                'pymo_branch_office' => null,
+            ]);
+        }
+
 
         return redirect()->route('stores.index')->with('success', 'Empresa actualizada con éxito.');
     }

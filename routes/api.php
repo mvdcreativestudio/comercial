@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\PedidosYaController;
@@ -8,7 +9,7 @@ use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ScanntechController;
 use App\Http\Controllers\PosController;
-
+use App\Http\Controllers\AccountingController;
 
 
 /*
@@ -29,6 +30,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // WhatsApp Webhook
 Route::get('/webhook', [WhatsAppController::class, 'webhook']);
 Route::post('/webhook', [WhatsAppController::class, 'recibe']);
+
+// Pymo Webhook
+Route::post('/pymo/webhook', [AccountingController::class, 'webhook']);
 
 // WhatsApp
 Route::post('/send-message', [WhatsAppController::class, 'send'])->name('api.send.messages');
@@ -52,8 +56,3 @@ Route::post('/pos/check-transaction-status', [PosController::class, 'checkTransa
 
 
 Route::post('/payment/process', [PaymentController::class, 'processPayment']);
-
-
-
-
-

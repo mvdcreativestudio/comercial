@@ -112,6 +112,8 @@ Route::middleware([
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
 
+    Route::get('/cfes/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('cfes.received.datatable');
+
     // Recursos con acceso autenticado
     Route::resources([
         'stores' => StoreController::class,

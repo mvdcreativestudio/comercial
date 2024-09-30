@@ -119,7 +119,7 @@ class Product extends Model
         // Agrega más filtros según sea necesario
         return $query;
     }
-    
+
     /**
      * Setea el precio del producto.
      * @param float $value
