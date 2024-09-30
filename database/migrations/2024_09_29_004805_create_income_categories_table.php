@@ -19,13 +19,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        DB::table('income_categories')->insert([
-            ['income_name' => 'Salario', 'income_description' => 'Ingreso por salario'],
-            ['income_name' => 'Freelance', 'income_description' => 'Ingreso por trabajo freelance'],
-            ['income_name' => 'Inversión', 'income_description' => 'Ingreso por inversión'],
-            ['income_name' => 'Otro', 'income_description' => 'Otro tipo de ingreso'],
-        ]);
     }
 
     /**

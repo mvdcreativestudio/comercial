@@ -46,27 +46,6 @@ return new class extends Migration
                 'client_id' => 302,
             ],
         ]);
-
-        DB::table('incomes')->insert([
-            [
-                'income_name' => 'Inversión',
-                'income_description' => 'Ingreso por inversión',
-                'income_date' => '2024-09-29',
-                'income_amount' => 1000,
-                'payment_method_id' => 1,
-                'income_category_id' => 1,
-                'supplier_id' => 1,
-            ],
-            [
-                'income_name' => 'Otro',
-                'income_description' => 'Otro tipo de ingreso',
-                'income_date' => '2024-09-29',
-                'income_amount' => 500,
-                'payment_method_id' => 2,
-                'income_category_id' => 2,
-                'supplier_id' => 1,
-            ],
-        ]);
     }
 
     /**
