@@ -84,7 +84,7 @@ $(function () {
 
             const statusText = rowData.status === 1 ? 'Activo' : 'Inactivo';
             const statusTextClass = rowData.status === 1 ? 'text-success' : 'text-danger';
-            const truncatedName = rowData.name.length > 25 ? rowData.name.substring(0, 25) + '...' : rowData.name;
+            const truncatedName = rowData.name.length > 20 ? rowData.name.substring(0, 20) + '...' : rowData.name;
 
             const card = `
               <div class="col-md-6 col-lg-4 col-12 mb-4">
@@ -94,7 +94,8 @@ $(function () {
                   </div>
                   <div class="col-8">
                     <div class="product-card-body">
-                      <h5 class="product-title">${truncatedName}</h5>
+                      <!-- Mostrar el nombre truncado y el título completo como tooltip -->
+                      <h5 class="product-title" title="${rowData.name}">${truncatedName}</h5>
                       <p class="product-category text-muted small">${rowData.category || 'Sin categoría'}</p>
                       <h6 class="product-price">${currencySymbol}${parseFloat(rowData.price).toFixed(2)}</h6>
                       <p class="product-stock"><span class="badge ${stockClass}">${rowData.stock}</span></p>
