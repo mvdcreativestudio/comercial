@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
 
 class StoreController extends Controller
 {
@@ -72,32 +73,7 @@ class StoreController extends Controller
     {
         $storeData = $request->validated();
 
-        $store = $this->storeRepository->create(Arr::except($storeData, [
-            'mercadoPagoPublicKey',
-            'mercadoPagoAccessToken',
-            'mercadoPagoSecretKey',
-            'accepts_mercadopago',
-            'pymo_user',
-            'pymo_password',
-            'pymo_branch_office',
-        ]));
-
-        if ($request->boolean('accepts_mercadopago')) {
-            $store->mercadoPagoAccount()->create([
-                'store_id' => $store->id,
-                'public_key' => $request->input('mercadoPagoPublicKey'),
-                'access_token' => $request->input('mercadoPagoAccessToken'),
-                'secret_key' => $request->input('mercadoPagoSecretKey'),
-            ]);
-        }
-
-        if ($request->boolean('invoices_enabled')) {
-            $store->update([
-                'pymo_user' => $request->input('pymo_user'),
-                'pymo_password' => Crypt::encryptString($request->input('pymo_password')),
-                'pymo_branch_office' => $request->input('pymo_branch_office'),
-            ]);
-        }
+        $store = $this->storeRepository->create($storeData);
 
         return redirect()->route('stores.index')->with('success', 'Empresa creada con éxito.');
     }
@@ -173,7 +149,7 @@ class StoreController extends Controller
 
         // Manejo de la integración de Pymo (Facturación Electrónica)
         if ($request->boolean('invoices_enabled')) {
-          $this->accountingRepository->updateStoreWithPymo($store, $request->input('pymo_branch_office'), $request->input('callbackNotificationUrl'), $request->input('pymo_password'));
+          $this->accountingRepository->updateStoreWithPymo($store, $request->input('pymo_branch_office'), $request->input('callbackNotificationUrl'), $request->input('pymo_user'), $request->input('pymo_password'));
         } else {
             $store->update([
                 'pymo_user' => null,
@@ -182,7 +158,7 @@ class StoreController extends Controller
             ]);
         }
 
-        
+
         return redirect()->route('stores.index')->with('success', 'Empresa actualizada con éxito.');
     }
 

@@ -42,7 +42,7 @@ class UpdateStoreRequest extends FormRequest
             $rules += [
                 'pymo_user' => 'required|string|max:255',
                 'pymo_password' => 'required|string|max:255',
-                'automatic_billing' => 'boolean',
+               // 'automatic_billing' => 'boolean',
             ];
         }
 

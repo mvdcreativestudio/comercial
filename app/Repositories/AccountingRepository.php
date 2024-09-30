@@ -1004,16 +1004,23 @@ class AccountingRepository
         return $data;
     }
 
-    /**
+     /**
      * Actualiza la información de la tienda con la información de PyMo.
      *
      * @param Store $store
      * @param string $selectedBranchOfficeNumber
      * @param string|null $newCallbackUrl
+     * @param string|null $pymoUser
      * @param string|null $newPymoPassword
     */
-    public function updateStoreWithPymo(Store $store, ?string $selectedBranchOfficeNumber, ?string $newCallbackUrl, ?string $newPymoPassword): void
+    public function updateStoreWithPymo(Store $store, ?string $selectedBranchOfficeNumber, ?string $newCallbackUrl, ?string $pymoUser, ?string $newPymoPassword): void
     {
+        // Actualizar 'pymo_user' y 'pymo_password' antes de cualquier otra operación
+        $this->updatePymoCredentials($store, $pymoUser, $newPymoPassword);
+
+        // Reobtener el modelo de la tienda con los nuevos valores actualizados en la base de datos
+        $store->refresh();
+
         // Obtener la información actual de la empresa desde PyMo
         $companyInfo = $this->getCompanyInfo($store);
 
@@ -1032,11 +1039,6 @@ class AccountingRepository
             'pymo_branch_office' => $selectedBranchOfficeNumber,
         ];
 
-        // Encriptamos la nueva contraseña solo si ha sido actualizada
-        if ($newPymoPassword && $newPymoPassword !== $store->pymo_password) {
-            $updateData['pymo_password'] = Crypt::encryptString($newPymoPassword);
-        }
-
         // Actualizar el store en la base de datos
         $store->update($updateData);
 
@@ -1044,6 +1046,28 @@ class AccountingRepository
         if ($selectedBranchOffice && $newCallbackUrl && $selectedBranchOffice['callbackNotificationUrl'] !== $newCallbackUrl) {
             // Actualizar el callbackNotificationUrl mediante la API de PyMo
             $this->updateBranchOfficeCallbackUrl($companyInfo, $store, $selectedBranchOfficeNumber, $newCallbackUrl);
+        }
+    }
+
+    /**
+     * Actualiza las credenciales de PyMo en la tienda.
+     *
+     * @param Store $store
+     * @param string|null $pymoUser
+     * @param string|null $newPymoPassword
+     * @return void
+    */
+    private function updatePymoCredentials(Store $store, ?string $pymoUser, ?string $newPymoPassword): void
+    {
+        // Verificar si se ha proporcionado una nueva contraseña para PyMo
+        if ($newPymoPassword && $newPymoPassword !== $store->pymo_password) {
+            $encryptedPassword = Crypt::encryptString($newPymoPassword);
+
+            // Actualizar pymo_user y pymo_password en la base de datos
+            $store->update([
+                'pymo_user' => $pymoUser, // Asumimos que este valor ya está definido en el modelo Store
+                'pymo_password' => $encryptedPassword,
+            ]);
         }
     }
 
