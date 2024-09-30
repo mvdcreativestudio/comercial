@@ -25,27 +25,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-
-        DB::table('incomes')->insert([
-            [
-                'income_name' => 'Salario',
-                'income_description' => 'Ingreso por salario',
-                'income_date' => '2024-09-29',
-                'income_amount' => 5000,
-                'payment_method_id' => 1,
-                'income_category_id' => 1,
-                'client_id' => 302,
-            ],
-            [
-                'income_name' => 'Freelance',
-                'income_description' => 'Ingreso por trabajo freelance',
-                'income_date' => '2024-09-29',
-                'income_amount' => 2000,
-                'payment_method_id' => 2,
-                'income_category_id' => 2,
-                'client_id' => 302,
-            ],
-        ]);
     }
 
     /**
