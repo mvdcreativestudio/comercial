@@ -96,6 +96,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
 
 <div class="row">
   <!-- single card  -->
+  @if(auth()->user()->can('view_all_datacenter'))
   <div class="col-12">
     <div class="card mb-4" data-aos="fade-up">
       <div class="card-widget-separator-wrapper">
@@ -103,17 +104,17 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
           <div class="row gy-4 gy-sm-1">
             <div class="col-sm-6 col-lg-3">
               <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
-                <div>
-                  <h3 class="mb-1">{{ $storesCount }}</h3>
-                  @if ($storesCount == 1)
-                    <p class="mb-0">Local</p>
-                  @else
-                    <p class="mb-0">Locales</p>
-                  @endif
-                </div>
-                <span class="badge bg-label-secondary rounded p-2 me-sm-4">
-                  <i class="bx bx-user bx-sm"></i>
-                </span>
+                  <div>
+                      <h3 class="mb-1">{{ $storesCount }}</h3>
+                    @if ($storesCount == 1)
+                      <p class="mb-0">Local</p>
+                    @else
+                      <p class="mb-0">Locales</p>
+                    @endif
+                  </div>
+                  <span class="badge bg-label-secondary rounded p-2 me-sm-4">
+                    <i class="bx bx-user bx-sm"></i>
+                  </span>
               </div>
               <hr class="d-none d-sm-block d-lg-none me-4">
             </div>
@@ -159,12 +160,65 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
                 </span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
+  @else 
+  <div class="col-12">
+    <div class="card mb-4" data-aos="fade-up">
+      <div class="card-widget-separator-wrapper">
+        <div class="card-body card-widget-separator">
+          <div class="row gy-4 gy-sm-1">
+            <div class="col-sm-12 col-lg-4">
+              <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
+                <div>
+                  <h3 class="mb-1">{{ $registredClients }}</h3>
+                  <p class="mb-0">Clientes registrados</p>
+                </div>
+                <span class="badge bg-label-secondary rounded p-2 me-lg-4">
+                  <i class="bx bx-file bx-sm"></i>
+                </span>
+              </div>
+              <hr class="d-none d-sm-block d-lg-none">
+            </div>
+            <div class="col-sm-12 col-lg-4">
+              <div class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
+                <div>
+                  <h3 class="mb-1">{{ $productsCount }}</h3>
+                  @if($productsCount == 1)
+                    <p class="mb-0">Producto</p>
+                  @else
+                    <p class="mb-0">Productos</p>
+                  @endif
+                </div>
+                <span class="badge bg-label-secondary rounded p-2 me-sm-4">
+                  <i class="bx bx-check-double bx-sm"></i>
+                </span>
+              </div>
+            </div>
+            <div class="col-sm-12 col-lg-4">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h3 class="mb-1">{{ $categoriesCount }}</h3>
+                  @if($categoriesCount == 1)
+                    <p class="mb-0">Categoría</p>
+                  @else
+                    <p class="mb-0">Categorías</p>
+                  @endif
+                </div>
+                <span class="badge bg-label-secondary rounded p-2">
+                  <i class="bx bx-error-circle bx-sm"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  @endif
 
   <!-- Card Border Shadow -->
   <div class="col-sm-6 col-lg-3 mb-4">
@@ -334,9 +388,11 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
         <div class="card-header">
             <h5 class="card-title text-start pb-4 mb-0">Comparativas</h5>
             <ul class="nav nav-pills nav- card-header-pills" role="tablist">
+                @if(auth()->user()->can('view_all_datacenter'))
                 <li class="nav-item">
                     <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Locales</button>
                 </li>
+                @endif
                 <li class="nav-item">
                     <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-os" aria-controls="navs-pills-os" aria-selected="false">Productos</button>
                 </li>

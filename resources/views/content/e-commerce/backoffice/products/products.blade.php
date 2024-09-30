@@ -56,6 +56,12 @@ $currencySymbol = $settings->currency_symbol;
 
   <!-- Botones alineados a la derecha, ahora responsive -->
   <div class="text-end d-flex gap-2">
+
+      <!-- Botón para crear nuevo producto -->
+      <a href="{{ route('products.create') }}" class="btn btn-success btn-sm shadow-sm d-flex align-items-center gap-1">
+        <i class="bx bx-plus"></i> Nuevo Producto
+      </a>
+
     <!-- Botón de filtros -->
     <button id="openFilters" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1">
       <i class="bx bx-filter-alt"></i> Filtros
@@ -71,6 +77,10 @@ $currencySymbol = $settings->currency_symbol;
         <li><a class="dropdown-item" href="#" id="openImportModal"><i class="bx bx-upload"></i> Importar Productos</a></li>
       </ul>
     </div>
+
+
+
+    
   </div>
 
 </div>
