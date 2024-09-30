@@ -298,6 +298,41 @@ class CreatePermissions extends Command
                         'delete_current-accounts-suppliers-payments',
                     ],
                 ],
+                [
+                    'slug' => 'incomes',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'incomes-clients',
+                        'incomes-suppliers',
+                        'income-categories',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes-clients',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_incomes-clients',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes-suppliers',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_incomes-suppliers',
+                    ],
+                ],
+                [
+                    'slug' => 'income-categories',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_income-categories',
+                    ],
+                ],
+
             ],
         ];
 

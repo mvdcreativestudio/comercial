@@ -27,6 +27,8 @@ use App\Http\Controllers\EntryDetailController;
 use App\Http\Controllers\EntryTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpensePaymentMethodController;
+use App\Http\Controllers\IncomeClientController;
+use App\Http\Controllers\IncomeSupplierController;
 use App\Http\Controllers\InvoiceController;use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\NotificationController;
@@ -98,8 +100,8 @@ Route::middleware([
     Route::get('/current-account-clients/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
     // suppliers
     Route::get('/current-account-suppliers/datatable', [CurrentAccountSupplierPurchaseController::class, 'datatable'])->name('current-account-suppliers.datatable');
-
-
+    Route::get('/incomes-clients/datatable', [IncomeClientController::class, 'datatable'])->name('income-clients.datatable');
+    Route::get('/incomes-suppliers/datatable', [IncomeSupplierController::class, 'datatable'])->name('income-suppliers.datatable');
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
@@ -139,6 +141,8 @@ Route::middleware([
         'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
         'current-account-supplier-purs' => CurrentAccountSupplierPurchaseController::class,
         'current-account-supplier-pays' => CurrentAccountSupplierPurchasePaymentController::class,
+        'incomes-clients' => IncomeClientController::class,
+        'incomes-suppliers' => IncomeSupplierController::class,
     ]);
 
     // Puntos de venta
@@ -358,6 +362,16 @@ Route::middleware([
     // Cuentas Contables
     Route::group(['prefix' => 'entry-accounts'], function () {
         Route::post('/delete-multiple', [EntryAccountController::class, 'deleteMultiple'])->name('entry-accounts.deleteMultiple');
+    });
+
+    // Ingresos de Clientes
+    Route::group(['prefix' => 'incomes-clients'], function () {
+        Route::post('/delete-multiple', [IncomeClientController::class, 'deleteMultiple'])->name('income-clients.deleteMultiple');
+    });
+
+    // Ingresos de Proveedores
+    Route::group(['prefix' => 'incomes-suppliers'], function () {
+        Route::post('/delete-multiple', [IncomeSupplierController::class, 'deleteMultiple'])->name('income-suppliers.deleteMultiple');
     });
 
 });
