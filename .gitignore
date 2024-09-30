@@ -38,4 +38,4 @@ yarn-error.log
 
 martin_mvd
 martin_mvd.pub
-public/assets/img/ecommerce-images
+!public/assets/img/ecommerce-images

@@ -53,12 +53,15 @@ class ProductRepository
           'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
       ]));
 
-      // Manejo de la imagen si se ha subido un archivo
+      // Manejo de la imagen
       if ($request->hasFile('image')) {
           $file = $request->file('image');
           $filename = time() . '.' . $file->getClientOriginalExtension();
           $path = $file->move(public_path('assets/img/ecommerce-images'), $filename);
           $product->image = 'assets/img/ecommerce-images/' . $filename;
+      } else {
+          // Si no se carga una imagen, asignar la imagen por defecto
+          $product->image = 'assets/img/ecommerce-images/placeholder.png';
       }
 
       // Se establece el estado de borrador del producto.
