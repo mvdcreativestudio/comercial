@@ -7,6 +7,7 @@ use App\Models\OrderProduct;
 use App\Models\Client;
 use App\Models\OrderStatusChange;
 use App\Models\CashRegisterLog;
+use App\Models\Product;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
@@ -71,42 +72,62 @@ class OrderRepository
    * @return Order
   */
   public function store($request)
-  {
+{
+    Log::info('Iniciando el proceso de creación de orden', ['request' => $request->all()]);
+
     $clientData = $this->extractClientData($request->validated());
     $orderData = $this->prepareOrderData($request->payment_method, $request);
 
     DB::beginTransaction();
 
     try {
+        // Depurar la información del cliente y los datos de la orden antes de guardar
+        Log::info('Datos del cliente extraídos', ['clientData' => $clientData]);
+        Log::info('Datos de la orden preparados', ['orderData' => $orderData]);
+
         $client = Client::firstOrCreate(['email' => $clientData['email']], $clientData);
+        Log::info('Cliente creado o encontrado', ['client_id' => $client->id]);
+
         $order = new Order($orderData);
         $order->client()->associate($client);
+        Log::info('Orden creada, asociada al cliente', ['order' => $order]);
 
         $order->save();
+        Log::info('Orden guardada en la base de datos', ['order_id' => $order->id]);
 
         $products = json_decode($request['products'], true);
         $order->products = $products;
+        Log::info('Productos asociados a la orden', ['products' => $products]);
 
         $order->save();
+        Log::info('Orden actualizada con los productos');
+
         DB::commit();
+        Log::info('Transacción de base de datos confirmada');
 
         session()->forget('cart');
 
         $store = $order->store;
+        Log::info('Información de la tienda recuperada', ['store' => $store]);
 
+        // Verificar si se debe emitir una factura electrónica (CFE)
         if ($store->automatic_billing) {
             $this->accountingRepository->emitCFE($order);
+            Log::info('Factura electrónica emitida', ['order_id' => $order->id]);
             $order->update(['is_billed' => true]);
         } else {
+            Log::info('No se emite factura electrónica para esta orden');
             $order->update(['is_billed' => false]);
         }
 
         return $order;
     } catch (\Exception $e) {
+        Log::error('Error durante la creación de la orden', ['exception' => $e->getMessage()]);
         DB::rollBack();
         throw $e;
     }
   }
+
 
   /**
    * Prepar los datos del cliente para ser almacenados en la base de datos.
@@ -116,17 +137,24 @@ class OrderRepository
    */
   private function extractClientData(array $validatedData): array
   {
-    return [
-        'name' => $validatedData['name'],
-        'lastname' => $validatedData['lastname'],
-        'type' => 'individual',
-        'state' => 'Montevideo',
-        'country' => 'Uruguay',
-        'address' => $validatedData['address'],
-        'phone' => $validatedData['phone'],
-        'email' => $validatedData['email'],
-    ];
+      Log::info('Extrayendo datos del cliente', ['validatedData' => $validatedData]);
+
+      $clientData = [
+          'name' => $validatedData['name'],
+          'lastname' => $validatedData['lastname'],
+          'type' => 'individual',
+          'state' => 'Montevideo',
+          'country' => 'Uruguay',
+          'address' => $validatedData['address'],
+          'phone' => $validatedData['phone'],
+          'email' => $validatedData['email'],
+      ];
+
+      Log::info('Datos del cliente procesados', ['clientData' => $clientData]);
+
+      return $clientData;
   }
+
 
   /**
    * Prepara los datos del pedido para ser almacenados en la base de datos.
@@ -144,7 +172,7 @@ class OrderRepository
         'date' => now(),
         'time' => now()->format('H:i:s'),
         'origin' => 'physical',
-        'store_id' => 1,
+        'store_id' => $request->store_id,
         'subtotal' => $subtotal,
         'tax' => 0,
         'shipping' => session('costoEnvio', 0),
@@ -182,15 +210,38 @@ class OrderRepository
 
 
   /**
-   * Elimina un pedido específico.
+   * Elimina un pedido específico y reintegra el stock de los productos.
    *
    * @param int $orderId
    * @return void
+   * @throws \Exception
   */
   public function destroyOrder($orderId): void
   {
-    $order = Order::findOrFail($orderId);
-    $order->delete();
+    DB::beginTransaction();
+    try {
+        $order = Order::findOrFail($orderId);
+        if ($order->payment_status === 'paid' && $order->shipping_status === 'delivered') {
+        // Reintegrar el stock de los productos
+            $products = json_decode($order->products, true);
+            foreach ($products as $product) {
+                $productModel = Product::find($product['id']);
+                if ($productModel) {
+                    $productModel->stock += $product['quantity'];
+                    $productModel->save();
+                }
+            }
+        } 
+        // Eliminar la orden
+        $order->delete();
+
+        DB::commit();
+        Log::info("Orden {$orderId} eliminada y stock reintegrado correctamente.");
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error("Error al eliminar la orden {$orderId}: " . $e->getMessage());
+        throw $e;
+    }
   }
 
   /**

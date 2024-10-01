@@ -38,7 +38,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span> Categorias
+  <span class="text-muted fw-light"></span> Categorias
 </h4>
 
 @php
@@ -181,47 +181,29 @@
           <input type="text" class="form-control" id="ecommerce-category-title" placeholder="Ingrese el nombre de la categoría" name="name" aria-label="category title">
         </div>
         <!-- Slug -->
-        <div class="mb-3">
+        <div class="mb-3" style="display: none;">
           <label class="form-label" for="ecommerce-category-slug">Slug</label>
           <input type="text" id="ecommerce-category-slug" class="form-control" placeholder="Ingrese el slug" aria-label="slug" name="slug">
         </div>
-        <!-- Image -->
+        <!-- Store -->
         <div class="mb-3">
-          <label class="form-label" for="ecommerce-category-image">Imagen</label>
-          <input class="form-control" name="image" type="file" id="ecommerce-category-image">
-        </div>
-        <!-- Parent category -->
-        <div class="mb-3 ecommerce-select2-dropdown">
-          <label class="form-label" for="ecommerce-category-parent-category">Categoría padre</label>
-          <select id="ecommerce-category-parent-category" class="select2 form-select" data-placeholder="Seleccione la categoría padre">
-            <option value="">Seleccione la categoría padre</option>
+          <label class="form-label" for="ecommerce-category-store">Empresa</label>
+          <select id="ecommerce-category-store" class="form-select" name="store_id"
+            @if(!auth()->user()->can('access_global_products')) disabled @endif>
+            @if(auth()->user()->can('access_global_products'))
+              <option value="">Seleccione la tienda</option>
+              @foreach($stores as $store)
+                <option value="{{ $store->id }}">{{ $store->name }}</option>
+              @endforeach
+            @else
+              <option value="{{ auth()->user()->store_id }}">{{ auth()->user()->store->name }}</option>
+            @endif
           </select>
-        </div>
-        <!-- Description -->
-        <div class="mb-3">
-          <label class="form-label">Descripción</label>
-          <input type="hidden" name="description" id="hidden-description">
-          <div class="form-control p-0 pt-1">
-            <div class="comment-editor border-0" id="ecommerce-category-description" contenteditable="true"></div>
-            <div class="comment-toolbar border-0 rounded">
-              <div class="d-flex justify-content-end">
-                <span class="ql-formats me-0">
-                  <button class="ql-bold"></button>
-                  <button class="ql-italic"></button>
-                  <button class="ql-underline"></button>
-                  <button class="ql-list" value="ordered"></button>
-                  <button class="ql-list" value="bullet"></button>
-                  <button class="ql-link"></button>
-                  <button class="ql-image"></button>
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
         <!-- Hidden status field -->
         <input type="hidden" name="status" value="2">
         <!-- Instock switch -->
-        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+        <div class="d-flex justify-content-between align-items-center border-top pt-3 pb-3">
           <span class="mb-0 h6">Estado</span>
           <div class="w-25 d-flex justify-content-end">
             <label class="switch switch-primary switch-sm me-4 pe-2">

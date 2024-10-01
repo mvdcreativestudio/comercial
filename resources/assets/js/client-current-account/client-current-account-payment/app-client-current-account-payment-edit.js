@@ -1,78 +1,67 @@
-
 $(document).ready(function () {
-  // Abrir modal para editar gasto
-  $('.datatables-expenses-payments-methods tbody').on('click', '.edit-record', function () {
-    var recordId = $(this).data('id');
-    console.log(recordId);
-    prepareEditModal(recordId);
-  });
-  // Manejar el evento submit del formulario para evitar el comportamiento predeterminado
-  $('#editExpensePaymentMethodForm').on('submit', function (e) {
-    e.preventDefault();
-    var recordId = $('#updateExpensePaymentMethodBtn').data('id');
-    submitEditExpense(recordId);
+  // Evento para el botón de guardar el pago
+  $('#submitEditPaymentBtn').on('click', function (e) {
+    e.preventDefault(); // Evita el comportamiento predeterminado del formulario
+    submitEditPayment();
   });
 
-  // Enviar formulario de edición al hacer clic en el botón de guardar cambios
-  $('#editExpensePaymentMethodModal').on('click', '#updateExpensePaymentMethodBtn', function (e) {
-    e.preventDefault();
-    $('#editExpensePaymentMethodForm').submit();
-  });
-  function prepareEditModal(recordId) {
-    // Función para preparar el modal de edición
-    $.ajax({
-      url: `${baseUrl}admin/expense-payment-methods/${recordId}/edit`,
-      type: 'GET',
-      success: function (data) {
-        console.log(data);
-        // Rellenar los campos del formulario con los datos obtenidos
-        $('#amount_paid_edit').val(data.amount_paid);
-        $('#payment_date_edit').val(data.payment_date);
-        $('#payment_method_id_edit').val(data.payment_method_id);
-
-
-        // Mostrar el modal
-        $('#editExpensePaymentMethodModal').modal('show');
-        $('#updateExpensePaymentMethodBtn').data('id', recordId); // Asigna el ID del registro al botón de actualización
-      },
-      error: function () {
-        Swal.fire('Error', 'No se pudo cargar el formulario de edición. Por favor, intenta de nuevo.', 'error');
-      }
-    });
-  }
-
-  function submitEditExpense(recordId) {
-    var formData = {
-      'amount_paid': $('#amount_paid_edit').val(),
-      'payment_date': $('#payment_date_edit').val(),
-      'payment_method_id': $('#payment_method_id_edit').val(),
-      'expense_id': $('#expense_id_edit').val(),
-      '_token': $('meta[name="csrf-token"]').attr('content')
+  // Función para enviar los datos de la edición del pago
+  function submitEditPayment() {
+    // Valida si todos los campos requeridos están llenos
+    if (
+      !$('#client_id').val() ||
+      !$('#payment_amount').val() ||
+      !$('#payment_method_id').val() ||
+      !$('#payment_date').val()
+    ) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Campos requeridos',
+        text: 'Por favor, completa todos los campos obligatorios.'
+      });
+      return;
     }
-    // return;
+
+    // Obtener la ruta de acción del formulario
+    var route = $('#editPaymentForm').attr('action');
+
+    // Recopilar los datos del formulario
+    var formData = {
+      current_account_id: $('input[name="current_account_id"]').val(),
+      current_account_payment_id: $('input[name="current_account_payment_id"]').val(),
+      client_id: $('input[name="client_id"]').val(),
+      payment_amount: $('#payment_amount').val(),
+      payment_method_id: $('#payment_method_id').val(),
+      payment_date: $('#payment_date').val(),
+      _token: $('meta[name="csrf-token"]').attr('content') // Token CSRF
+    };
+
+    // Realizar la petición AJAX
     $.ajax({
-      url: `${baseUrl}admin/expense-payment-methods/${recordId}`,
+      url: route,
       type: 'PUT',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
       data: formData,
-      success: function () {
-        $('#editExpensePaymentMethodModal').modal('hide');
-        // $('.datatables-expenses-payments-methods').DataTable().ajax.reload();
-        Swal.fire('¡Actualizado!', 'El detalle del gasto ha sido actualizado con éxito.', 'success').then(result => {
-          location.reload();
+      success: function (response) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Pago Actualizado',
+          text: 'El pago ha sido actualizado correctamente.'
+        }).then(result => {
+          window.location.href = `${baseUrl}admin/current-account-client-payments/${response.current_account_id}`; // Redirige a la lista de cuentas corrientes
         });
       },
       error: function (xhr) {
-        $('#editExpensePaymentMethodModal').modal('hide');
-
         var errorMessage =
           xhr.responseJSON && xhr.responseJSON.errors
             ? Object.values(xhr.responseJSON.errors).flat().join('\n')
             : 'Error desconocido al guardar.';
-
         var messageFormatted = '';
         if (xhr.responseJSON.message) {
           messageFormatted = xhr.responseJSON.message;
-        }else{
+        } else {
           errorMessage.split('\n').forEach(function (message) {
             messageFormatted += '<div class="text-danger">' + message + '</div>';
           });
@@ -81,8 +70,6 @@ $(document).ready(function () {
           icon: 'error',
           title: 'Error al guardar',
           html: messageFormatted
-        }).then(result => {
-          $('#editExpensePaymentMethodModal').modal('show');
         });
       }
     });

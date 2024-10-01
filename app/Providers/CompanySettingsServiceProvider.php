@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\CashRegisterLogRepository;
+use App\Repositories\ClientRepository;
 use App\Models\CompanySettings;
 
 class CompanySettingsServiceProvider extends ServiceProvider
@@ -23,6 +24,12 @@ class CompanySettingsServiceProvider extends ServiceProvider
         $this->app->bind(CashRegisterLogRepository::class, function ($app) {
             $companySettings = $app->make('companySettings');
             return new CashRegisterLogRepository($companySettings);
+        });
+
+        // Inyecta el companySettings al ClientRepository
+        $this->app->bind(ClientRepository::class, function ($app) {
+            $companySettings = $app->make('companySettings');
+            return new ClientRepository($companySettings);
         });
     }
 

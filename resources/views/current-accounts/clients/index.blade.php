@@ -140,7 +140,7 @@
                                 <span class="switch-on"><i class="bx bx-check"></i></span>
                                 <span class="switch-off"><i class="bx bx-x"></i></span>
                             </span>
-                            <span class="switch-label">Importe</span>
+                            <span class="switch-label">Debe</span>
                         </label>
                     </div>
                     <div class="mx-3">
@@ -150,7 +150,7 @@
                                 <span class="switch-on"><i class="bx bx-check"></i></span>
                                 <span class="switch-off"><i class="bx bx-x"></i></span>
                             </span>
-                            <span class="switch-label">Abonado</span>
+                            <span class="switch-label">Haber</span>
                         </label>
                     </div>
                     <div class="mx-3">
@@ -210,7 +210,7 @@
     </div>
     <div class="card-datatable table-responsive pt-0">
         @if($currentAccounts->count() > 0)
-        <table class="table datatables-current-accounts" data-symbol="{{ $settings->currency_symbol }}">
+        <table class="table datatables-current-account-clients" data-symbol="{{ $settings->currency_symbol }}">
             <thead>
                 <tr>
                     <th>

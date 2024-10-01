@@ -34,6 +34,18 @@ class CurrentAccountPaymentClientSaleRepository
     }
 
     /**
+     * Obtiene una cuenta corriente por su ID.
+     *
+     * @param int $currentAccountId
+     * @return CurrentAccount
+     */
+    public function getCurrentAccount($currentAccountId)
+    {
+        return CurrentAccount::find($currentAccountId);
+    }
+
+
+    /**
      * Almacena un nuevo pago de cuenta corriente en la base de datos.
      *
      * @param array $data
@@ -50,7 +62,6 @@ class CurrentAccountPaymentClientSaleRepository
                 'payment_amount' => $data['payment_amount'],
                 'payment_date' => $data['payment_date'],
                 'payment_method_id' => $data['payment_method_id'],
-                'currency_id' => $data['currency_id'],
             ]);
 
             // Actualizar el estado de la cuenta corriente (pagada o parcial)
@@ -84,7 +95,6 @@ class CurrentAccountPaymentClientSaleRepository
                 'payment_amount' => $data['payment_amount'],
                 'payment_date' => $data['payment_date'],
                 'payment_method_id' => $data['payment_method_id'],
-                'currency_id' => $data['currency_id'],
             ]);
 
             // Actualizar el estado de la cuenta corriente
@@ -226,23 +236,15 @@ class CurrentAccountPaymentClientSaleRepository
     }
 
     /**
-     * Obtiene todas las monedas.
+     * Obtiene el cliente por la cuenta corriente actual.
      *
      * @return Collection
      */
-    public function getCurrency()
+    public function getClientByCurrentAccount($currentAccountId)
     {
-        return Currency::all();
-    }
-
-    /**
-     * Obtiene todos los clientes.
-     *
-     * @return Collection
-     */
-    public function getClients()
-    {
-        return Client::all();
+        return Client::whereHas('currentAccount', function($query) use ($currentAccountId) {
+            $query->where('id', $currentAccountId);
+        })->first();
     }
 
     public function getCurrentAccountStatus()

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Repositories\PosOrderRepository;
 use Illuminate\View\View;
 use App\Http\Requests\StorePosOrderRequest;
+use App\Http\Requests\UpdatePosOrderRequest;
 
 class PosOrderController extends Controller
 {

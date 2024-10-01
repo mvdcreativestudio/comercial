@@ -13,18 +13,18 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use App\Models\CurrencyRate;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\Store;
 
 class AccountingRepository
 {
     /**
      * Realiza el login en el servicio externo y devuelve las cookies de la sesión.
      *
+     * @param Store $store
      * @return array|null
     */
-    public function login(): ?array
+    public function login(Store $store): ?array
     {
-        $store = auth()->user()->store;
-
         if (!$store || !$store->pymo_user || !$store->pymo_password) {
             Log::error('No se encontraron las credenciales de PyMo para la tienda del usuario.');
             return null;
@@ -71,6 +71,7 @@ class AccountingRepository
             return CFE::with('order.client', 'order.store')
                 ->orderBy('created_at', 'desc')
                 ->whereIn('type', $validTypes)
+                ->where('received', false)
                 ->get();
         }
 
@@ -80,6 +81,7 @@ class AccountingRepository
             ->whereHas('order.store', function ($query) {
                 $query->where('id', auth()->user()->store_id);
             })
+            ->where('received', false)
             ->get();
     }
 
@@ -170,18 +172,21 @@ class AccountingRepository
     /**
      * Sube el logo de la empresa.
      *
-     * @param string $rut
+     * @param int $storeId
      * @param UploadedFile $logo
-     * @param array $cookies
      * @return bool
     */
-    public function uploadCompanyLogo(string $rut, UploadedFile $logo): bool
+    public function uploadCompanyLogo(string $storeId, UploadedFile $logo): bool
     {
-      $cookies = $this->login();
+      $store = Store::find($storeId);
+
+      $cookies = $this->login($store);
 
       if (!$cookies) {
           return false;
       }
+
+      $rut = $store->rut;
 
       $logoResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
           ->attach('logo', $logo->get(), 'logo.jpg')
@@ -193,28 +198,25 @@ class AccountingRepository
     /**
      * Obtiene el logo de la empresa y lo guarda localmente.
      *
-     * @param string $rut
+     * @param Store $store
      * @return string|null
     */
-    public function getCompanyLogo(string $rut): ?string
+    public function getCompanyLogo(Store $store): ?string
     {
-        $cookies = $this->login();
+        $cookies = $this->login($store);
 
         if (!$cookies) {
             Log::error('No se pudo iniciar sesión para obtener el logo de la empresa.');
             return null;
         }
 
-        $store = auth()->user()->store;
-        $rut = $store->rut;
-
-        if (!$store || !$rut) {
+        if (!$store->rut) {
             Log::error('No se encontró el RUT de la tienda para obtener el logo de la empresa.');
             return null;
         }
 
         // Construir la URL para obtener el logo de la empresa
-        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut . '/logo';
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $store->rut . '/logo';
 
         try {
             $logoResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
@@ -250,28 +252,25 @@ class AccountingRepository
     /**
      * Obtiene la información de la empresa.
      *
-     * @param string $rut
+     * @param Store $store
      * @return array|null
     */
-    public function getCompanyInfo(string $rut): ?array
+    public function getCompanyInfo(Store $store): ?array
     {
-        $cookies = $this->login();
+        $cookies = $this->login($store);
 
         if (!$cookies) {
             Log::error('No se pudo iniciar sesión para obtener la información de la empresa.');
             return null;
         }
 
-        $store = auth()->user()->store;
-        $rut = $store->rut;
-
-        if (!$store || !$rut) {
+        if (!$store->rut) {
             Log::error('No se encontró el RUT de la tienda para obtener la información de la empresa.');
             return null;
         }
 
         // Construir la URL para obtener la información de la empresa
-        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut;
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $store->rut;
 
         try {
             $companyResponse = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
@@ -299,15 +298,17 @@ class AccountingRepository
     */
     public function emitCFE(Order $order, ?float $amountToBill = null, ?int $payType = 1): void
     {
-        $cookies = $this->login();
+        $store = $order->store;
+
+        $cookies = $this->login($store);
 
         if (!$cookies) {
             Log::error('No se pudo iniciar sesión para emitir el CFE.');
             return;
         }
 
-        $store = $order->store;
         $rut = $store->rut;
+
         $branchOffice = $store->pymo_branch_office;
 
         if (!$store || !$store->rut) {
@@ -407,10 +408,17 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
-        // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+        // Activar si se necesita obtener la tasa de cambio más cercana a la fecha de la orden (se vende en USD)
+        // $usdRate = CurrencyRate::where('name', 'Dólar')
+        //     ->first()
+        //     ->histories()
+        //     ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+        //     ->first(); // Obtener la tasa de cambio más cercana a la fecha de la orden
+
+        // Log::info('Tasa de cambio: ' . $usdRate);
 
         // if ($usdRate) {
-        //     $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+        //     $exchangeRate = (float) $usdRate->sell;
         // } else {
         //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
         // }
@@ -547,14 +555,15 @@ class AccountingRepository
     */
     public function emitNote(int $invoiceId, EmitNoteRequest $request): void
     {
-        $cookies = $this->login();
+        $invoice = CFE::findOrFail($invoiceId);
+        $store = $invoice->order->store;
+
+        $cookies = $this->login($store);
 
         if (!$cookies) {
             throw new \Exception('No se pudo iniciar sesión para emitir la nota.');
         }
 
-        $invoice = CFE::findOrFail($invoiceId);
-        $store = $invoice->order->store;
         $rut = $store->rut;
         $branchOffice = $store->pymo_branch_office;
 
@@ -671,9 +680,8 @@ class AccountingRepository
      * @return array
     */
     private function prepareNoteData(CFE $invoice, float $noteAmount, string $reason, string $noteType): array
-  {
-      $order = $invoice->order;
-
+    {
+        $order = $invoice->order;
       // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
       // if ($usdRate) {
@@ -684,10 +692,10 @@ class AccountingRepository
 
       // Utilizar los datos del receptor del CFE existente
       $tipoDocRecep = $invoice->type == 111 ? 2 : 3; // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
-      $docRecep = $invoice->order->document ?? '00000000'; // Tomar el documento del receptor o '12345678' como predeterminado
+      $docRecep = $invoice->order->document ?? '12345678'; // Tomar el documento del receptor o '12345678' como predeterminado
 
       $notaData = [
-        'clientEmissionId' => $order->uuid,
+          'clientEmissionId' => $order->uuid . '-' . $noteType . '-' . now()->timestamp,
         'adenda' => $reason,
         'IdDoc' => [
             'FchEmis' => now()->toIso8601String(),
@@ -697,9 +705,6 @@ class AccountingRepository
         'Totales' => [
             'TpoMoneda' => 'UYU',
             // 'TpoCambio' => $exchangeRate,
-            'MntTotal' => $noteAmount,
-            'CantLinDet' => 1,
-            'MntPagar' => $noteAmount
         ],
         'Referencia' => [
             [
@@ -724,7 +729,7 @@ class AccountingRepository
             ]
         ],
         'Emisor' => [
-            'GiroEmis' => 'Chelato'
+            'GiroEmis' => 'base'
         ]
       ];
 
@@ -741,17 +746,17 @@ class AccountingRepository
             'DeptoRecep' => $order->client->state,
             'CompraID' => $order->id,
         ];
-    }
 
-    if ($invoice->type == 111) {
-        $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
-            'ViaTransp' => '8',
-            'ClauVenta' => 'N/A',
-            'ModVenta' => '90'
-        ]);
-    }
+        if ($invoice->type == 111) {
+            $notaData['IdDoc'] = array_merge($notaData['IdDoc'], [
+                'ViaTransp' => '8',
+                'ClauVenta' => 'N/A',
+                'ModVenta' => '90'
+            ]);
+        }
+      }
 
-    return $notaData;
+        return $notaData;
     }
 
     /**
@@ -768,7 +773,7 @@ class AccountingRepository
         $rut = $store->rut;
         $branchOffice = $store->pymo_branch_office;
 
-        $cookies = $this->login();
+        $cookies = $this->login($store);
 
         if (!$cookies) {
             Log::error('No se pudo iniciar sesión para obtener el PDF del CFE.');
@@ -848,14 +853,15 @@ class AccountingRepository
     */
     public function emitReceipt(int $invoiceId): void
     {
-        $cookies = $this->login();
+        $invoice = CFE::findOrFail($invoiceId);
+        $store = $invoice->order->store;
+
+        $cookies = $this->login($store);
 
         if (!$cookies) {
             throw new \Exception('No se pudo iniciar sesión para emitir el recibo.');
         }
 
-        $invoice = CFE::findOrFail($invoiceId);
-        $store = $invoice->order->store;
         $rut = $store->rut;
         $branchOffice = $store->pymo_branch_office;
 
@@ -897,7 +903,7 @@ class AccountingRepository
                         'caeNumber' => $cfe['caeNumber'],
                         'caeRange' => json_encode($cfe['caeRange']),
                         'caeExpirationDate' => $cfe['caeExpirationDate'],
-                        'total' => $invoice->total,
+                        'total' => $invoice->balance,
                         'emitionDate' => $cfe['emitionDate'],
                         'sentXmlHash' => $cfe['sentXmlHash'],
                         'securityCode' => $cfe['securityCode'],
@@ -925,23 +931,34 @@ class AccountingRepository
     */
     private function prepareReceiptData(CFE $invoice): array
     {
-      $data = [
+        $order = $invoice->order;
+
+        // Modificar si se vende en USD
+        // // Obtener la tasa de cambio del historial de CurrencyRate
+        // $usdRate = CurrencyRate::where('name', 'Dólar')
+        //     ->first()
+        //     ->histories()
+        //     ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+        //     ->first();
+
+        // if ($usdRate) {
+        //     $exchangeRate = (float) $usdRate->sell;
+        // } else {
+        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        // }
+
+        $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
             'adenda' => 'Recibo de Cobranza sobre ' . ($invoice->type == 111 ? 'eFactura' : 'eTicket'),
             'IdDoc' => [
                 'IndCobPropia' => '1',
                 'FmaPago' => '1',
             ],
-            'Receptor' => [
-                'TipoDocRecep' => $invoice->type == 111 ? 2 : 3,
-                'CodPaisRecep' => 'UY',
-                'RznSocRecep' => $invoice->order->client ? ($invoice->order->client->type === 'company' ? $invoice->order->client->company_name : $invoice->order->client->name . ' ' . $invoice->order->client->lastname) : '',
-                'DirRecep' => $invoice->order->client->address,
-                'CiudadRecep' => $invoice->order->client->city,
-                'DeptoRecep' => $invoice->order->client->state,
-            ],
+            'Receptor' => (object) [], // Inicializar como objeto vacío
             'Totales' => [
                 'TpoMoneda' => 'UYU',
+                // Activar si se vende en USD
+                // 'TpoCambio' => $exchangeRate, // Tasa de cambio en USD
             ],
             'Referencia' => [
                 [
@@ -965,14 +982,236 @@ class AccountingRepository
             ]
         ];
 
-        if ($invoice->order->client) {
-          if($invoice->order->client->type === 'company') {
-            $data['Receptor']['DocRecep'] = $invoice->order->client->rut;
-          } elseif($invoice->order->client->type === 'individual') {
-            $data['Receptor']['DocRecep'] = $invoice->order->client->ci;
-          }
+        // Comprobar si existe un cliente y no es de tipo 'no-client'
+        if ($invoice->order->client && $invoice->order->client->type !== 'no-client') {
+            $data['Receptor'] = [
+                'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
+                'CodPaisRecep' => 'UY',
+                'RznSocRecep' => $invoice->order->client->type === 'company' ? $invoice->order->client->company_name : $invoice->order->client->name . ' ' . $invoice->order->client->lastname,
+                'DirRecep' => $invoice->order->client->address,
+                'CiudadRecep' => $invoice->order->client->city,
+                'DeptoRecep' => $invoice->order->client->state,
+            ];
+
+            // Agregar documento receptor si es una empresa o individuo
+            if ($invoice->order->client->type === 'company') {
+                $data['Receptor']['DocRecep'] = $invoice->order->client->rut;
+            } elseif ($invoice->order->client->type === 'individual') {
+                $data['Receptor']['DocRecep'] = $invoice->order->client->ci;
+            }
         }
 
         return $data;
     }
+
+     /**
+     * Actualiza la información de la tienda con la información de PyMo.
+     *
+     * @param Store $store
+     * @param string $selectedBranchOfficeNumber
+     * @param string|null $newCallbackUrl
+     * @param string|null $pymoUser
+     * @param string|null $newPymoPassword
+    */
+    public function updateStoreWithPymo(Store $store, ?string $selectedBranchOfficeNumber, ?string $newCallbackUrl, ?string $pymoUser, ?string $newPymoPassword): void
+    {
+        // Actualizar 'pymo_user' y 'pymo_password' antes de cualquier otra operación
+        $this->updatePymoCredentials($store, $pymoUser, $newPymoPassword);
+
+        // Reobtener el modelo de la tienda con los nuevos valores actualizados en la base de datos
+        $store->refresh();
+
+        // Obtener la información actual de la empresa desde PyMo
+        $companyInfo = $this->getCompanyInfo($store);
+
+        if (!$companyInfo) {
+            Log::error('No se encontró la información de la empresa para la actualización de la tienda.');
+            return;
+        }
+
+        // Buscar la sucursal seleccionada en la respuesta de la API de PyMo
+        $branchOffices = $companyInfo['branchOffices'] ?? [];
+        $selectedBranchOffice = collect($branchOffices)->firstWhere('number', $selectedBranchOfficeNumber);
+
+        // Actualizamos la sucursal de la tienda
+        $updateData = [
+            'pymo_user' => $store->pymo_user,
+            'pymo_branch_office' => $selectedBranchOfficeNumber,
+        ];
+
+        // Actualizar el store en la base de datos
+        $store->update($updateData);
+
+        // Verificar si hay cambios en el callbackNotificationUrl
+        if ($selectedBranchOffice && $newCallbackUrl && $selectedBranchOffice['callbackNotificationUrl'] !== $newCallbackUrl) {
+            // Actualizar el callbackNotificationUrl mediante la API de PyMo
+            $this->updateBranchOfficeCallbackUrl($companyInfo, $store, $selectedBranchOfficeNumber, $newCallbackUrl);
+        }
+    }
+
+    /**
+     * Actualiza las credenciales de PyMo en la tienda.
+     *
+     * @param Store $store
+     * @param string|null $pymoUser
+     * @param string|null $newPymoPassword
+     * @return void
+    */
+    private function updatePymoCredentials(Store $store, ?string $pymoUser, ?string $newPymoPassword): void
+    {
+        // Verificar si se ha proporcionado una nueva contraseña para PyMo
+        if ($newPymoPassword && $newPymoPassword !== $store->pymo_password) {
+            $encryptedPassword = Crypt::encryptString($newPymoPassword);
+
+            // Actualizar pymo_user y pymo_password en la base de datos
+            $store->update([
+                'pymo_user' => $pymoUser, // Asumimos que este valor ya está definido en el modelo Store
+                'pymo_password' => $encryptedPassword,
+            ]);
+        }
+    }
+
+    /**
+     * Actualiza el callbackNotificationUrl de una sucursal en PyMo.
+     *
+     * @param array $companyInfo
+     * @param Store $store
+     * @param string $branchOfficeNumber
+     * @param string $newCallbackUrl
+     * @return bool
+    */
+    private function updateBranchOfficeCallbackUrl(array $companyInfo, string $store, string $branchOfficeNumber, string $newCallbackUrl): bool
+    {
+        if (!$companyInfo) {
+            Log::error('No se encontró la información de la empresa para actualizar el callbackNotificationUrl.');
+            return false;
+        }
+
+        Log::info('Información de la empresa:', $companyInfo);
+
+        // Actualizar el callbackNotificationUrl de la sucursal correspondiente
+        $branchOffices = $companyInfo['branchOffices'] ?? [];
+        foreach ($branchOffices as &$branchOffice) {
+            if ($branchOffice['number'] == $branchOfficeNumber) {
+                $branchOffice['callbackNotificationUrl'] = $newCallbackUrl;
+                break;
+            }
+        }
+
+        Log::info('Sucursales actualizadas:', $branchOffices);
+
+        // Actualizo de la variable companyInfo el campo branchOffices con la nueva información
+        $companyInfo['branchOffices'] = $branchOffices;
+
+        // Información de la empresa actualizada
+        Log::info('Información de la empresa actualizada:', $companyInfo);
+
+        // Preparar el payload para la solicitud de actualización
+        $payload = [
+            'payload' => [
+                'company' => $companyInfo,
+            ]
+        ];
+
+        // Enviar la solicitud de actualización a PyMo
+        try {
+            $cookies = $this->login($store);
+
+            if (!$cookies) {
+                Log::error('No se pudo iniciar sesión para obtener la información de la empresa.');
+                return null;
+            }
+
+            $rut = $store->rut;
+
+            $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+                ->put(env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/' . env('PYMO_VERSION') . '/companies/' . $rut, $payload);
+
+            if ($response->successful()) {
+                Log::info('El callbackNotificationUrl de la sucursal se actualizó correctamente.');
+                return true;
+            } else {
+                Log::error('Error al actualizar el callbackNotificationUrl: ' . $response->body());
+                return false;
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al actualizar el callbackNotificationUrl: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * checkCfeStatus | Verifica el estado de un CFE en PyMo y lo actualiza en la base de datos.
+     *
+     * @param int $rut
+     * @param int $branchOffice
+     * @param string $urlToCheck
+     * @return void
+    */
+    public function checkCfeStatus(int $rut, int $branchOffice, string $urlToCheck): void
+    {
+        // Busco la Store con el RUT y branch office
+        $store = Store::where('rut', $rut)
+            ->where('pymo_branch_office', $branchOffice)
+            ->first();
+
+        if (!$store) {
+            Log::error('No se encontró la tienda con el RUT y sucursal especificados.');
+            return;
+        }
+
+        // Iniciar sesión en PyMo
+        $cookies = $this->login($store);
+
+        if (!$cookies) {
+            Log::error('No se pudo iniciar sesión para verificar el estado del CFE.');
+            return;
+        }
+
+        // Construir la URL completa
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . $urlToCheck;
+
+        // Realizar la solicitud para verificar el estado del CFE
+        try {
+            $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))
+                ->get($url);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+
+                if (isset($responseData['payload']['branchOfficeSentCfes']) && is_array($responseData['payload']['branchOfficeSentCfes'])) {
+                    foreach ($responseData['payload']['branchOfficeSentCfes'] as $cfeData) {
+                        $this->updateCfeStatus($cfeData);
+                    }
+                }
+            } else {
+                Log::error('Error al verificar el estado del CFE: ' . $response->body());
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al verificar el estado del CFE: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Actualiza el estado de un CFE en la base de datos basado en la respuesta de PyMo.
+     *
+     * @param array $cfeData
+     * @return void
+    */
+    private function updateCfeStatus(array $cfeData): void
+    {
+        // Buscar el CFE en la base de datos usando el ID de emisión del cliente
+        $cfe = CFE::where('cfeId', $cfeData['clientEmissionId'])->first();
+
+        if ($cfe) {
+            // Actualizar el estado del CFE
+            $cfe->status = $cfeData['actualCfeStatus'];
+            $cfe->save();
+
+            Log::info('Estado del CFE actualizado: ' . $cfe->cfeId . ' a ' . $cfeData['actualCfeStatus']);
+        } else {
+            Log::warning('No se encontró un CFE con ID: ' . $cfeData['clientEmissionId']);
+        }
+    }
 }
+

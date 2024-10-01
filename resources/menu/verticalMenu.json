@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "tour-pedidos",
-      "name": "Pedidos",
+      "id": "tour-ventas",
+      "name": "Ventas",
       "icon": "menu-icon tf-icons bx bx-cart",
       "slug": "orders",
       "url": "/admin/orders"
@@ -77,6 +77,20 @@
           "icon": "menu-icon tf-icons bx bx-list-ul",
           "slug": "product-categories",
           "url": "/admin/product-categories"
+        },
+        {
+          "id": "tour-productos-crear-en-masa",
+          "name": "Crear en Masa",
+          "icon": "menu-icon tf-icons bx bx-plus",
+          "slug": "bulk-products",
+          "url": "/admin/products/add"
+        },
+        {
+          "id": "tour-productos-editar-en-masa",
+          "name": "Editar en Masa",
+          "icon": "menu-icon tf-icons bx bx-edit",
+          "slug": "bulk-products",
+          "url": "/admin/products/edit"
         }
       ]
     },
@@ -145,18 +159,35 @@
           "url": "/admin/invoices"
         },
         {
-          "id": "tour-recibos",
-          "name": "Recibos",
-          "icon": "menu-icon tf-icons bx bx-receipt",
-          "slug": "receipts",
-          "url": "/admin/receipts"
-        },
-        {
           "id": "tour-asientos",
           "name": "Asientos",
           "icon": "menu-icon tf-icons bx bx-book",
           "slug": "entries",
-          "url": "/admin/entries"
+          "url": "/admin/entries",
+          "submenu": [
+            {
+              "id": "tour-asientos",
+              "name": "Ver Asientos",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entries",
+              "url": "/admin/entries"
+            },
+            {
+              "id": "tour-asientos-tipos",
+              "name": "Tipo de Asiento",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-types",
+              "url": "/admin/entry-types"
+            },
+            {
+              "id": "tour-asientos-cuentas",
+              "name": "Cuentas Contables",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-accounts",
+              "url": "/admin/entry-accounts"
+            }
+
+          ]
         },
         {
           "id": "tour-documentos-recibidos",
@@ -166,18 +197,41 @@
           "url": "/admin/received-cfes"
         },
         {
-          "id": "tour-configuracion-contabilidad",
-          "name": "Configuración",
-          "icon": "menu-icon tf-icons bx bx-cog",
-          "slug": "accounting-settings",
-          "url": "/admin/accounting/settings"
-        },
-        {
           "id": "tour-gastos",
           "name": "Gastos",
           "icon": "menu-icon tf-icons bx bx-dollar",
           "slug": "expenses",
           "url": "/admin/expenses"
+        },
+        {
+          "id": "tour-ingresos",
+          "name": "Ingresos",
+          "icon": "menu-icon tf-icons bx bx-line-chart",
+          "slug": "incomes",
+          "url": "/admin/incomes",
+          "submenu": [
+            {
+              "id": "tour-ingresos-clients",
+              "name": "Clientes",
+              "icon": "menu-icon tf-icons bx bx-user",
+              "slug": "incomes-clients",
+              "url": "/admin/incomes-clients"
+            },
+            {
+              "id": "tour-ingresos-suppliers",
+              "name": "Proveedores",
+              "icon": "menu-icon tf-icons bx bx-briefcase",
+              "slug": "incomes-suppliers",
+              "url": "/admin/incomes-suppliers"
+            },
+            {
+              "id": "tour-ingresos-categorias",
+              "name": "Categorías",
+              "icon": "menu-icon tf-icons bx bx-category",
+              "slug": "income-categories",
+              "url": "/admin/income-categories"
+            }
+          ]
         }
       ]
     },
@@ -261,7 +315,7 @@
               "name": "Compras",
               "icon": "menu-icon tf-icons bx bx-dollar",
               "slug": "current-accounts-suppliers-purchases",
-              "url": "/admin/current-accounts-supplier-purchases"
+              "url": "/admin/current-account-supplier-purs"
             },
             {
               "id": "tour-cuentas-corrientes-proveedores-configuracion",

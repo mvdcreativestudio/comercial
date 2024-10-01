@@ -14,17 +14,10 @@
 ])
 
 <style>
-  .modal-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%; /* Ajusta la altura según sea necesario */
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  margin: 0;
-}
+
+
+
+
 
 </style>
 @endsection
@@ -121,47 +114,43 @@ $currencySymbol = $settings->currency_symbol;
 
 
 <!-- Modal para ver el carrito -->
-<div class="modal modal-bottom fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"> <!-- Cambiado a modal-lg para pantallas pequeñas -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-light">
-        <h5 class="modal-title" id="cartModalLabel">🛒 Carrito de Compras</h5>
+        <h5 class="modal-title" id="cartModalLabel">
+          <i class="bx bx-cart me-2"></i> Resumen de la venta
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- Contenedor dinámico de productos del carrito -->
-        <div id="cart-items" class="table-responsive"> <!-- Agregar clase table-responsive para pantallas pequeñas -->
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Producto</th>
-                <th class="text-center">Cantidad</th>
-                <th class="text-center">Precio</th>
-                <th class="text-center">Total</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="cart-items-body">
-              <!-- Aquí se agregarán los productos del carrito -->
-            </tbody>
-          </table>
+        <div id="cart-items" class="row gy-3">
+          <!-- Aquí se agregarán los productos del carrito en formato de tarjeta -->
         </div>
+
         <!-- Totales -->
-        <div class="mt-3 d-flex flex-column flex-md-row justify-content-md-end align-items-md-center">
-          <div class="mb-2 mb-md-0">
-            <span><strong>Subtotal:</strong> <span class="subtotal">$191.440,00</span></span>
+        <div class="totals-container mt-4 p-3 shadow-sm rounded bg-light d-flex flex-column align-items-end" style="max-width: 350px; margin-left: auto;">
+          <div class="totals-item d-flex justify-content-between align-items-center w-100 mb-2">
+            <h6 class="text-muted">Subtotal:</h6>
+            <h6 class="subtotal text-primary fw-bold">$770</h6>
           </div>
-          <div class="mb-2 mb-md-0 ms-md-3">
-            <span><strong>Envío:</strong> <span>$0</span></span>
+          <div class="totals-item d-flex justify-content-between align-items-center w-100 mb-2">
+            <small class="text-muted"><i class="bx bx-package"></i> Envío:</small>
+            <small class="text-dark">$0</small>
           </div>
-          <div class="border-top pt-2 ms-md-3">
-            <span><strong>Total:</strong> <span class="total">$191.440,00</span></span>
+          <div class="totals-item d-flex justify-content-between align-items-center w-100 border-top pt-2">
+            <h5 class="text-dark">Total:</h5>
+            <h4 class="total text-dark fw-bold">$770</h4>
           </div>
         </div>
-      </div>
-      <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <a href="{{ route('pdv.front2') }}" class="btn btn-primary">Pagar</a>
+
+        <!-- Botón de acciones -->
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-outline-secondary me-2" type="button" data-bs-dismiss="modal">Cerrar</button>
+          <a href="{{ route('pdv.front2') }}" class="btn btn-primary">Finalizar Venta</a>
+        </div>
+
       </div>
     </div>
   </div>

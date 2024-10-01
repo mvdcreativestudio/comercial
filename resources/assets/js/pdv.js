@@ -211,39 +211,40 @@ $(document).ready(function() {
       productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
 
       if (productsToDisplay.length === 0) {
-        $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
-        return;
+          $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
+          return;
       }
 
       let productsHtml = '';
       productsToDisplay.forEach(product => {
-        const priceToDisplay = product.price ? product.price : product.old_price;
+          const priceToDisplay = product.price ? product.price : product.old_price;
+          const outOfStockLabel = product.stock <= 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-1">Agotado</span>` : '';
+          const inactiveLabel = product.status == 2 ? `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Inactivo</span>` : '';
+          const oldPriceHtml = product.price && product.old_price ? `<span class="text-muted" style="font-size: 0.8em;"><del>${currencySymbol}${product.old_price}</del></span>` : '';
 
-        const outOfStockLabel = product.stock <= 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-1">Agotado</span>` : '';
-        const inactiveLabel = product.status == 2 ? `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Inactivo</span>` : '';
-
-        const oldPriceHtml = product.price && product.old_price ? `<span class="text-muted" style="font-size: 0.8em;"><del>${currencySymbol}${product.old_price}</del></span>` : '';
-
-        productsHtml += `
-          <div class="col-12 col-sm-6 col-xxl-4 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
-              <div class="card-product-pos w-100 mb-3 position-relative">
-                  ${outOfStockLabel}
-                  ${inactiveLabel}
-                  <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
-                  <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
-                      <h5 class="card-title-product-pos text-white">${product.name}</h5>
-                      <p class="card-text-product-pos">
-                          ${oldPriceHtml}
-                          <span style="font-size: 1em;">${currencySymbol}${priceToDisplay}</span>
-                      </p>
-                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
+          productsHtml += `
+              <!-- Tarjeta de producto -->
+              <div class="col-12 col-sm-6 col-xxl-4 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
+                  <div class="card-product-pos w-100 mb-3 position-relative">
+                      ${outOfStockLabel}
+                      ${inactiveLabel}
+                      <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
+                      <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
+                          <h5 class="card-title-product-pos text-white">${product.name}</h5>
+                          <p class="card-text-product-pos">
+                              ${oldPriceHtml}
+                              <span style="font-size: 1em;">${currencySymbol}${priceToDisplay}</span>
+                          </p>
+                          <!-- Botón de agregar al carrito -->
+                          <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
+                      </div>
                   </div>
               </div>
-          </div>
-        `;
+          `;
       });
       $('#products-container').html(productsHtml);
     }
+
 
 
 
@@ -251,22 +252,17 @@ $(document).ready(function() {
     function displayProductsList(productsToDisplay) {
       // Ordenar productos por disponibilidad: los productos agotados al final
       productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
-
       if (productsToDisplay.length === 0) {
           $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
           return;
       }
-
       let productsHtml = '<ul class="list-group w-100">';
       productsToDisplay.forEach(product => {
           const priceToDisplay = product.price ? product.price.toLocaleString('es-ES') : product.old_price.toLocaleString('es-ES'); // Formatear el precio con separador de miles
           const oldPriceFormatted = product.old_price ? product.old_price.toLocaleString('es-ES') : ''; // Formatear old_price si existe
-
           const outOfStockText = product.stock <= 0 ? '<span class="badge bg-danger ms-2">Agotado</span>' : '';
           const inactiveText = product.status == 2 ? '<span class="badge bg-warning text-dark ms-2">Inactivo</span>' : '';
-
           const oldPriceHtml = product.price && product.old_price ? `<small class="text-muted"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : '';
-
           productsHtml += `
               <li class="list-group-item d-flex justify-content-between align-items-center">
                   <div class="d-flex align-items-center">
@@ -284,10 +280,6 @@ $(document).ready(function() {
       productsHtml += '</ul>';
       $('#products-container').html(productsHtml);
     }
-
-
-
-
 
 
     // Función para agregar un producto al carrito
@@ -379,36 +371,46 @@ $(document).ready(function() {
       let totalItems = 0;  // Contador de productos
 
       cart.forEach(item => {
-          const itemTotal = item.price * item.quantity;  // Calcula el total de cada producto
-          subtotal += itemTotal;
-          totalItems += item.quantity;  // Suma la cantidad de cada producto al contador
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        totalItems += item.quantity;
 
-          cartHtml += `
-            <tr>
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>${currencySymbol}${item.price.toLocaleString('es-ES')}</td>
-                <td>${currencySymbol}${itemTotal.toLocaleString('es-ES')}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">X</button>
-                </td>
-            </tr>
-            `;
+        cartHtml += `
+          <div class="col-12">
+            <div class="product-cart-card">
+              <div class="col-4 d-flex align-items-center">
+                <img src="${baseUrl + item.image}" class="img-fluid product-cart-card-img" alt="${item.name}">
+              </div>
+              <div class="col-8">
+                <div class="product-cart-card-body">
+                  <div class="d-flex justify-content-between">
+                    <h5 class="product-cart-title">${item.name}</h5>
+                    <div class="product-cart-actions">
+                      <span class="product-cart-remove" data-id="${item.id}"><i class="bx bx-trash"></i></span>
+                    </div>
+                  </div>
+                  <p class="product-cart-price">${currencySymbol}${item.price.toLocaleString('es-ES')}</p>
+                  <p class="product-cart-quantity">Cantidad: ${item.quantity}</p>
+                  <p><strong>Total: ${currencySymbol}${itemTotal.toLocaleString('es-ES')}</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
       });
 
-      const total = subtotal;
-
       // Actualiza el contenido del carrito
-      $('#cart-items-body').html(cartHtml);
+      $('#cart-items').html(cartHtml);
       $('.subtotal').text(`${currencySymbol}${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
-      $('.total').text(`${currencySymbol}${total.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
+      $('.total').text(`${currencySymbol}${subtotal.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`);
 
       // Actualiza el contador de productos en el botón "Ver Carrito"
       $('#cart-count').text(totalItems);
 
       // Guardar el carrito en el servidor
       saveCart();
-  }
+    }
+
 
 
 
@@ -419,39 +421,15 @@ $(document).ready(function() {
       addToCart(productId, productType);
   });
 
-  // Manejar el clic en los botones para aumentar/disminuir cantidad
-  $(document).on('click', '.increase-quantity', function() {
-    const productId = $(this).data('id');
-    const cartItem = cart.find(item => item.id === productId);
-    const product = products.find(p => p.id === productId);
 
-    // Validar si hay suficiente stock antes de incrementar
-    if (cartItem.quantity + 1 > product.stock) {
-        mostrarError('No hay suficiente stock para agregar más unidades de este producto.');
-        return;
-    }
-
-    cartItem.quantity += 1;
-    updateCart();
-  });
-
-  $(document).on('click', '.decrease-quantity', function() {
-    const productId = $(this).data('id');
-    const cartItem = cart.find(item => item.id === productId);
-    if (cartItem.quantity > 1) {
-        cartItem.quantity -= 1;
-    } else {
-        cart = cart.filter(item => item.id !== productId);
-    }
-    updateCart();
-  });
 
   // Manejar el clic en el botón "Eliminar del carrito"
-  $(document).on('click', '.remove-from-cart', function() {
-      const productId = $(this).data('id');
-      cart = cart.filter(item => item.id !== productId);
-      updateCart();
+  $(document).on('click', '.product-cart-remove', function() {
+    const productId = $(this).data('id');
+    cart = cart.filter(item => item.id !== productId);
+    updateCart();
   });
+
 
   // Función para cargar clientes
   function loadClients() {
@@ -658,6 +636,7 @@ $(document).ready(function() {
           }
       });
   });
+
 
   // Inicializar funciones
   loadProducts();

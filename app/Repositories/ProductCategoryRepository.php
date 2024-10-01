@@ -17,7 +17,11 @@ class ProductCategoryRepository
   */
   public function index(): array
   {
-    $categories = ProductCategory::all();
+    if(auth()->user()->can('access_global_products')){
+      $categories = ProductCategory::all();
+    }else{
+      $categories = ProductCategory::where('store_id', auth()->user()->store_id)->get();
+    }
     return compact('categories');
   }
 
@@ -31,7 +35,13 @@ class ProductCategoryRepository
   {
     $category = new ProductCategory();
     $category->name = $request->name;
-    $category->slug = $request->slug;
+    // Si no se proporciona slug, se genera automáticamente a partir del nombre
+    if (empty($request->slug)) {
+      $category->slug = \Str::slug($request->name);
+    } else {
+      $category->slug = $request->slug;
+    }
+    $category->store_id = $request->store_id;
     $category->description = $request->description;
     $category->parent_id = $request->parent_id;
     $category->status = $request->status;
@@ -161,7 +171,11 @@ class ProductCategoryRepository
   */
   public function datatable(): mixed
   {
-    $query = ProductCategory::select(['id', 'name', 'slug', 'description', 'image_url', 'parent_id', 'status']);
+    if(auth()->user()->can('access_global_products')){
+      $query = ProductCategory::select(['id', 'name', 'slug', 'description', 'image_url', 'parent_id', 'status']);
+    }else{
+      $query = ProductCategory::where('store_id', auth()->user()->store_id)->select(['id', 'name', 'slug', 'description', 'image_url', 'parent_id', 'status']);
+    }
     return DataTables::of($query)
             ->make(true);
   }

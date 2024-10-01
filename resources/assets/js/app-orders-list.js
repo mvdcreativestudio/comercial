@@ -188,7 +188,7 @@ $(function () {
               },
               success: function (result) {
                 if (result.success) {
-                  Swal.fire('Eliminado!', 'El pedido ha sido eliminado.', 'success');
+                  Swal.fire('Eliminado!', 'El pedido ha sido eliminado y el stock de los productos ha sido reintegrado.', 'success');
                   dt_products.ajax.reload(null, false); // Recarga la tabla sin resetear la paginación
                 } else {
                   Swal.fire('Error!', 'No se pudo eliminar el pedido. Intente de nuevo.', 'error');

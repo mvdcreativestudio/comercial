@@ -139,7 +139,14 @@ class DatacenterRepository
      */
     public function countCategories(): int
     {
-        return ProductCategory::count();
+        if (Gate::allows('view_all_datacenter')) {
+            // Si tiene permiso global, cuenta todas las categorías
+            return ProductCategory::count();
+        } else {
+            // Si no tiene permiso global, cuenta solo las categorías de su
+            $userStoreId = Auth::user()->store_id;
+            return ProductCategory::where('store_id', $userStoreId)->count();
+        }
     }
 
     /**

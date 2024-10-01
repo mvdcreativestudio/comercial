@@ -28,24 +28,10 @@ class StoreStoreRequest extends FormRequest
         $rules = [
             'name' => 'required|string|max:255',
             'address' => 'string|max:255',
-            'email' => 'required|email|unique:stores,email',
-            'rut' => 'required|string|max:255|unique:stores,rut',
-            'ecommerce' => 'required|boolean',
+            'email' => 'required|email',
+            'rut' => 'required|string|max:255',
             'status' => 'required|boolean',
-            'accepts_mercadopago' => 'required|boolean',
-            'invoices_enabled' => 'boolean',
         ];
-
-        if ($this->boolean('invoices_enabled')) {
-            $rules['pymo_user'] = 'required|string|max:255';
-            $rules['pymo_password'] = 'required|string|max:255';
-            $rules['pymo_branch_office'] = 'required|string|max:255';
-        }
-
-        if ($this->boolean('accepts_mercadopago')) {
-            $rules['mercadoPagoPublicKey'] = 'required|string|max:255';
-            $rules['mercadoPagoAccessToken'] = 'required|string|max:255';
-        }
 
         return $rules;
     }

@@ -34,7 +34,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span><span> Crear Producto Compuesto</span>
+  <span class="text-muted fw-light"></span><span> Crear Producto Compuesto</span>
 </h4>
 
 @if ($errors->any())
