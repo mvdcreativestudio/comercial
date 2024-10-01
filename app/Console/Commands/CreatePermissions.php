@@ -87,10 +87,10 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'orders',
                         'products',
-                        'product-categories',
                         'settings',
                         'product-flavors',
                         'composite-products',
+                        'bulk-products',
                     ],
                     'view_all' => true,
                 ],

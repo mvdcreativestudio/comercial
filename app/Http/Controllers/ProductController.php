@@ -20,6 +20,7 @@ use App\Models\Product;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\GenericExport;
 use App\Imports\ProductsImport;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -43,6 +44,7 @@ class ProductController extends Controller
     $this->middleware(['check_permission:access_products', 'user_has_store'])->only(
         [
             'index',
+            'show',
             'create',
             'store',
             'edit',
@@ -69,9 +71,26 @@ class ProductController extends Controller
   */
   public function index(): View
   {
-    $stores = Store::select('id', 'name')->get();
-    $categories = ProductCategory::select('id', 'name')->get();
+    if (Auth::user()->can('access_global_products')) {
+      $stores = Store::select('id', 'name')->get();
+      $categories = ProductCategory::select('id', 'name')->get();
+    } else {
+      $stores = Store::select('id', 'name')->where('id', Auth::user()->store_id)->get();
+      $categories = ProductCategory::select('id', 'name')->where('store_id', Auth::user()->store_id)->get();
+    }
     return view('content.e-commerce.backoffice.products.products', compact('stores', 'categories'));
+  }
+
+  /**
+   * Muestra un producto específico.
+   *
+   * @param int $id
+   * @return View
+   */
+  public function show(int $id): View
+  {
+    $product = $this->productRepo->show($id);
+    return view('content.e-commerce.backoffice.products.show-product', $product);
   }
 
     /**
@@ -81,7 +100,11 @@ class ProductController extends Controller
    */
   public function stock(): View
   {
-      $stores = Store::select('id', 'name')->get();
+      if (Auth::user()->can('access_global_products')) {
+          $stores = Store::select('id', 'name')->get();
+      } else {
+          $stores = Store::select('id', 'name')->where('id', Auth::user()->store_id)->get();
+      }
 
       return view('content.e-commerce.backoffice.products.stock', compact('stores'));
   }
@@ -311,7 +334,103 @@ class ProductController extends Controller
       return redirect()->route('products.index')->with('success', 'Productos importados correctamente.');
   }
 
+  /**
+   * Muestra el formulario para editar productos en masa.
+   *
+   * @return View
+   *
+   */
+  public function editBulk() {
+    $products = Product::all();
+    return view('products.editBulk', compact('products'));
+  }
 
+  /**
+   * Actualiza los productos en masa.
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
+   public function updateBulk(Request $request) {
+    $products = $request->input('products');
+    foreach ($products as $productData) {
+        $product = Product::find($productData['id']);
+        if ($product) {
+            $product->update($productData);
+        }
+    }
+    return redirect()->route('products.editBulk')->with('success', 'Productos actualizados correctamente.');
+  }
 
+  /**
+   * Muestra el formulario para agregar productos en masa.
+   *
+   * @return View
+   */
+  public function addBulk(): View
+  {
+    $stores = Store::all();
+    return view('products.addBulk', compact('stores'));
+  }
+
+  /**
+   * Almacena los productos en masa.
+   *
+   * @param Request $request
+   * @return RedirectResponse
+   */
+  public function storeBulk(Request $request): RedirectResponse
+  {
+    \Log::info('Iniciando el proceso de almacenamiento en masa de productos.');
+
+    try {
+        \Log::info('Datos de la solicitud:', $request->all());
+
+        $products = $request->input('products');
+        \Log::info('Productos recibidos:', $products);
+
+        foreach ($products as $index => $productData) {
+            if (empty($productData['name'])) {
+                \Log::info("Producto en índice $index omitido debido a falta de nombre.");
+                continue;
+            }
+
+            // Siempre asignar la imagen por defecto
+            $productData['image'] = '/assets/img/ecommerce-images/placeholder.png';
+
+            $validatedData = $request->validate([
+                "products.$index.name" => 'required|string|max:255',
+                "products.$index.old_price" => 'nullable|numeric',
+                "products.$index.price" => 'required|numeric',
+                "products.$index.stock" => 'required|integer',
+                "products.$index.safety_margin" => 'required|integer',
+                "products.$index.store_id" => 'required|exists:stores,id',
+            ]);
+
+            // Agregar la imagen a los datos validados
+            $validatedData["products"][$index]['image'] = $productData['image'];
+
+            \Log::info("Datos validados para el producto en índice $index:", $validatedData);
+
+            try {
+                $product = new Product($validatedData["products"][$index]);
+                $product->save();
+                \Log::info("Producto guardado correctamente: ID {$product->id}");
+            } catch (\Exception $e) {
+                \Log::error("Error al guardar el producto en índice $index: " . $e->getMessage(), [
+                    'productData' => $productData,
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        return redirect()->route('products.addBulk')->with('success', 'Productos agregados correctamente.');
+    } catch (\Exception $e) {
+        \Log::error('Error en el proceso de almacenamiento en masa: ' . $e->getMessage(), [
+            'exception' => $e,
+        ]);
+        return redirect()->route('products.addBulk')->with('error', 'Ocurrió un error al agregar los productos.');
+    }
+  }
 
 }

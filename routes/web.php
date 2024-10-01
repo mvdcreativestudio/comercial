@@ -114,6 +114,12 @@ Route::middleware([
 
     Route::get('/cfes/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('cfes.received.datatable');
 
+    Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
+    Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
+
+    Route::get('/products/add', [ProductController::class, 'addBulk'])->name('products.addBulk');
+    Route::post('/products/add', [ProductController::class, 'storeBulk'])->name('products.storeBulk');
+
     // Recursos con acceso autenticado
     Route::resources([
         'stores' => StoreController::class,
@@ -188,6 +194,7 @@ Route::middleware([
     // Gestión de Productos
     Route::get('products/{id}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::post('products/{id}/switchStatus', [ProductController::class, 'switchStatus'])->name('products.switchStatus');
+
 
     // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {
