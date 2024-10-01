@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCurrentAccountPaymentRequest; // Cambiar el request si es necesario
+use App\Http\Requests\UpdateCurrentAccountPaymentRequest;
+use App\Models\CurrentAccountPayment;
 use App\Repositories\CurrentAccountPaymentClientSaleRepository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -51,13 +53,13 @@ class CurrentAccountClientSalePaymentController extends Controller
      *
      * @return View
      */
-    public function create(): View
+    public function create(Request $request, $currentAccountId): View
     {
+        $currentAccount = $this->currentAccountPaymentClientSaleRepository->getCurrentAccount($currentAccountId);
         $paymentMethods = $this->currentAccountPaymentClientSaleRepository->getPaymentMethods();
-        $clients = $this->currentAccountPaymentClientSaleRepository->getClients();
-        $currencies = $this->currentAccountPaymentClientSaleRepository->getCurrency();
+        $client = $this->currentAccountPaymentClientSaleRepository->getClientByCurrentAccount($currentAccountId);
 
-        return view('current-accounts.clients.add-client-payment', compact('paymentMethods', 'clients', 'currencies'));
+        return view('current-accounts.clients.current-account-payment.add-current-account-payment', compact('paymentMethods', 'client', 'currentAccount'));
     }
 
     /**
@@ -66,7 +68,7 @@ class CurrentAccountClientSalePaymentController extends Controller
      * @param StoreCurrentAccountPaymentRequest $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreCurrentAccountPaymentRequest $request): JsonResponse
     {
         try {
             $currentAccountPayment = $this->currentAccountPaymentClientSaleRepository->storePayment($request->validated());
@@ -85,14 +87,12 @@ class CurrentAccountClientSalePaymentController extends Controller
      */
     public function show(int $id): View
     {
+        $currentAccount = $this->currentAccountPaymentClientSaleRepository->getCurrentAccount($id);
         $currentAccountPayments = $this->currentAccountPaymentClientSaleRepository->getAllCurrentAccountPayments($id);
         $paymentMethods = $this->currentAccountPaymentClientSaleRepository->getPaymentMethods();
-        $currencies = $this->currentAccountPaymentClientSaleRepository->getCurrency();
         $currentAccountStatus = $this->currentAccountPaymentClientSaleRepository->getCurrentAccountStatus();
 
-        // dd($currentAccountStatus);
-        $mergeData = array_merge($currentAccountPayments, compact('paymentMethods', 'currencies', 'currentAccountStatus'));
-        // dd($mergeData);
+        $mergeData = array_merge($currentAccountPayments, compact('paymentMethods', 'currentAccountStatus', 'currentAccount'));
         return view('current-accounts.clients.current-account-payment.index', $mergeData);
     }
 
@@ -106,9 +106,10 @@ class CurrentAccountClientSalePaymentController extends Controller
     {
         $payment = $this->currentAccountPaymentClientSaleRepository->getPaymentById($id);
         $paymentMethods = $this->currentAccountPaymentClientSaleRepository->getPaymentMethods();
-        $currencies = $this->currentAccountPaymentClientSaleRepository->getCurrency();
+        $currentAccount = $this->currentAccountPaymentClientSaleRepository->getCurrentAccount($payment->current_account_id);
+        $client = $this->currentAccountPaymentClientSaleRepository->getClientByCurrentAccount($payment->current_account_id);
 
-        return view('current-accounts.clients.edit-client-payment', compact('payment', 'paymentMethods', 'currencies'));
+        return view('current-accounts.clients.current-account-payment.edit-current-account-payment', compact('payment', 'paymentMethods', 'currentAccount', 'client'));
     }
 
     /**
@@ -118,7 +119,7 @@ class CurrentAccountClientSalePaymentController extends Controller
      * @param int $id
      * @return JsonResponse
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateCurrentAccountPaymentRequest $request, int $id): JsonResponse
     {
         try {
             $payment = $this->currentAccountPaymentClientSaleRepository->updatePayment($id, $request->validated());
