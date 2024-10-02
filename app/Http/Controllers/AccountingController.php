@@ -340,22 +340,33 @@ class AccountingController extends Controller
     public function webhook(Request $request): void
     {
         $data = $request->all(); // Obtener los datos del webhook
-
+        
+        Log::info('Recibiendo webhook');
+    
         $type = $data['type']; // Obtener el tipo de webhook
         $urlToCheck = $data['url_to_check']; // Obtener la URL a la que hacer la petición
-
+    
         switch ($type) { // Según el tipo de webhook
-          case 'CFE_STATUS_CHANGE': // Si es un cambio de estado de CFE
-              $rut = explode('/', $urlToCheck)[2]; // Obtener el RUT de la URL
-              $branchOffice = explode('?', explode('/', $urlToCheck)[4])[0]; // Obtener la sucursal de la URL
-
-              if ($rut && $branchOffice) {
-                  $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
-              }
-
-          default:
-              Log::info('Invalid request');
-              return;
+            case 'CFE_STATUS_CHANGE': // Si es un cambio de estado de CFE
+                // Extraer el RUT y la sucursal usando expresiones regulares
+                preg_match('/\/companies\/(\d+)\/sentCfes\/(\d+)/', $urlToCheck, $matches);
+    
+                if (isset($matches[1]) && isset($matches[2])) {
+                    $rut = $matches[1];         // Primer grupo de captura es el RUT
+                    $branchOffice = $matches[2]; // Segundo grupo de captura es la sucursal
+    
+                    Log::info('Rut de la tienda Webhook: ' . $rut);
+                    Log::info('Branch Office Webhook: ' . $branchOffice);
+    
+                    $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
+                } else {
+                    Log::info('No se pudieron extraer el RUT y la sucursal de la URL.');
+                }
+                break;
+    
+            default:
+                Log::info('Invalid request');
+                return;
         }
     }
 }
