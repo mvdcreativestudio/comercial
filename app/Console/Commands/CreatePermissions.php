@@ -140,7 +140,7 @@ class CreatePermissions extends Command
                 [
                     'slug' => 'stores',
                     'module' => 'management',
-                    'view_all' => false,
+                    'view_all' => true,
                 ],
                 [
                     'slug' => 'roles',

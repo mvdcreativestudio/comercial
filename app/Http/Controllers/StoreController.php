@@ -13,7 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
-
+use App\Http\Middleware\EnsureUserCanAccessStore;
 class StoreController extends Controller
 {
     /**
@@ -36,11 +36,12 @@ class StoreController extends Controller
      * @param StoreRepository $storeRepository
      * @param AccountingRepository $accountingRepository
      */
-    public function __construct(StoreRepository $storeRepository, AccountingRepository $accountingRepository)
+    public function __construct(StoreRepository $storeRepository, AccountingRepository $accountingRepository, EnsureUserCanAccessStore $ensureUserCanAccessStore)
     {
         $this->storeRepository = $storeRepository;
         $this->accountingRepository = $accountingRepository;
-    }
+        $this->middleware('ensure_user_can_access_store')->only(['edit', 'update', 'destroy']);
+      }
 
     /**
      * Muestra una lista de todas las tiendas.
@@ -99,20 +100,20 @@ class StoreController extends Controller
     {
         $googleMapsApiKey = config('services.google.maps_api_key');
 
-      $companyInfo = null;
-      $logoUrl = null;
-      $branchOffices = [];
+        $companyInfo = null;
+        $logoUrl = null;
+        $branchOffices = [];
 
-      Log::info('Store: ' . $store->rut);
+        Log::info('Store: ' . $store->rut);
 
-      if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password) {
-          $companyInfo = $this->accountingRepository->getCompanyInfo($store);
-          $logoUrl = $this->accountingRepository->getCompanyLogo($store);
-          $branchOffices = $companyInfo['branchOffices'] ?? [];
-      }
+        if ($store->invoices_enabled && $store->pymo_user && $store->pymo_password) {
+            $companyInfo = $this->accountingRepository->getCompanyInfo($store);
+            $logoUrl = $this->accountingRepository->getCompanyLogo($store);
+            $branchOffices = $companyInfo['branchOffices'] ?? [];
+        }
 
-      return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl', 'branchOffices'));
-  }
+        return view('stores.edit', compact('store', 'googleMapsApiKey', 'companyInfo', 'logoUrl', 'branchOffices'));
+    }
 
 
 
