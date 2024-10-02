@@ -73,7 +73,7 @@ class ProductRepository
       // Se rellenan los campos del producto con los datos del formulario.
       $product->fill($request->only([
           'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
+          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code'
       ]));
 
       // Manejo de la imagen
@@ -147,7 +147,11 @@ class ProductRepository
 
       // Aplicar filtros si están presentes en la solicitud
       if ($request->has('search') && !empty($request->search)) {
-          $query->where('name', 'like', '%' . $request->search . '%');
+        $query->where(function($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->search . '%')
+              ->orWhere('bar_code', 'like', '%' . $request->search . '%');
+
+        });
       }
 
       if ($request->has('store_id') && !empty($request->store_id)) {
@@ -245,7 +249,7 @@ class ProductRepository
 
     $product->update($request->only([
         'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
+        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code'
     ]));
 
     // Manejo de la imagen si se ha subido un archivo

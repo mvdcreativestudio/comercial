@@ -1143,14 +1143,17 @@ class AccountingRepository
     /**
      * checkCfeStatus | Verifica el estado de un CFE en PyMo y lo actualiza en la base de datos.
      *
-     * @param int $rut
-     * @param int $branchOffice
+     * @param string $rut
+     * @param string $branchOffice
      * @param string $urlToCheck
      * @return void
     */
-    public function checkCfeStatus(int $rut, int $branchOffice, string $urlToCheck): void
+    public function checkCfeStatus(string $rut, string $branchOffice, string $urlToCheck): void
     {
         // Busco la Store con el RUT y branch office
+        Log::info('Rut de la tienda Webhook: ' . $rut);
+        Log::info('Branch Office Webhook: ' . $branchOffice);
+        
         $store = Store::where('rut', $rut)
             ->where('pymo_branch_office', $branchOffice)
             ->first();
@@ -1178,9 +1181,12 @@ class AccountingRepository
 
             if ($response->successful()) {
                 $responseData = $response->json();
+                
+                Log::info('Respuesta Webhook Notification URL: ', $responseData);
 
                 if (isset($responseData['payload']['branchOfficeSentCfes']) && is_array($responseData['payload']['branchOfficeSentCfes'])) {
                     foreach ($responseData['payload']['branchOfficeSentCfes'] as $cfeData) {
+                        Log::info('CFE llegado de PYMO: ', $cfeData);
                         $this->updateCfeStatus($cfeData);
                     }
                 }
@@ -1201,7 +1207,7 @@ class AccountingRepository
     private function updateCfeStatus(array $cfeData): void
     {
         // Buscar el CFE en la base de datos usando el ID de emisión del cliente
-        $cfe = CFE::where('cfeId', $cfeData['clientEmissionId'])->first();
+        $cfe = CFE::where('cfeId', $cfeData['_id'])->first();
 
         if ($cfe) {
             // Actualizar el estado del CFE

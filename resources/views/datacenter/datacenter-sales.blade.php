@@ -165,7 +165,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
       </div>
     </div>
   </div>
-  @else 
+  @else
   <div class="col-12">
     <div class="card mb-4" data-aos="fade-up">
       <div class="card-widget-separator-wrapper">
@@ -384,165 +384,165 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
 
 
   <div class="col-md-12 col-12 mb-4 order-2 order-xl-0">
-    <div class="card h-100 text-center" data-aos="fade-left" data-aos-anchor="#example-anchor" data-aos-offset="500" data-aos-duration="500">
-        <div class="card-header">
-            <h5 class="card-title text-start pb-4 mb-0">Comparativas</h5>
-            <ul class="nav nav-pills nav- card-header-pills" role="tablist">
+    <div class="card h-100 shadow-sm" data-aos="fade-up">
+        <div class="card-header bg-transparent border-bottom">
+            <h5 class="card-title mb-0">Comparativas de Ventas</h5>
+            <ul class="nav nav-tabs card-header-tabs mt-3" role="tablist">
                 @if(auth()->user()->can('view_all_datacenter'))
                 <li class="nav-item">
-                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-browser" aria-controls="navs-pills-browser" aria-selected="true">Locales</button>
+                    <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#tab-locales">
+                        <i class="bx bx-store me-1"></i>Locales
+                    </button>
                 </li>
                 @endif
                 <li class="nav-item">
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-os" aria-controls="navs-pills-os" aria-selected="false">Productos</button>
+                    <button type="button" class="nav-link {{ auth()->user()->can('view_all_datacenter') ? '' : 'active' }}" role="tab" data-bs-toggle="tab" data-bs-target="#tab-productos">
+                        <i class="bx bx-package me-1"></i>Productos
+                    </button>
                 </li>
+                {{-- <li class="nav-item">
+                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-cupones">
+                        <i class="bx bx-purchase-tag me-1"></i>Cupones
+                    </button>
+                </li> --}}
                 <li class="nav-item">
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-coupons" aria-controls="navs-pills-coupons" aria-selected="false">Cupones</button>
-                </li>
-                <li class="nav-item">
-                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-pills-categories" aria-controls="navs-pills-categories" aria-selected="false">Categorías</button>
+                    <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#tab-categorias">
+                        <i class="bx bx-category me-1"></i>Categorías
+                    </button>
                 </li>
             </ul>
         </div>
-        <div class="tab-content pt-0">
-            <div class="tab-pane fade show active" id="navs-pills-browser" role="tabpanel">
-                <!-- Tabla de ventas por local -->
-                <div class="table-responsive text-start text-nowrap">
-                    <table class="table table-borderless">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Local</th>
-                                <th>Ventas</th>
-                                <th class="w-50">Porcentaje del total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($salesByStore as $index => $store)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-xm me-2">
-                                            <span class="avatar-initial rounded-circle bg-label-primary">{{ substr($store['store'], 0, 2) }}</span>
+        <div class="card-body">
+            <div class="tab-content">
+                @if(auth()->user()->can('view_all_datacenter'))
+                <div class="tab-pane fade show active" id="tab-locales" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Local</th>
+                                    <th>Ventas</th>
+                                    <th>Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($salesByStore as $index => $store)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-sm me-2">
+                                                <span class="avatar-initial rounded-circle bg-label-primary">{{ substr($store['store'], 0, 2) }}</span>
+                                            </div>
+                                            <span>{{ $store['store'] }}</span>
                                         </div>
-                                        <span>{{ $store['store'] }}</span>
-                                    </div>
-                                </td>
-                                <td>{{ $settings->currency_symbol }}{{ $store['storeTotal'] }}</td>
-                                <td>
-                                    <div class="d-flex justify-content-between align-items-center gap-3">
-                                        <div class="progress w-100" style="height:10px;">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $store['percent'] }}%" aria-valuenow="{{ $store['percent'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format($store['storeTotal'], 2, ',', '.') }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress w-100 me-3" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $store['percent'] }}%" aria-valuenow="{{ $store['percent'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <span class="text-muted">{{ number_format($store['percent'], 2) }}%</span>
                                         </div>
-                                        <small class="fw-medium">{{ number_format($store['percent'], 2) }}%</small>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <!-- Tab Productos -->
-            <div class="tab-pane fade" id="navs-pills-os" role="tabpanel">
-                <!-- Tabla de Ventas por Producto -->
-                <div class="table-responsive text-start text-nowrap">
-                    <table class="table table-borderless">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Producto</th>
-                                <th>Ventas</th>
-                                <th class="w-50">Porcentaje del total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($salesByProduct as $index => $product)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span>{{ $product['product'] }}</span>
-                                    </div>
-                                </td>
-                                <td>{{ $settings->currency_symbol }}{{ number_format($product['productTotal'], 2, ',', '.') }}</td>
-                                <td>
-                                    <div class="d-flex justify-content-between align-items-center gap-3">
-                                        <div class="progress w-100" style="height:10px;">
-                                            <div class="progress-bar" role="progressbar" style="width: {{ $product['percent'] }}%" aria-valuenow="{{ $product['percent'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                @endif
+
+                <div class="tab-pane fade {{ auth()->user()->can('view_all_datacenter') ? '' : 'show active' }}" id="tab-productos" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Producto</th>
+                                    <th>Ventas</th>
+                                    <th>Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($salesByProduct as $index => $product)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $product['product'] }} </td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format($product['productTotal'], 2, ',', '.') }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress w-100 me-3" style="height: 8px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ $product['percent'] }}%" aria-valuenow="{{ $product['percent'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <span class="text-muted">{{ number_format($product['percent'], 2, ',', '.') }}%</span>
                                         </div>
-                                        <small class="fw-medium">{{ number_format($product['percent'], 2, ',', '.') }}%</small>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <!-- Tab Categorías -->
-            <div class="tab-pane fade" id="navs-pills-categories" role="tabpanel">
-                <!-- Tabla de Ventas por Categoría -->
-                <div class="table-responsive text-start text-nowrap">
-                    <table class="table table-borderless">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Categoría</th>
-                                <th>Ventas</th>
-                                <th class="w-50">Porcentaje del total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($salesByCategory as $index => $category)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <span>{{ $category['category'] }}</span>
-                                    </div>
-                                </td>
-                                <td>{{ $settings->currency_symbol }}{{ number_format($category['categoryTotal'], 2, ',', '.') }}</td>
-                                <td>
-                                    <div class="d-flex justify-content-between align-items-center gap-3">
-                                        <div class="progress w-100" style="height:10px;">
-                                            <div class="progress-bar" role="progressbar" style="width: {{ $category['percent'] }}%" aria-valuenow="{{ $category['percent'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+
+                <div class="tab-pane fade" id="tab-categorias" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Categoría</th>
+                                    <th>Ventas</th>
+                                    <th>Porcentaje</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($salesByCategory as $index => $category)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $category['category'] }}</td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format($category['categoryTotal'], 2, ',', '.') }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress w-100 me-3" style="height: 8px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $category['percent'] }}%" aria-valuenow="{{ $category['percent'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <span class="text-muted">{{ number_format($category['percent'], 2, ',', '.') }}%</span>
                                         </div>
-                                        <small class="fw-medium">{{ number_format($category['percent'], 2, ',', '.') }}%</small>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <!-- Tab Cupones -->
-            <div class="tab-pane fade" id="navs-pills-coupons" role="tabpanel">
-                <!-- Tabla de uso de Cupones -->
-                <div class="table-responsive text-start text-nowrap">
-                    <table class="table table-borderless">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Cupón</th>
-                                <th>Usos</th>
-                                <th class="w-50">Monto Total Descuento</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($couponUsage as $index => $coupon)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $coupon['code'] }}</td>
-                                <td>{{ $coupon['uses'] }}</td>
-                                <td>{{ $settings->currency_symbol }}{{ number_format((float) $coupon['total_discount'], 2, ',', '.') }}</td>
-                              </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+
+                {{-- <div class="tab-pane fade" id="tab-cupones" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Cupón</th>
+                                    <th>Usos</th>
+                                    <th>Descuento Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($couponUsage as $index => $coupon)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $coupon['code'] }}</td>
+                                    <td>{{ $coupon['uses'] }}</td>
+                                    <td>{{ $settings->currency_symbol }}{{ number_format((float) $coupon['total_discount'], 2, ',', '.') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div> --}}
             </div>
         </div>
     </div>

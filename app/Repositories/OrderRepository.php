@@ -168,6 +168,8 @@ class OrderRepository
         return $carry + ($item['price'] ?? $item['old_price']) * $item['quantity'];
     }, 0);
 
+    Log::info('Request de prepareOrderData', ['request' => $request->all()]);
+
     return [
         'date' => now(),
         'time' => now()->format('H:i:s'),
@@ -231,7 +233,7 @@ class OrderRepository
                     $productModel->save();
                 }
             }
-        } 
+        }
         // Eliminar la orden
         $order->delete();
 

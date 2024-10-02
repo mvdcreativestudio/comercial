@@ -247,6 +247,11 @@
             <label class="form-label" for="stock">Margen de Seguridad</label>
             <input type="number" class="form-control" id="safety_margin" placeholder="Stock" value="{{$product->safety_margin}}" name="safety_margin" aria-label="Introduzca el margen de seguridad">
           </div>
+          <!-- Código de barras -->
+          <div class="mb-3" id="barCodeContainer">
+            <label class="form-label" for="bar_code">Código de barras</label>
+            <input type="text" class="form-control" id="bar_code" placeholder="Código de barras" value="{{ $product->bar_code }}" name="bar_code" aria-label="Introduzca el código de barras">
+          </div>
         </div>
       </div>
       <!-- Media -->
