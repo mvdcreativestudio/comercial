@@ -74,12 +74,17 @@ $currencySymbol = $settings->currency_symbol;
       <span class="input-group-text bg-light">
         <i class="bx bx-store"></i>
       </span>
-      <select id="storeFilter" class="form-select">
-        <option value="">Todas las tiendas</option>
-        @foreach($stores as $store)
-          <option value="{{ $store->id }}">{{ $store->name }}</option>
-        @endforeach
-      </select>
+      @if(count($stores) == 1)
+        <input type="text" class="form-control" value="{{ $stores[0]->name }}" readonly disabled>
+        <input type="hidden" id="storeFilter" value="{{ $stores[0]->id }}">
+      @else
+        <select id="storeFilter" class="form-select">
+          <option value="">Todas las tiendas</option>
+          @foreach($stores as $store)
+            <option value="{{ $store->id }}">{{ $store->name }}</option>
+          @endforeach
+        </select>
+      @endif
     </div>
   </div>
 

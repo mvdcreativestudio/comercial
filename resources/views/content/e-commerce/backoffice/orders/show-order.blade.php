@@ -172,45 +172,8 @@ $changeTypeTranslations = [
             </tr>
           </thead>
         </table>
-        @if($order->discount !== null && $order->discount !== 0)
-          <div class="d-flex justify-content-between align-items-center m-3 mb-2 p-1">
-            @if($order->discount !== null && $order->discount !== 0)
-              <div class="d-flex align-items-center me-3">
-                <span class="text-heading">Cupón utilizado:</span>
-                @if($order->coupon && $order->coupon->code !== null)
-                  <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
-                @endif
-              </div>
-            @endif
-
-            <div class="order-calculations">
-              <div class="d-flex justify-content-between mb-2">
-                <span class="w-px-100">Subtotal:</span>
-                <span class="text-heading">${{ $order->subtotal }}</span>
-              </div>
-              <div class="d-flex justify-content-between mb-2">
-                @if($order->discount !== null && $order->discount !== 0)
-                  <span class="w-px-100">Descuento:</span>
-                  @if($order->discount !== null && $order->discount !== 0)
-                    <span class="text-heading mb-0">-"{{ $settings->currency_symbol }}{{ $order->discount }}</span>
-                  @else
-                    <span class="text-heading mb-0">{{ $settings->currency_symbol }}0</span>
-                  @endif
-                @endif
-              </div>
-              <div class="d-flex justify-content-between mb-2">
-                <span class="w-px-100">Envío:</span>
-                <span class="text-heading">{{ $settings->currency_symbol }}{{ $order->shipping }}</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <h6 class="w-px-100 mb-0">Total:</h6>
-                <h6 class="mb-0">{{ $settings->currency_symbol }}{{ $order->total }}</h6>
-              </div>
-            </div>
-          </div>
-        @else
           <div class="d-flex justify-content-end align-items-center m-3 mb-2 p-1">
-            @if($order->discount !== null && $order->discount !== 0)
+            @if($order->coupon_id !== null)
               <div class="d-flex align-items-center me-3">
                 <span class="text-heading">Cupón utilizado:</span>
                 <span class="badge bg-label-dark">{{$order->coupon->code}}</span>
@@ -225,7 +188,7 @@ $changeTypeTranslations = [
                 @if($order->discount !== null && $order->discount !== 0)
                   <span class="w-px-100">Descuento:</span>
                   @if($order->discount !== null && $order->discount !== 0)
-                    <span class="text-heading mb-0">>{{ $settings->currency_symbol }}{{ $order->discount }}</span>
+                    <span class="text-heading mb-0">{{ $settings->currency_symbol }}{{ $order->discount }}</span>
                   @else
                     <span class="text-heading mb-0">{{ $settings->currency_symbol }}0</span>
                   @endif
@@ -241,7 +204,6 @@ $changeTypeTranslations = [
               </div>
             </div>
           </div>
-        @endif
       </div>
     </div>
 <!-- Order Status Changes Table -->
@@ -370,7 +332,7 @@ $changeTypeTranslations = [
       </div>
     </div>
 
-    
+
     <div class="card mb-4">
       <div class="card-header">
         <h6 class="card-title m-0">Datos del Cliente</h6>

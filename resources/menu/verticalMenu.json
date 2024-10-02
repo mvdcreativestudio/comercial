@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "tour-pedidos",
-      "name": "Pedidos",
+      "id": "tour-ventas",
+      "name": "Ventas",
       "icon": "menu-icon tf-icons bx bx-cart",
       "slug": "orders",
       "url": "/admin/orders"
@@ -77,6 +77,20 @@
           "icon": "menu-icon tf-icons bx bx-list-ul",
           "slug": "product-categories",
           "url": "/admin/product-categories"
+        },
+        {
+          "id": "tour-productos-crear-en-masa",
+          "name": "Crear en Masa",
+          "icon": "menu-icon tf-icons bx bx-plus",
+          "slug": "bulk-products",
+          "url": "/admin/products/add"
+        },
+        {
+          "id": "tour-productos-editar-en-masa",
+          "name": "Editar en Masa",
+          "icon": "menu-icon tf-icons bx bx-edit",
+          "slug": "bulk-products",
+          "url": "/admin/products/edit"
         }
       ]
     },
@@ -145,13 +159,6 @@
           "url": "/admin/invoices"
         },
         {
-          "id": "tour-recibos",
-          "name": "Recibos",
-          "icon": "menu-icon tf-icons bx bx-receipt",
-          "slug": "receipts",
-          "url": "/admin/receipts"
-        },
-        {
           "id": "tour-asientos",
           "name": "Asientos",
           "icon": "menu-icon tf-icons bx bx-book",
@@ -188,13 +195,6 @@
           "icon": "menu-icon tf-icons bx bx-file",
           "slug": "received-documents",
           "url": "/admin/received-cfes"
-        },
-        {
-          "id": "tour-configuracion-contabilidad",
-          "name": "Configuración",
-          "icon": "menu-icon tf-icons bx bx-cog",
-          "slug": "accounting-settings",
-          "url": "/admin/accounting/settings"
         },
         {
           "id": "tour-gastos",

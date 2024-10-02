@@ -27,7 +27,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Pedidos /</span> Ordenes de Pedidos
+  <span class="text-muted fw-light"></span>Ventas
 </h4>
 
 @if (Auth::user()->can('access_datacenter'))
@@ -38,7 +38,7 @@
         <div class="col-sm-6 col-lg-6">
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
-              <h6 class="mb-2">Total de Pedidos</h6>
+              <h6 class="mb-2">Total de Ventas</h6>
               <h4 class="mb-2">{{ $totalOrders }}</h4>
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
@@ -104,7 +104,7 @@
 <div class="card">
   <div class="card-datatable table-responsive">
   <div class="card-header">
-  <h5 class="card-title">Pedidos</h5>
+  <h5 class="card-title">Ventas</h5>
     <div class="d-flex">
         <p class="text-muted small">
           <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
