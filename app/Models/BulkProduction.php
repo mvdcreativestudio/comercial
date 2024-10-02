@@ -14,7 +14,6 @@ class BulkProduction extends Model
     protected $fillable = [
         'formula_id',
         'quantity_produced',
-        'batch_id',
         'production_date',
         'quantity_used'
     ];
@@ -22,11 +21,6 @@ class BulkProduction extends Model
     public function formula(): BelongsTo
     {
         return $this->belongsTo(Formula::class, 'formula_id');
-    }
-
-    public function batch(): BelongsTo
-    {
-        return $this->belongsTo(Formula::class, 'batch_id');
     }
 
 

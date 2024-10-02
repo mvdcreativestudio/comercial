@@ -41,4 +41,9 @@ class RawMaterial extends Model
   {
       return $this->hasMany(PurchaseEntry::class);
   }
+
+  public function prices(): HasMany
+  {
+      return $this->hasMany(RawMaterialPrices::class);
+  }
 }

@@ -191,16 +191,6 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Tienda</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="9" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
             <span class="switch-label">Acciones</span>
           </label>
         </div>
@@ -224,9 +214,6 @@
           <th>Pais</th>
           <th>Tipo de Doc</th>
           <th>Número de Doc</th>
-          @can('view_all_suppliers')
-            <th>Tienda</th>
-          @endcan
           <th>Acciones</th>
         </tr>
       </thead>

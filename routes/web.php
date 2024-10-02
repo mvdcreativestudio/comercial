@@ -33,7 +33,16 @@ use App\Http\Controllers\{
     CashRegisterLogController,
     PosOrderController,
     UserController,
-
+    PurchaseOrderController,
+    PurchaseOrderItemController,
+    FormulaController,
+    RawMaterialPriceController,
+    FormulaRawMaterialController,
+    PurchaseEntryController,
+    BatchController,
+    BulkProductionController,
+    BulkProductionBatchController,
+    PackagingController,
 };
 
 // Middleware de autenticación y verificación de email
@@ -79,6 +88,63 @@ Route::middleware([
         'pos-orders' => PosOrderController::class,
     ]);
 
+
+    /*
+    |
+    |
+    |   DALI
+    |   APP
+    |
+    |
+    */
+            
+    Route::get('purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
+    Route::post('purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+    Route::get('purchase-orders/{id}/edit', [PurchaseOrderController::class, 'edit'])->name('purchase-orders.edit');
+    Route::delete('purchase-orders/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase-orders.destroy');
+    Route::get('/suppliers-all', [SupplierController::class, 'getAll']);
+
+    Route::get('purchase-orders-items', [PurchaseOrderItemController::class, 'index'])->name('purchase-orders-items.index');
+    Route::get('purchase-orders-items-raw-materials', [PurchaseOrderItemController::class, 'getRawMaterials']);
+    Route::get('purchase-orders-items-products', [PurchaseOrderItemController::class, 'getProducts']);
+    Route::post('store-purchase-order-item-id', [PurchaseOrderItemController::class, 'storePurchaseOrderId'])->name('store.purchase-order-item-id');
+    Route::post('purchase-order-items', [PurchaseOrderItemController::class, 'store'])->name('purchase-orders-items.store');
+    Route::delete('purchase-order-items/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase-orders.destroy');
+    Route::post('purchase-order-entry-id', [PurchaseOrderItemController::class, 'storePurchasedItemId']);
+
+    Route::get('formulas', [FormulaController::class, 'index'])->name('formulas.index');
+    Route::get('formulas-list', [FormulaController::class, 'getAll']);
+    Route::post('formulas', [FormulaController::class, 'store'])->name('formulas.store');
+
+
+    Route::get('raw-material-prices/{id}', [RawMaterialPriceController::class, 'getById']);
+    Route::post('raw-material-prices', [RawMaterialPriceController::class, 'store']);
+
+    Route::post('store-formula-step-id', [FormulaRawMaterialController::class, 'storeFormulaId']);
+    Route::get('formula-steps', [FormulaRawMaterialController::class, 'index']);
+    Route::post('formula-steps', [FormulaRawMaterialController::class, 'store']);
+    Route::post('formula-steps-csv', [FormulaRawMaterialController::class, 'storeCSV']);
+    Route::post('formula-steps-production', [FormulaRawMaterialController::class, 'getFormulaStepsById']);
+
+    Route::get('purchase-entries', [PurchaseEntryController::class, 'index']);
+    Route::post('purchase-entries-multiple', [PurchaseEntryController::class, 'storeMultiple']);
+
+    Route::get('batches', [BatchController::class, 'index']);
+    Route::post('batches-multiple', [BatchController::class, 'storeBatches']);
+
+    Route::get('bulk-productions', [BulkProductionController::class, 'index']);
+    Route::post('start-production', [BulkProductionController::class, 'startProduction']);
+
+    Route::get('packagings', [PackagingController::class, 'index']);
+
+    /*
+    |
+    |
+    |   DALI
+    |   APP
+    |
+    |
+    */
 
 
     // Puntos de venta

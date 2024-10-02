@@ -122,138 +122,27 @@
 
       <!-- Ver / Ocultar columnas de la tabla -->
       <div class="d-flex">
-        <p class="text-muted small">
-          <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
-        </p>
-      </div>
-
+      <p class="text-muted small">
+        <a href="#" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
+      </p>
     </div>
-
-    <!-- Columnas de la tabla -->
-    <div class="collapse" id="columnSwitches">
-      <div class="mt-0 d-flex flex-wrap">
-        <div class="mx-0">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="0" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Imagen</span>
-          </label>
-        </div>
+  </div>
+  <div class="collapse" id="columnSwitches">
+    <div class="mt-0 d-flex flex-wrap">
+      @foreach (['Imagen', 'Nombre', 'SKU', 'Descripción', 'Tipo', 'Categoría', 'Stock', 'Estado','Acciones'] as $index => $label)
         <div class="mx-3">
           <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="1" checked>
+            <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
             <span class="switch-toggle-slider">
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Nombre</span>
+            <span class="switch-label">{{ $label }}</span>
           </label>
         </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">SKU</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="3" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Descripción</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="4" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Tipo</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="5" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Precio</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="6" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Precio rebajado</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="7" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Categoría</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="8" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Local</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="9" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Estado</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="10" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Stock</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="11" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
-            <span class="switch-label">Acciones</span>
-          </label>
-        </div>
-      </div>
+      @endforeach
     </div>
+  </div>
 
     <!-- Información adicional -->
     <div class="d-flex justify-content-start align-items-center row py-3 gap-3 mb-0 pb-0 gap-md-0">
@@ -272,17 +161,14 @@
           <th>SKU</th>
           <th>Descripción</th>
           <th>Tipo</th>
-          <th>Precio</th>
-          <th>Precio rebajado</th>
           <th>Categoría</th>
-          <th>Local</th>
-          <th>Estado</th>
           <th>Stock</th>
+          <th>Estado</th>
           <th>Acciones</th>
         </tr>
       </thead>
     </table>
-  </div>
 </div>
+
 
 @endsection

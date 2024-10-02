@@ -11,31 +11,19 @@ class PurchaseEntry extends Model
     use HasFactory;
 
     protected $fillable = [
-        'supplier_invoice_id',
-        'batch_id',
-        'product_id',
-        'raw_material_id',
         'quantity',
-        'entry_date'
+        'entry_date',
+        'purchase_order_items_id'
     ];
 
-    public function supplierInvoice(): BelongsTo
+    public function purchaseOrderItem()
     {
-        return $this->belongsTo(SupplierInvoice::class, 'supplier_invoice_id');
+        return $this->belongsTo(PurchaseOrderItem::class, 'purchase_order_items_id');
     }
 
-    public function batch(): BelongsTo
+    public function batches()
     {
-        return $this->belongsTo(Batch::class, 'batch_id');
+        return $this->hasMany(Batch::class, 'purchase_entries_id');
     }
 
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class, 'product_id');
-    }
-
-    public function rawMaterial(): BelongsTo
-    {
-        return $this->belongsTo(RawMaterial::class, 'raw_material_id');
-    }
 }

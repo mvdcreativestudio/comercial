@@ -38,24 +38,23 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">E-Commerce /</span> Categorias
+  <span class="text-muted fw-light">E-Commerce /</span> Categorías
 </h4>
 
 @php
     $totalCategories = $categories->count();
-    $activeCategories = $categories->where('status', 1)->count();
 @endphp
 
 <div class="card mb-4">
   <div class="card-widget-separator-wrapper">
     <div class="card-body card-widget-separator">
       <div class="row gy-4 gy-sm-1">
-        <div class="col-sm-6 col-lg-6">
-          <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
+        <!-- Cambiar de col-sm-6 col-lg-6 a col-12 para que ocupe todo el ancho -->
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-start card-widget-1 pb-3 pb-sm-0">
             <div>
-              <h6 class="mb-2">Total de Categorías</h6>
+              <h6 class="mb-2">Total de Categorías:</h6>
               <h4 class="mb-2">{{ $totalCategories }}</h4>
-              <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
             <div class="avatar me-sm-4">
               <span class="avatar-initial rounded bg-label-secondary">
@@ -63,22 +62,6 @@
               </span>
             </div>
           </div>
-          <hr class="d-none d-sm-block d-lg-none me-4">
-        </div>
-        <div class="col-sm-6 col-lg-6">
-          <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
-            <div>
-              <h6 class="mb-2">Categorías Activas</h6>
-              <h4 class="mb-2">{{ $activeCategories }}</h4>
-              <p class="mb-0"><span class="text-muted me-2">Activas</span></p>
-            </div>
-            <div class="avatar me-lg-4">
-              <span class="avatar-initial rounded bg-label-success">
-                <i class="bx bx-check bx-sm"></i>
-              </span>
-            </div>
-          </div>
-          <hr class="d-none d-sm-block d-lg-none">
         </div>
       </div>
     </div>
@@ -134,16 +117,6 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Estado</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="4" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
             <span class="switch-label">Acciones</span>
           </label>
 </div>
@@ -156,7 +129,6 @@
             <th>ID</th>
             <th>Nombre</th>
             <th class="">Descripción</th>
-            <th class="">Estado</th>
             <th class="">Acciones</th>
           </tr>
         </thead>
@@ -180,22 +152,10 @@
           <label class="form-label" for="ecommerce-category-title">Nombre</label>
           <input type="text" class="form-control" id="ecommerce-category-title" placeholder="Ingrese el nombre de la categoría" name="name" aria-label="category title">
         </div>
-        <!-- Slug -->
-        <div class="mb-3">
-          <label class="form-label" for="ecommerce-category-slug">Slug</label>
-          <input type="text" id="ecommerce-category-slug" class="form-control" placeholder="Ingrese el slug" aria-label="slug" name="slug">
-        </div>
         <!-- Image -->
         <div class="mb-3">
           <label class="form-label" for="ecommerce-category-image">Imagen</label>
           <input class="form-control" name="image" type="file" id="ecommerce-category-image">
-        </div>
-        <!-- Parent category -->
-        <div class="mb-3 ecommerce-select2-dropdown">
-          <label class="form-label" for="ecommerce-category-parent-category">Categoría padre</label>
-          <select id="ecommerce-category-parent-category" class="select2 form-select" data-placeholder="Seleccione la categoría padre">
-            <option value="">Seleccione la categoría padre</option>
-          </select>
         </div>
         <!-- Description -->
         <div class="mb-3">
@@ -216,18 +176,6 @@
                 </span>
               </div>
             </div>
-          </div>
-        </div>
-        <!-- Hidden status field -->
-        <input type="hidden" name="status" value="2">
-        <!-- Instock switch -->
-        <div class="d-flex justify-content-between align-items-center border-top pt-3">
-          <span class="mb-0 h6">Estado</span>
-          <div class="w-25 d-flex justify-content-end">
-            <label class="switch switch-primary switch-sm me-4 pe-2">
-              <input type="checkbox" class="switch-input" value="1" id="statusSwitch" checked name="status">
-              <span class="switch-toggle-slider"></span>
-            </label>
           </div>
         </div>
         <!-- Submit and reset -->
@@ -253,18 +201,8 @@
         <input type="text" class="form-control" id="edit_ecommerce-category-title" placeholder="Ingrese el nombre de la categoría" name="name" aria-label="category title">
       </div>
       <div class="mb-3">
-        <label class="form-label" for="edit_ecommerce-category-slug">Slug</label>
-        <input type="text" id="edit_ecommerce-category-slug" class="form-control" placeholder="Ingrese el slug" aria-label="slug" name="slug">
-      </div>
-      <div class="mb-3">
         <label class="form-label" for="edit_ecommerce-category-image">Imagen</label>
         <input class="form-control" name="image" type="file" id="edit_ecommerce-category-image">
-      </div>
-      <div class="mb-3 ecommerce-select2-dropdown">
-        <label class="form-label" for="edit_ecommerce-category-parent-category">Categoría padre</label>
-        <select id="edit_ecommerce-category-parent-category" class="select2 form-select" data-placeholder="Seleccione la categoría padre" name="parent_id">
-          <option value="">Seleccione la categoría padre</option>
-        </select>
       </div>
       <div class="mb-3">
         <label class="form-label">Descripción</label>
@@ -284,16 +222,6 @@
                 </span>
               </div>
             </div>
-        </div>
-      </div>
-      <input type="hidden" name="status" value="2">
-      <div class="d-flex justify-content-between align-items-center border-top pt-3">
-        <span class="mb-0 h6">Estado</span>
-        <div class="w-25 d-flex justify-content-end">
-          <label class="switch switch-primary switch-sm me-4 pe-2">
-            <input type="checkbox" class="switch-input" value="1" id="edit-statusSwitch" checked name="status">
-            <span class="switch-toggle-slider"></span>
-          </label>
         </div>
       </div>
       <div class="mb-3">

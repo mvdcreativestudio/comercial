@@ -121,13 +121,7 @@ class CashRegisterLogController extends Controller
      */
     public function destroy(string $id)
     {
-        $deleted = $this->cashRegisterLogRepository->deleteCashRegisterLog($id);
-
-        if ($deleted) {
-            return response()->json(['message' => 'Log de caja registradora borrada exitosamente.']);
-        } else {
-            return response()->json(['message' => 'No se pudo encontrar el log de la caja registradora que se deseó borrar.'], 404);
-        }
+        return $this->cashRegisterLogRepository->deleteCashRegisterLog($id);
     }
 
 

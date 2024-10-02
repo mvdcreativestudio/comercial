@@ -14,7 +14,8 @@ class FormulaRawMaterial extends Model
         'formula_id',
         'raw_material_id',
         'quantity_required',
-        'step'
+        'step',
+        'clarification'
     ];
 
     public function formula(): BelongsTo

@@ -50,12 +50,22 @@ class CreatePermissions extends Command
                 'view_all' => true,
             ],
             [
+                'slug' => 'formulas',
+                'module' => 'manufacturing',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'batches',
+                'module' => 'manufacturing',
+                'view_all' => true,
+            ],
+            [
                 'slug' => 'suppliers',
                 'module' => 'stock',
                 'view_all' => true,
             ],
             [
-                'slug' => 'supplier-orders',
+                'slug' => 'purchase-orders',
                 'module' => 'stock',
                 'view_all' => true,
             ],
@@ -87,10 +97,14 @@ class CreatePermissions extends Command
                     'orders',
                     'products',
                     'product-categories',
-                    'settings',
-                    'product-flavors'
+                    'settings'
                 ],
                 'view_all' => true,
+            ],
+            [
+                'slug' => 'packagings',
+                'module' => 'ecommerce',
+                'view_all' => false,
             ],
             [
                 'slug' => 'global_products',
@@ -98,7 +112,7 @@ class CreatePermissions extends Command
                 'view_all' => false,
             ],
             [
-                'slug' => 'productions',
+                'slug' => 'bulk-productions',
                 'module' => 'manufacturing',
                 'view_all' => true,
             ],

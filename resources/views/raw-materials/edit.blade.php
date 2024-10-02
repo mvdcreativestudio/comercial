@@ -46,9 +46,7 @@
               <select class="form-select" id="unit_of_measure" name="unit_of_measure" required>
                 <option value="">Seleccione una unidad</option>
                 <option value="KG" @if($rawMaterial->unit_of_measure == 'KG') selected @endif>Kilogramos (KG)</option>
-                <option value="Gramos" @if($rawMaterial->unit_of_measure == 'Gramos') selected @endif>Gramos (G)</option>
                 <option value="Litros" @if($rawMaterial->unit_of_measure == 'Litros') selected @endif>Litros (L)</option>
-                <option value="Mililitros" @if($rawMaterial->unit_of_measure == 'Mililitros') selected @endif>Mililitros (ML)</option>
                 <option value="Unidades" @if($rawMaterial->unit_of_measure == 'Unidades') selected @endif>Unidades (U)</option>
               </select>
             </div>

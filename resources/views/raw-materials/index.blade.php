@@ -45,7 +45,7 @@
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Materias Primas</h6>
-              {{-- <h4 class="mb-2">{{ isset($rawMaterials) ? $rawMaterials->count() : 0 }}</h4> --}}
+              <h4 class="mb-2">{{ $rawMaterials->count() }}</h4> 
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
             <div class="avatar me-sm-4">
@@ -60,7 +60,7 @@
           <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Unidades de Medida</h6>
-              <h4 class="mb-2">{{ isset($quantityByUnitOfMeasure) ? $quantityByUnitOfMeasure->count() : 0 }}</h4>
+              <h4 class="mb-2">3</h4>
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
             <div class="avatar me-lg-4">
@@ -74,8 +74,8 @@
         <div class="col-sm-12 col-lg-4">
           <div class="d-flex justify-content-between align-items-start pb-3 pb-sm-0 card-widget-3">
             <div>
-              <h6 class="mb-2">Stock Total</h6>
-              <h4 class="mb-2">{{ isset($totalStock) ? $totalStock : 0 }}</h4>
+              <h6 class="mb-2">Materias prima en stock</h6>
+              <h4 class="mb-2">{{ $inStockCount }}</h4>
               <p class="mb-0 text-muted">Total en stock</p>
             </div>
             <div class="avatar me-sm-4">
@@ -179,7 +179,7 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Tienda</span>
+            <span class="switch-label">Status</span>
           </label>
         </div>
         <div class="mx-3">
@@ -210,10 +210,8 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Unidad de Medida</th>
+          <th>Status</th>
           <th>Stock</th>
-          @if(auth()->user()->can('view_all_raw-materials'))
-            <th>Tienda</th>
-          @endif
           <th>Acciones</th>
         </tr>
       </thead>

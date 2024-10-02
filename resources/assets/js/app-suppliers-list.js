@@ -16,11 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
     { data: 'doc_type' },
     { data: 'doc_number' }
   ];
-
-  if (hasViewAllSuppliersPermission) {
-    columns.push({ data: 'store', searchable: true, orderable: true });
-  }
-
   columns.push({ data: null, orderable: false, searchable: false });
 
   var columnDefs = [
@@ -97,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     },
     {
-      targets: hasViewAllSuppliersPermission ? 9 : 8,
+      targets: 8,
       render: function (data, type, row) {
         var editUrl = supplierEdit.replace(':id', row.id);
         var deleteUrl = supplierDelete.replace(':id', row.id);

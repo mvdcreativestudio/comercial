@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ProductPrice extends Model
+class BulkProductionBatch extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'bulk_production_id',
+        'bulk_productions_id',
         'batch_id',
         'quantity_used'
     ];

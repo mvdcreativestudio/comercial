@@ -14,6 +14,7 @@ class PurchaseOrderItem extends Model
         'purchase_orders_id',
         'raw_material_id',
         'quantity',
+        'currency',
         'unit_price',
     ];
 
@@ -25,5 +26,10 @@ class PurchaseOrderItem extends Model
     public function rawMaterial(): BelongsTo
     {
         return $this->belongsTo(RawMaterial::class, 'raw_material_id');
+    }
+
+    public function purchaseEntries()
+    {
+        return $this->hasMany(PurchaseEntry::class, 'purchase_order_items_id');
     }
 }

@@ -26,10 +26,12 @@ class Product extends Model
       ];
 
 
-    public function productCategories(): HasMany
+    public function categories()
     {
-          return $this->hasMany(ProductCategory::class);
+        return $this->belongsToMany(Category::class);
     }
+
+      
 
     public function productPrices(): HasMany
     {

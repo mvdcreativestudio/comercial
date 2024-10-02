@@ -67,7 +67,6 @@ $(function () {
         { data: 'id' },
         { data: 'name' },
         { data: 'description' },
-        { data: 'status'},
         { data: '' }
       ],
       columnDefs: [
@@ -153,9 +152,6 @@ $('#eCommerceCategoryListForm').submit(function(event) {
 
     $('#hidden-description').val(plainTextContent);
 
-    var statusValue = $('#statusSwitch').is(':checked') ? '1' : '0';
-    $('input[name="status"]').val(statusValue);
-
     this.submit();
 });
 
@@ -217,18 +213,13 @@ $(document).on('click', '.edit-record', function () {
   var recordId = $(this).data('id');
   console.log('Record ID:', recordId);
 
-  // Aquí puedes cargar los datos en el formulario de edición, si es necesario
-  // Por ejemplo, haciendo una solicitud AJAX para obtener los datos y llenar los campos del formulario
   $.ajax({
       url: 'product-categories/' + recordId + '/get-selected',
       type: 'GET',
       success: function (data) {
           console.log('Data received:', data);
           $('#edit_ecommerce-category-title').val(data.name);
-          $('#edit_ecommerce-category-slug').val(data.slug);
-          $('#edit_ecommerce-category-parent-category').val(data.parent_id).trigger('change');
-          $('#edit-statusSwitch').prop('checked', data.status == 1);
-          
+        
           // Set Quill's content
           quillEdit.root.innerHTML = data.description;
 
@@ -252,16 +243,10 @@ $(document).on('click', '.edit-record', function () {
 
 // POST para editar la categoría en la base de datos
 function submitEditProductCategory(recordId) {
-
-
   var formData = new FormData();
-    
   formData.append('name', $('#edit_ecommerce-category-title').val());
-  formData.append('slug', $('#edit_ecommerce-category-slug').val());
   formData.append('description', $('#edit_ecommerce-category-description').text()); 
-  formData.append('parent_id', $('#edit_ecommerce-category-parent-category').val());
-  formData.append('status', $('#edit-statusSwitch').is(':checked') ? 1 : 0);
-  // Agregar la imagen al FormData, si existe
+
   var imageFile = $('#edit_ecommerce-category-image')[0].files[0];
   if (imageFile) {
       formData.append('image', imageFile);
@@ -278,7 +263,6 @@ $.ajax({
     contentType: false, 
     processData: false,
     success: function (response) {
-          console.log('Categoría actualizada:', response);
           dt_category.ajax.reload(null, false);
           $('#offcanvasEcommerceCategoryEdit').offcanvas('hide');
           Swal.fire({
@@ -330,11 +314,5 @@ $(document).on('click', '#editCategoryButton', function () {
 
 // Switch de estado de la categoría
 document.addEventListener('DOMContentLoaded', function () {
-  var statusSwitch = document.getElementById('statusSwitch');
-
-  statusSwitch.value = statusSwitch.checked ? '1' : '0';
-
-    statusSwitch.addEventListener('change', function() {
-        this.value = this.checked ? '1' : '0';
-    });
+  
 });

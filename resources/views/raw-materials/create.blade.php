@@ -43,9 +43,7 @@
                         <select class="form-select" id="unit_of_measure" name="unit_of_measure" required>
                             <option value="">Seleccione una unidad</option>
                             <option value="KG">Kilogramos (KG)</option>
-                            <option value="Gramos">Gramos (G)</option>
                             <option value="Litros">Litros (L)</option>
-                            <option value="Mililitros">Mililitros (ML)</option>
                             <option value="Unidades">Unidades (U)</option>
                         </select>
                     </div>
