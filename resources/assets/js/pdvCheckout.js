@@ -13,6 +13,7 @@ $(document).ready(function () {
   $('#client-info').hide();
 
 
+
   // INTEGRACIÓN POS
 
   // Cargar la configuración de respuestas POS desde el backend
@@ -292,7 +293,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
       console.error('ID de caja registradora no definido');
     }
   }
-
 
 
   function loadCartFromSession() {
@@ -1031,12 +1031,15 @@ $.ajax({
     if (paymentMethod === 'cash') {
       postOrder();
     } else {
+      postOrder();
+      /** Descomentar para usar el POS */
+      /**
       obtenerTokenPos().done(function (response) {
         const token = response.access_token;
         enviarTransaccionPos(token);
       }).fail(function (error) {
         console.error('Error al obtener el token del POS:', error);
-      });
+      }); */
     }
   });
 

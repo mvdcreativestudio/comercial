@@ -414,4 +414,15 @@
       });
     });
   });
+  
+  document.getElementById('bar_code').addEventListener('keypress', function(event) {
+    // Si el código de la tecla presionada es 13 (Enter)
+    if (event.keyCode === 13 || event.which === 13) {
+        // Evita que el formulario se envíe
+        event.preventDefault();
+        // Opcional: Puedes hacer algo más aquí, como mover el enfoque a otro campo
+        console.log('Enter presionado en el campo de código de barras.');
+    }
+  });
+
 })();
