@@ -87,10 +87,10 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'orders',
                         'products',
-                        'product-categories',
                         'settings',
                         'product-flavors',
                         'composite-products',
+                        'bulk-products',
                     ],
                     'view_all' => true,
                 ],
@@ -200,10 +200,10 @@ class CreatePermissions extends Command
                     'module' => 'entries',
                     'view_all' => true,
                     'submenus' => [
-                        'entry-details',
                         'delete_entries',
-                        // 'entry-types',
-                        // 'entry-accounts',
+                        'entry-details',
+                        'entry-types',
+                        'entry-accounts',
                         // 'entry-currencies',
                         // 'entry-settings',
                     ],
@@ -212,6 +212,22 @@ class CreatePermissions extends Command
                     'slug' => 'entry-details',
                     'module' => 'accounting',
                     'view_all' => false,
+                ],
+                [
+                    'slug' => 'entry-types',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entry-types',
+                    ],
+                ],
+                [
+                    'slug' => 'entry-accounts',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entry-accounts',
+                    ],
                 ],
                 [
                     'slug' => 'composite-products',
@@ -282,6 +298,41 @@ class CreatePermissions extends Command
                         'delete_current-accounts-suppliers-payments',
                     ],
                 ],
+                [
+                    'slug' => 'incomes',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'incomes-clients',
+                        'incomes-suppliers',
+                        'income-categories',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes-clients',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_incomes-clients',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes-suppliers',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_incomes-suppliers',
+                    ],
+                ],
+                [
+                    'slug' => 'income-categories',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_income-categories',
+                    ],
+                ],
+
             ],
         ];
 

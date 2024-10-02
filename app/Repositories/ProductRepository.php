@@ -29,13 +29,36 @@ class ProductRepository
   */
   public function create(): array
   {
-    $categories = ProductCategory::all();
-    $stores = Store::all();
+    // Verificar si el usuario tiene permiso para ver todas las categorías
+    if (Auth::user()->can('access_global_products')) {
+        $categories = ProductCategory::all();
+        $stores = Store::all();
+    } else {
+        // Si no tiene el permiso, mostrar solo las categorías y tiendas asociadas a su tienda
+        $categories = ProductCategory::where('store_id', Auth::user()->store_id)->get();
+        $stores = Store::where('id', Auth::user()->store_id)->get();
+    }
+
     $flavors = Flavor::all();
     $rawMaterials = RawMaterial::all();
 
     return compact('stores', 'categories', 'flavors', 'rawMaterials');
   }
+
+  /**
+   * Muestra un producto específico.
+   *
+   * @param int $id
+   * @return array
+   */
+  public function show(int $id): array
+  {
+      $product = Product::with('categories', 'store', 'flavors', 'recipes.rawMaterial', 'recipes.usedFlavor')
+                        ->findOrFail($id);
+
+      return compact('product');
+  }
+
 
   /**
    * Almacena un nuevo producto en base de datos.
@@ -50,7 +73,7 @@ class ProductRepository
       // Se rellenan los campos del producto con los datos del formulario.
       $product->fill($request->only([
           'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
+          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code'
       ]));
 
       // Manejo de la imagen
@@ -124,7 +147,11 @@ class ProductRepository
 
       // Aplicar filtros si están presentes en la solicitud
       if ($request->has('search') && !empty($request->search)) {
-          $query->where('name', 'like', '%' . $request->search . '%');
+        $query->where(function($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->search . '%')
+              ->orWhere('bar_code', 'like', '%' . $request->search . '%');
+
+        });
       }
 
       if ($request->has('store_id') && !empty($request->store_id)) {
@@ -192,10 +219,17 @@ class ProductRepository
   public function edit(int $id): array
   {
     $product = Product::with('categories', 'flavors', 'recipes.rawMaterial', 'recipes.usedFlavor')->findOrFail($id);
-    $categories = ProductCategory::all();
     $stores = Store::all();
     $flavors = Flavor::all();
     $rawMaterials = RawMaterial::all();
+
+    // Verificar si el usuario tiene permiso para ver todas las categorías
+    if (Auth::user()->can('access_global_products')) {
+        $categories = ProductCategory::all();
+    } else {
+        // Si no tiene el permiso, mostrar solo las categorías asociadas a su tienda
+        $categories = ProductCategory::where('store_id', Auth::user()->store_id)->get();
+    }
 
     return compact('product', 'stores', 'categories', 'flavors', 'rawMaterials');
   }
@@ -215,7 +249,7 @@ class ProductRepository
 
     $product->update($request->only([
         'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin'
+        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code'
     ]));
 
     // Manejo de la imagen si se ha subido un archivo

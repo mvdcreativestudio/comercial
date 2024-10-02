@@ -111,6 +111,7 @@ class CheckoutRepository
 
             // Obtener el ID de la tienda desde la sesión
             $storeId = session('store.id');
+            Log::info('ID de tienda obtenido:', ['store_id' => $storeId]);
 
             // Obtener los datos del cliente
             $clientData = $this->getClientData($request);

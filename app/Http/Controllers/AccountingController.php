@@ -12,6 +12,8 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\EmitNoteRequest;
 use Illuminate\Support\Facades\Log;
 use App\Models\CFE;
+use App\Models\Store;
+use Illuminate\Http\Request;
 
 class AccountingController extends Controller
 {
@@ -113,7 +115,7 @@ class AccountingController extends Controller
     public function saveRut(SaveRutRequest $request): RedirectResponse
     {
         $this->accountingRepository->saveRut($request->rut);
-        return redirect()->route('accounting.settings')->with('success_rut', 'RUT guardado correctamente.');
+        return redirect()->back()->with('success_rut', 'RUT guardado correctamente.');
     }
 
     /**
@@ -124,13 +126,11 @@ class AccountingController extends Controller
     */
     public function uploadLogo(UploadLogoRequest $request): RedirectResponse
     {
-        $rut = $this->accountingRepository->getRutSetting()->settingValue;
-
-        if ($this->accountingRepository->uploadCompanyLogo($rut, $request->file('logo'))) {
-            return redirect()->route('accounting.settings')->with('success_logo', 'Logo actualizado correctamente.');
+        if ($this->accountingRepository->uploadCompanyLogo($request->store_id, $request->file('logo'))) {
+            return redirect()->back()->with('success_logo', 'Logo actualizado correctamente.');
         }
 
-        return redirect()->route('accounting.settings')->with('error_logo', 'Error al actualizar el logo.');
+        return redirect()->back()->with('error_logo', 'Error al actualizar el logo.');
     }
 
     /**
@@ -185,7 +185,7 @@ class AccountingController extends Controller
 
         try {
             // Obtener las cookies para la autenticación
-            $cookies = $this->accountingRepository->login();
+            $cookies = $this->accountingRepository->login($store);
 
             if (!$cookies) {
                 return redirect()->back()->with('error', 'Error al iniciar sesión en el servicio PyMo.');
@@ -194,28 +194,66 @@ class AccountingController extends Controller
             // Obtener los recibos desde el endpoint
             $receivedCfes = $this->accountingRepository->fetchReceivedCfes($rut, $cookies);
 
+            Log::info('Recibos recibidos: ' . json_encode($receivedCfes));
+
             if (!$receivedCfes) {
                 return view('content.accounting.received_cfes', ['cfes' => []]);
             }
 
-            // Guardar o actualizar los recibos en la base de datos
             foreach ($receivedCfes as $receivedCfe) {
+                // Verificar si la estructura del recibo es correcta y contiene la clave 'eFact'
+                if (!isset($receivedCfe['CFE']['eFact'])) {
+                    Log::error('El recibo no tiene la estructura esperada: ' . json_encode($receivedCfe));
+                    continue; // Omitir este recibo y pasar al siguiente
+                }
+
+                Log::info('Recibo recibido: ' . json_encode($receivedCfe));
+
+                // Extraer los datos del recibo desde la respuesta
+                $idDoc = $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc'];
+                $totales = $receivedCfe['CFE']['eFact']['Encabezado']['Totales'];
+                $emisor = $receivedCfe['CFE']['eFact']['Encabezado']['Emisor'];
+                $receptor = $receivedCfe['CFE']['eFact']['Encabezado']['Receptor'];
+                $caeData = $receivedCfe['CFE']['CAEData'] ?? [];
+
+                $cfeData = [
+                    'type' => $idDoc['TipoCFE'],
+                    'serie' => $idDoc['Serie'],
+                    'nro' => $idDoc['Nro'],
+                    'caeNumber' => $caeData['CAE_ID'] ?? null,
+                    'caeRange' => json_encode([
+                        'DNro' => $caeData['DNro'] ?? null,
+                        'HNro' => $caeData['HNro'] ?? null,
+                    ]),
+                    'caeExpirationDate' => $caeData['FecVenc'] ?? null,
+                    'total' => $totales['MntTotal'] ?? null,
+                    'status' => $receivedCfe['cfeStatus'] ?? 'PENDING_REVISION',
+                    'balance' => $totales['MntPagar'] ?? 0,
+                    'received' => true,
+                    'emitionDate' => $idDoc['FchEmis'] ?? null,
+                    'sentXmlHash' => $receivedCfe['Signature']['DigestValue'] ?? null,
+                    'securityCode' => $receivedCfe['Signature']['SignatureValue'] ?? null, // Ajustar según lo que consideres "código de seguridad"
+                    'qrUrl' => null, // Ajustar si existe un valor de QR
+                    'cfeId' => $receivedCfe['_id'] ?? null,
+                    'reason' => null,
+                    'store_id' => $store->id,
+                    'main_cfe_id' => null,
+                    'is_receipt' => ($idDoc['TipoCFE'] == '111') ? true : false,
+                ];
+
+                // Actualizar o crear el CFE en la base de datos
                 CFE::updateOrCreate(
                     [
-                        'type' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['TipoCFE'],
-                        'serie' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['Serie'],
-                        'nro' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['Nro']
+                        'type' => $cfeData['type'],
+                        'serie' => $cfeData['serie'],
+                        'nro' => $cfeData['nro'],
                     ],
-                    [
-                        'emitionDate' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['FchEmis'],
-                        'total' => $receivedCfe['CFE']['eFact']['Encabezado']['Totales']['MntTotal'],
-                        'received' => true,
-                    ]
+                    $cfeData
                 );
             }
 
             // Obtener los CFEs actualizados de la base de datos para mostrar en la vista
-            $cfes = CFE::where('recibido', true)->get();
+            $cfes = CFE::where('received', true)->get();
 
             return view('content.accounting.received_cfes', compact('cfes'));
 
@@ -223,6 +261,55 @@ class AccountingController extends Controller
             Log::error('Error al obtener los recibos recibidos: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al obtener los recibos recibidos.');
         }
+    }
+
+
+    public function getReceivedCfesData()
+    {
+        $validTypes = [101, 102, 103, 111, 112, 113]; // Tipos válidos de CFE
+
+        // Si el usuario tiene permisos para ver toda la contabilidad
+        if (auth()->user()->can('view_all_accounting')) {
+            $cfes = CFE::with('order.client', 'order.store')
+                ->whereIn('type', $validTypes)
+                ->where('received', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // Filtra por la tienda del usuario autenticado si no tiene permisos para ver todo
+            $cfes = CFE::with('order.client', 'order.store')
+                ->whereIn('type', $validTypes)
+                ->whereHas('order.store', function ($query) {
+                    $query->where('id', auth()->user()->store_id);
+                })
+                ->where('received', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Formatear la colección de datos para el DataTable
+        $formattedCfes = $cfes->map(function ($cfe) {
+            return [
+                'id' => $cfe->id,
+                'issuer_name' => $cfe->order->store->name ?? 'N/A',
+                'emition_date' => $cfe->emitionDate,
+                'total' => $cfe->total,
+                'currency' => 'UYU', // Cambiar a la moneda que uses
+                'reason' => $cfe->reason ?? 'N/A',
+                'cfeId' => $cfe->id,
+                'serie' => $cfe->serie,
+                'nro' => $cfe->nro,
+                'caeNumber' => $cfe->caeNumber,
+                'caeRange' => $cfe->caeRange,
+                'caeExpirationDate' => $cfe->caeExpirationDate,
+                'sentXmlHash' => $cfe->sentXmlHash,
+                'securityCode' => $cfe->securityCode,
+                'qrUrl' => $cfe->qrUrl,
+                'actions' => $this->getActionButtons($cfe)
+            ];
+        });
+
+        return response()->json(['data' => $formattedCfes]);
     }
 
 
@@ -241,6 +328,45 @@ class AccountingController extends Controller
         } catch (\Exception $e) {
             Log::error("Error al emitir recibo para la factura {$invoiceId}: {$e->getMessage()}");
             return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+      * Maneja la llegada de un webhook de PyMo.
+      *
+      * @param Request $request
+      * @return void
+    */
+    public function webhook(Request $request): void
+    {
+        $data = $request->all(); // Obtener los datos del webhook
+        
+        Log::info('Recibiendo webhook');
+    
+        $type = $data['type']; // Obtener el tipo de webhook
+        $urlToCheck = $data['url_to_check']; // Obtener la URL a la que hacer la petición
+    
+        switch ($type) { // Según el tipo de webhook
+            case 'CFE_STATUS_CHANGE': // Si es un cambio de estado de CFE
+                // Extraer el RUT y la sucursal usando expresiones regulares
+                preg_match('/\/companies\/(\d+)\/sentCfes\/(\d+)/', $urlToCheck, $matches);
+    
+                if (isset($matches[1]) && isset($matches[2])) {
+                    $rut = $matches[1];         // Primer grupo de captura es el RUT
+                    $branchOffice = $matches[2]; // Segundo grupo de captura es la sucursal
+    
+                    Log::info('Rut de la tienda Webhook: ' . $rut);
+                    Log::info('Branch Office Webhook: ' . $branchOffice);
+    
+                    $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
+                } else {
+                    Log::info('No se pudieron extraer el RUT y la sucursal de la URL.');
+                }
+                break;
+    
+            default:
+                Log::info('Invalid request');
+                return;
         }
     }
 }

@@ -26,6 +26,7 @@ class UpdateProductRequest extends FormRequest
           'status' => 'required|boolean',
           'stock' => 'nullable|integer',
           'safety_margin' => 'nullable|numeric',
+          'bar_code' => 'nullable|string|max:255',
           'categories' => 'required|array',
           'categories.*' => 'exists:product_categories,id',
           'flavors' => 'nullable|array',

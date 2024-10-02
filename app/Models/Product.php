@@ -29,7 +29,8 @@ class Product extends Model
         'store_id',
         'status',
         'stock',
-        'safety_margin'
+        'safety_margin',
+        'bar_code'
       ];
 
 
@@ -119,7 +120,7 @@ class Product extends Model
         // Agrega más filtros según sea necesario
         return $query;
     }
-    
+
     /**
      * Setea el precio del producto.
      * @param float $value

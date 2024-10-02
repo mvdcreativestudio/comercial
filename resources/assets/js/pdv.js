@@ -595,8 +595,17 @@ $(document).ready(function() {
       const filteredProducts = products.filter(product => {
           const productName = product.name ? product.name.toLowerCase() : '';
           const productSku = product.sku ? product.sku.toLowerCase() : '';
-          return productName.includes(query.toLowerCase()) || productSku.includes(query.toLowerCase());
+          const productBarCode = product.bar_code ? product.bar_code.toLowerCase() : '';
+          return productName.includes(query.toLowerCase()) || productSku.includes(query.toLowerCase()) || productBarCode.includes(query.toLowerCase());
       });
+
+      // Si el código de barras coincide exactamente, agregar al carrito automáticamente
+      const exactBarCodeMatch = products.find(product => product.bar_code && product.bar_code.toLowerCase() === query.toLowerCase());
+      if (exactBarCodeMatch) {
+          addToCart(exactBarCodeMatch);
+          return;
+      }
+
       if (isListView) {
           displayProductsList(filteredProducts);
       } else {

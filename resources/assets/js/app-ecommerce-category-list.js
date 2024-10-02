@@ -201,6 +201,7 @@ $(function () {
 
     formData.append('name', $('#edit_ecommerce-category-title').val());
     formData.append('slug', $('#edit_ecommerce-category-slug').val());
+    formData.append('store_id', $('#edit_ecommerce-category-store').val());
     formData.append('description', quillEdit.root.innerHTML);
     formData.append('parent_id', $('#edit_ecommerce-category-parent-category').val());
     formData.append('status', $('#edit-statusSwitch').is(':checked') ? 1 : 0);
