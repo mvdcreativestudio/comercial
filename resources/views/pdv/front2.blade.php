@@ -138,7 +138,7 @@
         <div class="form-check mb-2">
           <input class="form-check-input" type="radio" name="paymentMethod" id="cash" checked>
           <label class="form-check-label" for="cash">Efectivo</label>
-          <input type="number" id="valorRecibido" class="form-control mt-2 mb-3" placeholder="Valor recibido">
+          <input type="number" id="valorRecibido" min="0" step=".01" class="form-control mt-2 mb-3" placeholder="Valor recibido">
           <p class="text-muted">Vuelto: <span id="vuelto">0</span></p>
           <small id="mensajeError" class="text-danger d-none mb-4">El valor recibido es menor al total de la compra.</small>
         </div>

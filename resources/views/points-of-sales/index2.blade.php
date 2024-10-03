@@ -197,50 +197,47 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery -->
 <script>
     $(document).ready(function() {
 
         $('#cash-registers-table').DataTable({
             "order": [[ 0, "desc" ]],
             "language": {
-            "processing": "Procesando...",
-            "search": "Buscar:",
-            "lengthMenu": "Mostrar _MENU_ registros",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            "infoEmpty": "Mostrando 0 a 0 de 0 registros",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "infoPostFix": "",
-            "loadingRecords": "Cargando...",
-            "zeroRecords": "No se encontraron registros coincidentes",
-            "emptyTable": "No hay datos disponibles en la tabla",
-            "paginate": {
-                "first": "Primero",
-                "previous": "Anterior",
-                "next": "Siguiente",
-                "last": "Último"
-            },
-          }
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "lengthMenu": "Mostrar _MENU_ registros",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "infoPostFix": "",
+                "loadingRecords": "Cargando...",
+                "zeroRecords": "No se encontraron registros coincidentes",
+                "emptyTable": "No hay datos disponibles en la tabla",
+                "paginate": {
+                    "first": "Primero",
+                    "previous": "Anterior",
+                    "next": "Siguiente",
+                    "last": "Último"
+                },
+            }
         });
 
         var authenticatedUserId = @json($userId);
 
-        // Mostrar el modal de crear al hacer clic en el botón de crear caja
         $('#crear-caja-btn').click(function() {
             $('#crearCajaModal').modal('show');
         });
 
-        // Obtener los IDs de las tiendas para la caja registradora
         $.ajax({
             url: 'point-of-sale/stores',
             type: 'GET',
             success: function(response) {
-                var storeIds = response; // Array con los IDs de las tiendas
+                var storeIds = response;
 
                 if (storeIds.length === 0) {
-                    // Si el array está vacío, ocultar el botón de crear caja
                     $('#crear-caja-btn').hide();
                 } else {
-                    // Crear un select con las opciones
                     var select = $('<select>', {
                         class: 'form-control',
                         id: 'store_id',
@@ -248,12 +245,11 @@
                         required: true
                     });
 
-                    // Añadir las opciones de las tiendas
                     $.each(storeIds, function(index, store) {
                         select.append($('<option>', {
                             value: store.id,
-                            text: store.name, // Usar el nombre de la tienda para mostrar en el select
-                            selected: index === 0 // Seleccionar la primera tienda por defecto
+                            text: store.name,
+                            selected: index === 0
                         }));
                     });
 
@@ -265,16 +261,14 @@
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error al obtener las tiendas: ' + xhr.responseText);
+              showError('Error al obtener las tiendas: ' + xhr.responseText);
             }
         });
 
-        // Enviar los datos de la nueva caja registradora al servidor
         $('#submit-crear-caja').click(function() {
-
             var storeId = $('#store_id').val();
             if (!storeId) {
-                alert('Por favor, seleccione una tienda.');
+                showError('Por favor, seleccione una tienda.');
                 return;
             }
 
@@ -290,26 +284,45 @@
                 },
                 success: function(response) {
                     $('#crearCajaModal').modal('hide');
-                    location.reload(); // Recargar la página para reflejar los cambios
+                    location.reload();
                 },
                 error: function(xhr, status, error) {
-                    alert('Error al crear la caja registradora: ' + xhr.responseText);
+                  showError('Error al crear la caja registradora: ' + xhr.responseText);
                 }
             });
         });
 
-        // Mostrar el modal para abrir la caja con el monto inicial
         $('.btn-open').click(function() {
             var cashRegisterId = $(this).data('id');
             $('#cash_register_id').val(cashRegisterId);
             $('#abrirCajaModal').modal('show');
         });
 
-        // Enviar los datos para abrir la caja registradora
+        // Remover mensajes de error previos y mostrar nuevos mensajes
+        function showError(message) {
+            var errorMessage = $('<div>', {
+                class: 'text-danger mt-2',
+                text: message
+            });
+            $('#initial_amount').after(errorMessage);
+        }
+
+        // Limpiar mensajes de error antes de cada envío
+        function clearErrors() {
+            $('.text-danger').remove();
+        }
+
         $('#submit-abrir-caja').click(function() {
+            clearErrors();  // Limpiar mensajes de error previos
+
             var cashRegisterId = $('#cash_register_id').val();
             var initialAmount = $('#initial_amount').val();
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            if (!initialAmount || initialAmount <= 0) {
+                showError('Por favor, ingrese un monto inicial válido.');
+                return;
+            }
 
             $.ajax({
                 url: 'pdv/open',
@@ -321,15 +334,14 @@
                 },
                 success: function(response) {
                     $('#abrirCajaModal').modal('hide');
-                    location.reload(); // Recargar la página para reflejar los cambios
+                    location.reload();
                 },
                 error: function(xhr, status, error) {
-                    alert('Error al abrir la caja registradora: ' + xhr.responseText);
+                    showError('Error al abrir la caja registradora: ' + xhr.responseText);
                 }
             });
         });
 
-        // Manejar la eliminación de la caja registradora
         $('.btn-delete').click(function() {
             var id = $(this).data('id');
             var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -342,23 +354,21 @@
                         _token: csrfToken
                     },
                     success: function(response) {
-                        location.reload(); // Recargar la página para reflejar los cambios
+                        location.reload();
                     },
                     error: function(xhr, status, error) {
-                        alert('Error al eliminar la caja registradora: ' + xhr.responseText);
+                      showError('Error al eliminar la caja registradora: ' + xhr.responseText);
                     }
                 });
             }
         });
 
-        // Mostrar el modal de detalles con la información de la caja
         $('.btn-view').click(function() {
             var cashRegisterId = $(this).data('id');
-            var baseUrl = "{{ url('/admin/point-of-sale/details') }}"; // Esto generará la URL base
+            var baseUrl = "{{ url('/admin/point-of-sale/details') }}";
             window.location.href = baseUrl + '/' + cashRegisterId;
         });
 
-        // Mostrar el modal de edición con la información de la caja
         $('.btn-edit').click(function() {
             var id = $(this).data('id');
             var storeId = $(this).data('store');
@@ -368,7 +378,6 @@
             $('#edit_user_id').val(userId);
             $('#editarCajaModal').modal('show');
 
-            // Manejar la actualización de la caja registradora
             $('#submit-editar-caja').click(function() {
                 var updatedStoreId = $('#edit_store_id').val();
                 var updatedUserId = $('#edit_user_id').val();
@@ -384,16 +393,15 @@
                     },
                     success: function(response) {
                         $('#editarCajaModal').modal('hide');
-                        location.reload(); // Recargar la página para reflejar los cambios
+                        location.reload();
                     },
                     error: function(xhr, status, error) {
-                        alert('Error al actualizar la caja registradora: ' + xhr.responseText);
+                        showError('Error al actualizar la caja registradora: ' + xhr.responseText);
                     }
                 });
             });
         });
 
-        // Mostrar el modal de cierre con la información de la caja
         $('.btn-closed').click(function() {
             var cashRegisterId = $(this).data('id');
             $('#cash_register_id_close').val(cashRegisterId);
