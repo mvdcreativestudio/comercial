@@ -35,7 +35,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label for="store_id" class="form-label">Tienda</label>
+            <label for="store_id" class="form-label">Empresa</label>
             <select class="form-select" id="store_id" name="store_id" required>
               <option value="" selected>Ninguna</option>
               @foreach($stores as $store)

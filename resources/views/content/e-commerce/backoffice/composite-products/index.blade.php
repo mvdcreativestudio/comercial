@@ -122,7 +122,7 @@
                             <span class="switch-on"><i class="bx bx-check"></i></span>
                             <span class="switch-off"><i class="bx bx-x"></i></span>
                         </span>
-                        <span class="switch-label">Tienda</span>
+                        <span class="switch-label">Empresa</span>
                     </label>
                 </div>
                 <div class="ml-1">
@@ -172,7 +172,7 @@
       <!-- Filtros para los productos compuestos -->
       <div class="d-flex justify-content-start align-items-center row py-3 gap-3 mb-0 pb-0 gap-md-0">
         <div class="col-md-2 store_filter">
-          <label for="store">Tienda</label>
+          <label for="store">Empresa</label>
         </div>
         <div class="col-md-2">
           <label for="startDate">Fecha Desde</label>
@@ -202,7 +202,7 @@
           </th>
           <th>N°</th>
           <th>Título</th>
-          <th>Tienda</th>
+          <th>Empresa</th>
           <th>Precio</th>
           <th>Precio Recomendado</th>
           <th>Fecha de Creación</th>

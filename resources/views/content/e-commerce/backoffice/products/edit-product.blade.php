@@ -37,7 +37,6 @@
 <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
   @csrf
   @method('PUT')
-
 <div class="d-flex flex-wrap align-items-center justify-content-between bg-light p-4 mb-3 rounded shadow sticky-top">
 
   <!-- Título del formulario -->
