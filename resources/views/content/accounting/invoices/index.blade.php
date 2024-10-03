@@ -114,6 +114,14 @@
           <a href="#" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
         </p>
       </div>
+      <button id="btn-update-cfes" class="btn btn-primary">
+        Actualizar estado de CFEs
+      </button>
+      @if (auth()->user()->can('access_update_all_invoices'))
+        <button id="btn-update-all-cfes" class="btn btn-primary">
+          Actualizar estado de todos los CFEs
+        </button>
+      @endif
       <div class="collapse" id="columnSwitches">
         <div class="mt-0 d-flex flex-wrap">
           <div class="mx-3">
@@ -183,6 +191,7 @@
           <th>Moneda</th>
           <th>Total</th>
           <th>Asociado a</th>
+          <th>Status</th>
           <th>Acciones</th>
         </tr>
       </thead>

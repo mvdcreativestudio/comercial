@@ -146,6 +146,7 @@ class AccountingRepository
               'associated_id' => $invoice->main_cfe_id,
               'is_receipt' => $invoice->is_receipt,
               'hide_emit' => $invoice->hide_emit,
+              'status' => $invoice->status ?? 'N/A',
           ];
       });
     }
@@ -375,6 +376,7 @@ class AccountingRepository
                                 'securityCode' => $cfe['securityCode'],
                                 'qrUrl' => $cfe['qrUrl'],
                                 'cfeId' => $cfe['id'],
+                                'status' => $cfeType === '101' ? 'SCHEDULED_WITHOUT_CAE_NRO' : 'CREATED_WITHOUT_CAE_NRO',
                             ]);
 
                             Log::info('Receipt creado correctamente:', $invoice->toArray());
@@ -654,6 +656,7 @@ class AccountingRepository
                         'cfeId' => $cfe['id'],
                         'reason' => $reason,
                         'main_cfe_id' => $invoice->id,
+                        'status' => 'CREATED_WITHOUT_CAE_NRO',
                     ]);
 
                     // Actualizar el balance del CFE principal
@@ -912,6 +915,7 @@ class AccountingRepository
                         'reason' => 'Recibo de Cobranza',
                         'main_cfe_id' => $invoice->id,
                         'is_receipt' => true,
+                        'status' => $invoice->type === '101' ? 'SCHEDULED_WITHOUT_CAE_NRO' : 'CREATED_WITHOUT_CAE_NRO',
                     ]);
                 }
             } else {
@@ -1141,7 +1145,7 @@ class AccountingRepository
     }
 
     /**
-     * checkCfeStatus | Verifica el estado de un CFE en PyMo y lo actualiza en la base de datos.
+     * Verifica el estado de un CFE en PyMo y lo actualiza en la base de datos.
      *
      * @param string $rut
      * @param string $branchOffice
@@ -1153,7 +1157,7 @@ class AccountingRepository
         // Busco la Store con el RUT y branch office
         Log::info('Rut de la tienda Webhook: ' . $rut);
         Log::info('Branch Office Webhook: ' . $branchOffice);
-        
+
         $store = Store::where('rut', $rut)
             ->where('pymo_branch_office', $branchOffice)
             ->first();
@@ -1181,7 +1185,7 @@ class AccountingRepository
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                
+
                 Log::info('Respuesta Webhook Notification URL: ', $responseData);
 
                 if (isset($responseData['payload']['branchOfficeSentCfes']) && is_array($responseData['payload']['branchOfficeSentCfes'])) {
@@ -1217,6 +1221,68 @@ class AccountingRepository
             Log::info('Estado del CFE actualizado: ' . $cfe->cfeId . ' a ' . $cfeData['actualCfeStatus']);
         } else {
             Log::warning('No se encontró un CFE con ID: ' . $cfeData['clientEmissionId']);
+        }
+    }
+
+    /**
+     * Actualiza el estado de todos los CFEs para una tienda específica.
+     *
+     * @param Store $store
+     * @return void
+    */
+    public function updateAllCfesForStore(Store $store): void
+    {
+        // Construir la URL para obtener todos los estados actualizados
+        $url = env('PYMO_HOST') . ':' . env('PYMO_PORT') . '/v1/companies/' . $store->rut . '/sentCfes/' . $store->pymo_branch_office;
+
+        // Iniciar sesión en PyMo
+        $cookies = $this->login($store);
+
+        if (!$cookies) {
+            Log::error('No se pudo iniciar sesión en PyMo para la tienda con RUT: ' . $store->rut);
+            return;
+        }
+
+        // Realizar la solicitud a PyMo para obtener los CFEs
+        try {
+            $response = Http::withCookies($cookies, parse_url(env('PYMO_HOST'), PHP_URL_HOST))->get($url);
+
+            if ($response->successful()) {
+                $cfesData = $response->json();
+
+                Log::info('CFEs para la tienda con RUT: ' . $store->rut, $cfesData);
+
+                // Actualizar el estado de cada CFE en la base de datos
+                foreach ($cfesData['payload']['branchOfficeSentCfes'] as $cfeData) {
+                    $this->updateCfeStatus($cfeData);
+                }
+
+                Log::info('Los estados de los CFEs para la tienda con RUT: ' . $store->rut . ' se han actualizado correctamente.');
+            } else {
+                Log::error('Error al obtener los CFEs para la tienda con RUT: ' . $store->rut . ' - ' . $response->body());
+            }
+        } catch (\Exception $e) {
+            Log::error('Excepción al obtener los CFEs para la tienda con RUT: ' . $store->rut . ' - ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Actualiza el estado de todos los CFEs para todas las tiendas.
+     *
+     * @return void
+    */
+    public function updateAllCfesStatusForAllStores(): void
+    {
+        // Obtener todas las tiendas que tengan invoices_enabled y datos en pymo_user y pymo_password, pymo_branch_office
+        $stores = Store::where('invoices_enabled', true)
+            ->whereNotNull('pymo_user')
+            ->whereNotNull('pymo_password')
+            ->whereNotNull('pymo_branch_office')
+            ->get();
+
+        // Actualizar el estado de los CFEs para cada tienda
+        foreach ($stores as $store) {
+            $this->updateAllCfesForStore($store);
         }
     }
 }
