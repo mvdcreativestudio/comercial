@@ -8,6 +8,7 @@ use App\Repositories\ClientRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use App\Models\CompanySettings;
+use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
@@ -36,7 +37,8 @@ class ClientController extends Controller
     public function index(): View
     {
       $companySettings = CompanySettings::first();
-      return view('content.clients.clients', compact('companySettings'));
+      $store = Auth::user()->store_id;
+      return view('content.clients.clients', compact('companySettings', 'store'));
     }
 
     /**
@@ -49,6 +51,11 @@ class ClientController extends Controller
     {
         try {
             $validatedData = $request->validated();
+
+            $companySettings = CompanySettings::first();
+            if ($companySettings->clients_has_store == 1) {
+                $validatedData['store_id'] = Auth::user()->store_id;
+            }
 
             $this->clientRepository->createClient($validatedData);
             return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente.');
