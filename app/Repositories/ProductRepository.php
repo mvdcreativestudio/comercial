@@ -550,5 +550,85 @@ class ProductRepository
       return $query->get();
   }
 
+  /**
+   * Muestra los productos y categorías para la edición masiva.
+   *
+   * @return array
+   */
+  public function getProductsForBulkEdit(): array
+  {
+      $products = Product::with('categories')->get();
+      // Verificar si el usuario tiene permiso para ver todas las categorías
+      if (Auth::user()->can('access_global_products')) {
+        $categories = ProductCategory::all();
+      } else {
+          // Si no tiene el permiso, mostrar solo las categorías asociadas a su tienda
+          $categories = ProductCategory::where('store_id', Auth::user()->store_id)->get();
+      }
+
+      return compact('products', 'categories');
+  }
+
+  /**
+   * Actualiza los productos en masa.
+   *
+   * @param array $productsData
+   * @return void
+   */
+  public function updateBulk(array $productsData): void
+  {
+      foreach ($productsData as $productData) {
+          $product = Product::find($productData['id']);
+          if ($product) {
+              // Excluir 'categories' del array de actualización
+              $updateData = array_diff_key($productData, array_flip(['categories']));
+              $product->update($updateData);
+
+              // Sincronizar categorías
+              if (isset($productData['categories'])) {
+                  $product->categories()->sync($productData['categories']);
+              }
+          }
+      }
+  }
+
+  /**
+   * Muestra las tiendas para agregar productos en masa.
+   *
+   * @return Collection
+   */
+  public function getStoresForBulkAdd(): Collection
+  {
+      if (Auth::user()->can('view_all_stores')) {
+          return Store::all();
+      } else {
+          return Store::where('id', Auth::user()->store_id)->get();
+      }
+  }
+
+  /**
+   * Almacena los productos en masa.
+   *
+   * @param array $productsData
+   * @return void
+   */
+  public function storeBulk(array $productsData): void
+  {
+      foreach ($productsData as $productData) {
+          if (!empty($productData['name'])) {
+              // Excluir 'categories' del array de creación
+              $productDataWithoutCategories = array_diff_key($productData, array_flip(['categories']));
+              $productDataWithoutCategories['image'] = '/assets/img/ecommerce-images/placeholder.png';
+
+              $product = new Product($productDataWithoutCategories);
+              $product->save();
+
+              // Sincronizar categorías si están presentes
+              if (isset($productData['categories'])) {
+                  $product->categories()->sync($productData['categories']);
+              }
+          }
+      }
+  }
 
 }

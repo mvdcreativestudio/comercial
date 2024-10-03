@@ -338,11 +338,11 @@ class ProductController extends Controller
    * Muestra el formulario para editar productos en masa.
    *
    * @return View
-   *
    */
-  public function editBulk() {
-    $products = Product::all();
-    return view('products.editBulk', compact('products'));
+  public function editBulk(): View
+  {
+      $data = $this->productRepo->getProductsForBulkEdit();
+      return view('products.editBulk', $data);
   }
 
   /**
@@ -351,15 +351,11 @@ class ProductController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-   public function updateBulk(Request $request) {
-    $products = $request->input('products');
-    foreach ($products as $productData) {
-        $product = Product::find($productData['id']);
-        if ($product) {
-            $product->update($productData);
-        }
-    }
-    return redirect()->route('products.editBulk')->with('success', 'Productos actualizados correctamente.');
+  public function updateBulk(Request $request): RedirectResponse
+  {
+      $products = $request->input('products');
+      $this->productRepo->updateBulk($products);
+      return redirect()->route('products.editBulk')->with('success', 'Productos actualizados correctamente.');
   }
 
   /**
@@ -369,8 +365,16 @@ class ProductController extends Controller
    */
   public function addBulk(): View
   {
-    $stores = Store::all();
-    return view('products.addBulk', compact('stores'));
+      $stores = $this->productRepo->getStoresForBulkAdd();
+
+      if (Auth::user()->can('access_global_products')) {
+        $categories = ProductCategory::all();
+      } else {
+          // Si no tiene el permiso, mostrar solo las categorías asociadas a su tienda
+          $categories = ProductCategory::where('store_id', Auth::user()->store_id)->get();
+      }
+
+      return view('products.addBulk', compact('stores', 'categories'));
   }
 
   /**
@@ -381,56 +385,9 @@ class ProductController extends Controller
    */
   public function storeBulk(Request $request): RedirectResponse
   {
-    \Log::info('Iniciando el proceso de almacenamiento en masa de productos.');
-
-    try {
-        \Log::info('Datos de la solicitud:', $request->all());
-
-        $products = $request->input('products');
-        \Log::info('Productos recibidos:', $products);
-
-        foreach ($products as $index => $productData) {
-            if (empty($productData['name'])) {
-                \Log::info("Producto en índice $index omitido debido a falta de nombre.");
-                continue;
-            }
-
-            // Siempre asignar la imagen por defecto
-            $productData['image'] = '/assets/img/ecommerce-images/placeholder.png';
-
-            $validatedData = $request->validate([
-                "products.$index.name" => 'required|string|max:255',
-                "products.$index.old_price" => 'nullable|numeric',
-                "products.$index.price" => 'required|numeric',
-                "products.$index.stock" => 'required|integer',
-                "products.$index.safety_margin" => 'required|integer',
-                "products.$index.store_id" => 'required|exists:stores,id',
-            ]);
-
-            // Agregar la imagen a los datos validados
-            $validatedData["products"][$index]['image'] = $productData['image'];
-
-            \Log::info("Datos validados para el producto en índice $index:", $validatedData);
-
-            try {
-                $product = new Product($validatedData["products"][$index]);
-                $product->save();
-                \Log::info("Producto guardado correctamente: ID {$product->id}");
-            } catch (\Exception $e) {
-                \Log::error("Error al guardar el producto en índice $index: " . $e->getMessage(), [
-                    'productData' => $productData,
-                    'exception' => $e,
-                ]);
-            }
-        }
-
-        return redirect()->route('products.addBulk')->with('success', 'Productos agregados correctamente.');
-    } catch (\Exception $e) {
-        \Log::error('Error en el proceso de almacenamiento en masa: ' . $e->getMessage(), [
-            'exception' => $e,
-        ]);
-        return redirect()->route('products.addBulk')->with('error', 'Ocurrió un error al agregar los productos.');
-    }
+      $products = $request->input('products');
+      $this->productRepo->storeBulk($products);
+      return redirect()->route('products.addBulk')->with('success', 'Productos agregados correctamente.');
   }
 
 }
