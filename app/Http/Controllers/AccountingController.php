@@ -340,33 +340,75 @@ class AccountingController extends Controller
     public function webhook(Request $request): void
     {
         $data = $request->all(); // Obtener los datos del webhook
-        
+
         Log::info('Recibiendo webhook');
-    
+
         $type = $data['type']; // Obtener el tipo de webhook
         $urlToCheck = $data['url_to_check']; // Obtener la URL a la que hacer la petición
-    
+
         switch ($type) { // Según el tipo de webhook
             case 'CFE_STATUS_CHANGE': // Si es un cambio de estado de CFE
                 // Extraer el RUT y la sucursal usando expresiones regulares
                 preg_match('/\/companies\/(\d+)\/sentCfes\/(\d+)/', $urlToCheck, $matches);
-    
+
                 if (isset($matches[1]) && isset($matches[2])) {
                     $rut = $matches[1];         // Primer grupo de captura es el RUT
                     $branchOffice = $matches[2]; // Segundo grupo de captura es la sucursal
-    
+
                     Log::info('Rut de la tienda Webhook: ' . $rut);
                     Log::info('Branch Office Webhook: ' . $branchOffice);
-    
+
                     $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
                 } else {
                     Log::info('No se pudieron extraer el RUT y la sucursal de la URL.');
                 }
                 break;
-    
+
             default:
                 Log::info('Invalid request');
                 return;
+        }
+    }
+
+    /**
+     * Actualiza el estado de todos los CFEs para la tienda del usuario autenticado.
+     *
+     * @return JsonResponse
+    */
+    public function updateAllCfesStatus(): JsonResponse
+    {
+        try {
+            // Obtener la tienda del usuario autenticado
+            $store = auth()->user()->store;
+
+            if (!$store) {
+                return response()->json(['error' => 'No se encontró la tienda para el usuario autenticado.'], 404);
+            }
+
+            // Llamar al método del repositorio para actualizar los CFEs
+            $this->accountingRepository->updateAllCfesForStore($store);
+
+            return response()->json(['success' => 'Los estados de los CFEs se han actualizado correctamente.']);
+        } catch (\Exception $e) {
+            Log::error('Excepción al actualizar los CFEs: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al actualizar los CFEs.'], 500);
+        }
+    }
+
+    /**
+     * Actualiza el estado de todos los CFE's para todas las tiendas.
+     *
+     * @return JsonResponse
+    */
+    public function updateAllCfesStatusForAllStores(): JsonResponse
+    {
+        try {
+            $this->accountingRepository->updateAllCfesStatusForAllStores();
+
+            return response()->json(['success' => 'Los estados de los CFEs se han actualizado correctamente.']);
+        } catch (\Exception $e) {
+            Log::error('Excepción al actualizar los CFEs: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al actualizar los CFEs.'], 500);
         }
     }
 }
