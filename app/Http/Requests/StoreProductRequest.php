@@ -41,7 +41,6 @@ class StoreProductRequest extends FormRequest
               'categories' => 'Faltó completar el campo "CATEGORÍA"',
               'recipes.*.raw_material_id' => 'required_with:recipes|exists:raw_materials,id',
               'recipes.*.quantity' => 'required_with:recipes|numeric|min:0.01',
-
               ];
   }
 

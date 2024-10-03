@@ -188,12 +188,12 @@ class ProductController extends Controller
    * Elimina un producto de la base de datos.
    *
    * @param int $id
-   * @return JsonResponse
+   * @return RedirectResponse
   */
-  public function destroy(int $id): JsonResponse
+  public function destroy(int $id): RedirectResponse
   {
     $this->productRepo->delete($id);
-    return response()->json(['success' => true, 'message' => 'Producto eliminado correctamente.']);
+    return redirect()->route('products.index')->with('success', 'Producto eliminado correctamente.');
   }
 
   /**
