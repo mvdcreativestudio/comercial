@@ -133,13 +133,22 @@ class DatacenterRepository
     }
 
     /**
-     * Contar la cantidad de categorías.
+     * Contar la cantidad de categorías
      *
+     * @param string $startDate
+     * @param string $endDate
+     * @param int|null $storeId
      * @return int
      */
-    public function countCategories(): int
+    public function countCategories(int $storeId = null): int
     {
-        return ProductCategory::count();
+      $query = ProductCategory::query();
+
+      if ($storeId) {
+          $query->where('store_id', $storeId);
+      }
+
+      return $query->count();
     }
 
     /**

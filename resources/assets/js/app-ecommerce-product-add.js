@@ -60,8 +60,8 @@
 
     function toggleFields() {
       // Oculta del todo los campos de cantidad de sabores. Si trabaja con productos variables, descomentar la primer linea y eliminar la segunda debajo de este comentario
-      // if (productTypeSelect.value === 'configurable') {
-      if (productTypeSelect.value === 'configurable' || productTypeSelect.value === 'simple') {
+      if (productTypeSelect.value === 'configurable') {
+      // if (productTypeSelect.value === 'configurable' || productTypeSelect.value === 'simple') {
         flavorsQuantityContainer.style.display = 'block';
         flavorsContainer.style.display = 'block';
         recipeCard.style.display = 'none';
@@ -414,4 +414,15 @@
       });
     });
   });
+  
+  document.getElementById('bar_code').addEventListener('keypress', function(event) {
+    // Si el código de la tecla presionada es 13 (Enter)
+    if (event.keyCode === 13 || event.which === 13) {
+        // Evita que el formulario se envíe
+        event.preventDefault();
+        // Opcional: Puedes hacer algo más aquí, como mover el enfoque a otro campo
+        console.log('Enter presionado en el campo de código de barras.');
+    }
+  });
+
 })();

@@ -36,7 +36,7 @@ class DatacenterController extends Controller
         $storesCount = $this->datacenterRepo->countStores();
         $registredClients = $this->datacenterRepo->countClients($startDate, $endDate, $storeIdForView);
         $productsCount = $this->datacenterRepo->countProducts($startDate, $endDate, $storeIdForView);
-        $categoriesCount = $this->datacenterRepo->countCategories();
+        $categoriesCount = $this->datacenterRepo->countCategories($storeIdForView);
         $ordersCount = $this->datacenterRepo->countOrders($startDate, $endDate, $storeIdForView);
 
         // Ingresos

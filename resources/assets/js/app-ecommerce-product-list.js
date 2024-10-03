@@ -84,29 +84,28 @@ $(function () {
 
             const statusText = rowData.status === 1 ? 'Activo' : 'Inactivo';
             const statusTextClass = rowData.status === 1 ? 'text-success' : 'text-danger';
-            const truncatedName = rowData.name.length > 25 ? rowData.name.substring(0, 25) + '...' : rowData.name;
+
+            const truncatedName = rowData.name.length > 20 ? rowData.name.substring(0, 20) + '...' : rowData.name;
 
             const card = `
               <div class="col-md-6 col-lg-4 col-12 mb-4">
-                <div class="product-card">
-                  <div class="col-4 d-flex align-items-center">
-                    <img src="${baseUrl + rowData.image}" class="img-fluid product-card-img" alt="Imagen del producto">
-                  </div>
-                  <div class="col-8">
-                    <div class="product-card-body">
-                      <h5 class="product-title">${truncatedName}</h5>
-                      <p class="product-category text-muted small">${rowData.category || 'Sin categoría'}</p>
-                      <h6 class="product-price">${currencySymbol}${parseFloat(rowData.price).toFixed(2)}</h6>
-                      <p class="product-stock"><span class="badge ${stockClass}">${rowData.stock}</span></p>
-                      <p class="product-status ${statusTextClass}">${statusText}</p>
-                      <div class="product-card-actions">
-                        <a href="${baseUrl}admin/products/${rowData.id}/edit" class="btn btn-sm btn-icon">
-                          <i class="bx bx-edit"></i>
-                        </a>
+                <a href="${baseUrl}admin/products/${rowData.id}" class="text-decoration-none">
+                  <div class="product-card position-relative">
+                    <div class="col-4 d-flex align-items-center">
+                      <img src="${baseUrl + rowData.image}" class="img-fluid product-card-img" alt="Imagen del producto">
+                    </div>
+                    <div class="col-8">
+                      <div class="product-card-body">
+                        <!-- Título con tooltip para el nombre completo -->
+                        <h5 class="product-title" title="${rowData.name}">${truncatedName}</h5>
+                        <p class="product-category text-muted small">${rowData.category || 'Sin categoría'}</p>
+                        <h6 class="product-price">${currencySymbol}${parseFloat(rowData.price).toFixed(2)}</h6>
+                        <p class="product-stock"><span class="badge ${stockClass}">${rowData.stock}</span></p>
+                        <p class="product-status ${statusTextClass}">${statusText}</p>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             `;
 

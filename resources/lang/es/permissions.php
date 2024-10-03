@@ -10,6 +10,7 @@ return [
   'access_datacenter' => 'Acceder a Datacenter',
   'access_crm' => 'Acceder a CRM',
   'access_stores' => 'Acceder a Empresas',
+  'view_all_stores' => 'Ver todas las Empresas',
   'access_open_close_stores' => 'Abrir/Cerrar Empresas',
   'access_roles' => 'Acceder a Roles',
   'view_all_raw-materials' => 'Ver todas las Materias Primas',

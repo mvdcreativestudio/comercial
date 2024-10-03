@@ -56,6 +56,12 @@ $currencySymbol = $settings->currency_symbol;
 
   <!-- Botones alineados a la derecha, ahora responsive -->
   <div class="text-end d-flex gap-2">
+
+      <!-- Botón para crear nuevo producto -->
+      <a href="{{ route('products.create') }}" class="btn btn-success btn-sm shadow-sm d-flex align-items-center gap-1">
+        <i class="bx bx-plus"></i> Nuevo Producto
+      </a>
+
     <!-- Botón de filtros -->
     <button id="openFilters" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1">
       <i class="bx bx-filter-alt"></i> Filtros
@@ -71,6 +77,10 @@ $currencySymbol = $settings->currency_symbol;
         <li><a class="dropdown-item" href="#" id="openImportModal"><i class="bx bx-upload"></i> Importar Productos</a></li>
       </ul>
     </div>
+
+
+
+
   </div>
 
 </div>
@@ -113,12 +123,17 @@ $currencySymbol = $settings->currency_symbol;
     <!-- Filtro por tienda -->
     <div class="mb-3">
       <label for="storeFilter" class="form-label">Tienda</label>
-      <select id="storeFilter" class="form-select">
-        <option value="">Todas las tiendas</option>
-        @foreach($stores as $store)
-          <option value="{{ $store->id }}">{{ $store->name }}</option>
-        @endforeach
-      </select>
+      @if(count($stores) == 1)
+        <input type="text" class="form-control" value="{{ $stores[0]->name }}" readonly disabled>
+        <input type="hidden" id="storeFilter" value="{{ $stores[0]->id }}">
+      @else
+        <select id="storeFilter" class="form-select">
+          <option value="">Todas las tiendas</option>
+          @foreach($stores as $store)
+            <option value="{{ $store->id }}">{{ $store->name }}</option>
+          @endforeach
+        </select>
+      @endif
     </div>
 
     <!-- Filtro por categoría -->

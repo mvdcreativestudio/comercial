@@ -247,6 +247,13 @@
             @endif
           </div>
 
+          <!-- Código de barras -->
+          <div class="mb-3" id="barCodeContainer">
+            <label class="form-label" for="bar_code">Código de barras</label>
+            <input type="text" class="form-control" id="bar_code" placeholder="Código de barras" name="bar_code" aria-label="Introduzca el código de barras">
+          </div>
+
+
         </div>
       </div>
       <!-- Media -->

@@ -9,7 +9,7 @@ use App\Repositories\ProductCategoryRepository;
 use App\Http\Requests\StoreProductCategoryRequest;
 use App\Http\Requests\UpdateProductCategoryRequest;
 use Illuminate\Http\JsonResponse;
-
+use App\Models\Store;
 class ProductCategoryController extends Controller
 {
     /**
@@ -47,8 +47,9 @@ class ProductCategoryController extends Controller
     */
     public function index(): View
     {
+      $stores = Store::all();
       $categories = $this->productCategoryRepo->index();
-      return view('content.e-commerce.backoffice.product-categories.product-categories', $categories);
+      return view('content.e-commerce.backoffice.product-categories.product-categories', $categories, compact('stores'));
     }
 
     /**
@@ -58,7 +59,8 @@ class ProductCategoryController extends Controller
     */
     public function create(): View
     {
-      return view('content.e-commerce.backoffice.product-categories.add-category');
+      $stores = Store::all();
+      return view('content.e-commerce.backoffice.product-categories.add-category', compact('stores'));
     }
 
     /**
