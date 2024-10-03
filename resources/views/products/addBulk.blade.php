@@ -1,5 +1,17 @@
 @extends('layouts/layoutMaster')
 
+@section('vendor-style')
+@vite([
+  'resources/assets/vendor/libs/select2/select2.scss',
+])
+@endsection
+
+@section('vendor-script')
+@vite([
+  'resources/assets/vendor/libs/select2/select2.js',
+])
+@endsection
+
 @section('content')
     <div
         class="d-flex align-items-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light">
@@ -10,6 +22,24 @@
             </h4>
         </div>
     </div>
+
+    @if(session('success'))
+      <div class="alert alert-success d-flex" role="alert">
+        <span class="badge badge-center rounded-pill bg-success border-label-success p-3 me-2"><i class="bx bx-user fs-6"></i></span>
+        <div class="d-flex flex-column ps-1">
+          <h6 class="alert-heading d-flex align-items-center fw-bold mb-1">¡Correcto!</h6>
+          <span>{{ session('success') }}</span>
+        </div>
+      </div>
+    @elseif(session('error'))
+      <div class="alert alert-danger d-flex" role="alert">
+        <span class="badge badge-center rounded-pill bg-danger border-label-danger p-3 me-2"><i class="bx bx-user fs-6"></i></span>
+        <div class="d-flex flex-column ps-1">
+          <h6 class="alert-heading d-flex align-items-center fw-bold mb-1">¡Error!</h6>
+          <span>{{ session('error') }}</span>
+        </div>
+      </div>
+    @endif
 
     <form action="{{ route('products.storeBulk') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -48,10 +78,20 @@
                         </div>
                         <div class="col-md-3">
                             <label for="store_id_0" class="form-label">Tienda</label>
-                            <select name="products[0][store_id]" class="form-select" id="store_id_0">
-                                <option value="" selected disabled>Seleccione una tienda</option>
+                            <select name="products[0][store_id]" class="form-select" id="store_id_0" @if(count($stores) == 1) disabled @endif>
+                                @if(count($stores) > 1)
+                                    <option value="" selected disabled>Seleccione una tienda</option>
+                                @endif
                                 @foreach ($stores as $store)
-                                    <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                    <option value="{{ $store->id }}" @if(count($stores) == 1) selected @endif>{{ $store->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category_id_0" class="form-label">Categoría</label>
+                            <select name="products[0][categories][]" class="form-control select2" id="category_id_0" multiple>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -117,11 +157,21 @@
                                     ${document.querySelector('select[name="products[0][store_id]"]').innerHTML}
                                 </select>
                             </div>
+                            <div class="col-md-3">
+                                <label for="category_id_${productIndex}" class="form-label">Categoría</label>
+                                <select name="products[${productIndex}][categories][]" class="form-select select2" id="category_id_${productIndex}" multiple>
+                                    ${document.querySelector('select[name="products[0][categories][]"]').innerHTML}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 `;
 
                 productContainer.appendChild(newProductRow);
+                $('.select2').select2({
+                    placeholder: 'Seleccione categorías',
+                    allowClear: true
+                });
                 productIndex++;
             }
 
@@ -130,6 +180,12 @@
                 if (event.target.classList.contains('add-product')) {
                     addProductRow();
                 }
+            });
+
+            // Inicializar select2 en el primer producto
+            $('.select2').select2({
+                placeholder: 'Seleccione categorías',
+                allowClear: true
             });
         });
     </script>
