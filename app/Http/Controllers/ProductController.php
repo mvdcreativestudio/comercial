@@ -193,7 +193,7 @@ class ProductController extends Controller
   public function destroy(int $id): JsonResponse
   {
     $this->productRepo->delete($id);
-    return response()->json(['success' => true, 'message' => 'Producto eliminado correctamente.']);
+    return response()->back()->with('success', 'Producto eliminado correctamente.');
   }
 
   /**
