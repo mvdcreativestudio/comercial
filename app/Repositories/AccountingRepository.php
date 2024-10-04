@@ -152,6 +152,72 @@ class AccountingRepository
     }
 
     /**
+     * Datatable de los CFEs recibidos.
+     *
+     * @return Collection
+    */
+    public function getReceivedInvoicesDataForDatatables(): Collection
+    {
+      $invoices = $this->getReceivedInvoicesWithRelations();
+
+      return $invoices->map(function ($invoice) {
+          $typeCFEs = [
+            101 => 'eTicket',
+            102 => 'eTicket - Nota de Crédito',
+            103 => 'eTicket - Nota de Débito',
+            111 => 'eFactura',
+            112 => 'eFactura - Nota de Crédito',
+            113 => 'eFactura - Nota de Débito',
+          ];
+
+          if ($invoice->is_receipt) {
+              $typeCFEs[101] = 'eTicket - Recibo';
+              $typeCFEs[111] = 'eFactura - Recibo';
+          }
+
+          if (
+              !$invoice->is_receipt &&
+              in_array($invoice->type, [101, 111]) &&
+              $invoice->relatedCfes->count() > 0 &&
+              $invoice->relatedCfes->contains(function ($relatedCfe) use ($invoice) {
+                  return $relatedCfe->type == $invoice->type;
+              })
+          ) {
+              $invoice->hide_emit = true;
+          }
+
+          return [
+              'id' => $invoice->id,
+              'store_name' => $invoice->order->store->name ?? 'N/A',
+              'client_name' => $invoice->order->client->name ?? 'N/A',
+              'client_email' => $invoice->order->client->email ?? 'N/A',
+              'client_lastname' => $invoice->order->client->lastname ?? 'N/A',
+              'date' => $invoice->emitionDate,
+              'order_id' => $invoice->order->id,
+              'type' => $typeCFEs[$invoice->type] ?? 'N/A',
+              'currency' => 'UYU',
+              'total' => $invoice->total,
+              'qrUrl' => $invoice->qrUrl,
+              'order_uuid' => $invoice->order->uuid,
+              'serie' => $invoice->serie,
+              'cfeId' => $invoice->cfeId,
+              'nro' => $invoice->nro,
+              'balance' => $invoice->balance,
+              'caeNumber' => $invoice->caeNumber,
+              'caeRange' => $invoice->caeRange,
+              'caeExpirationDate' => $invoice->caeExpirationDate,
+              'sentXmlHash' => $invoice->sentXmlHash,
+              'securityCode' => $invoice->securityCode,
+              'reason' => $invoice->reason,
+              'associated_id' => $invoice->main_cfe_id,
+              'is_receipt' => $invoice->is_receipt,
+              'hide_emit' => $invoice->hide_emit,
+              'status' => $invoice->status ?? 'N/A'
+          ];
+      });
+    }
+
+    /**
      * Obtiene los comprobantes fiscales electrónicos (CFE) enviados de una empresa.
      *
      * @param string $rut
@@ -1284,6 +1350,192 @@ class AccountingRepository
         foreach ($stores as $store) {
             $this->updateAllCfesForStore($store);
         }
+    }
+
+    /**
+     * Obtiene y almacena los CFEs recibidos para una tienda específica.
+     *
+     * @param Store $store
+     * @return array|null
+    */
+    public function processReceivedCfes(Store $store): ?array
+    {
+        $rut = $store->rut;
+
+        if (!$rut) {
+            Log::error('No se pudo obtener el RUT de la tienda.');
+            return null;
+        }
+
+        try {
+            // Obtener las cookies para la autenticación
+            $cookies = $this->login($store);
+
+            if (!$cookies) {
+                Log::error('Error al iniciar sesión en el servicio PyMo.');
+                return null;
+            }
+
+            // Obtener los recibos desde el endpoint
+            $receivedCfes = $this->fetchReceivedCfes($rut, $cookies);
+
+            if (!$receivedCfes) {
+                Log::info('No se encontraron CFEs recibidos.');
+                return [];
+            }
+
+            foreach ($receivedCfes as $receivedCfe) {
+                // Verificar si existe la clave 'CFE' en el recibo
+                if (!isset($receivedCfe['CFE'])) {
+                    Log::error('El recibo no tiene la estructura esperada: ' . json_encode($receivedCfe));
+                    continue; // Omitir este recibo y pasar al siguiente
+                }
+
+                // Obtener dinámicamente la primera clave dentro de 'CFE'
+                $cfe = $receivedCfe['CFE'];
+                $firstKey = array_key_first($cfe); // Obtener la primera clave dentro de 'CFE'
+
+                if (!isset($cfe[$firstKey])) {
+                    Log::error('No se pudo obtener la estructura interna del CFE: ' . json_encode($receivedCfe));
+                    continue; // Omitir este recibo si no se encuentra la estructura esperada
+                }
+
+                $cfeData = $cfe[$firstKey];
+
+                // Extraer los datos del recibo desde la estructura seleccionada
+                $idDoc = $cfeData['Encabezado']['IdDoc'] ?? [];
+                $totales = $cfeData['Encabezado']['Totales'] ?? [];
+                $caeData = $cfeData['CAEData'] ?? [];
+                $adenda = $receivedCfe['Adenda'] ?? null;
+
+                Log::info('CFE DATA: ', $cfeData['Encabezado']['Emisor']);
+
+                $cfeEntry = [
+                    'store_id' => $store->id,
+                    'type' => $idDoc['TipoCFE'] ?? null,
+                    'serie' => $idDoc['Serie'] ?? null,
+                    'nro' => $idDoc['Nro'] ?? null,
+                    'caeNumber' => $caeData['CAE_ID'] ?? null,
+                    'caeRange' => json_encode([
+                        'first' => $caeData['DNro'] ?? null,
+                        'last' => $caeData['HNro'] ?? null,
+                    ]),
+                    'caeExpirationDate' => $caeData['FecVenc'] ?? null,
+                    'total' => $totales['MntTotal'] ?? 0,
+                    'status' => $receivedCfe['cfeStatus'] ?? 'PENDING_REVISION',
+                    'balance' => $totales['MntTotal'] ?? 0,
+                    'received' => true,
+                    'emitionDate' => $idDoc['FchEmis'] ?? null,
+                    'cfeId' => $receivedCfe['_id'] ?? null,
+                    'reason' => $adenda,
+                    'issuer_name' => $cfeData['Encabezado']['Emisor']['NomComercial'] ?? null,
+                    'is_receipt' => ($idDoc['TipoCFE'] ?? null) == '111',
+                ];
+
+                // Validar si los campos requeridos existen antes de crear o actualizar el CFE
+                if (is_null($cfeEntry['type']) || is_null($cfeEntry['serie']) || is_null($cfeEntry['nro'])) {
+                    Log::error('El recibo no tiene los campos obligatorios: ' . json_encode($receivedCfe));
+                    continue; // Omitir este recibo y pasar al siguiente
+                }
+
+                // Actualizar o crear el CFE en la base de datos
+                CFE::updateOrCreate(
+                    [
+                        'type' => $cfeEntry['type'],
+                        'serie' => $cfeEntry['serie'],
+                        'nro' => $cfeEntry['nro'],
+                    ],
+                    $cfeEntry
+                );
+            }
+
+            // Retornar los CFEs actualizados de la base de datos
+            return CFE::where('received', true)->get()->toArray();
+        } catch (\Exception $e) {
+            Log::error('Error al procesar los recibos recibidos: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+
+    /**
+     * Prepara los datos de los CFEs recibidos para ser usados en DataTables.
+     *
+     * @param Store|null $store
+     * @return Collection
+    */
+    public function getReceivedCfesDataForDatatables(?Store $store = null): Collection
+    {
+        $validTypes = [101, 102, 103, 111, 112, 113]; // Tipos válidos de CFE
+
+        // Si se proporciona una tienda específica, filtrar por esta tienda
+        if ($store) {
+            $cfes = CFE::with('order.client', 'order.store')
+                ->where('store_id', $store->id)
+                ->whereIn('type', $validTypes)
+                ->where('received', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            // Si no se proporciona una tienda específica, obtener todos los CFEs recibidos
+            $cfes = CFE::with('order.client', 'order.store')
+                ->whereIn('type', $validTypes)
+                ->where('received', true)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        // Formatear la colección de datos para el DataTable
+        return $cfes->map(function ($cfe) {
+          $typeCFEs = [
+            101 => 'eTicket',
+            102 => 'eTicket - Nota de Crédito',
+            103 => 'eTicket - Nota de Débito',
+            111 => 'eFactura',
+            112 => 'eFactura - Nota de Crédito',
+            113 => 'eFactura - Nota de Débito',
+          ];
+
+          if ($cfe->is_receipt) {
+              $typeCFEs[101] = 'eTicket - Recibo';
+              $typeCFEs[111] = 'eFactura - Recibo';
+          }
+
+          if (
+              !$cfe->is_receipt &&
+              in_array($cfe->type, [101, 111]) &&
+              $cfe->relatedCfes->count() > 0 &&
+              $cfe->relatedCfes->contains(function ($relatedCfe) use ($cfe) {
+                  return $relatedCfe->type == $cfe->type;
+              })
+          ) {
+              $cfe->hide_emit = true;
+          }
+
+          return [
+              'id' => $cfe->id,
+              'date' => $cfe->emitionDate,
+              'issuer_name' => $cfe->issuer_name ?? 'N/A',
+              'type' => $typeCFEs[$cfe->type] ?? 'N/A',
+              'currency' => 'UYU',
+              'total' => $cfe->total,
+              'qrUrl' => $cfe->qrUrl,
+              'serie' => $cfe->serie,
+              'cfeId' => $cfe->cfeId,
+              'nro' => $cfe->nro,
+              'balance' => $cfe->balance,
+              'caeNumber' => $cfe->caeNumber,
+              'caeRange' => $cfe->caeRange,
+              'caeExpirationDate' => $cfe->caeExpirationDate,
+              'sentXmlHash' => $cfe->sentXmlHash,
+              'securityCode' => $cfe->securityCode,
+              'reason' => $cfe->reason,
+              'associated_id' => $cfe->main_cfe_id,
+              'is_receipt' => $cfe->is_receipt,
+              'hide_emit' => $cfe->hide_emit,
+              'status' => $cfe->status ?? 'N/A'
+          ];
+      });
     }
 }
 
