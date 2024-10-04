@@ -391,7 +391,7 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
 
     // Muestra o oculta la información de la razón social, dependiendo del tipo de cliente
     if (client.type === 'company') {
-      $('#client-company').html(`<strong>Razón Social:</strong> ${client.company_name || '-'}`);
+      $('#client-company').html(`<strong class="text-muted">Razón Social:</strong> <span class="text-body fw-bold">${client.company_name || '-'}</span>`);
       $('#client-company').show();
     } else {
       $('#client-company').hide();

@@ -788,6 +788,7 @@ tr.odd {
   width: 100%;
   height: 100%;
   max-height: 150px;
+  border-radius: 8px;
 }
 
 .product-cart-card-body {
@@ -820,5 +821,48 @@ tr.odd {
 .product-cart-remove {
   color: #dc3545;
   cursor: pointer;
+}
+
+
+/* Selector de cantidad PDV */
+
+.selector-cantidad-pdv {
+  width: 40px !important; /* Ancho ajustado */
+  text-align: center !important;
+  font-size: .8rem !important; /* Tamaño de fuente más grande */
+  padding: 0.05rem !important; /* Espaciado interno reducido */
+  height: 24px !important; /* Altura reducida */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.075) !important;
+  outline: none !important;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.selector-cantidad-pdv:focus {
+  border-color: #ced4da !important;
+  box-shadow: none!important;
+}
+
+.selector-cantidad-pdv::-webkit-inner-spin-button,
+.selector-cantidad-pdv::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.increment-quantity,
+.decrement-quantity {
+  border-color: #ced4da !important;
+  color: #495057 !important;
+  height: 24px !important;
+  padding: 0.05rem 0.5rem !important;
+}
+
+.increment-quantity:hover,
+.decrement-quantity:hover {
+  background-color: #e9ecef !important;
+  border-color: #ced4da !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #ced4da !important;
 }
 
