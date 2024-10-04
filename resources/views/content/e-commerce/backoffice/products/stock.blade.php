@@ -7,14 +7,14 @@
   'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
   'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
   'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-  'resources/assets/vendor/libs/select2/select2.scss'
+  'resources/assets/vendor/libs/select2/select2.scss',
 ])
 @endsection
 
 @section('vendor-script')
 @vite([
   'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-  'resources/assets/vendor/libs/select2/select2.js'
+  'resources/assets/vendor/libs/select2/select2.js',
 ])
 
 @php
@@ -139,5 +139,4 @@ $currencySymbol = $settings->currency_symbol;
 <style>
 
 </style>
-
 @endsection

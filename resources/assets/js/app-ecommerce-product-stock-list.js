@@ -105,7 +105,7 @@ $(function () {
                         <div>
                           <h6 class="card-title">${rowData.name}</h6>
                           <p class="card-text mb-2">Stock: <span class="badge ${stockClass}">${rowData.stock}</span></p>
-                          <p class="card-text mb-2">Tienda: ${rowData.store_name}</p>
+                          <p class="card-text mb-2">Empresa: ${rowData.store_name}</p>
                         </div>
                         <div>
                           <p class="card-text">Estado: <span class="${statusTextClass}">${statusText}</span></p>

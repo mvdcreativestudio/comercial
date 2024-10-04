@@ -12,7 +12,35 @@ $(document).ready(function () {
   let posResponsesConfig = {};
   $('#client-info').hide();
 
+  function limitTwoDecimals(event) {
+    const input = event.target;
+    let value = input.value;
 
+    // Guardar la posición actual del cursor
+    const cursorPosition = input.selectionStart;
+
+    // Expresión regular que permite números con hasta dos decimales
+    const regex = /^\d+(\.\d{0,2})?$/;
+
+    // Si el valor no coincide con la expresión regular, recortamos a dos decimales
+    if (!regex.test(value)) {
+      value = parseFloat(value).toFixed(2);
+      if (!isNaN(value)) {
+        input.value = value;
+      }
+    }
+
+    // Restaurar la posición del cursor después de modificar el valor
+    setTimeout(() => {
+      input.selectionStart = cursorPosition;
+      input.selectionEnd = cursorPosition;
+    }, 0);
+  }
+
+  // Asociar la función limitTwoDecimals a los campos específicos
+  $('#fixed-discount').on('input', limitTwoDecimals);
+  $('#valorRecibido').on('input', limitTwoDecimals);
+  $('#valorRecibido').on('input', calcularVuelto);
 
   // INTEGRACIÓN POS
 
@@ -1051,15 +1079,11 @@ $.ajax({
     updateCheckoutCart();
   });
 
-  $('#valorRecibido').on('input', function () {
-    var valorRecibido = $(this).val() || 0;
-
+  function calcularVuelto() {
+    var valorRecibido = parseFloat($('#valorRecibido').val()) || 0;
     var total = parseFloat($('.total').text().replace(/[^\d.-]/g, '')) || 0;
 
-
     var vuelto = valorRecibido - total;
-
-    console.log(vuelto)
 
     // Verificar si el valor recibido es menor que el total
     if (valorRecibido < total) {
@@ -1073,28 +1097,5 @@ $.ajax({
 
     // Mostrar el vuelto formateado
     $('#vuelto').text(`${currencySymbol}${formattedVuelto}`);
-  });
-
-  $('#fixed-discount').on('input', function () {
-    // Reemplazar cualquier valor que no sea un número o un punto, y limitar a dos decimales
-    const value = $(this).val().replace(/[^0-9.]/g, '');
-
-    // Usar una expresión regular para permitir hasta dos decimales
-    const validValue = value.match(/^\d+(\.\d{0,2})?/);
-
-    // Asignar el valor válido de nuevo al input
-    $(this).val(validValue ? validValue[0] : '');
-  });
-
-  $('#valorRecibido').on('input', function () {
-    // Reemplazar cualquier valor que no sea un número o un punto, y limitar a dos decimales
-    const value = $(this).val().replace(/[^0-9.]/g, '');
-
-    // Usar una expresión regular para permitir hasta dos decimales
-    const validValue = value.match(/^\d+(\.\d{0,2})?/);
-
-    // Asignar el valor válido de nuevo al input
-    $(this).val(validValue ? validValue[0] : '');
-  });
-
+  }
 });

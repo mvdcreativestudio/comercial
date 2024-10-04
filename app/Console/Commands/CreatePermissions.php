@@ -69,6 +69,7 @@ class CreatePermissions extends Command
                     'module' => 'accounting',
                     'submenus' => [
                         'invoices',
+                        'update_all_invoices',
                         'receipts',
                         'entries',
                         'accounting-settings',
@@ -89,6 +90,7 @@ class CreatePermissions extends Command
                         'products',
                         'settings',
                         'product-flavors',
+                        'product-categories',
                         'composite-products',
                         'bulk-products',
                     ],

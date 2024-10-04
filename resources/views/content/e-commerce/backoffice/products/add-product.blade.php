@@ -183,14 +183,19 @@
 
           <!-- Base Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-price">Precio normal</label>
-            <input type="number" min="0" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" aria-label="Product price" required>
+            <label class="form-label" for="ecommerce-product-price">Precio normal - <small>IVA INCLUÍDO</small></label></label>
+            <input type="number" min="0" step=".01" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" aria-label="Product price" required>
           </div>
           <!-- Discounted Price -->
           <div class="mb-3">
-            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado</label>
+            <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado - <small>IVA INCLUÍDO</small></label></label>
             <input type="number" step=".01" min="0" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" aria-label="Introduzca el precio rebajado">
           </div>
+          <!-- build_price -->
+          <div class="mb-3">
+            <label class="form-label" for="build_price">Precio de Costo</label>
+            <input type="number" step=".01" min="0" class="form-control" id="build_price" placeholder="Precio de Costo" name="build_price" aria-label="Introduzca el precio de Costo" required>
+          <div>
 
         </div>
       </div>

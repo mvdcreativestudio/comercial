@@ -50,18 +50,16 @@
 <div class="app-ecommerce" data-products='@json($products)'>
 
   <!-- Add Composite Product -->
-  <form action="{{ route('composite-products.store') }}" method="POST" enctype="multipart/form-data">
+  <form action="{{ route('composite-products.store') }}" method="POST" enctype="multipart/form-data" id="addCompositeProductForm">
     @csrf
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-
       <!-- Título de la página y botones de acciones -->
       <div class="d-flex flex-column justify-content-center">
         <h4 class="mb-1 mt-3">Crear un nuevo producto compuesto</h4>
       </div>
       <div class="d-flex align-content-center flex-wrap gap-3">
         <button type="button" class="btn btn-label-secondary" id="discardButton">Descartar</button>
-        {{-- <button type="submit" name="action" value="save_draft" class="btn btn-label-primary">Guardar borrador</button> --}}
-        <button type="submit" name="action" value="publish" class="btn btn-primary">Guardar</button>
+        <button type="submit" name="action" value="publish" class="btn btn-primary" id="saveButton">Guardar</button>
       </div>
     </div>
 
@@ -128,13 +126,32 @@
             <div class="mb-3">
               <div class="d-flex justify-content-between">
                 <label class="form-label" for="product_ids">Productos</label>
-                {{-- <label class="form-label" id="selectAllProductsButton">Seleccionar todos</label> --}}
               </div>
               <select class="select2 form-select" id="product_ids" name="product_ids[]" multiple="multiple" required>
                 @foreach ($products as $product)
-                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                <option value="{{ $product->id }}" data-build-price="{{ $product->build_price }}">
+                  {{ $product->name }}
+                </option>
                 @endforeach
               </select>
+            </div>
+
+            <!-- Tabla para productos seleccionados -->
+            <table class="table" id="selectedProductsTable">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+
+            <!-- Alerta si algún producto no tiene build_price -->
+            <div class="alert alert-danger d-none" id="priceAlert">
+              Uno o más productos no tienen un precio asociado, no se puede calcular el precio recomendado.
             </div>
           </div>
         </div>
@@ -147,12 +164,12 @@
             <h5 class="card-title mb-0">Organizar</h5>
           </div>
           <div class="card-body">
-            <!-- Campo para seleccionar la tienda -->
+            <!-- Campo para seleccionar la Empresa -->
             <div class="mb-3">
-              <label class="form-label" for="store_id">Tienda</label>
-              <select id="store_id" class="form-select" data-placeholder="Seleccione la tienda" name="store_id"
+              <label class="form-label" for="store_id">Empresa</label>
+              <select id="store_id" class="form-select" data-placeholder="Seleccione la Empresa" name="store_id"
                 required>
-                <option value="" selected disabled>Seleccione una tienda</option>
+                <option value="" selected disabled>Seleccione una empresa</option>
                 @foreach ($stores as $store)
                 <option value="{{ $store->id }}">{{ $store->name }}</option>
                 @endforeach
@@ -162,27 +179,7 @@
         </div>
       </div>
     </div>
-
-    {{-- Sección para subir imágenes (comentada) --}}
-    {{-- <div class="row gx-3 mt-4">
-      <div class="col-lg-8">
-        <div class="card h-100">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Imagen del Producto Compuesto</h5>
-          </div>
-          <div class="card-body">
-            <div class="dropzone dz-clickable" id="dropzone">
-              <div class="dz-message needsclick">
-                <p class="fs-4 note needsclick my-2">Arrastre la imagen aquí</p>
-                <small class="text-muted d-block fs-6 my-2">o</small>
-                <span class="note needsclick btn bg-label-primary d-inline" id="btnBrowse">Buscar imagen</span>
-              </div>
-            </div>
-            <input type="file" name="image" id="compositeProductImage" class="d-none">
-          </div>
-        </div>
-      </div>
-    </div> --}}
   </form>
 </div>
+
 @endsection

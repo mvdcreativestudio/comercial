@@ -37,7 +37,6 @@
 <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
   @csrf
   @method('PUT')
-
 <div class="d-flex flex-wrap align-items-center justify-content-between bg-light p-4 mb-3 rounded shadow sticky-top">
 
   <!-- Título del formulario -->
@@ -183,13 +182,19 @@
           <!-- Base Price -->
           <div class="mb-3">
             <label class="form-label" for="ecommerce-product-price">Precio normal - <small>IVA INCLUÍDO</small></label></label>
-            <input type="number" class="form-control" id="ecommerce-product-price" placeholder="Precio" name="old_price" value="{{$product->old_price}}" aria-label="Product price" required>
+            <!-- Permito decimales en el precio -->
+            <input type="number" class="form-control" step=".01" min="0" id="ecommerce-product-price" placeholder="Precio" name="old_price" value="{{$product->old_price}}" aria-label="Product price" required>
           </div>
           <!-- Discounted Price -->
           <div class="mb-3">
             <label class="form-label" for="ecommerce-product-discount-price">Precio rebajado - <small>IVA INCLUÍDO</small></label></label>
-            <input type="number" class="form-control" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" value="{{$product->price}}" aria-label="Introduzca el precio rebajado">
+            <input type="number" class="form-control" min="0" step=".01" id="ecommerce-product-discount-price" placeholder="Precio rebajado" name="price" value="{{$product->price}}" aria-label="Introduzca el precio rebajado">
           </div>
+          <!-- build_price -->
+          <div class="mb-3">
+            <label class="form-label" for="build_price">Precio de Costo</label>
+            <input type="number" step=".01" min="0" class="form-control" id="build_price" placeholder="Precio de Costo" name="build_price" aria-label="Introduzca el precio de Costo" required value="{{$product->build_price}}">
+          <div>
           <!-- Campo oculto para estado desactivado -->
           <input type="hidden" name="status" value="2">
           <!-- Instock switch -->

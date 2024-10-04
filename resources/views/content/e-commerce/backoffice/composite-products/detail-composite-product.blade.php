@@ -48,7 +48,7 @@
                 <p>{{ $compositeProduct->title }}</p>
             </div>
             <div class="col-md-6">
-                <h6 class="mb-2">Tienda:</h6>
+                <h6 class="mb-2">Empresa:</h6>
                 <p>{{ $compositeProduct->store->name }}</p>
             </div>
             <div class="col-md-6">
@@ -77,6 +77,7 @@
                 <tr>
                     <th>N°</th>
                     <th>Producto</th>
+                    <th>Cantidad</th>
                     <th>Stock</th>
                     <th>Precio Unitario</th>
                 </tr>
@@ -86,8 +87,9 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $detail->product->name }}</td>
+                    <td>{{ $detail->quantity_composite_product }}</td>
                     <td>{{ $detail->product->stock ?? 'Sin Stock' }}</td>
-                    <td>{{ $settings->currency_symbol }} {{ number_format($detail->product->price, 2) }}</td>
+                    <td>{{ $settings->currency_symbol }} {{ number_format($detail->product->build_price, 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
