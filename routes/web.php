@@ -260,6 +260,8 @@ Route::middleware([
     Route::post('/email-templates/update/{templateId?}', [EmailTemplateController::class, 'update'])->name('email-templates.update');
     Route::post('/upload-image', [EmailTemplateController::class, 'uploadImage'])->name('upload-image');
 
+    // EXCEL ORDERS
+    Route::get('/orders-export-excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
     // Gestión de Ordenes
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
@@ -391,7 +393,6 @@ Route::middleware([
     Route::group(['prefix' => 'incomes-suppliers'], function () {
         Route::post('/delete-multiple', [IncomeSupplierController::class, 'deleteMultiple'])->name('income-suppliers.deleteMultiple');
     });
-
 });
 
 // Recursos con acceso público

@@ -14,6 +14,7 @@ class CompositeProductDetail extends Model
     protected $fillable = [
         'composite_product_id',
         'product_id',
+        'quantity_composite_product'
     ];
 
     /**

@@ -47,21 +47,20 @@
 </div>
 @endif
 
-<div class="app-ecommerce" data-products='@json($products)'>
+<div class="app-ecommerce" data-products='@json($products)' data-composite-product='@json($compositeProduct)'>
 
   <!-- Edit Composite Product -->
-  <form action="{{ route('composite-products.update', $compositeProduct->id) }}" method="POST" enctype="multipart/form-data">
+  <form action="{{ route('composite-products.update', $compositeProduct->id) }}" method="POST" enctype="multipart/form-data" id="editCompositeProductForm">
     @csrf
     @method('PUT')
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-
       <!-- Título de la página y botones de acciones -->
       <div class="d-flex flex-column justify-content-center">
-        <h4 class="mb-1 mt-3">Editar producto compuesto</h4>
+        <h4 class="mb-1 mt-3">Editar Producto Compuesto</h4>
       </div>
       <div class="d-flex align-content-center flex-wrap gap-3">
         <button type="button" class="btn btn-label-secondary" id="discardButton">Descartar</button>
-        <button type="submit" name="action" value="publish" class="btn btn-primary">Guardar cambios</button>
+        <button type="submit" name="action" value="publish" class="btn btn-primary" id="saveButton">Guardar cambios</button>
       </div>
     </div>
 
@@ -132,9 +131,40 @@
               </div>
               <select class="select2 form-select" id="product_ids" name="product_ids[]" multiple="multiple" required>
                 @foreach ($products as $product)
-                <option value="{{ $product->id }}" {{ in_array($product->id, $compositeProduct->product_ids) ? 'selected' : '' }}>{{ $product->name }}</option>
+                <option value="{{ $product->id }}" {{ in_array($product->id, $compositeProduct->details->pluck('product_id')->toArray()) ? 'selected' : '' }}>{{ $product->name }}</option>
                 @endforeach
               </select>
+            </div>
+
+            <!-- Tabla para productos seleccionados -->
+            <table class="table" id="selectedProductsTable">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach ($compositeProduct->details as $productDetail)
+                <tr data-product-id="{{ $productDetail->product_id }}">
+                  <td>{{ $productDetail->product->name }}</td>
+                  <td><input type="number" class="form-control product-quantity" value="{{ $productDetail->quantity_composite_product }}" data-product-id="{{ $productDetail->product->id }}" data-build-price="{{ $productDetail->product->build_price }}"></td>
+                  <td>{{ $productDetail->product->build_price > 0 ? '$' . number_format($productDetail->product->build_price, 2) : 'N/A' }}</td>
+                  <td class="subtotal">{{ $productDetail->product->build_price > 0 ? '$' . number_format($productDetail->product->build_price * $productDetail->quantity_composite_product, 2) : 'N/A' }}</td>
+                  <td>
+                    <!-- Botón de eliminar -->
+                    <button type="button" class="btn btn-danger remove-product" data-product-id="{{ $productDetail->product_id }}">Eliminar</button>
+                  </td>
+                </tr>
+                @endforeach
+              </tbody>
+            </table>
+
+            <!-- Alerta si algún producto no tiene build_price -->
+            <div class="alert alert-danger d-none" id="priceAlert">
+              Uno o más productos no tienen un precio asociado, no se puede calcular el precio recomendado.
             </div>
           </div>
         </div>
@@ -162,27 +192,7 @@
         </div>
       </div>
     </div>
-
-    {{-- Sección para subir imágenes (comentada) --}}
-    {{-- <div class="row gx-3 mt-4">
-      <div class="col-lg-8">
-        <div class="card h-100">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Imagen del Producto Compuesto</h5>
-          </div>
-          <div class="card-body">
-            <div class="dropzone dz-clickable" id="dropzone">
-              <div class="dz-message needsclick">
-                <p class="fs-4 note needsclick my-2">Arrastre la imagen aquí</p>
-                <small class="text-muted d-block fs-6 my-2">o</small>
-                <span class="note needsclick btn bg-label-primary d-inline" id="btnBrowse">Buscar imagen</span>
-              </div>
-            </div>
-            <input type="file" name="image" id="compositeProductImage" class="d-none">
-          </div>
-        </div>
-      </div>
-    </div> --}}
   </form>
 </div>
+
 @endsection

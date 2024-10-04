@@ -185,6 +185,38 @@
         </div>
       </div>
     </div>
+
+    {{-- filters --}}
+    <div class="d-flex justify-content-start align-items-center row py-3 gap-3 mb-0 pb-0 gap-md-0">
+      <div class="col-md-2 client_filter">
+        <label for="client">Cliente</label>
+      </div>
+      <div class="col-md-2 company_filter">
+        <label for="company">Empresa</label>
+      </div>
+      <div class="col-md-2 payment_filter">
+        <label for="payment">Pago</label>
+      </div>
+      <div class="col-md-2 billed_filter">
+        <label for="billed">Facturado</label>
+      </div>
+      <div class="col-md-2">
+        <label for="startDate">Fecha Desde</label>
+        <input type="date" class="form-control date-range-filter" id="startDate" placeholder="Fecha de inicio">
+      </div>
+      <div class="col-md-2">
+        <label for="endDate">Fecha Hasta</label>
+        <input type="date" class="form-control date-range-filter" id="endDate" placeholder="Fecha de fin">
+      </div>
+      <div class="col-md-2 d-flex flex-column mt-2">
+        <button class="btn btn-outline-danger btn-sm clear-filters w-100 mb-2" id="clear-filters">
+          <i class="fas fa-eraser"></i> Limpiar Filtros
+        </button>
+        <button class="btn btn-outline-success btn-sm export-excel w-100" id="export-excel">
+          <i class="fas fa-file-excel"></i> Exportar a Excel
+        </button>
+      </div>
+    </div>
   </div>
     <table class="datatables-order table border-top" data-symbol="{{ $settings->currency_symbol }}">
       <thead>
