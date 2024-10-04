@@ -73,7 +73,7 @@ class ProductRepository
       // Se rellenan los campos del producto con los datos del formulario.
       $product->fill($request->only([
           'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code'
+          'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code', 'build_price'
       ]));
 
       // Manejo de la imagen
@@ -136,7 +136,7 @@ class ProductRepository
       $query = Product::with(['categories:id,name', 'store:id,name'])
           ->select([
               'id', 'name', 'sku', 'description', 'type', 'old_price', 'price',
-              'discount', 'image', 'store_id', 'status', 'draft', 'stock', 'safety_margin'
+              'discount', 'image', 'store_id', 'status', 'draft', 'stock', 'safety_margin', 'build_price'
           ])
           ->where('is_trash', '!=', 1);
 
@@ -249,7 +249,7 @@ class ProductRepository
 
     $product->update($request->only([
         'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code'
+        'price', 'discount', 'store_id', 'status', 'stock', 'safety_margin', 'bar_code', 'build_price'
     ]));
 
     // Manejo de la imagen si se ha subido un archivo

@@ -30,19 +30,21 @@ class StoreProductRequest extends FormRequest
             'recipes.*.raw_material_id' => 'required_without:recipes.*.used_flavor_id|exists:raw_materials,id',
             'recipes.*.used_flavor_id' => 'required_without:recipes.*.raw_material_id|exists:flavors,id',
             'recipes.*.quantity' => 'required_with:recipes|numeric|min:0.01',
+            'build_price' => 'required|numeric',
         ];
     }
 
-  public function messages()
-  {
-      return [
-               'price.lt' => 'El precio rebajado no puede ser mayor o igual al precio normal.',
-              'recipes' => 'nullable|array',
-              'categories' => 'Faltó completar el campo "CATEGORÍA"',
-              'recipes.*.raw_material_id' => 'required_with:recipes|exists:raw_materials,id',
-              'recipes.*.quantity' => 'required_with:recipes|numeric|min:0.01',
-              ];
-  }
+    public function messages()
+    {
+        return [
+            'price.lt' => 'El precio rebajado no puede ser mayor o igual al precio normal.',
+            'recipes' => 'nullable|array',
+            'categories' => 'Faltó completar el campo "CATEGORÍA"',
+            'recipes.*.raw_material_id' => 'required_with:recipes|exists:raw_materials,id',
+            'recipes.*.quantity' => 'required_with:recipes|numeric|min:0.01',
+            'build_price.required' => 'El precio de costo es obligatorio.',
+            'build_price.numeric' => 'El precio de costo debe ser un número.',
+        ];
+    }
 
 }
-

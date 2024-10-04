@@ -58,22 +58,24 @@ class CompositeProductRepository
      * @param  array  $productIds
      * @return CompositeProduct
      */
-    public function store(array $data, array $productIds): CompositeProduct
+    public function store(array $data): CompositeProduct
     {
         DB::beginTransaction();
 
         try {
+            // Crear un nuevo CompositeProduct y rellenar los datos
             $compositeProduct = new CompositeProduct();
             $compositeProduct->fill($data);
-            // cambiar el precio recomendado sumando los precios de los productos individuales
-            $compositeProduct->recommended_price = Product::whereIn('id', $productIds)->sum('price');
+
+            // Calcular el precio recomendado sumando los precios de los productos individuales
             $compositeProduct->save();
 
-            // Añadir productos individuales al producto compuesto
-            foreach ($productIds as $productId) {
+            // Añadir productos individuales al producto compuesto con sus cantidades
+            foreach ($data['products'] as $product) {
                 CompositeProductDetail::create([
                     'composite_product_id' => $compositeProduct->id,
-                    'product_id' => $productId,
+                    'product_id' => $product['product_id'], // Usar el product_id del array
+                    'quantity_composite_product' => $product['quantity'], // Usar la cantidad del array
                 ]);
             }
 
@@ -84,7 +86,6 @@ class CompositeProductRepository
             throw $e;
         }
     }
-
     /**
      * Obtiene un producto compuesto específico por su ID.
      *
@@ -113,33 +114,47 @@ class CompositeProductRepository
         DB::beginTransaction();
 
         try {
-            $productIds = $data['product_ids'];
-            $compositeProduct->update($data);
+            // Actualizar los datos del producto compuesto
+            $compositeProduct->fill($data);
+            $compositeProduct->save();
 
-            // Obtener los IDs de los detalles existentes
-            $existingProductIds = CompositeProductDetail::where('composite_product_id', $compositeProduct->id)
-                ->pluck('product_id')
-                ->toArray();
+            // Obtener los IDs de los productos ya existentes en el producto compuesto
+            $existingProducts = CompositeProductDetail::where('composite_product_id', $compositeProduct->id)
+                ->get()
+                ->keyBy('product_id');
 
-            // Eliminar los detalles que no están en $productIds
-            CompositeProductDetail::where('composite_product_id', $compositeProduct->id)
-                ->whereNotIn('product_id', $productIds)
-                ->delete();
+            // Recorrer los productos recibidos en la solicitud
+            foreach ($data['products'] as $product) {
+                $productId = $product['product_id'];
+                $quantity = $product['quantity'];
 
-            // Añadir los nuevos detalles que no están en los detalles existentes
-            foreach ($productIds as $productId) {
-                if (!in_array($productId, $existingProductIds)) {
+                // Si el producto ya existe en los detalles, actualizar la cantidad
+                if ($existingProducts->has($productId)) {
+                    $existingDetail = $existingProducts[$productId];
+                    $existingDetail->update([
+                        'quantity_composite_product' => $quantity,
+                    ]);
+                } else {
+                    // Si el producto no existe, agregarlo como un nuevo detalle
                     CompositeProductDetail::create([
                         'composite_product_id' => $compositeProduct->id,
                         'product_id' => $productId,
+                        'quantity_composite_product' => $quantity,
                     ]);
                 }
             }
 
-            // Actualizar el precio recomendado
+            // Eliminar los productos que ya no están en la lista actualizada
+            $incomingProductIds = collect($data['products'])->pluck('product_id')->toArray();
+            CompositeProductDetail::where('composite_product_id', $compositeProduct->id)
+                ->whereNotIn('product_id', $incomingProductIds)
+                ->delete();
+
+            // Recalcular y actualizar el precio recomendado sumando los precios de los productos individuales
             $compositeProduct->recommended_price = CompositeProductDetail::where('composite_product_id', $compositeProduct->id)
                 ->join('products', 'composite_product_details.product_id', '=', 'products.id')
-                ->sum('products.price');
+                ->sum(DB::raw('products.build_price * composite_product_details.quantity_composite_product'));
+
             $compositeProduct->save();
 
             DB::commit();
@@ -197,8 +212,8 @@ class CompositeProductRepository
             $query->where('composite_products.store_id', Auth::user()->store_id);
         }
 
-         // Filtrar por rango de fechas
-         if (Helpers::validateDate($request->input('start_date')) && Helpers::validateDate($request->input('end_date'))) {
+        // Filtrar por rango de fechas
+        if (Helpers::validateDate($request->input('start_date')) && Helpers::validateDate($request->input('end_date'))) {
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
             $query->whereBetween('composite_products.created_at', [$startDate, $endDate]);
