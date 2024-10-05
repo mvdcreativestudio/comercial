@@ -228,12 +228,24 @@ class CashRegisterLogController extends Controller
       $validatedData['country'] = $validatedData['country'] ?? '-';
       $validatedData['phone'] = $validatedData['phone'] ?? '-';
 
-
       // Crear el nuevo cliente
-      $this->cashRegisterLogRepository->createClient($validatedData);
+      $newClient = $this->cashRegisterLogRepository->createClient($validatedData);
 
-      return response()->json(['success' => true, 'message' => 'Cliente creado correctamente.']);
+      // Agregar log
+      Log::info('Nuevo cliente creado desde PDV', [
+          'client_id' => $newClient->id,
+          'name' => $newClient->name,
+          'email' => $newClient->email,
+          'type' => $newClient->type
+      ]);
+
+      return response()->json([
+        'success' => true,
+        'message' => 'Cliente creado correctamente.',
+        'client' => $newClient  // Devuelve los datos completos del cliente
+    ]);
     } catch (\Exception $e) {
+        Log::error('Error al crear cliente desde PDV: ' . $e->getMessage());
         return response()->json(['success' => false, 'message' => 'Ocurrió un error al crear el cliente.']);
     }
   }

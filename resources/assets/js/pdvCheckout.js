@@ -200,9 +200,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
                   const responseCode = response.responseCode;
                   showTransactionStatus(responseCode, false, false);
 
-                  console.log('Código de respuesta recibido:', responseCode);
-
-
                   // Manejo de diferentes códigos de respuesta
                   if (responseCode === 10 || responseCode === 113 || responseCode === 12 || responseCode === 0) {
                       // Continuar consultando mientras se reciba uno de estos códigos
@@ -212,7 +209,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
                           swalInstance.close(); // Cerrar swal si está abierto
                       }
                       isTransactionComplete = true; // Marcar la transacción como completa para detener consultas adicionales
-                      console.log('Llamando a postOrder() después de recibir el código de transacción finalizada');
                       postOrder(); // Llamar a la función postOrder() para procesar la orden
                   } else {
                       console.error('Código de respuesta no esperado:', responseCode);
@@ -310,8 +306,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
         success: function (response) {
           cashRegisterLogId = response.cash_register_log_id;
           sessionStoreId = response.store_id; // Ahora obtenemos el store_id directamente
-          console.log("ID de cash register log obtenido:", cashRegisterLogId);
-          console.log("Store ID obtenido:", sessionStoreId);
         },
         error: function (xhr) {
           mostrarError('Error al obtener el ID de cash register log: ' + xhr.responseText);
@@ -376,7 +370,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
   }
 
   function showClientInfo(client) {
-    // Verifica si el cliente es una persona o una empresa
     const clientType = client.type === 'company' ? 'Empresa' : 'Persona';
     const clientDocLabel = client.type === 'company' ? 'RUT' : 'CI';
     const clientDoc = client.type === 'company' ? client.rut : client.ci;
@@ -389,18 +382,18 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
     $('#client-doc-label').text(clientDocLabel);
     $('#client-doc').text(clientDoc || 'No disponible');
 
-    // Muestra o oculta la información de la razón social, dependiendo del tipo de cliente
     if (client.type === 'company') {
-      $('#client-company').html(`<strong>Razón Social:</strong> ${client.company_name || '-'}`);
-      $('#client-company').show();
+        $('#client-company').html(`<strong class="text-muted">Razón Social:</strong> <span class="text-body fw-bold">${client.company_name || '-'}</span>`);
+        $('#client-company').show();
     } else {
-      $('#client-company').hide();
+        $('#client-company').hide();
     }
 
-    // Muestra la tarjeta de información del cliente
+    // Muestra la tarjeta de información del cliente y oculta la sección de selección
     $('#client-info').show();
     $('#client-selection-container').hide();
   }
+
 
   function saveCartToSession() {
     return $.ajax({
@@ -411,9 +404,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
         cart: cart
       }
     })
-      .done(function (response) {
-        console.log('Carrito guardado en la sesión:', response);
-      })
       .fail(function (xhr) {
         mostrarError('Error al guardar el carrito en la sesión: ' + xhr.responseText);
       });
@@ -696,9 +686,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
         client: client
       }
     })
-      .done(function (response) {
-        console.log('Cliente guardado en la sesión:', response);
-      })
       .fail(function (xhr) {
         mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
       });
@@ -726,7 +713,7 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
   document.getElementById('guardarCliente').addEventListener('click', function () {
     const nombre = document.getElementById('nombreCliente');
     const apellido = document.getElementById('apellidoCliente');
-    const tipo = document.getElementById('tipoCliente'); // Accede al elemento
+    const tipo = document.getElementById('tipoCliente');
     const email = document.getElementById('emailCliente');
     const ci = document.getElementById('ciCliente');
     const rut = document.getElementById('rutCliente');
@@ -736,87 +723,96 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
     let hasError = false;
     clearErrors();
 
+    // Validación básica...
     if (nombre.value.trim() === '') {
-      showError(nombre, 'Este campo es obligatorio');
-      hasError = true;
+        showError(nombre, 'Este campo es obligatorio');
+        hasError = true;
     }
 
     if (apellido.value.trim() === '') {
-      showError(apellido, 'Este campo es obligatorio');
-      hasError = true;
+        showError(apellido, 'Este campo es obligatorio');
+        hasError = true;
     }
 
-    // Aquí accedes al valor del campo select tipoCliente
     if (tipo.value.trim() === '') {
-      showError(tipo, 'Este campo es obligatorio');
-      hasError = true;
+        showError(tipo, 'Este campo es obligatorio');
+        hasError = true;
     }
 
     if (email.value.trim() === '') {
-      showError(email, 'Este campo es obligatorio');
-      hasError = true;
+        showError(email, 'Este campo es obligatorio');
+        hasError = true;
     }
 
     if (direccion.value.trim() === '') {
-      showError(direccion, 'Este campo es obligatorio');
-      hasError = true;
+        showError(direccion, 'Este campo es obligatorio');
+        hasError = true;
     }
 
     if (tipo.value === 'individual' && ci.value.trim() === '') {
-      showError(ci, 'Este campo es obligatorio');
-      hasError = true;
+        showError(ci, 'Este campo es obligatorio');
+        hasError = true;
     }
 
     if (tipo.value === 'company') {
-      if (rut.value.trim() === '') {
-        showError(rut, 'Este campo es obligatorio');
-        hasError = true;
-      }
+        if (rut.value.trim() === '') {
+            showError(rut, 'Este campo es obligatorio');
+            hasError = true;
+        }
 
-      if (razonSocial.value.trim() === '') {
-        showError(razonSocial, 'Este campo es obligatorio');
-        hasError = true;
-      }
+        if (razonSocial.value.trim() === '') {
+            showError(razonSocial, 'Este campo es obligatorio');
+            hasError = true;
+        }
     }
 
+    // Si hubo errores, detener la ejecución.
     if (hasError) {
-      return;
+        return;
     }
 
+    // Crear el objeto con los datos a enviar
     let data = {
-      store_id: sessionStoreId,
-      name: nombre.value.trim(),
-      lastname: apellido.value.trim(),
-      type: tipo.value, // Aquí se usa tipo.value para obtener el valor del select
-      email: email.value.trim(),
-      address: direccion.value.trim()
+        store_id: sessionStoreId,
+        name: nombre.value.trim(),
+        lastname: apellido.value.trim(),
+        type: tipo.value,
+        email: email.value.trim(),
+        address: direccion.value.trim()
     };
 
     if (tipo.value === 'individual') {
-      data.ci = ci.value.trim();
+        data.ci = ci.value.trim();
     } else if (tipo.value === 'company') {
-      data.rut = rut.value.trim();
-      data.company_name = razonSocial.value.trim();
+        data.rut = rut.value.trim();
+        data.company_name = razonSocial.value.trim();
     }
 
+    // Realizar la petición para crear el cliente
     fetch('client', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify(data)
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(data)
     })
-      .then(response => response.json())
-      .then(data => {
-        let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('crearClienteOffcanvas'));
-        offcanvas.hide();
-        document.getElementById('formCrearCliente').reset();
-      })
-      .catch(error => {
+    .then(response => response.json())
+    .then(data => {
+                let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('crearClienteOffcanvas'));
+                offcanvas.hide();
+
+                // Limpiar el formulario de creación de cliente
+                document.getElementById('formCrearCliente').reset();
+
+    })
+    .catch(error => {
         mostrarError('Error al guardar el cliente: ' + error);
-      });
+    });
   });
+
+
+
 
 
   // Función para mostrar el mensaje de error
@@ -870,10 +866,11 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
   loadStoreIdFromSession();
 
   function postOrder() {
-    ocultarError(); // Ocultar errores previos
-
+    ocultarError();
 
     const paymentMethod = $('input[name="paymentMethod"]:checked').attr('id');
+    const shippingStatus = $('#shippingStatus').val(); // Obtener el estado de entrega seleccionado
+    console.log(shippingStatus);
     let cashSales = 0;
     let posSales = 0;
 
@@ -924,10 +921,9 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
       subtotal: subtotal,
       total: total - discount,
       notes: $('textarea').val() || '',
-      store_id: sessionStoreId
+      store_id: sessionStoreId,
+      shipping_status: shippingStatus, // Agregar el estado de entrega
     };
-
-
 
     // Primero, hacer el POST a pos-orders
 $.ajax({
@@ -958,7 +954,7 @@ $.ajax({
       estimate_id: null,
       shipping_id: null,
       payment_status: 'paid',
-      shipping_status: 'delivered',
+      shipping_status: orderData.shipping_status,
       payment_method: paymentMethod,
       shipping_method: 'standard',
       preference_id: null,
@@ -983,23 +979,46 @@ $.ajax({
         ...ordersData
       },
       success: function (response) {
-        console.log('Orden creada exitosamente:', response);  // Verificar que la orden se haya creado
         clearCartAndClient()
           .then(() => {
             return Swal.fire({
+              customClass: {
+                popup: 'swal-popup',
+                title: 'swal-title',
+                content: 'swal-content',
+                confirmButton: 'btn btn-outline-primary',
+                cancelButton: 'btn btn-outline-danger'
+              },
               title: 'Venta Realizada con Éxito',
               text: 'La venta se ha realizado exitosamente.',
               icon: 'success',
               showCancelButton: userHasPermission('access_orders'),
               confirmButtonText: userHasPermission('access_orders') ? 'Ver Orden' : 'Cerrar',
-              cancelButtonText: 'Cerrar'
+              cancelButtonText: 'Cerrar',
+              timer: 5000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+              }
             });
           })
           .then(result => {
             if (result.isConfirmed && userHasPermission('access_orders')) {
-              window.location.href = `${baseUrl}admin/orders/${response.order_uuid}/show`;
+              clearCartAndClient().then(() => {
+                window.location.href = `${baseUrl}admin/orders/${response.order_uuid}/show`;
+              }).catch(error => {
+                console.error('Error al limpiar carrito y cliente:', error);
+                mostrarError(error);
+              });
             } else {
-              window.location.href = frontRoute;
+              clearCartAndClient().then(() => {
+                console.log('Redirigiendo a la ruta de inicio, se borró todo');
+                window.location.href = frontRoute;
+              }).catch(error => {
+                console.error('Error al limpiar carrito y cliente:', error);
+                mostrarError(error);
+              });
             }
           })
           .catch(error => {
@@ -1033,29 +1052,44 @@ $.ajax({
 
   function clearCartAndClient() {
     return new Promise((resolve, reject) => {
-      // Limpiar el carrito
-      saveCartToSession()
-        .done(function () {
-          updateCheckoutCart();
+        try {
+            // Limpia el carrito almacenado localmente
+            cart = [];
+            saveCartToSession();
+            // Limpia los datos del cliente localmente
+            client = null;
+            saveClientToSession(client);
 
-          // Limpiar el cliente
-          saveClientToSession(client)
-            .done(function () {
-              resolve(); // Resuelve la promesa cuando ambos procesos han sido exitosos
-            })
-            .fail(function (xhr) {
-              reject('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-            });
-        })
-        .fail(function (xhr) {
-          reject('Error al guardar el carrito en la sesión: ' + xhr.responseText);
-        });
+            // Resuelve la promesa si todo fue exitoso
+            resolve();
+        } catch (error) {
+            reject('Error al limpiar el carrito y cliente.');
+        }
     });
   }
 
+  // Función para mostrar u ocultar los detalles de pago en efectivo
+  function toggleCashDetails() {
+    const paymentMethod = $('input[name="paymentMethod"]:checked').attr('id');
+    if (paymentMethod === 'cash') {
+      $('#cashDetails').show();
+    } else {
+      $('#cashDetails').hide();
+    }
+  }
+
+  // Evento para cambios en el método de pago
+  $('input[name="paymentMethod"]').on('change', toggleCashDetails);
+
+  // Llamar a la función al cargar la página para asegurarse de que el estado inicial es correcto
+  toggleCashDetails();
 
   $('.btn-success').on('click', function () {
     const paymentMethod = $('input[name="paymentMethod"]:checked').attr('id');
+    if (!paymentMethod) {
+      mostrarError('Por favor, seleccione un método de pago.');
+      return;
+    }
     if (paymentMethod === 'cash') {
       postOrder();
     } else {

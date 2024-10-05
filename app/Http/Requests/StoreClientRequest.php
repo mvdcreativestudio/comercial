@@ -34,7 +34,7 @@ class StoreClientRequest extends FormRequest
             'state' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:clients,email',
+            'email' => 'required|string|email|max:255',
             'website' => 'nullable|string|max:255',
             'logo' => 'nullable|string|max:255',
             'company_name' => 'nullable|string|max:255',

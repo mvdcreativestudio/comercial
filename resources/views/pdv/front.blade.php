@@ -9,17 +9,12 @@
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
 'resources/assets/vendor/libs/select2/select2.scss',
+'resources/assets/vendor/libs/toastr/toastr.scss',
+'resources/assets/vendor/libs/animate-css/animate.scss'
 // 'resources/assets/vendor/libs/bootstrap/bootstrap.min.css',
 // 'resources/assets/vendor/libs/fontawesome/fontawesome.min.css'
 ])
 
-<style>
-
-
-
-
-
-</style>
 @endsection
 
 @section('vendor-script')
@@ -28,7 +23,9 @@
 // 'resources/assets/vendor/libs/select2/select2.min.js',
 // 'resources/assets/vendor/libs/bootstrap/bootstrap.bundle.min.js',
 // 'resources/assets/vendor/libs/fontawesome/fontawesome.min.js',
+
 'resources/assets/vendor/libs/select2/select2.js',
+'resources/assets/vendor/libs/toastr/toastr.js',
 'resources/assets/js/pdv.js'
 ])
 
@@ -51,25 +48,34 @@ $currencySymbol = $settings->currency_symbol;
 <div class="container-fluid">
   <div id="errorContainer" class="alert alert-danger d-none" role="alert"></div>
   <div class="row">
-    <div class="col-12">
-      <h2 class="mb-4 text-center text-md-start">Punto de Venta</h2>
+    <div class="col-12 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <h2 class="text-center text-md-start mb-2 mb-md-0">Punto de Venta</h2>
+      {{-- Botón para cerrar caja --}}
+      <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger btn-sm d-flex align-items-center">
+        <i class="bx bx-lock-alt me-2"></i> Cerrar Caja
+      </button>
     </div>
 
     <div class="col-12">
       <div class="row align-items-center p-3 mb-4 card sticky-top">
-        {{-- Buscador de productos --}}
+
+        {{-- Buscador de productos y botón de cambio de vista --}}
         <div class="col-12 mb-3">
-          <div class="input-group">
+          <div class="d-flex">
             <input class="form-control" type="search" placeholder="Buscar por nombre o código" id="html5-search-input" />
-            <button class="btn btn-primary"><i class="bx bx-search-alt"></i></button>
+            <div class="ms-2">
+              {{-- Botón de cambio de vista --}}
+              <button id="toggle-view-btn" class="btn btn-outline-secondary d-flex align-items-center" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="Ver productos en lista">
+                <i class="bx bx-list-ul fs-5"></i>
+              </button>
+            </div>
           </div>
         </div>
-        {{-- Fin buscador de productos --}}
 
         {{-- Botones de acciones --}}
-        <div class="col-12 d-flex flex-column flex-md-row justify-content-md-end align-items-center">
+        <div class="col-12 d-flex flex-column flex-md-row justify-content-md-end text-end align-items-center">
           {{-- Botón de categorías --}}
-          <div class="btn-group mb-2 mb-md-0 ms-md-2">
+          {{-- <div class="btn-group mb-2 mb-md-0 ms-md-2">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="bx bx-category"></i> Categorías
             </button>
@@ -80,24 +86,15 @@ $currencySymbol = $settings->currency_symbol;
                 </div>
                 <div class="mb-2" id="category-container">
                   {{-- Aquí se cargarán las categorías dinámicamente --}}
-                </div>
+                {{-- </div>
               </form>
             </div>
-          </div>
-
-          {{-- Botón para cerrar caja --}}
-          <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger d-flex align-items-center mb-2 mb-md-0 ms-md-2">
-            <i class="bx bx-lock-alt me-2"></i> Cerrar Caja
-          </button>
-
-          {{-- Botón de cambio de vista --}}
-          <button id="toggle-view-btn" class="btn btn-outline-secondary d-flex align-items-center mb-2 mb-md-0 ms-md-2" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="Ver productos en lista">
-            <i class="bx bx-list-ul fs-5"></i>
-          </button>
+          </div> --}}
 
           {{-- Botón para ver carrito --}}
-          <button id="view-cart-btn" class="btn btn-outline-secondary d-flex align-items-center mb-2 mb-md-0 ms-md-2 position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
-            <i class="bx bx-cart fs-5"></i>
+          <button id="view-cart-btn" class="btn btn-lg btn-success d-flex align-items-center mb-2 mb-md-5 ms-md-2 position-fixed bottom-0 end-0 m-4 mb-5" data-bs-toggle="modal" data-bs-target="#cartModal">
+            <i class="bx bx-cart fs-5 me-2"></i>
+            <a class="">Continuar</a>
             <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
           </button>
         </div>
@@ -135,10 +132,10 @@ $currencySymbol = $settings->currency_symbol;
             <h6 class="text-muted">Subtotal:</h6>
             <h6 class="subtotal text-primary fw-bold">$770</h6>
           </div>
-          <div class="totals-item d-flex justify-content-between align-items-center w-100 mb-2">
+          {{-- <div class="totals-item d-flex justify-content-between align-items-center w-100 mb-2">
             <small class="text-muted"><i class="bx bx-package"></i> Envío:</small>
             <small class="text-dark">$0</small>
-          </div>
+          </div> --}}
           <div class="totals-item d-flex justify-content-between align-items-center w-100 border-top pt-2">
             <h5 class="text-dark">Total:</h5>
             <h4 class="total text-dark fw-bold">$770</h4>
@@ -147,8 +144,8 @@ $currencySymbol = $settings->currency_symbol;
 
         <!-- Botón de acciones -->
         <div class="d-flex justify-content-end mt-3">
-          <button class="btn btn-outline-secondary me-2" type="button" data-bs-dismiss="modal">Cerrar</button>
-          <a href="{{ route('pdv.front2') }}" class="btn btn-primary">Finalizar Venta</a>
+          <button class="btn btn-outline-danger me-2" type="button" data-bs-dismiss="modal">Cerrar</button>
+          <a href="{{ route('pdv.front2') }}" class="btn btn-primary disabled" id="finalizarVentaBtn" aria-disabled="true" tabindex="-1">Finalizar Venta</a>
         </div>
 
       </div>

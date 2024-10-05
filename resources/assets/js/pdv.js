@@ -13,19 +13,37 @@ $(document).ready(function() {
     let productCategory = [];
     let clients = [];
 
-        // Inicializar Select2 en elementos con clase .select2
-        $(function () {
-          var select2 = $('.select2');
-          if (select2.length) {
-              select2.each(function () {
-                  var $this = $(this);
-                  $this.wrap('<div class="position-relative"></div>').select2({
-                      dropdownParent: $this.parent(),
-                      placeholder: $this.data('placeholder')
-                  });
+
+    // Inicializar Select2 en elementos con clase .select2
+    $(function () {
+      var select2 = $('.select2');
+      if (select2.length) {
+          select2.each(function () {
+              var $this = $(this);
+              $this.wrap('<div class="position-relative"></div>').select2({
+                  dropdownParent: $this.parent(),
+                  placeholder: $this.data('placeholder')
               });
-          }
-      });
+          });
+      }
+    });
+
+    // Configuración Toastr
+
+    toastr.options = {
+      closeButton: true,               // Mostrar botón de cerrar
+      progressBar: true,               // Mostrar barra de progreso
+      newestOnTop: true,               // Mostrar el toast más nuevo en la parte superior
+      positionClass: 'toast-top-right', // Posición en la esquina superior derecha
+      showEasing: 'swing',             // Efecto de entrada
+      hideEasing: 'linear',            // Efecto de salida
+      showMethod: 'fadeIn',            // Método de entrada (desvanecimiento)
+      hideMethod: 'fadeOut',           // Método de salida (desvanecimiento)
+      showDuration: 300,               // Duración de la animación de entrada
+      hideDuration: 1000,              // Duración de la animación de salida
+      timeOut: 2000,                   // Tiempo que permanece visible el toast
+      extendedTimeOut: 1000            // Tiempo adicional antes de que desaparezca al hacer hover
+    };
 
     // Cargar el carrito desde el servidor
     function loadCart() {
@@ -224,19 +242,27 @@ $(document).ready(function() {
 
           productsHtml += `
               <!-- Tarjeta de producto -->
-              <div class="col-12 col-sm-6 col-xxl-4 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
-                  <div class="card-product-pos w-100 mb-3 position-relative">
+              <div class="col-12 col-sm-6 col-xxl-4 mb-3 card-product-pos" data-category="${product.category}">
+                  <div class="card h-100 position-relative product-card-hover">
                       ${outOfStockLabel}
                       ${inactiveLabel}
-                      <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
-                      <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
-                          <h5 class="card-title-product-pos text-white">${product.name}</h5>
-                          <p class="card-text-product-pos">
-                              ${oldPriceHtml}
-                              <span style="font-size: 1em;">${currencySymbol}${priceToDisplay}</span>
-                          </p>
-                          <!-- Botón de agregar al carrito -->
-                          <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
+                      <img src="${baseUrl}${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                      <div class="card-body d-flex flex-column justify-content-between">
+                          <div>
+                              <h5 class="card-title">${product.name}</h5>
+                              <p class="card-text">
+                                  ${oldPriceHtml}
+                                  <span class="fw-bold">${currencySymbol}${priceToDisplay}</span>
+                              </p>
+                          </div>
+                          <div class="d-flex flex-column align-items-stretch mt-3">
+                            <div class="input-group input-group-sm d-flex">
+                              <button class="btn btn-outline-secondary decrement-quantity col-2" type="button" data-id="${product.id}">-</button>
+                              <input type="number" class="form-control quantity-input selector-cantidad-pdv col-2" min="1" value="1" data-id="${product.id}">
+                              <button class="btn btn-outline-secondary increment-quantity col-2" type="button" data-id="${product.id}">+</button>
+                            </div>
+                            <button class="btn btn-primary btn-sm add-to-cart mb-2 mt-2" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar al carrito</button>
+                          </div>
                       </div>
                   </div>
               </div>
@@ -258,22 +284,34 @@ $(document).ready(function() {
       }
       let productsHtml = '<ul class="list-group w-100">';
       productsToDisplay.forEach(product => {
-          const priceToDisplay = product.price ? product.price.toLocaleString('es-ES') : product.old_price.toLocaleString('es-ES'); // Formatear el precio con separador de miles
-          const oldPriceFormatted = product.old_price ? product.old_price.toLocaleString('es-ES') : ''; // Formatear old_price si existe
+          const priceToDisplay = product.price ? product.price.toLocaleString('es-ES') : product.old_price.toLocaleString('es-ES');
+          const oldPriceFormatted = product.old_price ? product.old_price.toLocaleString('es-ES') : '';
           const outOfStockText = product.stock <= 0 ? '<span class="badge bg-danger ms-2">Agotado</span>' : '';
           const inactiveText = product.status == 2 ? '<span class="badge bg-warning text-dark ms-2">Inactivo</span>' : '';
           const oldPriceHtml = product.price && product.old_price ? `<small class="text-muted"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : '';
           productsHtml += `
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+              <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-bottom">
                   <div class="d-flex align-items-center">
-                      <img src="${baseUrl}${product.image}" class="img-thumbnail me-2" alt="${product.name}" style="width: 50px;">
+                      <img src="${baseUrl}${product.image}" class="me-3" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
                       <div>
-                          <h6 class="mb-0">${product.name} ${outOfStockText} ${inactiveText}</h6>
-                          ${oldPriceHtml}
-                          <p class="mb-0">${currencySymbol}${priceToDisplay}</p>
+                          <h6 class="mb-0 fw-bold">${product.name}</h6>
+                          <div class="d-flex align-items-center mt-1">
+                              ${oldPriceHtml ? `<small class="text-muted me-2"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : ''}
+                              <span class="text-primary fw-semibold">${currencySymbol}${priceToDisplay}</span>
+                              ${outOfStockText} ${inactiveText}
+                          </div>
                       </div>
                   </div>
-                  <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
+                  <div class="d-flex align-items-center">
+                      <div class="input-group me-2">
+                          <button class="btn btn-outline-secondary decrement-quantity" type="button" data-id="${product.id}">-</button>
+                          <input type="number" class="form-control quantity-input selector-cantidad-pdv" min="1" value="1" data-id="${product.id}">
+                          <button class="btn btn-outline-secondary increment-quantity" type="button" data-id="${product.id}">+</button>
+                      </div>
+                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>
+                          <i class="bx bx-cart-add"></i>
+                      </button>
+                  </div>
               </li>
           `;
       });
@@ -294,6 +332,10 @@ $(document).ready(function() {
           mostrarError('No hay suficiente stock de este producto.');
           return;
       }
+
+      // Obtener la cantidad deseada del input
+      const quantityInput = $(`.quantity-input[data-id="${productId}"]`);
+      const quantity = parseInt(quantityInput.val());
 
       if (productType === 'configurable') {
           // Mostrar el modal para seleccionar variaciones
@@ -316,12 +358,13 @@ $(document).ready(function() {
                   image: product.image,
                   price: priceToUse,
                   flavors: selectedFlavors,
-                  quantity: 1,
+                  quantity: quantity, // Usar la cantidad deseada
                   category_id: category_id
               });
 
               updateCart();
               $('#flavorModal').modal('hide');
+              toastr.success(`<strong>${product.name}</strong> agregado correctamente`);
           });
       } else {
           const cartItem = cart.find(item => item.id === productId && item.flavors.length === 0);
@@ -330,14 +373,14 @@ $(document).ready(function() {
 
           if (cartItem) {
               // Verificar si hay stock suficiente para incrementar la cantidad
-              if (cartItem.quantity + 1 > product.stock) {
+              if (cartItem.quantity + quantity > product.stock) {
                   mostrarError('No hay suficiente stock para agregar más unidades de este producto.');
                   return;
               }
-              cartItem.quantity += 1;
+              cartItem.quantity += quantity; // Incrementar por la cantidad deseada
           } else {
               // Verificar si hay stock suficiente para agregar el producto por primera vez
-              if (product.stock <= 0) {
+              if (product.stock < quantity) {
                   mostrarError('No hay suficiente stock de este producto.');
                   return;
               }
@@ -347,13 +390,17 @@ $(document).ready(function() {
                   image: product.image,
                   price: priceToUse,
                   flavors: [],
-                  quantity: 1,
+                  quantity: quantity, // Usar la cantidad deseada
                   category_id: category_id
               });
           }
 
+          // Restablecer el contador de cantidad a 1 después de agregar al carrito
+          $(`.quantity-input[data-id="${productId}"]`).val(1);
+
           updateCart();
-      }
+          toastr.success(`<strong>${product.name}</strong> agregado correctamente`);
+        }
     }
 
     // Función para mostrar errores
@@ -371,32 +418,32 @@ $(document).ready(function() {
       let totalItems = 0;  // Contador de productos
 
       cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        subtotal += itemTotal;
-        totalItems += item.quantity;
+          const itemTotal = item.price * item.quantity;
+          subtotal += itemTotal;
+          totalItems += item.quantity;
 
-        cartHtml += `
-          <div class="col-12">
-            <div class="product-cart-card">
-              <div class="col-4 d-flex align-items-center">
-                <img src="${baseUrl + item.image}" class="img-fluid product-cart-card-img" alt="${item.name}">
-              </div>
-              <div class="col-8">
-                <div class="product-cart-card-body">
-                  <div class="d-flex justify-content-between">
-                    <h5 class="product-cart-title">${item.name}</h5>
-                    <div class="product-cart-actions">
-                      <span class="product-cart-remove" data-id="${item.id}"><i class="bx bx-trash"></i></span>
+          cartHtml += `
+            <div class="col-12">
+              <div class="product-cart-card">
+                <div class="col-4 d-flex align-items-center">
+                  <img src="${baseUrl + item.image}" class="img-fluid product-cart-card-img" alt="${item.name}">
+                </div>
+                <div class="col-8">
+                  <div class="product-cart-card-body">
+                    <div class="d-flex justify-content-between">
+                      <h5 class="product-cart-title">${item.name}</h5>
+                      <div class="product-cart-actions">
+                        <span class="product-cart-remove" data-id="${item.id}"><i class="bx bx-trash"></i></span>
+                      </div>
                     </div>
+                    <p class="product-cart-price">${currencySymbol}${item.price.toLocaleString('es-ES')}</p>
+                    <p class="product-cart-quantity">Cantidad: ${item.quantity}</p>
+                    <p><strong>Total: ${currencySymbol}${itemTotal.toLocaleString('es-ES')}</strong></p>
                   </div>
-                  <p class="product-cart-price">${currencySymbol}${item.price.toLocaleString('es-ES')}</p>
-                  <p class="product-cart-quantity">Cantidad: ${item.quantity}</p>
-                  <p><strong>Total: ${currencySymbol}${itemTotal.toLocaleString('es-ES')}</strong></p>
                 </div>
               </div>
             </div>
-          </div>
-        `;
+          `;
       });
 
       // Actualiza el contenido del carrito
@@ -407,9 +454,17 @@ $(document).ready(function() {
       // Actualiza el contador de productos en el botón "Ver Carrito"
       $('#cart-count').text(totalItems);
 
+      // Habilitar o deshabilitar el botón "Finalizar Venta" según si hay productos en el carrito
+      if (cart.length === 0) {
+          $('#finalizarVentaBtn').addClass('disabled').attr('aria-disabled', 'true');
+      } else {
+          $('#finalizarVentaBtn').removeClass('disabled').attr('aria-disabled', 'false');
+      }
+
       // Guardar el carrito en el servidor
       saveCart();
     }
+
 
 
 
@@ -428,6 +483,7 @@ $(document).ready(function() {
     const productId = $(this).data('id');
     cart = cart.filter(item => item.id !== productId);
     updateCart();
+    toastr.error(`Producto eliminado correctamente`);
   });
 
 
@@ -646,6 +702,22 @@ $(document).ready(function() {
       });
   });
 
+  // Manejar eventos de clic para incrementar y decrementar la cantidad
+  $(document).on('click', '.increment-quantity', function() {
+      const productId = $(this).data('id');
+      const input = $(`.quantity-input[data-id="${productId}"]`);
+      let currentValue = parseInt(input.val());
+      input.val(currentValue + 1);
+  });
+
+  $(document).on('click', '.decrement-quantity', function() {
+      const productId = $(this).data('id');
+      const input = $(`.quantity-input[data-id="${productId}"]`);
+      let currentValue = parseInt(input.val());
+      if (currentValue > 1) {
+          input.val(currentValue - 1);
+      }
+  });
 
   // Inicializar funciones
   loadProducts();
