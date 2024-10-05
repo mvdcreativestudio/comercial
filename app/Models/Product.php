@@ -30,7 +30,8 @@ class Product extends Model
         'status',
         'stock',
         'safety_margin',
-        'bar_code'
+        'bar_code',
+        'build_price'
       ];
 
 

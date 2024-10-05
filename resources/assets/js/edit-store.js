@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault(); // Evita el envío del formulario si hay campos vacíos
       Swal.fire({
         title: 'Campos incompletos',
-        text: 'Por favor, complete todos los campos obligatorios antes de actualizar la tienda.',
+        text: 'Por favor, complete todos los campos obligatorios antes de actualizar la empresa.',
         icon: 'warning',
         confirmButtonText: 'Aceptar'
       });

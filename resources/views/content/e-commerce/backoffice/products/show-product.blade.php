@@ -117,6 +117,11 @@
           <label class="form-label">Estado:</label>
           <p>{{ $product->status == 1 ? 'Activo' : 'Inactivo' }}</p>
         </div>
+        {{-- build price --}}
+        <div class="mb-3">
+          <label class="form-label">Precio de costo:</label>
+          <p>{{ $product->build_price ?? 'No disponible' }}</p>
+        </div>
       </div>
     </div>
     <!-- /Tarjeta de Precios -->

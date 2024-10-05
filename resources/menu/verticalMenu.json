@@ -153,10 +153,26 @@
       "submenu": [
         {
           "id": "tour-facturas",
-          "name": "Facturas",
+          "name": "Facturación",
           "icon": "menu-icon tf-icons bx bx-file",
           "slug": "invoices",
-          "url": "/admin/invoices"
+          "url": "/admin/invoices",
+          "submenu": [
+            {
+              "id": "tour-facturas",
+              "name": "Ver Facturación",
+              "icon": "menu-icon tf-icons bx bx-file",
+              "slug": "invoices",
+              "url": "/admin/invoices"
+            },
+            {
+              "id": "tour-facturas-recibidas",
+              "name": "CFE Recibidos",
+              "icon": "menu-icon tf-icons bx bx-file",
+              "slug": "received-documents",
+              "url": "/admin/received-cfes"
+            }
+          ]
         },
         {
           "id": "tour-asientos",

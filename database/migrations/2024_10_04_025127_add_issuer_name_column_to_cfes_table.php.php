@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->integer('safety_margin')->default(10)->after('stock');
-        });
+      Schema::table('cfes', function (Blueprint $table) {
+        $table->string('issuer_name')->nullable()->after('received');
+      });
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('safety_margin');
-        });
+      Schema::table('cfes', function (Blueprint $table) {
+        $table->dropColumn('issuer_name');
+      });
     }
 };

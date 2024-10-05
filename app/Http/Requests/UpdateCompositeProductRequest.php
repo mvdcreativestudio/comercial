@@ -24,12 +24,14 @@ class UpdateCompositeProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'store_id' => ['required', 'exists:stores,id'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'price' => ['nullable', 'numeric', 'min:0'],
-            'product_ids' => ['required', 'array'], // IDs de los productos incluidos
-            'product_ids.*' => ['exists:products,id'], // Verifica que cada ID de producto exista
+            'price' => ['required', 'numeric'], // Validación para el precio
+            'recommended_price' => ['required', 'numeric'], // Validación para el precio recomendado
+            'store_id' => ['required', 'exists:stores,id'],
+            'products' => ['required', 'array'], // Asegura que 'products' sea un array
+            'products.*.product_id' => ['required', 'exists:products,id'], // Asegura que cada 'product_id' existe
+            'products.*.quantity' => ['required', 'integer', 'min:1'], // Asegura que cada 'quantity' sea un entero positivo
         ];
     }
 
@@ -41,11 +43,19 @@ class UpdateCompositeProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'store_id.required' => 'La tienda es obligatoria.',
             'title.required' => 'El título es obligatorio.',
+            'title.max' => 'El título no puede tener más de 255 caracteres.',
+            'price.required' => 'El precio es obligatorio.',
             'price.numeric' => 'El precio debe ser un número.',
-            'product_ids.required' => 'Debes seleccionar al menos un producto.',
-            'product_ids.*.exists' => 'Algunos productos no existen.',
+            'recommended_price.required' => 'El precio recomendado es obligatorio.',
+            'recommended_price.numeric' => 'El precio recomendado debe ser un número.',
+            'store_id.required' => 'La tienda es obligatoria.',
+            'products.required' => 'Debes agregar al menos un producto.',
+            'products.*.product_id.required' => 'El ID del producto es obligatorio.',
+            'products.*.product_id.exists' => 'El producto seleccionado no existe.',
+            'products.*.quantity.required' => 'La cantidad es obligatoria para cada producto.',
+            'products.*.quantity.integer' => 'La cantidad debe ser un número entero.',
+            'products.*.quantity.min' => 'La cantidad debe ser al menos 1.',
         ];
     }
 }

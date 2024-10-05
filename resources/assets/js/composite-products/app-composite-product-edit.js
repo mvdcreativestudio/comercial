@@ -14,12 +14,6 @@
         theme: 'snow'
       });
 
-      // Cargar la descripción existente en el editor Quill
-      const existingDescription = document.getElementById('hiddenDescription').value;
-      if (existingDescription) {
-        quill.root.innerHTML = existingDescription;
-      }
-
       const form = descriptionElement.closest('form');
 
       if (form) {
@@ -32,7 +26,7 @@
       }
     }
 
-    // Control de la imagen subida usando Dropzone (para el formulario de edición)
+    // Control de la imagen subida usando Dropzone
     const dropzoneElement = document.querySelector('#dropzone');
     const hiddenImageInput = document.getElementById('compositeProductImage');
 
@@ -47,14 +41,6 @@
         acceptedFiles: '.jpg,.jpeg,.png,.gif',
         init: function () {
           const dz = this;
-
-          // Mostrar la imagen existente (si hay)
-          const existingImage = document.querySelector('#existingImage img');
-          if (existingImage) {
-            const imgUrl = existingImage.src;
-            dz.emit('addedfile', { name: 'Imagen existente' });
-            dz.emit('thumbnail', { name: 'Imagen existente' }, imgUrl);
-          }
 
           dz.on('addedfile', function (file) {
             const reader = new FileReader();
@@ -101,7 +87,7 @@
       });
     }
 
-    // Inicializar select2 para los productos incluidos
+    // Inicializar select2
     $(function () {
       const select2 = $('.select2');
       if (select2.length) {
@@ -150,30 +136,183 @@
       productsSelect.find('option').prop('selected', true).trigger('change');
     });
 
-    // Calcular el precio recomendado basado en los productos seleccionados
-    $('#product_ids').on('change', function () {
-      const selectedProductIds = $(this).val();
-      let recommendedPrice = 0;
+    // Calcular el precio recomendado basado en los productos seleccionados y cantidades
+    const selectedProductsTable = $('#selectedProductsTable tbody');
+    const priceAlert = $('#priceAlert');
+    const recommendedPriceInput = $('#recommended_price');
+    const saveButton = $('#saveButton');
+    const productsSelect = $('#product_ids');
 
-      if (selectedProductIds.length > 0) {
-        const productsData = JSON.parse($('.app-ecommerce').attr('data-products'));
-
-        selectedProductIds.forEach(productId => {
-          const product = productsData.find(p => p.id == productId);
-          if (product && product.price) {
-            recommendedPrice += parseFloat(product.price);
-          }
-        });
+    function toggleSaveButton(disable) {
+      if (disable) {
+        saveButton.prop('disabled', true);
+      } else {
+        saveButton.prop('disabled', false);
       }
-      $('#recommended_price').val(recommendedPrice.toFixed(2));
+    }
+
+    function calculateTotalRecommendedPrice() {
+      let totalRecommendedPrice = 0;
+      let hasMissingPrices = false;
+
+      selectedProductsTable.find('tr').each(function () {
+        const quantity = $(this).find('.product-quantity').val();
+        const buildPrice = $(this).find('.product-quantity').data('build-price');
+        // Verificar si algún producto no tiene precio
+        if (buildPrice === 0) {
+          return (hasMissingPrices = true);
+        }
+        const subtotal = parseFloat(buildPrice) * parseFloat(quantity);
+
+        $(this)
+          .find('.subtotal')
+          .text('$' + subtotal.toFixed(2));
+        totalRecommendedPrice += subtotal;
+      });
+
+      recommendedPriceInput.val(totalRecommendedPrice.toFixed(2));
+      // Deshabilitar el botón de guardar si hay productos sin precio
+      if (hasMissingPrices) {
+        toggleSaveButton(true);
+        priceAlert.removeClass('d-none');
+      } else {
+        toggleSaveButton(false);
+        priceAlert.addClass('d-none');
+      }
+    }
+
+    function addProductToTable(product, quantity = 1) {
+      const buildPrice = parseFloat(product.build_price) || 0;
+      let rowClass = '';
+      const disabled = buildPrice === 0 ? 'disabled' : ''; // Disable input if no build_price
+
+      if (buildPrice === 0) {
+        rowClass = 'table-danger'; // Fila con borde rojo si no tiene build_price
+      }
+
+      // Comprobar si el producto ya está en la tabla
+      if (!selectedProductsTable.find(`tr[data-product-id="${product.id}"]`).length) {
+        const row = `
+          <tr data-product-id="${product.id}" class="${rowClass}">
+            <td>${product.name}</td>
+            <td>
+              <input type="number" class="form-control product-quantity" value="${quantity}" min="1" data-product-id="${product.id}" data-build-price="${buildPrice}" ${disabled}>
+            </td>
+            <td>${buildPrice > 0 ? '$' + buildPrice.toFixed(2) : 'N/A'}</td>
+            <td class="subtotal">${buildPrice > 0 ? '$' + (buildPrice * quantity).toFixed(2) : 'N/A'}</td>
+            <td><button type="button" class="btn btn-danger remove-product" data-product-id="${product.id}">Eliminar</button></td>
+          </tr>
+        `;
+        selectedProductsTable.append(row);
+      }
+    }
+
+    $('#product_ids').on('change', function () {
+      const selectedProductIds = $(this).val() || [];
+      const productsData = JSON.parse($('.app-ecommerce').attr('data-products'));
+
+      selectedProductIds.forEach(productId => {
+        const product = productsData.find(p => p.id == productId);
+        if (product) {
+          addProductToTable(product);
+        }
+      });
+
+      calculateTotalRecommendedPrice(); // Calcular precio recomendado al seleccionar productos
     });
 
-    // Inicialización del campo de categorías usando select2
-    $(document).ready(function () {
-      $('#category-org').select2({
-        placeholder: 'Seleccione la(s) categoría(s)',
-        allowClear: true
+    // Recalcular precio recomendado al cambiar la cantidad
+    selectedProductsTable.on('input', '.product-quantity', function (event) {
+      const input = $(this);
+      if (input.val() <= 0) {
+        input.val(1); // Enforce that quantity must be at least 1
+      }
+      calculateTotalRecommendedPrice();
+    });
+
+    // Eliminar producto de la tabla y del select
+    selectedProductsTable.on('click', '.remove-product', function () {
+      const productId = $(this).data('product-id');
+
+      // Eliminar la fila de la tabla
+      $(this).closest('tr').remove();
+
+      // Desmarcar el producto en el select
+      const option = productsSelect.find(`option[value="${productId}"]`);
+      option.prop('selected', false).trigger('change'); // Desmarca y dispara el evento change
+
+      calculateTotalRecommendedPrice(); // Recalcular precio recomendado después de eliminar
+    });
+
+    // Capturar los datos y enviarlos por AJAX
+    function submitEditCompositeProduct() {
+      // Validar si todos los campos obligatorios están llenos
+      if (!$('#composite-product-name').val() || !$('#recommended_price').val()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Campos requeridos',
+          text: 'Por favor, completa todos los campos obligatorios.'
+        });
+        return;
+      }
+
+      // Obtener la ruta de la acción del formulario
+      const route = $('#editCompositeProductForm').attr('action');
+
+      const formData = {
+        title: $('#composite-product-name').val(),
+        description: $('#description').val(),
+        price: $('#price').val(),
+        recommended_price: $('#recommended_price').val(),
+        store_id: $('#store_id').val(),
+        products: []
+      };
+
+      // Capturar los productos seleccionados y sus cantidades
+      selectedProductsTable.find('tr').each(function () {
+        const productId = $(this).data('product-id');
+        const quantity = $(this).find('.product-quantity').val();
+        formData.products.push({
+          product_id: productId,
+          quantity: quantity
+        });
       });
+
+      // Enviar la solicitud AJAX
+      $.ajax({
+        url: route,
+        type: 'PUT',
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: formData,
+        success: function (response) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Producto Compuesto Actualizado',
+            text: response.message
+          }).then(result => {
+            window.location.href = `${baseUrl}admin/composite-products/${response.id}`;
+          });
+        },
+        error: function (xhr) {
+          var errorMessage =
+            xhr.responseJSON && xhr.responseJSON.errors
+              ? Object.values(xhr.responseJSON.errors).flat().join('\n')
+              : 'Error desconocido al guardar.';
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al guardar',
+            text: errorMessage
+          });
+        }
+      });
+    }
+
+    // Asignar la función de envío al botón
+    $('#saveButton').on('click', function (e) {
+      e.preventDefault();
+      submitEditCompositeProduct(); // Llamar a la función al hacer clic en el botón
     });
   });
 })();

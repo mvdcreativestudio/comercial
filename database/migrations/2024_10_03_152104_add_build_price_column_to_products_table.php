@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->integer('safety_margin')->default(10)->after('stock');
+            $table->decimal('build_price', 10, 2)->nullable()->after('is_trash');
         });
     }
 
@@ -22,7 +22,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('safety_margin');
+            $table->dropColumn('build_price');
         });
     }
 };
+

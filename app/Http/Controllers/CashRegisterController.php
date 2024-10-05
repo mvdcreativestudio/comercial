@@ -121,7 +121,7 @@ class CashRegisterController extends Controller
     }
 
     /**
-     * Devuelve la(s) tienda(s) a las cuales le puede abrir una caha registradora.
+     * Devuelve la(s) empresa(s) a las cuales le puede abrir una caha registradora.
      *
      * @return JsonResponse
      */

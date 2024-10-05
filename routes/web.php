@@ -97,6 +97,7 @@ Route::middleware([
     Route::get('/entry-types/datatable', [EntryTypeController::class, 'datatable'])->name('entry-types.datatable');
     Route::get('/entry-accounts/datatable', [EntryAccountController::class, 'datatable'])->name('entry-accounts.datatable');
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
+    Route::get('/invoices/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('accounting.receivedCfesData');
     Route::get('/current-account-clients/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
     // suppliers
     Route::get('/current-account-suppliers/datatable', [CurrentAccountSupplierPurchaseController::class, 'datatable'])->name('current-account-suppliers.datatable');
@@ -105,6 +106,13 @@ Route::middleware([
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
+    // Exportaciones
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
+
+    // Importaciones Bulk
+    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
+
 
     // Exportaciones
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
@@ -112,7 +120,7 @@ Route::middleware([
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
 
-    Route::get('/cfes/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('cfes.received.datatable');
+
 
     Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
     Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
@@ -253,6 +261,8 @@ Route::middleware([
     Route::post('/email-templates/update/{templateId?}', [EmailTemplateController::class, 'update'])->name('email-templates.update');
     Route::post('/upload-image', [EmailTemplateController::class, 'uploadImage'])->name('upload-image');
 
+    // EXCEL ORDERS
+    Route::get('/orders-export-excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
     // Gestión de Ordenes
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
@@ -384,7 +394,6 @@ Route::middleware([
     Route::group(['prefix' => 'incomes-suppliers'], function () {
         Route::post('/delete-multiple', [IncomeSupplierController::class, 'deleteMultiple'])->name('income-suppliers.deleteMultiple');
     });
-
 });
 
 // Recursos con acceso público

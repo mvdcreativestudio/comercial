@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCompositeProductRequest;
 use App\Http\Requests\UpdateCompositeProductRequest;
 use App\Repositories\CompositeProductRepository;
 use App\Models\CompositeProduct;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
@@ -71,15 +72,18 @@ class CompositeProductController extends Controller
      * @param StoreCompositeProductRequest $request
      * @return RedirectResponse
      */
-    public function store(StoreCompositeProductRequest $request): RedirectResponse
+    public function store(StoreCompositeProductRequest $request): JsonResponse
     {
         try {
-            $compositeProduct = $this->compositeProductRepository->store($request->validated(), $request->input('product_ids'));
-            // return response()->json($compositeProduct);
-            return redirect()->route('composite-products.index')->with('success', 'Producto compuesto guardado correctamente.');
+            $compositeProduct = $this->compositeProductRepository->store($request->validated());
+            return response()->json($compositeProduct);
+            // return redirect()->route('composite-products.index')->with('success', 'Producto compuesto guardado correctamente.');
+            // return json
+            // return response()->json(['success' => true, 'message' => 'Producto compuesto guardado correctamente.']);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->route('composite-products.index')->with('error', 'Error al guardar el producto compuesto.');
+            // return redirect()->route('composite-products.index')->with('error', 'Error al guardar el producto compuesto.');
+            return response()->json(['success' => false, 'message' => 'Error al guardar el producto compuesto.'], 400);
             // return response()->json(['error' => 'Error al guardar el producto compuesto.'], 400);
         }
     }
@@ -120,18 +124,19 @@ class CompositeProductController extends Controller
      *
      * @param UpdateCompositeProductRequest $request
      * @param CompositeProduct $compositeProduct
-     * @return RedirectResponse
+     * @return JsonResponse
      */
-    public function update(UpdateCompositeProductRequest $request, CompositeProduct $compositeProduct): RedirectResponse
+    public function update(UpdateCompositeProductRequest $request, CompositeProduct $compositeProduct): JsonResponse
     {
         try {
             $compositeProduct = $this->compositeProductRepository->update($compositeProduct, $request->validated());
-            // return response()->json($compositeProduct);
-            return redirect()->route('composite-products.index')->with('success', 'Producto compuesto actualizado correctamente.');
+            return response()->json($compositeProduct);
+            // return redirect()->route('composite-products.index')->with('success', 'Producto compuesto actualizado correctamente.');
         } catch (\Exception $e) {
+            dd($e->getMessage());
             Log::error($e->getMessage());
-            // return response()->json(['error' => 'Error al actualizar el producto compuesto.'], 400);
-            return redirect()->route('composite-products.index')->with('error', 'Error al actualizar el producto compuesto.');
+            return response()->json(['error' => 'Error al actualizar el producto compuesto.'], 400);
+            // return redirect()->route('composite-products.index')->with('error', 'Error al actualizar el producto compuesto.');
         }
     }
 

@@ -29,6 +29,7 @@ return [
     'view_all_entries' => 'Ver todos los Asientos',
     'access_delete_entries' => 'Eliminar Asientos',
     'view_all_accounting' => 'Ver todas las transacciones contables',
+    'access_received-documents' => 'Acceder a Documentos Recibidos',
 
     // CRM y Clientes
     'access_crm' => 'Acceder a CRM',

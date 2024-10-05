@@ -167,152 +167,6 @@ class AccountingController extends Controller
         }
     }
 
-
-    /**
-     * Muestra la vista de CFEs recibidos.
-     *
-     * @return View
-    */
-    public function receivedCfes(): View
-    {
-        // Obtener el RUT de la tienda autenticada o de otra fuente
-        $store = auth()->user()->store;
-        $rut = $store->rut;
-
-        if (!$rut) {
-            return redirect()->back()->with('error', 'No se pudo obtener el RUT de la tienda.');
-        }
-
-        try {
-            // Obtener las cookies para la autenticación
-            $cookies = $this->accountingRepository->login($store);
-
-            if (!$cookies) {
-                return redirect()->back()->with('error', 'Error al iniciar sesión en el servicio PyMo.');
-            }
-
-            // Obtener los recibos desde el endpoint
-            $receivedCfes = $this->accountingRepository->fetchReceivedCfes($rut, $cookies);
-
-            Log::info('Recibos recibidos: ' . json_encode($receivedCfes));
-
-            if (!$receivedCfes) {
-                return view('content.accounting.received_cfes', ['cfes' => []]);
-            }
-
-            foreach ($receivedCfes as $receivedCfe) {
-                // Verificar si la estructura del recibo es correcta y contiene la clave 'eFact'
-                if (!isset($receivedCfe['CFE']['eFact'])) {
-                    Log::error('El recibo no tiene la estructura esperada: ' . json_encode($receivedCfe));
-                    continue; // Omitir este recibo y pasar al siguiente
-                }
-
-                Log::info('Recibo recibido: ' . json_encode($receivedCfe));
-
-                // Extraer los datos del recibo desde la respuesta
-                $idDoc = $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc'];
-                $totales = $receivedCfe['CFE']['eFact']['Encabezado']['Totales'];
-                $emisor = $receivedCfe['CFE']['eFact']['Encabezado']['Emisor'];
-                $receptor = $receivedCfe['CFE']['eFact']['Encabezado']['Receptor'];
-                $caeData = $receivedCfe['CFE']['CAEData'] ?? [];
-
-                $cfeData = [
-                    'type' => $idDoc['TipoCFE'],
-                    'serie' => $idDoc['Serie'],
-                    'nro' => $idDoc['Nro'],
-                    'caeNumber' => $caeData['CAE_ID'] ?? null,
-                    'caeRange' => json_encode([
-                        'DNro' => $caeData['DNro'] ?? null,
-                        'HNro' => $caeData['HNro'] ?? null,
-                    ]),
-                    'caeExpirationDate' => $caeData['FecVenc'] ?? null,
-                    'total' => $totales['MntTotal'] ?? null,
-                    'status' => $receivedCfe['cfeStatus'] ?? 'PENDING_REVISION',
-                    'balance' => $totales['MntPagar'] ?? 0,
-                    'received' => true,
-                    'emitionDate' => $idDoc['FchEmis'] ?? null,
-                    'sentXmlHash' => $receivedCfe['Signature']['DigestValue'] ?? null,
-                    'securityCode' => $receivedCfe['Signature']['SignatureValue'] ?? null, // Ajustar según lo que consideres "código de seguridad"
-                    'qrUrl' => null, // Ajustar si existe un valor de QR
-                    'cfeId' => $receivedCfe['_id'] ?? null,
-                    'reason' => null,
-                    'store_id' => $store->id,
-                    'main_cfe_id' => null,
-                    'is_receipt' => ($idDoc['TipoCFE'] == '111') ? true : false,
-                ];
-
-                // Actualizar o crear el CFE en la base de datos
-                CFE::updateOrCreate(
-                    [
-                        'type' => $cfeData['type'],
-                        'serie' => $cfeData['serie'],
-                        'nro' => $cfeData['nro'],
-                    ],
-                    $cfeData
-                );
-            }
-
-            // Obtener los CFEs actualizados de la base de datos para mostrar en la vista
-            $cfes = CFE::where('received', true)->get();
-
-            return view('content.accounting.received_cfes', compact('cfes'));
-
-        } catch (\Exception $e) {
-            Log::error('Error al obtener los recibos recibidos: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al obtener los recibos recibidos.');
-        }
-    }
-
-
-    public function getReceivedCfesData()
-    {
-        $validTypes = [101, 102, 103, 111, 112, 113]; // Tipos válidos de CFE
-
-        // Si el usuario tiene permisos para ver toda la contabilidad
-        if (auth()->user()->can('view_all_accounting')) {
-            $cfes = CFE::with('order.client', 'order.store')
-                ->whereIn('type', $validTypes)
-                ->where('received', true)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } else {
-            // Filtra por la tienda del usuario autenticado si no tiene permisos para ver todo
-            $cfes = CFE::with('order.client', 'order.store')
-                ->whereIn('type', $validTypes)
-                ->whereHas('order.store', function ($query) {
-                    $query->where('id', auth()->user()->store_id);
-                })
-                ->where('received', true)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }
-
-        // Formatear la colección de datos para el DataTable
-        $formattedCfes = $cfes->map(function ($cfe) {
-            return [
-                'id' => $cfe->id,
-                'issuer_name' => $cfe->order->store->name ?? 'N/A',
-                'emition_date' => $cfe->emitionDate,
-                'total' => $cfe->total,
-                'currency' => 'UYU', // Cambiar a la moneda que uses
-                'reason' => $cfe->reason ?? 'N/A',
-                'cfeId' => $cfe->id,
-                'serie' => $cfe->serie,
-                'nro' => $cfe->nro,
-                'caeNumber' => $cfe->caeNumber,
-                'caeRange' => $cfe->caeRange,
-                'caeExpirationDate' => $cfe->caeExpirationDate,
-                'sentXmlHash' => $cfe->sentXmlHash,
-                'securityCode' => $cfe->securityCode,
-                'qrUrl' => $cfe->qrUrl,
-                'actions' => $this->getActionButtons($cfe)
-            ];
-        });
-
-        return response()->json(['data' => $formattedCfes]);
-    }
-
-
     /**
      * Maneja la emisión de un recibo sobre una factura o eTicket existente.
      *
@@ -355,7 +209,7 @@ class AccountingController extends Controller
                     $rut = $matches[1];         // Primer grupo de captura es el RUT
                     $branchOffice = $matches[2]; // Segundo grupo de captura es la sucursal
 
-                    Log::info('Rut de la tienda Webhook: ' . $rut);
+                    Log::info('Rut de la empresa Webhook: ' . $rut);
                     Log::info('Branch Office Webhook: ' . $branchOffice);
 
                     $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
@@ -371,18 +225,18 @@ class AccountingController extends Controller
     }
 
     /**
-     * Actualiza el estado de todos los CFEs para la tienda del usuario autenticado.
+     * Actualiza el estado de todos los CFEs para la empresa del usuario autenticado.
      *
      * @return JsonResponse
     */
     public function updateAllCfesStatus(): JsonResponse
     {
         try {
-            // Obtener la tienda del usuario autenticado
+            // Obtener la empresa del usuario autenticado
             $store = auth()->user()->store;
 
             if (!$store) {
-                return response()->json(['error' => 'No se encontró la tienda para el usuario autenticado.'], 404);
+                return response()->json(['error' => 'No se encontró la empresa para el usuario autenticado.'], 404);
             }
 
             // Llamar al método del repositorio para actualizar los CFEs
@@ -396,7 +250,7 @@ class AccountingController extends Controller
     }
 
     /**
-     * Actualiza el estado de todos los CFE's para todas las tiendas.
+     * Actualiza el estado de todos los CFE's para todas las empresas.
      *
      * @return JsonResponse
     */
@@ -411,4 +265,53 @@ class AccountingController extends Controller
             return response()->json(['error' => 'Ocurrió un error al actualizar los CFEs.'], 500);
         }
     }
+
+    /**
+     * Muestra la vista de CFEs recibidos.
+     *
+     * @return RedirectResponse | View
+    */
+    public function receivedCfes(): RedirectResponse | View
+    {
+        $store = auth()->user()->store;
+
+        if (!$store) {
+            return redirect()->back()->with('error', 'No se encontró la empresa para el usuario autenticado.');
+        }
+
+        try {
+            $cfes = $this->accountingRepository->processReceivedCfes($store);
+
+            if (!$cfes) {
+                return redirect()->back()->with('error', 'No se encontraron CFE recibidos.');
+            }
+
+            return view('content.accounting.received_cfes', compact('cfes'));
+        } catch (\Exception $e) {
+            Log::error('Error al obtener los CFE recibidos: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al obtener los CFE recibidos.');
+        }
+    }
+
+    /**
+     * Obtiene los datos de los CFEs recibidos para la tabla en formato JSON.
+     *
+     * @return JsonResponse
+    */
+    public function getReceivedCfesData(): JsonResponse
+    {
+        try {
+            // Obtener la empresa del usuario autenticado
+            $store = auth()->user()->store;
+
+            // Obtener los datos formateados para la DataTable
+            $receivedCfesData = $this->accountingRepository->getReceivedCfesDataForDatatables($store);
+
+            // Retornar la respuesta en formato JSON para la DataTable
+            return DataTables::of($receivedCfesData)->make(true);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener los datos de los CFEs recibidos para la DataTable: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al obtener los datos de los CFEs recibidos.'], 500);
+        }
+  }
 }

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->integer('safety_margin')->default(10)->after('stock');
+        Schema::table('composite_product_details', function (Blueprint $table) {
+            $table->integer('quantity_composite_product')->nullable()->after('product_id');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('safety_margin');
+        Schema::table('composite_product_details', function (Blueprint $table) {
+            $table->dropColumn('quantity_composite_product');
         });
     }
 };

@@ -35,12 +35,18 @@ class ProductCategoryRepository
   {
     $category = new ProductCategory();
     $category->name = $request->name;
-    // Si no se proporciona slug, se genera automáticamente a partir del nombre
-    if (empty($request->slug)) {
-      $category->slug = \Str::slug($request->name);
-    } else {
-      $category->slug = $request->slug;
+
+    // Generar y validar slug único
+    $baseSlug = empty($request->slug) ? \Str::slug($request->name) : $request->slug;
+    $slug = $baseSlug;
+    $counter = 1;
+
+    while (ProductCategory::where('slug', $slug)->exists()) {
+        $slug = $baseSlug . '-' . $counter;
+        $counter++;
     }
+
+    $category->slug = $slug;
     $category->store_id = $request->store_id;
     $category->description = $request->description;
     $category->parent_id = $request->parent_id;

@@ -20,18 +20,19 @@ $(function () {
     try {
       var dt_cfes = dt_cfe_table.DataTable({
         ajax: {
-          url: 'admin/cfes/received/datatable',
+          url: 'invoices/received/datatable',
           dataSrc: 'data'
         },
         columns: [
           { data: 'id', type: 'num' },
-          { data: 'issuer_name' },
-          { data: 'emition_date' },
-          { data: 'total' },
-          { data: 'currency' },
-          { data: 'total' },
-          { data: 'reason' },
-          { data: 'actions' }
+          { data: 'issuer_name' }, // Nombre del Emisor
+          { data: 'date' },         // Fecha de emisión
+          { data: 'type' },         // Tipo de documento
+          { data: 'reason' },       // Razón del documento
+          { data: 'currency' },     // Moneda
+          { data: 'total' },        // Total del documento
+          { data: 'status' },       // Estado del documento
+          { data: 'actions' }       // Acciones
         ],
         columnDefs: [
           {
@@ -50,31 +51,66 @@ $(function () {
           {
             targets: 2,
             render: function (data, type, full, meta) {
-              return data ? moment(data).format('DD-MM-YYYY HH:mm') : 'Fecha inválida';
+              return data ? moment(data.date).format('DD-MM-YYYY HH:mm') : 'Fecha inválida';
             }
           },
           {
             targets: 3,
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
+              return data ? data : 'Sin Tipo';
             }
           },
           {
-            targets: 4,
+            targets: 4, // Columna para Razón, mostrar un tooltip y modal
             render: function (data, type, full, meta) {
-              return full['currency'];
+              let truncatedText = data ? (data.length > 50 ? data.substring(0, 50) + '...' : data) : 'Sin Razón';
+              return `
+                <span class="razon-text" data-bs-toggle="tooltip" title="${data}">
+                  ${truncatedText}
+                  <button type="button" class="btn btn-link p-0 view-reason" data-full-reason="${data}" style="font-size: 12px;">
+                    Ver más
+                  </button>
+                </span>
+              `;
             }
           },
           {
             targets: 5,
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
+              return full['currency'];
             }
           },
           {
             targets: 6,
             render: function (data, type, full, meta) {
-              return data ? data : 'Sin Razón';
+              return $currencySymbol + parseFloat(data).toFixed(2);
+            }
+          },
+          {
+            targets: 7, // Nueva columna para el Status
+            render: function (data, type, full, meta) {
+              var badgeClass;
+              var translatedStatus;
+
+              switch (data) {
+                case 'CFE_UNKNOWN_ERROR':
+                  badgeClass = 'badge bg-danger';
+                  translatedStatus = 'Error desconocido';
+                  break;
+                case 'CREATED':
+                  badgeClass = 'badge bg-info';
+                  translatedStatus = 'Creado';
+                  break;
+                case 'PENDING_REVISION':
+                  badgeClass = 'badge bg-warning';
+                  translatedStatus = 'Pendiente de Revisión';
+                  break;
+                default:
+                  badgeClass = 'badge bg-secondary';
+                  translatedStatus = 'Estado Desconocido';
+              }
+
+              return '<span class="' + badgeClass + '">' + translatedStatus + '</span>';
             }
           },
           {
@@ -119,43 +155,19 @@ $(function () {
           emptyTable: 'No hay CFEs recibidos disponibles',
           dom: 'Bfrtip',
           renderer: 'bootstrap'
-        },
-        rowCallback: function (row, data, index) {
-          if (data['total'] > 1000) {
-            $('td', row).eq(3).css('background-color', '#F5F5F9').css('color', '#566A7F');
-          }
         }
       });
 
-      $('.datatables-cfes-received tbody').on('click', '.btn-ver-detalles', function () {
-        var cfe = dt_cfes.row($(this).parents('tr')).data();
-
-        $('#modalDetalle .modal-title').text('Detalles del CFE Recibido');
-        $('#modalDetalle .modal-body').html(`
-          <p><strong>Serie:</strong> ${cfe.serie}</p>
-          <p><strong>CFE ID:</strong> ${cfe.cfeId}</p>
-          <p><strong>Número:</strong> ${cfe.nro}</p>
-          <p><strong>CAE Number:</strong> ${cfe.caeNumber}</p>
-          <p><strong>CAE Range:</strong> ${cfe.caeRange}</p>
-          <p><strong>CAE Expiration Date:</strong> ${moment(cfe.caeExpirationDate).format('DD-MM-YYYY')}</p>
-          <p><strong>Total:</strong> ${$currencySymbol}${cfe.total}</p>
-          <p><strong>Emisión Date:</strong> ${moment(cfe.emitionDate).format('DD-MM-YYYY')}</p>
-          <p><strong>Hash:</strong> ${cfe.sentXmlHash}</p>
-          <p><strong>Security Code:</strong> ${cfe.securityCode}</p>
-          <p><strong>QR URL:</strong> <a href="${cfe.qrUrl}" target="_blank">${cfe.qrUrl}</a></p>
-        `);
-
+      // Evento para mostrar el modal con la razón completa
+      $('.datatables-cfes-received tbody').on('click', '.view-reason', function () {
+        var fullReason = $(this).data('full-reason');
+        $('#modalDetalle .modal-title').text('Razón Completa');
+        $('#modalDetalle .modal-body').html(`<p>${fullReason}</p>`);
         $('#modalDetalle').modal('show');
       });
 
-      $('.toggle-column').on('change', function () {
-        var column = dt_cfes.column($(this).attr('data-column'));
-        column.visible(!column.visible());
-      });
-
-      // Estilos buscador y paginación
-      $('.dataTables_length label select').addClass('form-select form-select-sm');
-      $('.dataTables_filter label input').addClass('form-control');
+      // Inicializar tooltips
+      $('[data-bs-toggle="tooltip"]').tooltip();
 
     } catch (error) {
       console.log(error);
