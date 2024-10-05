@@ -209,7 +209,7 @@ class AccountingController extends Controller
                     $rut = $matches[1];         // Primer grupo de captura es el RUT
                     $branchOffice = $matches[2]; // Segundo grupo de captura es la sucursal
 
-                    Log::info('Rut de la tienda Webhook: ' . $rut);
+                    Log::info('Rut de la empresa Webhook: ' . $rut);
                     Log::info('Branch Office Webhook: ' . $branchOffice);
 
                     $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
@@ -225,18 +225,18 @@ class AccountingController extends Controller
     }
 
     /**
-     * Actualiza el estado de todos los CFEs para la tienda del usuario autenticado.
+     * Actualiza el estado de todos los CFEs para la empresa del usuario autenticado.
      *
      * @return JsonResponse
     */
     public function updateAllCfesStatus(): JsonResponse
     {
         try {
-            // Obtener la tienda del usuario autenticado
+            // Obtener la empresa del usuario autenticado
             $store = auth()->user()->store;
 
             if (!$store) {
-                return response()->json(['error' => 'No se encontró la tienda para el usuario autenticado.'], 404);
+                return response()->json(['error' => 'No se encontró la empresa para el usuario autenticado.'], 404);
             }
 
             // Llamar al método del repositorio para actualizar los CFEs
@@ -250,7 +250,7 @@ class AccountingController extends Controller
     }
 
     /**
-     * Actualiza el estado de todos los CFE's para todas las tiendas.
+     * Actualiza el estado de todos los CFE's para todas las empresas.
      *
      * @return JsonResponse
     */
@@ -276,20 +276,20 @@ class AccountingController extends Controller
         $store = auth()->user()->store;
 
         if (!$store) {
-            return redirect()->back()->with('error', 'No se encontró la tienda para el usuario autenticado.');
+            return redirect()->back()->with('error', 'No se encontró la empresa para el usuario autenticado.');
         }
 
         try {
             $cfes = $this->accountingRepository->processReceivedCfes($store);
 
             if (!$cfes) {
-                return redirect()->back()->with('error', 'No se encontraron recibos recibidos.');
+                return redirect()->back()->with('error', 'No se encontraron CFE recibidos.');
             }
 
             return view('content.accounting.received_cfes', compact('cfes'));
         } catch (\Exception $e) {
-            Log::error('Error al obtener los recibos recibidos: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al obtener los recibos recibidos.');
+            Log::error('Error al obtener los CFE recibidos: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al obtener los CFE recibidos.');
         }
     }
 
@@ -301,7 +301,7 @@ class AccountingController extends Controller
     public function getReceivedCfesData(): JsonResponse
     {
         try {
-            // Obtener la tienda del usuario autenticado
+            // Obtener la empresa del usuario autenticado
             $store = auth()->user()->store;
 
             // Obtener los datos formateados para la DataTable

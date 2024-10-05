@@ -26,7 +26,7 @@ class AccountingRepository
     public function login(Store $store): ?array
     {
         if (!$store || !$store->pymo_user || !$store->pymo_password) {
-            Log::error('No se encontraron las credenciales de PyMo para la tienda del usuario.');
+            Log::error('No se encontraron las credenciales de PyMo para la empresa del usuario.');
             return null;
         }
 
@@ -278,7 +278,7 @@ class AccountingRepository
         }
 
         if (!$store->rut) {
-            Log::error('No se encontró el RUT de la tienda para obtener el logo de la empresa.');
+            Log::error('No se encontró el RUT de la empresa para obtener el logo de la empresa.');
             return null;
         }
 
@@ -332,7 +332,7 @@ class AccountingRepository
         }
 
         if (!$store->rut) {
-            Log::error('No se encontró el RUT de la tienda para obtener la información de la empresa.');
+            Log::error('No se encontró el RUT de la empresa para obtener la información de la empresa.');
             return null;
         }
 
@@ -379,12 +379,12 @@ class AccountingRepository
         $branchOffice = $store->pymo_branch_office;
 
         if (!$store || !$store->rut) {
-            Log::error('No se encontró el RUT de la tienda para emitir el CFE.');
+            Log::error('No se encontró el RUT de la empresa para emitir el CFE.');
             return;
         }
 
         if (!$branchOffice) {
-            Log::error('No se encontró la sucursal de la tienda para emitir el CFE.');
+            Log::error('No se encontró la sucursal de la empresa para emitir el CFE.');
             return;
         }
 
@@ -636,11 +636,11 @@ class AccountingRepository
         $branchOffice = $store->pymo_branch_office;
 
         if (!$store || !$rut) {
-            throw new \Exception('No se encontró el RUT de la tienda para emitir la nota.');
+            throw new \Exception('No se encontró el RUT de la empresa para emitir la nota.');
         }
 
         if (!$branchOffice) {
-            throw new \Exception('No se encontró la sucursal de la tienda para emitir la nota.');
+            throw new \Exception('No se encontró la sucursal de la empresa para emitir la nota.');
         }
 
         // Validar que el tipo sea eFactura (111) o eTicket (101)
@@ -850,13 +850,13 @@ class AccountingRepository
         }
 
         if (!$store || !$rut) {
-            Log::error('No se encontró el RUT de la tienda para obtener el PDF del CFE.');
-            throw new \Exception('No se encontró el RUT de la tienda para obtener el PDF del CFE.');
+            Log::error('No se encontró el RUT de la empresa para obtener el PDF del CFE.');
+            throw new \Exception('No se encontró el RUT de la empresa para obtener el PDF del CFE.');
         }
 
         if (!$branchOffice) {
-            Log::error('No se encontró la sucursal de la tienda para obtener el PDF del CFE.');
-            throw new \Exception('No se encontró la sucursal de la tienda para obtener el PDF del CFE.');
+            Log::error('No se encontró la sucursal de la empresa para obtener el PDF del CFE.');
+            throw new \Exception('No se encontró la sucursal de la empresa para obtener el PDF del CFE.');
         }
 
         // Construir la URL para obtener el PDF
@@ -935,11 +935,11 @@ class AccountingRepository
         $branchOffice = $store->pymo_branch_office;
 
         if (!$store || !$rut) {
-            throw new \Exception('No se encontró el RUT de la tienda para emitir el recibo.');
+            throw new \Exception('No se encontró el RUT de la empresa para emitir el recibo.');
         }
 
         if (!$branchOffice) {
-            throw new \Exception('No se encontró la sucursal de la tienda para emitir el recibo.');
+            throw new \Exception('No se encontró la sucursal de la empresa para emitir el recibo.');
         }
 
         // Preparar los datos del recibo
@@ -1075,7 +1075,7 @@ class AccountingRepository
     }
 
      /**
-     * Actualiza la información de la tienda con la información de PyMo.
+     * Actualiza la información de la empresa con la información de PyMo.
      *
      * @param Store $store
      * @param string $selectedBranchOfficeNumber
@@ -1088,14 +1088,14 @@ class AccountingRepository
         // Actualizar 'pymo_user' y 'pymo_password' antes de cualquier otra operación
         $this->updatePymoCredentials($store, $pymoUser, $newPymoPassword);
 
-        // Reobtener el modelo de la tienda con los nuevos valores actualizados en la base de datos
+        // Reobtener el modelo de la empresa con los nuevos valores actualizados en la base de datos
         $store->refresh();
 
         // Obtener la información actual de la empresa desde PyMo
         $companyInfo = $this->getCompanyInfo($store);
 
         if (!$companyInfo) {
-            Log::error('No se encontró la información de la empresa para la actualización de la tienda.');
+            Log::error('No se encontró la información de la empresa para la actualización de la empresa.');
             return;
         }
 
@@ -1103,7 +1103,7 @@ class AccountingRepository
         $branchOffices = $companyInfo['branchOffices'] ?? [];
         $selectedBranchOffice = collect($branchOffices)->firstWhere('number', $selectedBranchOfficeNumber);
 
-        // Actualizamos la sucursal de la tienda
+        // Actualizamos la sucursal de la empresa
         $updateData = [
             'pymo_user' => $store->pymo_user,
             'pymo_branch_office' => $selectedBranchOfficeNumber,
@@ -1120,7 +1120,7 @@ class AccountingRepository
     }
 
     /**
-     * Actualiza las credenciales de PyMo en la tienda.
+     * Actualiza las credenciales de PyMo en la empresa.
      *
      * @param Store $store
      * @param string|null $pymoUser
@@ -1221,7 +1221,7 @@ class AccountingRepository
     public function checkCfeStatus(string $rut, string $branchOffice, string $urlToCheck): void
     {
         // Busco la Store con el RUT y branch office
-        Log::info('Rut de la tienda Webhook: ' . $rut);
+        Log::info('Rut de la empresa Webhook: ' . $rut);
         Log::info('Branch Office Webhook: ' . $branchOffice);
 
         $store = Store::where('rut', $rut)
@@ -1229,7 +1229,7 @@ class AccountingRepository
             ->first();
 
         if (!$store) {
-            Log::error('No se encontró la tienda con el RUT y sucursal especificados.');
+            Log::error('No se encontró la empresa con el RUT y sucursal especificados.');
             return;
         }
 
@@ -1291,7 +1291,7 @@ class AccountingRepository
     }
 
     /**
-     * Actualiza el estado de todos los CFEs para una tienda específica.
+     * Actualiza el estado de todos los CFEs para una empresa específica.
      *
      * @param Store $store
      * @return void
@@ -1305,7 +1305,7 @@ class AccountingRepository
         $cookies = $this->login($store);
 
         if (!$cookies) {
-            Log::error('No se pudo iniciar sesión en PyMo para la tienda con RUT: ' . $store->rut);
+            Log::error('No se pudo iniciar sesión en PyMo para la empresa con RUT: ' . $store->rut);
             return;
         }
 
@@ -1316,44 +1316,44 @@ class AccountingRepository
             if ($response->successful()) {
                 $cfesData = $response->json();
 
-                Log::info('CFEs para la tienda con RUT: ' . $store->rut, $cfesData);
+                Log::info('CFEs para la empresa con RUT: ' . $store->rut, $cfesData);
 
                 // Actualizar el estado de cada CFE en la base de datos
                 foreach ($cfesData['payload']['branchOfficeSentCfes'] as $cfeData) {
                     $this->updateCfeStatus($cfeData);
                 }
 
-                Log::info('Los estados de los CFEs para la tienda con RUT: ' . $store->rut . ' se han actualizado correctamente.');
+                Log::info('Los estados de los CFEs para la empresa con RUT: ' . $store->rut . ' se han actualizado correctamente.');
             } else {
-                Log::error('Error al obtener los CFEs para la tienda con RUT: ' . $store->rut . ' - ' . $response->body());
+                Log::error('Error al obtener los CFEs para la empresa con RUT: ' . $store->rut . ' - ' . $response->body());
             }
         } catch (\Exception $e) {
-            Log::error('Excepción al obtener los CFEs para la tienda con RUT: ' . $store->rut . ' - ' . $e->getMessage());
+            Log::error('Excepción al obtener los CFEs para la empresa con RUT: ' . $store->rut . ' - ' . $e->getMessage());
         }
     }
 
     /**
-     * Actualiza el estado de todos los CFEs para todas las tiendas.
+     * Actualiza el estado de todos los CFEs para todas las empresas.
      *
      * @return void
     */
     public function updateAllCfesStatusForAllStores(): void
     {
-        // Obtener todas las tiendas que tengan invoices_enabled y datos en pymo_user y pymo_password, pymo_branch_office
+        // Obtener todas las empresas que tengan invoices_enabled y datos en pymo_user y pymo_password, pymo_branch_office
         $stores = Store::where('invoices_enabled', true)
             ->whereNotNull('pymo_user')
             ->whereNotNull('pymo_password')
             ->whereNotNull('pymo_branch_office')
             ->get();
 
-        // Actualizar el estado de los CFEs para cada tienda
+        // Actualizar el estado de los CFEs para cada empresa
         foreach ($stores as $store) {
             $this->updateAllCfesForStore($store);
         }
     }
 
     /**
-     * Obtiene y almacena los CFEs recibidos para una tienda específica.
+     * Obtiene y almacena los CFEs recibidos para una empresa específica.
      *
      * @param Store $store
      * @return array|null
@@ -1363,7 +1363,7 @@ class AccountingRepository
         $rut = $store->rut;
 
         if (!$rut) {
-            Log::error('No se pudo obtener el RUT de la tienda.');
+            Log::error('No se pudo obtener el RUT de la empresa.');
             return null;
         }
 
@@ -1468,7 +1468,7 @@ class AccountingRepository
     {
         $validTypes = [101, 102, 103, 111, 112, 113]; // Tipos válidos de CFE
 
-        // Si se proporciona una tienda específica, filtrar por esta tienda
+        // Si se proporciona una empresa específica, filtrar por esta empresa
         if ($store) {
             $cfes = CFE::with('order.client', 'order.store')
                 ->where('store_id', $store->id)
@@ -1477,7 +1477,7 @@ class AccountingRepository
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
-            // Si no se proporciona una tienda específica, obtener todos los CFEs recibidos
+            // Si no se proporciona una empresa específica, obtener todos los CFEs recibidos
             $cfes = CFE::with('order.client', 'order.store')
                 ->whereIn('type', $validTypes)
                 ->where('received', true)

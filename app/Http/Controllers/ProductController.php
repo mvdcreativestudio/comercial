@@ -370,7 +370,7 @@ class ProductController extends Controller
       if (Auth::user()->can('access_global_products')) {
         $categories = ProductCategory::all();
       } else {
-          // Si no tiene el permiso, mostrar solo las categorías asociadas a su tienda
+          // Si no tiene el permiso, mostrar solo las categorías asociadas a su empresa
           $categories = ProductCategory::where('store_id', Auth::user()->store_id)->get();
       }
 

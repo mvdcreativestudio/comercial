@@ -17,7 +17,7 @@ use App\Http\Middleware\EnsureUserCanAccessStore;
 class StoreController extends Controller
 {
     /**
-     * El repositorio de tiendas.
+     * El repositorio de empresa.
      *
      * @var StoreRepository
      */
@@ -44,7 +44,7 @@ class StoreController extends Controller
       }
 
     /**
-     * Muestra una lista de todas las tiendas.
+     * Muestra una lista de todas las empresa.
      *
      * @return View
      */
@@ -55,7 +55,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Muestra el formulario para crear una nueva tienda.
+     * Muestra el formulario para crear una nueva empresa.
      *
      * @return View
      */
@@ -65,7 +65,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Almacena una nueva tienda en la base de datos.
+     * Almacena una nueva empresa en la base de datos.
      *
      * @param StoreStoreRequest $request
      * @return RedirectResponse
@@ -80,7 +80,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Muestra una tienda específica.
+     * Muestra una empresa específica.
      *
      * @param Store $store
      * @return View
@@ -91,7 +91,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Muestra el formulario para editar una tienda existente.
+     * Muestra el formulario para editar una empresa existente.
      *
      * @param Store $store
      * @return View

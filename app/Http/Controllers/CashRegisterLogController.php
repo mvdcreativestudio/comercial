@@ -151,7 +151,7 @@ class CashRegisterLogController extends Controller
 
 
     /**
-     * Toma los productos de la tienda de la caja registradora.
+     * Toma los productos de la empresa de la caja registradora.
      *
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
@@ -163,7 +163,7 @@ class CashRegisterLogController extends Controller
     }
 
     /**
-     * Toma los productos de la tienda de la caja registradora.
+     * Toma los productos de la empresa de la caja registradora.
      *
      * @return \Illuminate\Http\JsonResponse
      */
