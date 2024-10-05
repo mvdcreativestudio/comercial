@@ -226,7 +226,11 @@ $(document).ready(function() {
     // Función para mostrar productos en formato de tarjetas
     function displayProducts(productsToDisplay) {
       // Ordenar productos por disponibilidad: los productos agotados al final
-      productsToDisplay.sort((a, b) => (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1));
+      productsToDisplay.sort((a, b) => {
+        if (a.stock === null) return -1;
+        if (b.stock === null) return 1;
+        return (a.stock > 0 ? -1 : 1) - (b.stock > 0 ? -1 : 1);
+      });
 
       if (productsToDisplay.length === 0) {
           $('#products-container').html('<p class="text-center mt-3">No hay productos disponibles</p>');
@@ -236,15 +240,16 @@ $(document).ready(function() {
       let productsHtml = '';
       productsToDisplay.forEach(product => {
           const priceToDisplay = product.price ? product.price : product.old_price;
-          const outOfStockLabel = product.stock <= 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-1">Agotado</span>` : '';
           const inactiveLabel = product.status == 2 ? `<span class="badge bg-warning text-dark position-absolute top-0 start-0 m-1">Inactivo</span>` : '';
           const oldPriceHtml = product.price && product.old_price ? `<span class="text-muted" style="font-size: 0.8em;"><del>${currencySymbol}${product.old_price}</del></span>` : '';
+
+          // Añadir indicador de stock
+          const stockIndicator = getStockIndicator(product);
 
           productsHtml += `
               <!-- Tarjeta de producto -->
               <div class="col-12 col-sm-6 col-xxl-4 mb-3 card-product-pos" data-category="${product.category}">
                   <div class="card h-100 position-relative product-card-hover">
-                      ${outOfStockLabel}
                       ${inactiveLabel}
                       <img src="${baseUrl}${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
                       <div class="card-body d-flex flex-column justify-content-between">
@@ -254,6 +259,7 @@ $(document).ready(function() {
                                   ${oldPriceHtml}
                                   <span class="fw-bold">${currencySymbol}${priceToDisplay}</span>
                               </p>
+                              ${stockIndicator}
                           </div>
                           <div class="d-flex flex-column align-items-stretch mt-3">
                             <div class="input-group input-group-sm d-flex">
@@ -261,7 +267,7 @@ $(document).ready(function() {
                               <input type="number" class="form-control quantity-input selector-cantidad-pdv col-2" min="1" value="1" data-id="${product.id}">
                               <button class="btn btn-outline-secondary increment-quantity col-2" type="button" data-id="${product.id}">+</button>
                             </div>
-                            <button class="btn btn-primary btn-sm add-to-cart mb-2 mt-2" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar al carrito</button>
+                            <button class="btn btn-primary btn-sm add-to-cart mb-2 mt-2" data-id="${product.id}" data-type="${product.type}" ${(product.stock !== null && product.stock <= 0) || product.status == 0 ? 'disabled' : ''}>Agregar al carrito</button>
                           </div>
                       </div>
                   </div>
@@ -286,9 +292,12 @@ $(document).ready(function() {
       productsToDisplay.forEach(product => {
           const priceToDisplay = product.price ? product.price.toLocaleString('es-ES') : product.old_price.toLocaleString('es-ES');
           const oldPriceFormatted = product.old_price ? product.old_price.toLocaleString('es-ES') : '';
-          const outOfStockText = product.stock <= 0 ? '<span class="badge bg-danger ms-2">Agotado</span>' : '';
-          const inactiveText = product.status == 2 ? '<span class="badge bg-warning text-dark ms-2">Inactivo</span>' : '';
+          const inactiveText = product.status == 0 ? '<span class="badge bg-danger text-white ms-2">Inactivo</span>' : '';
           const oldPriceHtml = product.price && product.old_price ? `<small class="text-muted"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : '';
+
+          // Añadir indicador de stock
+          const stockIndicator = getStockIndicator(product);
+
           productsHtml += `
               <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-bottom">
                   <div class="d-flex align-items-center">
@@ -298,8 +307,9 @@ $(document).ready(function() {
                           <div class="d-flex align-items-center mt-1">
                               ${oldPriceHtml ? `<small class="text-muted me-2"><del>${currencySymbol}${oldPriceFormatted}</del></small>` : ''}
                               <span class="text-primary fw-semibold">${currencySymbol}${priceToDisplay}</span>
-                              ${outOfStockText} ${inactiveText}
+                              ${inactiveText}
                           </div>
+                          ${stockIndicator}
                       </div>
                   </div>
                   <div class="d-flex align-items-center">
@@ -308,7 +318,7 @@ $(document).ready(function() {
                           <input type="number" class="form-control quantity-input selector-cantidad-pdv" min="1" value="1" data-id="${product.id}">
                           <button class="btn btn-outline-secondary increment-quantity" type="button" data-id="${product.id}">+</button>
                       </div>
-                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>
+                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock !== null && product.stock <= 0 || product.status == 0 ? 'disabled' : ''}>
                           <i class="bx bx-cart-add"></i>
                       </button>
                   </div>
@@ -328,7 +338,7 @@ $(document).ready(function() {
       const priceToUse = product.price ? product.price : product.old_price;
 
       // Verificar si el producto tiene stock suficiente antes de agregar
-      if (product.stock <= 0) {
+      if (product.stock !== null && product.stock <= 0) {
           mostrarError('No hay suficiente stock de este producto.');
           return;
       }
@@ -373,14 +383,14 @@ $(document).ready(function() {
 
           if (cartItem) {
               // Verificar si hay stock suficiente para incrementar la cantidad
-              if (cartItem.quantity + quantity > product.stock) {
+              if (product.stock !== null && cartItem.quantity + quantity > product.stock) {
                   mostrarError('No hay suficiente stock para agregar más unidades de este producto.');
                   return;
               }
               cartItem.quantity += quantity; // Incrementar por la cantidad deseada
           } else {
               // Verificar si hay stock suficiente para agregar el producto por primera vez
-              if (product.stock < quantity) {
+              if (product.stock !== null && product.stock < quantity) {
                   mostrarError('No hay suficiente stock de este producto.');
                   return;
               }
@@ -718,6 +728,31 @@ $(document).ready(function() {
           input.val(currentValue - 1);
       }
   });
+
+  // Función para generar el indicador de stock
+  function getStockIndicator(product) {
+      let stockClass, stockText;
+      const stock = product.stock;
+      const safetyMargin = product.safety_margin || 5;
+
+      if (stock === null) {
+          stockClass = 'bg-success';
+          stockText = 'En stock';
+      } else if (stock <= 0) {
+          stockClass = 'bg-danger';
+          stockText = 'Sin stock';
+      } else if (stock <= safetyMargin) {
+          stockClass = 'bg-warning';
+          stockText = 'Stock bajo';
+      } else {
+          stockClass = 'bg-success';
+          stockText = 'En stock';
+      }
+      return `<div class="mt-2">
+                  <span class="badge ${stockClass}">${stockText}</span>
+                  ${stock !== null ? `<small class="text-muted ms-1">(${stock} disponibles)</small>` : ''}
+              </div>`;
+  }
 
   // Inicializar funciones
   loadProducts();
