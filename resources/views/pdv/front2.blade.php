@@ -150,31 +150,46 @@
         </div>
       </div>
 
-      <div class="card shadow-sm p-3">
-        <h5>Seleccione el método de pago</h5>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="paymentMethod" id="cash" checked>
-          <label class="form-check-label" for="cash">Efectivo</label>
-          <input type="number" id="valorRecibido" min="0" step=".01" class="form-control mt-2 mb-3" placeholder="Valor recibido">
-          <p class="text-muted">Vuelto: <span id="vuelto">0</span></p>
-          <small id="mensajeError" class="text-danger d-none mb-4">El valor recibido es menor al total de la compra.</small>
+      <div class="card shadow-sm p-4 bg-light">
+        <h5 class="card-title mb-4 text-primary">Método de pago</h5>
+
+        <div class="payment-options">
+          <div class="payment-option mb-3">
+            <input class="btn-check" type="radio" name="paymentMethod" id="cash" autocomplete="off" checked>
+            <label class="btn btn-outline-primary w-100 text-start" for="cash">
+              <i class="bx bx-money me-2"></i> Efectivo
+            </label>
+            <div class="mt-3 cash-details" id="cashDetails">
+              <input type="number" id="valorRecibido" min="0" step=".01" class="form-control form-control-lg mb-2" placeholder="Valor recibido">
+              <p class="text-muted mb-0">Vuelto: <span id="vuelto" class="fw-bold">0</span></p>
+              <small id="mensajeError" class="text-danger d-none">El valor recibido es insuficiente.</small>
+            </div>
+          </div>
+
+          <div class="payment-option mb-3">
+            <input class="btn-check" type="radio" name="paymentMethod" id="debit" autocomplete="off">
+            <label class="btn btn-outline-primary w-100 text-start" for="debit">
+              <i class="bx bx-credit-card me-2"></i> Débito
+            </label>
+          </div>
+
+          <div class="payment-option">
+            <input class="btn-check" type="radio" name="paymentMethod" id="credit" autocomplete="off">
+            <label class="btn btn-outline-primary w-100 text-start" for="credit">
+              <i class="bx bx-credit-card-front me-2"></i> Crédito
+            </label>
+          </div>
         </div>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="paymentMethod" id="debit">
-          <label class="form-check-label" for="debit">Débito</label>
+
+        <!-- Nuevo selector de estado de entrega -->
+        <div class="mt-4">
+          <h5 class="card-title mb-3 text-primary">Estado de entrega</h5>
+          <select id="shippingStatus" class="form-select">
+            <option value="delivered">Entregado</option>
+            <option value="shipped">Enviado</option>
+            <option value="pending">Pendiente</option>
+          </select>
         </div>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="paymentMethod" id="credit">
-          <label class="form-check-label" for="credit">Crédito</label>
-        </div>
-        {{-- <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="paymentMethod" id="other">
-          <label class="form-check-label" for="other">Otros</label>
-        </div>
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="paymentMethod" id="creditSale">
-          <label class="form-check-label" for="creditSale">Venta a crédito</label>
-        </div> --}}
       </div>
       <div class="demo-inline-spacing d-flex justify-content-between">
         <a href="{{ route('pdv.front') }}" id="descartarVentaBtn" class="btn btn-outline-danger"><i class="bx bx-x"></i>Descartar</a>

@@ -25,7 +25,8 @@ class StorePosOrderRequest extends FormRequest
             'products' => 'required',
             'subtotal' => 'required|numeric',
             'total' => 'required|numeric',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'shipping_status' => 'required|string'
         ];
     }
 
@@ -41,7 +42,8 @@ class StorePosOrderRequest extends FormRequest
             'client_type.required' => 'El tipo de cliente es obligatorio.',
             'products.required' => 'Los productos de la orden son obligatorios.',
             'subtotal.required' => 'Es necesario el subtotal de la orden.',
-            'total.required' => 'Es necesario el total de la orden.'
+            'total.required' => 'Es necesario el total de la orden.',
+            'shipping_status.required' => 'El estado de envío es obligatorio.'
         ];
     }
 }

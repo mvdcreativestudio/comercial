@@ -41,7 +41,7 @@ $(document).ready(function() {
       hideMethod: 'fadeOut',           // Método de salida (desvanecimiento)
       showDuration: 300,               // Duración de la animación de entrada
       hideDuration: 1000,              // Duración de la animación de salida
-      timeOut: 1000,                   // Tiempo que permanece visible el toast
+      timeOut: 2000,                   // Tiempo que permanece visible el toast
       extendedTimeOut: 1000            // Tiempo adicional antes de que desaparezca al hacer hover
     };
 
@@ -242,25 +242,27 @@ $(document).ready(function() {
 
           productsHtml += `
               <!-- Tarjeta de producto -->
-              <div class="col-12 col-sm-6 col-xxl-4 mb-2 card-product-pos d-flex align-items-stretch" data-category="${product.category}">
-                  <div class="card-product-pos w-100 mb-3 position-relative">
+              <div class="col-12 col-sm-6 col-xxl-4 mb-3 card-product-pos" data-category="${product.category}">
+                  <div class="card h-100 position-relative product-card-hover">
                       ${outOfStockLabel}
                       ${inactiveLabel}
-                      <img src="${baseUrl}${product.image}" class="card-img-top-product-pos" alt="${product.name}">
-                      <div class="card-img-overlay-product-pos d-flex flex-column justify-content-end">
-                          <h5 class="card-title-product-pos text-white">${product.name}</h5>
-                          <p class="card-text-product-pos">
-                              ${oldPriceHtml}
-                              <span style="font-size: 1em;">${currencySymbol}${priceToDisplay}</span>
-                          </p>
-                          <!-- Selector de cantidad -->
-                          <div class="input-group mb-3">
-                              <button class="btn btn-outline-secondary btn-quantity decrement-quantity" type="button" data-id="${product.id}">-</button>
-                              <input type="number" class="form-control quantity-input" min="1" value="1" data-id="${product.id}" style="width: 60px;">
-                              <button class="btn btn-outline-secondary btn-quantity increment-quantity" type="button" data-id="${product.id}">+</button>
+                      <img src="${baseUrl}${product.image}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+                      <div class="card-body d-flex flex-column justify-content-between">
+                          <div>
+                              <h5 class="card-title">${product.name}</h5>
+                              <p class="card-text">
+                                  ${oldPriceHtml}
+                                  <span class="fw-bold">${currencySymbol}${priceToDisplay}</span>
+                              </p>
                           </div>
-                          <!-- Botón de agregar al carrito -->
-                          <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar</button>
+                          <div class="d-flex flex-column align-items-stretch mt-3">
+                            <div class="input-group input-group-sm d-flex">
+                              <button class="btn btn-outline-secondary decrement-quantity col-2" type="button" data-id="${product.id}">-</button>
+                              <input type="number" class="form-control quantity-input selector-cantidad-pdv col-2" min="1" value="1" data-id="${product.id}">
+                              <button class="btn btn-outline-secondary increment-quantity col-2" type="button" data-id="${product.id}">+</button>
+                            </div>
+                            <button class="btn btn-primary btn-sm add-to-cart mb-2 mt-2" data-id="${product.id}" data-type="${product.type}" ${product.stock <= 0 || product.status == 2 ? 'disabled' : ''}>Agregar al carrito</button>
+                          </div>
                       </div>
                   </div>
               </div>
@@ -393,6 +395,9 @@ $(document).ready(function() {
               });
           }
 
+          // Restablecer el contador de cantidad a 1 después de agregar al carrito
+          $(`.quantity-input[data-id="${productId}"]`).val(1);
+
           updateCart();
           toastr.success(`<strong>${product.name}</strong> agregado correctamente`);
         }
@@ -448,8 +453,6 @@ $(document).ready(function() {
 
       // Actualiza el contador de productos en el botón "Ver Carrito"
       $('#cart-count').text(totalItems);
-
-      console.log(cart);
 
       // Habilitar o deshabilitar el botón "Finalizar Venta" según si hay productos en el carrito
       if (cart.length === 0) {

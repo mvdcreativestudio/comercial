@@ -154,6 +154,7 @@ class OrderRepository
      * Prepara los datos del pedido para ser almacenados en la base de datos.
      *
      * @param string $paymentMethod
+     * @param Request $request
      * @return array
      */
     private function prepareOrderData(string $paymentMethod, $request): array
@@ -177,7 +178,7 @@ class OrderRepository
             'coupon_amount' => $request->coupon_amount,
             'total' => $subtotal + session('costoEnvio', 0) - $request->discount,
             'payment_status' => 'paid',
-            'shipping_status' => 'delivered',
+            'shipping_status' => $request->shipping_status ?? 'delivered',
             'payment_method' => $paymentMethod,
             'shipping_method' => 'peya',
             'doc_type' => $request->doc_type,
