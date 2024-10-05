@@ -167,7 +167,7 @@
             },
             {
               "id": "tour-facturas-recibidas",
-              "name": "Documentos Recibidos",
+              "name": "CFE Recibidos",
               "icon": "menu-icon tf-icons bx bx-file",
               "slug": "received-documents",
               "url": "/admin/received-cfes"
