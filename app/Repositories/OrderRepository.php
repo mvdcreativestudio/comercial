@@ -53,7 +53,7 @@ class OrderRepository
 
         // Calcular las estadísticas basadas en los pedidos filtrados
         $totalOrders = $orders->count();
-        $totalIncome = $orders->sum('total');
+        $totalIncome = $orders->where('payment_status', 'paid')->sum('total');
         $pendingOrders = $orders->where('shipping_status', 'pending')->count();
         $shippedOrders = $orders->where('shipping_status', 'shipped')->count();
         $completedOrders = $orders->where('shipping_status', 'completed')->count();
