@@ -1408,8 +1408,6 @@ class AccountingRepository
                 $caeData = $cfeData['CAEData'] ?? [];
                 $adenda = $receivedCfe['Adenda'] ?? null;
 
-                Log::info('CFE DATA: ', $cfeData['Encabezado']['Emisor']);
-
                 $cfeEntry = [
                     'store_id' => $store->id,
                     'type' => $idDoc['TipoCFE'] ?? null,
@@ -1427,10 +1425,13 @@ class AccountingRepository
                     'received' => true,
                     'emitionDate' => $idDoc['FchEmis'] ?? null,
                     'cfeId' => $receivedCfe['_id'] ?? null,
-                    'reason' => $adenda,
+                    // La adenda puede ser un objeto, la convierto siempre a string
+                    'reason' => $adenda ? json_encode($adenda) : null,
                     'issuer_name' => $cfeData['Encabezado']['Emisor']['NomComercial'] ?? null,
                     'is_receipt' => ($idDoc['TipoCFE'] ?? null) == '111',
                 ];
+
+                Log::info('CFE a procesar: ', $cfeEntry);
 
                 // Validar si los campos requeridos existen antes de crear o actualizar el CFE
                 if (is_null($cfeEntry['type']) || is_null($cfeEntry['serie']) || is_null($cfeEntry['nro'])) {
