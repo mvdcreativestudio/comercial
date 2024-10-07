@@ -221,7 +221,6 @@
         </ul>
         <div class="d-flex justify-content-center pt-3">
           <a href="javascript:;" class="btn btn-primary me-3" data-bs-target="#editUser" data-bs-toggle="modal">Editar</a>
-          <a href="javascript:;" class="btn btn-outline-danger suspend-user">Eliminar</a>
         </div>
       </div>
     </div>
