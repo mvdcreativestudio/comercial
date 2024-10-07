@@ -22,6 +22,9 @@ use App\Exports\GenericExport;
 use App\Imports\ProductsImport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Exports\ProductTemplateExport;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 
 
@@ -311,36 +314,53 @@ class ProductController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-  public function import(Request $request): JsonResponse
+  public function import(Request $request)
   {
-    // Validación del archivo de Excel
-    $request->validate([
-        'file' => 'required|mimes:xlsx|max:2048', // Limita el tamaño para prevenir problemas de memoria
-    ]);
+      $request->validate([
+          'file' => 'required|mimes:xlsx|max:2048',
+      ]);
 
-    // Obtener el store_id del usuario autenticado
-    $storeId = Auth::user()->store_id;
+      $storeId = Auth::user()->store_id;
 
-    // Manejo de transacciones para garantizar la integridad de los datos
-    DB::beginTransaction();
-    try {
-        Excel::import(new ProductsImport($storeId), $request->file('file'));
-        DB::commit(); // Confirma los cambios si todo va bien
+      try {
+          $import = new ProductsImport($storeId);
+          Excel::import($import, $request->file('file'));
 
-        return response()->json(['success' => true, 'message' => 'Productos importados correctamente.']);
-    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
-        DB::rollBack(); // Revierte los cambios si ocurre un error de validación
-        $errors = [];
-        foreach ($e->failures() as $failure) {
-            $errors[] = 'Fila ' . $failure->row() . ': ' . implode(', ', $failure->errors());
-        }
-        return response()->json(['success' => false, 'message' => 'Algunos datos del archivo son inválidos.', 'errors' => $errors], 422);
-    } catch (\Exception $e) {
-        DB::rollBack(); // Revierte los cambios si ocurre cualquier otro tipo de error
-        return response()->json(['success' => false, 'message' => 'Hubo un error durante la importación.'], 500);
-    }
+          $message = "Importación completada. Se procesaron {$import->getRowCount()} filas.";
+          Log::info($message);
+
+          return response()->json([
+              'success' => true,
+              'message' => $message
+          ]);
+      } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+          $failures = $e->failures();
+          $errors = collect($failures)->map(function ($failure) {
+              return "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+          })->filter()->values()->toArray();
+
+          Log::warning('Errores de validación en la importación:', $errors);
+
+          return response()->json([
+              'success' => false,
+              'message' => 'Algunos datos del archivo son inválidos.',
+              'errors' => $errors
+          ], 422);
+      } catch (\Exception $e) {
+          Log::error('Error en importación de productos: ' . $e->getMessage());
+          return response()->json([
+              'success' => false,
+              'message' => 'Hubo un error durante la importación: ' . $e->getMessage()
+          ], 500);
+      }
   }
 
+  private function isEmptyRow(array $row): bool
+  {
+      return empty(array_filter($row, function ($value) {
+          return $value !== null && $value !== '';
+      }));
+  }
 
   /**
    * Muestra el formulario para editar productos en masa.
@@ -396,6 +416,20 @@ class ProductController extends Controller
       $products = $request->input('products');
       $this->productRepo->storeBulk($products);
       return redirect()->route('products.addBulk')->with('success', 'Productos agregados correctamente.');
+  }
+
+  /**
+   * Descarga una plantilla de productos.
+   *
+   * @param Request $request
+   * @return mixed
+   */
+  public function downloadTemplate(Request $request)
+  {
+    $storeId = Auth::user()->store_id;
+    $categories = ProductCategory::where('store_id', $storeId)->get();
+
+    return Excel::download(new ProductTemplateExport($categories, $storeId), 'plantilla_productos.xlsx');
   }
 
 }
