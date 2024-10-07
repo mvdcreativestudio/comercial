@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\GenericExport;
 use App\Imports\ProductsImport;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -310,29 +311,36 @@ class ProductController extends Controller
    * @param Request $request
    * @return RedirectResponse
    */
-  public function import(Request $request)
+  public function import(Request $request): JsonResponse
   {
-      $request->validate([
-          'file' => 'required|mimes:xlsx'
-      ]);
+    // Validación del archivo de Excel
+    $request->validate([
+        'file' => 'required|mimes:xlsx|max:2048', // Limita el tamaño para prevenir problemas de memoria
+    ]);
 
-      // Log para ver si el archivo fue recibido correctamente
-      if ($request->hasFile('file')) {
-          \Log::info('Archivo recibido: ' . $request->file('file')->getClientOriginalName());
-      } else {
-          \Log::error('No se recibió ningún archivo.');
-      }
+    // Obtener el store_id del usuario autenticado
+    $storeId = Auth::user()->store_id;
 
-      // Ahora intenta la importación
-      try {
-          Excel::import(new ProductsImport, $request->file('file'));
-          \Log::info('Importación exitosa.');
-      } catch (\Exception $e) {
-          \Log::error('Error durante la importación: ' . $e->getMessage());
-      }
+    // Manejo de transacciones para garantizar la integridad de los datos
+    DB::beginTransaction();
+    try {
+        Excel::import(new ProductsImport($storeId), $request->file('file'));
+        DB::commit(); // Confirma los cambios si todo va bien
 
-      return redirect()->route('products.index')->with('success', 'Productos importados correctamente.');
+        return response()->json(['success' => true, 'message' => 'Productos importados correctamente.']);
+    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        DB::rollBack(); // Revierte los cambios si ocurre un error de validación
+        $errors = [];
+        foreach ($e->failures() as $failure) {
+            $errors[] = 'Fila ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+        }
+        return response()->json(['success' => false, 'message' => 'Algunos datos del archivo son inválidos.', 'errors' => $errors], 422);
+    } catch (\Exception $e) {
+        DB::rollBack(); // Revierte los cambios si ocurre cualquier otro tipo de error
+        return response()->json(['success' => false, 'message' => 'Hubo un error durante la importación.'], 500);
+    }
   }
+
 
   /**
    * Muestra el formulario para editar productos en masa.

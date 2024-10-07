@@ -32,6 +32,8 @@ $currencySymbol = $settings->currency_symbol;
 
 @section('content')
 
+
+
 <div class="d-flex align-items-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light">
 
   <!-- Título del formulario alineado a la izquierda -->
@@ -104,6 +106,9 @@ $currencySymbol = $settings->currency_symbol;
     </div>
   </div>
 @endif
+
+<div id="alert-container"></div>
+
 
 <!-- Product List Cards -->
 <div class="row row-cols-1" id="product-list-container" data-ajax-url="{{ route('products.datatable') }}">
