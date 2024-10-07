@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use App\Models\CompanySettings;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class ClientController extends Controller
 {
@@ -85,6 +86,9 @@ class ClientController extends Controller
     public function edit(int $id): View
     {
         $client = $this->clientRepository->getClientById($id);
+
+        $orders = $client->orders;
+
         return view('content.clients.edit', compact('client'));
     }
 
@@ -93,14 +97,23 @@ class ClientController extends Controller
      *
      * @param UpdateClientRequest $request
      * @param int $id
-     * @return RedirectResponse
+     * @return JsonResponse
      */
-    public function update(UpdateClientRequest $request, int $id): RedirectResponse
+    public function update(UpdateClientRequest $request, int $id): JsonResponse
     {
-        $validatedData = $request->validated();
-        $this->clientRepository->updateClient($id, $validatedData);
-        return redirect()->route('clients.index');
+      \Log::info('Datos recibidos en la actualización:', $request->all());
+
+        try {
+            $validatedData = $request->validated();
+            $client = $this->clientRepository->updateClient($id, $validatedData);
+            return response()->json(['success' => true, 'message' => 'Cliente actualizado correctamente.', 'client' => $client]);
+        } catch (\Exception $e) {
+            // Captura el error completo en los logs para obtener más detalles
+            \Log::error('Error al actualizar cliente: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['success' => false, 'message' => 'Error al actualizar el cliente: ' . $e->getMessage()], 500);
+        }
     }
+
 
     /**
      * Elimina un cliente específico de la base de datos.

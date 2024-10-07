@@ -59,7 +59,7 @@ class ClientRepository
      */
     public function getClientById(int $id): ?Client
     {
-        return Client::find($id);
+        return Client::with('orders')->find($id);
     }
 
     /**
@@ -67,15 +67,13 @@ class ClientRepository
      *
      * @param int $id
      * @param array $data
-     * @return bool
+     * @return Client
      */
-    public function updateClient(int $id, array $data): bool
+    public function updateClient(int $id, array $data): Client
     {
-        $client = Client::find($id);
-        if ($client) {
-            return $client->update($data);
-        }
-        return false;
+        $client = Client::findOrFail($id);
+        $client->update($data);
+        return $client;
     }
 
     /**
