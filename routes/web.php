@@ -203,6 +203,8 @@ Route::middleware([
     Route::get('products/{id}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::post('products/{id}/switchStatus', [ProductController::class, 'switchStatus'])->name('products.switchStatus');
 
+    // Gestión de Clientes
+    Route::put('/admin/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
 
     // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {

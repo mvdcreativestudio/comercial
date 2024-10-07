@@ -31,14 +31,32 @@
 @endsection
 
 @section('content')
-<h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Sumeria /</span> Clientes
-</h4>
+<div class="d-flex flex-column flex-md-row align-items-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light">
+  <div class="d-flex flex-column justify-content-center mb-3 mb-md-0">
+    <h4 class="mb-0 page-title">
+      <i class="bx bx-user-circle me-2"></i> Clientes
+    </h4>
+  </div>
+
+  <div class="d-flex align-items-center justify-content-center flex-grow-1 gap-3 mb-3 mb-md-0 mx-md-4">
+    <div class="input-group w-100 w-md-75 shadow-sm">
+      <span class="input-group-text bg-white">
+        <i class="bx bx-search"></i>
+      </span>
+      <input type="text" id="searchClient" class="form-control" placeholder="Buscar cliente..." aria-label="Buscar Cliente">
+    </div>
+  </div>
+
+  <div class="text-end d-flex gap-2">
+    <button type="button" class="btn btn-primary btn-sm shadow-sm d-flex align-items-center gap-1 w-100" data-bs-toggle="offcanvas" data-bs-target="#offcanvasEcommerceCustomerAdd">
+      <i class="bx bx-plus"></i> Nuevo Cliente
+    </button>
+  </div>
+</div>
 
 @if(session('success'))
 <div class="alert alert-success d-flex" role="alert">
-  <span class="badge badge-center rounded-pill bg-success border-label-success p-3 me-2"><i
-      class="bx bx-user fs-6"></i></span>
+  <span class="badge badge-center rounded-pill bg-success border-label-success p-3 me-2"><i class="bx bx-user fs-6"></i></span>
   <div class="d-flex flex-column ps-1">
     <h6 class="alert-heading d-flex align-items-center fw-bold mb-1">¡Correcto!</h6>
     <span>{{ session('success') }}</span>
@@ -46,220 +64,211 @@
 </div>
 @elseif(session('error'))
 <div class="alert alert-danger d-flex" role="alert">
-  <span class="badge badge-center rounded-pill bg-danger border-label-danger p-3 me-2"><i
-      class="bx bx-user fs-6"></i></span>
+  <span class="badge badge-center rounded-pill bg-danger border-label-danger p-3 me-2"><i class="bx bx-user fs-6"></i></span>
   <div class="d-flex flex-column ps-1">
     <h6 class="alert-heading d-flex align-items-center fw-bold mb-1">¡Error!</h6>
     <span>{{ session('error') }}</span>
   </div>
-  @endif
+</div>
+@endif
 
-  <!-- Mostrar errores generales si existen -->
-  @if ($errors->any())
-  <div class="alert alert-danger">
-    <ul>
-      @foreach ($errors->all() as $error)
-      <li>{{ $error }}</li>
-      @endforeach
-    </ul>
+<!-- Clients List Container -->
+<div class="row client-list-container" data-ajax-url="{{ route('clients.datatable') }}">
+  <!-- Las tarjetas de clientes se generarán aquí dinámicamente -->
+</div>
+
+<!-- Offcanvas to add new customer -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEcommerceCustomerAdd" aria-labelledby="offcanvasEcommerceCustomerAddLabel">
+  <div class="offcanvas-header">
+    <h5 id="offcanvasEcommerceCustomerAddLabel" class="offcanvas-title">Crear cliente</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  @endif
+  <div class="offcanvas-body mx-0 flex-grow-0">
+    <form class="ecommerce-customer-add pt-0" id="eCommerceCustomerAddForm" method="POST" action="{{ route('clients.store') }}" onsubmit="return false">
+      @csrf
+      <div class="ecommerce-customer-add-basic mb-3">
+        <h6 class="mb-3">Información básica</h6>
+        <div class="col-md mb-3">
+          <small class="text-light fw-medium d-block">Tipo de cliente</small>
+          <div class="form-check form-check-inline mt-1">
+            <input class="form-check-input" type="radio" name="type" id="individualType" value="individual" checked />
+            <label class="form-check-label" for="individualType">Consumidor Final</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="type" id="companyType" value="company" />
+            <label class="form-check-label" for="companyType">Empresa</label>
+          </div>
+        </div>
 
-  <!-- customers List Table -->
-  <div class="card">
-    <div class="card-header">
-      <h5 class="card-title">Clientes</h5>
+        <!-- Campos requeridos para Persona y Empresa -->
+        <div class="mb-3">
+          <label class="form-label" for="ecommerce-customer-add-name">Nombre <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="ecommerce-customer-add-name" placeholder="Ingrese el nombre" name="name" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="ecommerce-customer-add-lastname">Apellido <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="ecommerce-customer-add-lastname" placeholder="Ingrese el apellido" name="lastname" required />
+        </div>
 
-      <div class="d-flex">
-        <p class="text-muted small">
-          <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches"
-            aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
-        </p>
-      </div>
-      <div class="collapse" id="columnSwitches">
-        <div class="mt-0 d-flex flex-wrap">
-          <div class="mx-0">
-            <label class="switch switch-square">
-              <input type="checkbox" class="toggle-column switch-input" data-column="0" checked>
-              <span class="switch-toggle-slider">
-                <span class="switch-on"><i class="bx bx-check"></i></span>
-                <span class="switch-off"><i class="bx bx-x"></i></span>
-              </span>
-              <span class="switch-label">ID</span>
-            </label>
-          </div>
-          <div class="mx-3">
-            <label class="switch switch-square">
-              <input type="checkbox" class="toggle-column switch-input" data-column="1" checked>
-              <span class="switch-toggle-slider">
-                <span class="switch-on"><i class="bx bx-check"></i></span>
-                <span class="switch-off"><i class="bx bx-x"></i></span>
-              </span>
-              <span class="switch-label">Cliente</span>
-            </label>
-          </div>
-          {{-- <div class="mx-3">
-            <label class="switch switch-square">
-              <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
-              <span class="switch-toggle-slider">
-                <span class="switch-on"><i class="bx bx-check"></i></span>
-                <span class="switch-off"><i class="bx bx-x"></i></span>
-              </span>
-              <span class="switch-label">Dirección</span>
-            </label>
-          </div>
-          <div class="mx-3">
-            <label class="switch switch-square">
-              <input type="checkbox" class="toggle-column switch-input" data-column="3" checked>
-              <span class="switch-toggle-slider">
-                <span class="switch-on"><i class="bx bx-check"></i></span>
-                <span class="switch-off"><i class="bx bx-x"></i></span>
-              </span>
-              <span class="switch-label">Ciudad</span>
-            </label>
-          </div>
-          <div class="mx-3">
-            <label class="switch switch-square">
-              <input type="checkbox" class="toggle-column switch-input" data-column="4" checked>
-              <span class="switch-toggle-slider">
-                <span class="switch-on"><i class="bx bx-check"></i></span>
-                <span class="switch-off"><i class="bx bx-x"></i></span>
-              </span>
-              <span class="switch-label">Departamento</span>
-            </label>
-          </div> --}}
+        <!-- Campo CI para Persona -->
+        <div class="mb-3" id="ciField">
+          <label class="form-label" for="ci">CI <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="ci" placeholder="Ingrese el CI" name="ci" required />
+        </div>
+
+        <!-- Campo Razón Social y RUT para Empresa -->
+        <div class="mb-3" id="razonSocialField" style="display: none;">
+          <label class="form-label" for="company_name">Razón Social <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="company_name" placeholder="Ingrese la razón social" name="company_name" />
+        </div>
+
+        <div class="mb-3" id="rutField" style="display: none;">
+          <label class="form-label" for="rut">RUT <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="rut" placeholder="Ingrese el RUT" name="rut" />
+        </div>
+
+        <!-- Campo Email (requerido para ambos) -->
+        <div class="mb-3">
+          <label class="form-label" for="ecommerce-customer-add-email">Email <span class="text-danger">*</span></label>
+          <input type="email" id="ecommerce-customer-add-email" class="form-control" placeholder="mail@empresa.com" name="email" required />
+        </div>
+
+        <!-- Campo Teléfono (opcional) -->
+        <div>
+          <label class="form-label" for="ecommerce-customer-add-contact">Teléfono</label>
+          <input type="text" id="ecommerce-customer-add-contact" class="form-control" placeholder="Ingrese el teléfono" name="phone" />
         </div>
       </div>
 
-      <div class="card-datatable table-responsive">
-        <table class="datatables-customers table border-top" data-ajax-url="{{ route('clients.datatable') }}">
-          <thead>
-            <tr>
-              <th class="text-nowrap col-1">Id</th>
-              <th class="col-2">Cliente</th>
-              <th class="col-2">Razón Social</th>
-              <th class="col-1">Tipo de Documento</th>
-              <th class="col-1">Documento</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-
-      <!-- Offcanvas to add new customer -->
-      <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEcommerceCustomerAdd"
-        aria-labelledby="offcanvasEcommerceCustomerAddLabel">
-        <div class="offcanvas-header">
-          <h5 id="offcanvasEcommerceCustomerAddLabel" class="offcanvas-title">Crear cliente</h5>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <!-- Campos adicionales compartidos -->
+      <div class="ecommerce-customer-add-shiping mb-3 pt-2">
+        <div class="mb-3">
+          <label class="form-label" for="address">Dirección <span id="direccionAsterisk" class="text-danger">*</span></label>
+          <input type="text" id="ecommerce-customer-add-address" class="form-control" placeholder="Ingrese la dirección" name="address" required/>
         </div>
-        <div class="offcanvas-body mx-0 flex-grow-0">
-          <form class="ecommerce-customer-add pt-0" id="eCommerceCustomerAddForm" method="POST"
-            action="{{ route('clients.store') }}" onsubmit="return false">
-            @csrf
-            <div class="ecommerce-customer-add-basic mb-3">
-              <h6 class="mb-3">Información básica</h6>
-              <div class="col-md mb-3">
-                <small class="text-light fw-medium d-block">Tipo de cliente</small>
-                <div class="form-check form-check-inline mt-1">
-                  <input class="form-check-input" type="radio" name="type" id="individualType" value="individual"
-                    checked />
-                  <label class="form-check-label" for="individualType">Consumidor Final</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="type" id="companyType" value="company" />
-                  <label class="form-check-label" for="companyType">Empresa</label>
-                </div>
-              </div>
-
-              <!-- Campos requeridos para Persona y Empresa -->
-              <div class="mb-3">
-                <label class="form-label" for="ecommerce-customer-add-name">Nombre <span
-                    class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="ecommerce-customer-add-name" placeholder="Ingrese el nombre"
-                  name="name" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="ecommerce-customer-add-lastname">Apellido <span
-                    class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="ecommerce-customer-add-lastname"
-                  placeholder="Ingrese el apellido" name="lastname" required />
-              </div>
-
-              <!-- Campo CI para Persona -->
-              <div class="mb-3" id="ciField">
-                <label class="form-label" for="ci">CI <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="ci" placeholder="Ingrese el CI" name="ci" required />
-              </div>
-
-              <!-- Campo Razón Social y RUT para Empresa -->
-              <div class="mb-3" id="razonSocialField" style="display: none;">
-                <label class="form-label" for="company_name">Razón Social <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="company_name" placeholder="Ingrese la razón social"
-                  name="company_name" />
-              </div>
-
-              <div class="mb-3" id="rutField" style="display: none;">
-                <label class="form-label" for="rut">RUT <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="rut" placeholder="Ingrese el RUT" name="rut" />
-              </div>
-
-
-              <!-- Campo Email (requerido para ambos) -->
-              <div class="mb-3">
-                <label class="form-label" for="ecommerce-customer-add-email">Email <span
-                    class="text-danger">*</span></label>
-                <input type="email" id="ecommerce-customer-add-email" class="form-control"
-                  placeholder="mail@empresa.com" name="email" required />
-              </div>
-
-              <!-- Campo Teléfono (opcional) -->
-              <div>
-                <label class="form-label" for="ecommerce-customer-add-contact">Teléfono</label>
-                <input type="text" id="ecommerce-customer-add-contact" class="form-control"
-                  placeholder="Ingrese el teléfono" name="phone" />
-              </div>
-            </div>
-
-            <!-- Campos adicionales compartidos -->
-            <div class="ecommerce-customer-add-shiping mb-3 pt-2">
-              <div class="mb-3">
-                <label class="form-label" for="address">Dirección <span id="direccionAsterisk" class="text-danger">*</span></label>
-                <input type="text" id="ecommerce-customer-add-address" class="form-control"
-                  placeholder="Ingrese la dirección" name="address" required/>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="city">Ciudad <span id="ciudadAsterisk" class="text-danger"
-                    style="display: none;">*</span></label>
-                <input type="text" id="ecommerce-customer-add-town" class="form-control" placeholder="Ingrese la ciudad"
-                  name="city" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="state">Departamento <span id="departamentoAsterisk" class="text-danger"
-                    style="display: none;">*</span></label>
-                <input type="text" id="ecommerce-customer-add-state" class="form-control"
-                  placeholder="Ingrese el departamento" name="state" />
-              </div>
-              <div>
-                <label for="country" class="form-label">País</label>
-                <select id="country" class="form-select form-select" name="country">
-                  <option value="Uruguay" selected>Uruguay</option>
-                </select>
-              </div>
-              <div class="mb-3 mt-3">
-                <label class="form-label" for="website">Sitio Web</label>
-                <input type="text" id="website" class="form-control" placeholder="Ingrese el sitio web"
-                  name="website" />
-              </div>
-            </div>
-
-            <div class="pt-3">
-              <button type="button" class="btn btn-primary me-sm-3 me-1 data-submit" id="guardarCliente">Crear
-                cliente</button>
-              <button type="reset" class="btn bg-label-danger" data-bs-dismiss="offcanvas">Cancelar</button>
-            </div>
-          </form>
+        <div class="mb-3">
+          <label class="form-label" for="city">Ciudad <span id="ciudadAsterisk" class="text-danger" style="display: none;">*</span></label>
+          <input type="text" id="ecommerce-customer-add-town" class="form-control" placeholder="Ingrese la ciudad" name="city" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="state">Departamento <span id="departamentoAsterisk" class="text-danger" style="display: none;">*</span></label>
+          <input type="text" id="ecommerce-customer-add-state" class="form-control" placeholder="Ingrese el departamento" name="state" />
+        </div>
+        <div>
+          <label for="country" class="form-label">País</label>
+          <select id="country" class="form-select form-select" name="country">
+            <option value="Uruguay" selected>Uruguay</option>
+          </select>
+        </div>
+        <div class="mb-3 mt-3">
+          <label class="form-label" for="website">Sitio Web</label>
+          <input type="text" id="website" class="form-control" placeholder="Ingrese el sitio web" name="website" />
         </div>
       </div>
-    </div>
 
-    @endsection
+      <div class="pt-3">
+        <button type="button" class="btn btn-primary me-sm-3 me-1 data-submit" id="guardarCliente">Crear cliente</button>
+        <button type="reset" class="btn bg-label-danger" data-bs-dismiss="offcanvas">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.client-card-container {
+  margin-bottom: 10px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.client-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  padding-bottom: 5px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.client-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.client-card-body {
+  flex-grow: 1;
+  display: none;
+  margin-top: 15px;
+}
+
+.client-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333333;
+}
+
+.client-type {
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  font-weight: 600;
+}
+
+.client-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.client-card p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #666666;
+}
+
+.client-card p i {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  color: #888888;
+}
+
+.client-card-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+
+.bg-primary {
+  background-color: #007bff !important;
+  color: #fff !important;
+}
+
+.bg-info {
+  background-color: #17a2b8 !important;
+  color: #fff !important;
+}
+
+@media (max-width: 768px) {
+  .client-card {
+    padding: 15px;
+  }
+
+  .client-name {
+    font-size: 1rem;
+  }
+
+  .client-card p {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+
+</style>
+@endsection
