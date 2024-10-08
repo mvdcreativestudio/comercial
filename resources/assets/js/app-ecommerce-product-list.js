@@ -88,8 +88,8 @@ $(function () {
             const truncatedName = rowData.name.length > 20 ? rowData.name.substring(0, 20) + '...' : rowData.name;
 
             // Determinar qué precio mostrar
-            const priceToShow = rowData.price !== null ? rowData.price : rowData.old_price;
-            const priceClass = rowData.price !== null ? '' : '';
+            const priceToShow = rowData.price > 0 ? rowData.price : rowData.old_price; // Cambiado para mostrar old_price si price es 0
+            const priceClass = rowData.price !== null ? '' : ''; // Añadido para mostrar un estilo diferente si no hay precio
 
             const card = `
               <div class="col-md-6 col-lg-4 col-12 mb-4">

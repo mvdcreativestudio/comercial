@@ -241,14 +241,15 @@
                             </div>
 
                             <!-- Category -->
-                            <div class="mb-3">
-                              <label class="form-label" for="category-org">Categoría</label>
-                              <select id="category-org" class="select2 form-select" data-placeholder="Seleccione la categoría" name="categories[]" multiple>
-                                  @foreach ($categories as $category)
-                                      <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                  @endforeach
+                            <div class="mb-3 col ecommerce-select2-dropdown">
+                              <select id="category-org" class="select2 form-select" data-placeholder="Seleccione la categoría" name="categories[]" multiple data-selected="{{ json_encode($product->categories->pluck('id')->toArray()) }}">
+                                @foreach ($categories as $category)
+                                  <option value="{{ $category->id }}">
+                                      {{ $category->name }}
+                                  </option>
+                                @endforeach
                               </select>
-                          </div>
+                            </div>
 
 
                             <!-- Stock -->
