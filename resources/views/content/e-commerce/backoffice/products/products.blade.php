@@ -76,7 +76,7 @@ $currencySymbol = $settings->currency_symbol;
       </button>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownImportExport">
         <li><a class="dropdown-item" href="#" id="exportExcel"><i class="bx bx-export"></i> Exportar Excel</a></li>
-        <li><a class="dropdown-item" href="{{ route('products.download-template') }}"><i class="bx bx-download"></i> Descargar Plantilla</a></li>
+        <li><a class="dropdown-item" href="{{ route('products.download-template') }}" id="download-template"><i class="bx bx-download"></i> Descargar Plantilla</a></li>
         <li><a class="dropdown-item" href="#" id="openImportModal"><i class="bx bx-upload"></i> Importar Productos</a></li>
       </ul>
     </div>

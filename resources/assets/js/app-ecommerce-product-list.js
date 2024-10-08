@@ -231,4 +231,29 @@ $(function () {
     window.location.href = exportUrl + '?' + queryString;
   });
 
+  // Manejar el clic en el botón de descargar plantilla
+  $('#download-template').on('click', function (e) {
+    e.preventDefault(); // Prevenir el comportamiento por defecto del enlace
+
+    Swal.fire({
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        content: 'swal-content',
+        confirmButton: 'btn btn-outline-primary',
+        cancelButton: 'btn btn-outline-danger'
+      },
+      title: 'Atención',
+      text: 'Recuerde crear todas las categorías de productos que necesite previo a la descarga de la plantilla',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirigir a la ruta de descarga de plantilla
+        window.location.href = $(this).attr('href');
+      }
+    });
+  });
 });
