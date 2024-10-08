@@ -87,6 +87,10 @@ $(function () {
 
             const truncatedName = rowData.name.length > 20 ? rowData.name.substring(0, 20) + '...' : rowData.name;
 
+            // Determinar qué precio mostrar
+            const priceToShow = rowData.price > 0 ? rowData.price : rowData.old_price; // Cambiado para mostrar old_price si price es 0
+            const priceClass = rowData.price !== null ? '' : ''; // Añadido para mostrar un estilo diferente si no hay precio
+
             const card = `
               <div class="col-md-6 col-lg-4 col-12 mb-4">
                 <a href="${baseUrl}admin/products/${rowData.id}" class="text-decoration-none">
@@ -99,7 +103,7 @@ $(function () {
                         <!-- Título con tooltip para el nombre completo -->
                         <h5 class="product-title" title="${rowData.name}">${truncatedName}</h5>
                         <p class="product-category text-muted small">${rowData.category || 'Sin categoría'}</p>
-                        <h6 class="product-price">${currencySymbol}${parseFloat(rowData.price).toFixed(2)}</h6>
+                        <h6 class="product-price ${priceClass}">${currencySymbol}${parseFloat(priceToShow).toFixed(2)}</h6>
                         <p class="product-stock"><span class="badge ${stockClass}">${rowData.stock}</span></p>
                         <p class="product-status ${statusTextClass}">${statusText}</p>
                       </div>
@@ -123,6 +127,58 @@ $(function () {
   $('#openImportModal').on('click', function () {
     $('#importModal').modal('show');
   });
+
+  // Manejar el formulario de importación de productos
+  $('#importForm').on('submit', function (e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+
+    $.ajax({
+      url: $(this).attr('action'),
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        $('#importModal').modal('hide');
+        if (response.success) {
+          // Mostrar mensaje de éxito
+          showAlert('success', response.message);
+          // Recargar la lista de productos
+          fetchProducts();
+        }
+      },
+      error: function (xhr) {
+        $('#importModal').modal('hide');
+        if (xhr.status === 422) {
+          // Mostrar los errores de validación en el frontend
+          var errors = xhr.responseJSON.errors;
+          var errorMessages = '';
+
+          errors.forEach(function (error) {
+            errorMessages += '<li>' + error + '</li>';
+          });
+
+          showAlert('danger', 'Errores en la importación:<ul>' + errorMessages + '</ul>');
+        } else {
+          // Otro tipo de error
+          showAlert('danger', 'Hubo un error durante la importación.');
+        }
+      }
+    });
+  });
+
+  // Función para mostrar alertas
+  function showAlert(type, message) {
+    var alertHtml = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+    $('#alert-container').html(alertHtml);
+  }
 
   // Fetch products on page load
   fetchProducts();
@@ -175,4 +231,29 @@ $(function () {
     window.location.href = exportUrl + '?' + queryString;
   });
 
+  // Manejar el clic en el botón de descargar plantilla
+  $('#download-template').on('click', function (e) {
+    e.preventDefault(); // Prevenir el comportamiento por defecto del enlace
+
+    Swal.fire({
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        content: 'swal-content',
+        confirmButton: 'btn btn-outline-primary',
+        cancelButton: 'btn btn-outline-danger'
+      },
+      title: 'Atención',
+      text: 'Recuerde crear todas las categorías de productos que necesite previo a la descarga de la plantilla',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirigir a la ruta de descarga de plantilla
+        window.location.href = $(this).attr('href');
+      }
+    });
+  });
 });

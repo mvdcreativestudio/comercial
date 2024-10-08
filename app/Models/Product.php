@@ -124,12 +124,12 @@ class Product extends Model
 
     /**
      * Setea el precio del producto.
-     * @param float $value
+     * @param float|null $value
      * @return void
     */
-    public function setPriceAttribute(float $value): void
+    public function setPriceAttribute(?float $value): void
     {
-        $this->attributes['price'] = round($value, 2);
+        $this->attributes['price'] = $value !== null ? (float) $value : null;
     }
 
     /**

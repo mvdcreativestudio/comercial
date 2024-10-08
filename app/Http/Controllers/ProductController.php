@@ -21,6 +21,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\GenericExport;
 use App\Imports\ProductsImport;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Exports\ProductTemplateExport;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 
 
@@ -313,25 +317,49 @@ class ProductController extends Controller
   public function import(Request $request)
   {
       $request->validate([
-          'file' => 'required|mimes:xlsx'
+          'file' => 'required|mimes:xlsx|max:2048',
       ]);
 
-      // Log para ver si el archivo fue recibido correctamente
-      if ($request->hasFile('file')) {
-          \Log::info('Archivo recibido: ' . $request->file('file')->getClientOriginalName());
-      } else {
-          \Log::error('No se recibió ningún archivo.');
-      }
+      $storeId = Auth::user()->store_id;
 
-      // Ahora intenta la importación
       try {
-          Excel::import(new ProductsImport, $request->file('file'));
-          \Log::info('Importación exitosa.');
-      } catch (\Exception $e) {
-          \Log::error('Error durante la importación: ' . $e->getMessage());
-      }
+          $import = new ProductsImport($storeId);
+          Excel::import($import, $request->file('file'));
 
-      return redirect()->route('products.index')->with('success', 'Productos importados correctamente.');
+          $message = "Importación completada. Se procesaron {$import->getRowCount()} filas.";
+          Log::info($message);
+
+          return response()->json([
+              'success' => true,
+              'message' => $message
+          ]);
+      } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+          $failures = $e->failures();
+          $errors = collect($failures)->map(function ($failure) {
+              return "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+          })->filter()->values()->toArray();
+
+          Log::warning('Errores de validación en la importación:', $errors);
+
+          return response()->json([
+              'success' => false,
+              'message' => 'Algunos datos del archivo son inválidos.',
+              'errors' => $errors
+          ], 422);
+      } catch (\Exception $e) {
+          Log::error('Error en importación de productos: ' . $e->getMessage());
+          return response()->json([
+              'success' => false,
+              'message' => 'Hubo un error durante la importación: ' . $e->getMessage()
+          ], 500);
+      }
+  }
+
+  private function isEmptyRow(array $row): bool
+  {
+      return empty(array_filter($row, function ($value) {
+          return $value !== null && $value !== '';
+      }));
   }
 
   /**
@@ -388,6 +416,20 @@ class ProductController extends Controller
       $products = $request->input('products');
       $this->productRepo->storeBulk($products);
       return redirect()->route('products.addBulk')->with('success', 'Productos agregados correctamente.');
+  }
+
+  /**
+   * Descarga una plantilla de productos.
+   *
+   * @param Request $request
+   * @return mixed
+   */
+  public function downloadTemplate(Request $request)
+  {
+    $storeId = Auth::user()->store_id;
+    $categories = ProductCategory::where('store_id', $storeId)->get();
+
+    return Excel::download(new ProductTemplateExport($categories, $storeId), 'plantilla_productos.xlsx');
   }
 
 }
