@@ -45,7 +45,7 @@ class ProductTemplateExport implements FromArray, WithHeadings, WithEvents
                 $categoriesSheet = $workbook->createSheet();
                 $categoriesSheet->setTitle('Categorias');
 
-                // Agregar categorías a la hoja oculta2
+                // Agregar categorías a la hoja oculta
                 $row = 1;
                 foreach ($storeCategories as $id => $name) {
                     $categoriesSheet->setCellValue('A' . $row, $id . '- ' . $name);
