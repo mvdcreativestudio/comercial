@@ -54,8 +54,8 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
             'sku' => $row['sku'] ?? null,
             'description' => $row['descripcion'] ?? null,
             'type' => $row['tipo'] ?? 'simple',
-            'old_price' => floatval($row['precio_antiguo']),
-            'price' => isset($row['precio']) ? floatval($row['precio']) : null,
+            'old_price' => floatval($row['precio']),
+            'price' => isset($row['precio']) ? floatval($row['precio_oferta']) : null,
             'stock' => isset($row['stock']) ? intval($row['stock']) : 0,
             'store_id' => $this->storeId,
             'image' => $row['imagen'] ?? '/assets/img/ecommerce-images/placeholder.png',
@@ -77,7 +77,7 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
 
     private function isEmptyRow($row): bool
     {
-        return empty($row['nombre']) || empty($row['precio_antiguo']);
+        return empty($row['nombre']) || empty($row['precio']);
     }
 
     private function assignCategory($product, $categoryInput)
@@ -97,8 +97,8 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
             'nombre' => ['required', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string'],
             'tipo' => ['nullable', 'string', Rule::in(['simple', 'variable'])],
-            'precio_antiguo' => ['required', 'numeric', 'min:0'],
-            'precio' => ['nullable', 'numeric', 'min:0'],
+            'precio' => ['required', 'numeric', 'min:0'],
+            'precio_oferta' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'imagen' => ['nullable', 'string'],
             'estado' => ['nullable', 'string', Rule::in(['sí', 'si', 'no', 'activo', 'inactivo'])],
@@ -128,4 +128,5 @@ class ProductsImport implements ToModel, WithHeadingRow, WithValidation, WithChu
         // Asegurarse de guardar el último producto
         $this->saveCurrentProduct();
     }
+
 }

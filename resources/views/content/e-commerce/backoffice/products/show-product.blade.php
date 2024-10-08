@@ -110,18 +110,19 @@
           <p>{{ $product->old_price }} (IVA incluido)</p>
         </div>
         <div class="mb-3">
-          <label class="form-label">Precio rebajado:</label>
+          <label class="form-label">Precio oferta:</label>
           <p>{{ $product->price }} (IVA incluido)</p>
+        </div>
+        {{-- build price --}}
+        <div class="mb-3">
+          <label class="form-label">Precio de costo:</label>
+          <p>{{ $product->build_price ?? 'No establecido' }}</p>
         </div>
         <div class="mb-3">
           <label class="form-label">Estado:</label>
           <p>{{ $product->status == 1 ? 'Activo' : 'Inactivo' }}</p>
         </div>
-        {{-- build price --}}
-        <div class="mb-3">
-          <label class="form-label">Precio de costo:</label>
-          <p>{{ $product->build_price ?? 'No disponible' }}</p>
-        </div>
+
       </div>
     </div>
     <!-- /Tarjeta de Precios -->
