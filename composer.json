@@ -22,7 +22,6 @@
     "livewire/livewire": "^3.0",
     "maatwebsite/excel": "^3.1",
     "mercadopago/dx-php": "2.6.2",
-    "phpoffice/phpspreadsheet": "^1.29",
     "spatie/laravel-permission": "^6.3",
     "spatie/laravel-sluggable": "^3.6",
     "yajra/laravel-datatables-oracle": "^10.11"

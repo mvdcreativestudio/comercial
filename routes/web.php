@@ -108,8 +108,6 @@ Route::middleware([
 
     // Exportaciones
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
-    Route::get('/products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
-
 
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
