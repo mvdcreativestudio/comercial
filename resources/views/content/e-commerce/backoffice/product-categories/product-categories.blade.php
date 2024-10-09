@@ -25,49 +25,78 @@
 @section('content')
 
 <div class="row">
-  <!-- Card Border Shadow -->
-  <div class="col-sm-12 col-md-4 mb-4">
-    <div class="card animated-card card-border-shadow-primary h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2 pb-1">
-          <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-hive"></i></span>
-          </div>
-          <h4 class="ms-1 mb-0">{{ $totalCategories }}</h4>
+<!-- Tarjeta 1: Total de Categorías -->
+<div class="col-sm-12 col-md-4 mb-4">
+  <div class="card animated-card card-border-shadow-primary h-100">
+    <div class="card-body d-flex flex-column">
+      <!-- Encabezado de la tarjeta con ícono y título alineados -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="avatar me-3">
+          <span class="avatar-initial rounded bg-label-primary d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+            <i class="bx bx-hive fs-4"></i>
+          </span>
         </div>
-          <p class="mb-1 fw-medium me-1">Total de Categorías</p>
+        <h4 class="ms-2 mb-0 flex-grow-1 text-truncate">{{ $totalCategories }}</h4>
       </div>
-    </div>
-  </div>
-  <div class="col-sm-12 col-md-4 mb-4">
-    <div class="card animated-card card-border-shadow-warning h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2 pb-1">
-          <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-warning"><i class='bx bx-up-arrow-alt'></i></span>
-          </div>
-          <h4 class="ms-1 mb-0">{{ $categoryWithMostProducts['name'] }}</h4>
-        </div>
-          <p class="mb-1 fw-medium me-1">Categoría con más productos</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-12 col-md-4 mb-4">
-    <div class="card animated-card card-border-shadow-success h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2 pb-1">
-          <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-success"><i class='bx bx-package'></i></span>
-          </div>
-          <h4 class="ms-1 mb-0">{{ $categoryWithMostStock['name'] }}</h4>
-        </div>
-          <p class="mb-1 fw-medium me-1">Categoría con más stock</p>
+
+      <!-- Información adicional centrada verticalmente -->
+      <div class="d-flex flex-column justify-content-center">
+        <p class="mb-1 fw-medium text-muted">Total de Categorías</p>
       </div>
     </div>
   </div>
 </div>
 
-<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light">
+<!-- Tarjeta 2: Categoría con más productos -->
+<div class="col-sm-12 col-md-4 mb-4">
+  <div class="card animated-card card-border-shadow-warning h-100">
+    <div class="card-body d-flex flex-column justify-content-between">
+      <!-- Encabezado de la tarjeta con ícono y título alineados -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="avatar me-3">
+          <span class="avatar-initial rounded bg-label-warning d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+            <i class='bx bx-up-arrow-alt fs-4'></i>
+          </span>
+        </div>
+        <h4 class="ms-2 mb-0 flex-grow-1 text-truncate">{{ $categoryWithMostProducts['name'] }}</h4>
+      </div>
+
+      <!-- Información adicional centrada verticalmente -->
+      <div class="d-flex flex-column justify-content-center">
+        <p class="mb-1 fw-medium text-muted">Categoría con más productos</p>
+        <span class="fw-bold text-warning fs-5">{{ $categoryWithMostProducts['product_count'] }} productos</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tarjeta 3: Categoría con más stock -->
+<div class="col-sm-12 col-md-4 mb-4">
+  <div class="card animated-card card-border-shadow-success h-100">
+    <div class="card-body d-flex flex-column justify-content-between">
+      <!-- Encabezado de la tarjeta con ícono y título alineados -->
+      <div class="d-flex align-items-center mb-3">
+        <div class="avatar me-3">
+          <span class="avatar-initial rounded bg-label-success d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+            <i class='bx bx-package fs-4'></i>
+          </span>
+        </div>
+        <h4 class="ms-2 mb-0 flex-grow-1 text-truncate">{{ $categoryWithMostStock['name'] }}</h4>
+      </div>
+
+      <!-- Información adicional centrada verticalmente -->
+      <div class="d-flex flex-column justify-content-center">
+        <p class="mb-1 fw-medium text-muted">Categoría con más stock</p>
+        <span class="fw-bold text-success fs-5">{{ $categoryWithMostStock['stock_count'] }} unidades</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+<div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light animated-card">
   <!-- Título de la página alineado a la izquierda -->
   <div class="d-flex flex-column justify-content-center w-100 mb-3 mb-md-0">
     <h4 class="mb-0 page-title">

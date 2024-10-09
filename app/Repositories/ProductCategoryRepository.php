@@ -202,67 +202,68 @@ class ProductCategoryRepository
 
 
   /**
- * Obtiene todas las categorías junto con el conteo de productos y el conteo total de stock.
- * También devuelve estadísticas adicionales:
- * - Total de categorías
- * - Categoría con más productos
- * - Categoría con más stock
- *
- * @return array
- */
-public function getCategories(): array
-{
-    // Verificar si el usuario tiene el permiso de acceso global a los productos
-    if (auth()->user()->can('access_global_products')) {
-        // Si el usuario tiene permiso, obtener todas las categorías
-        $categories = ProductCategory::withCount('products') // Obtener conteo de productos
-            ->withSum('products', 'stock') // Obtener la suma del stock
-            ->get();
-    } else {
-        // Si el usuario no tiene permiso, obtener solo las categorías de su tienda
-        $categories = ProductCategory::where('store_id', auth()->user()->store_id)
-            ->withCount('products') // Obtener conteo de productos
-            ->withSum('products', 'stock') // Obtener la suma del stock
-            ->get();
-    }
+   * Obtiene todas las categorías junto con el conteo de productos y el conteo total de stock.
+   * También devuelve estadísticas adicionales:
+   * - Total de categorías
+   * - Categoría con más productos
+   * - Categoría con más stock
+   *
+   * @return array
+   */
+  public function getCategories(): array
+  {
+      // Verificar si el usuario tiene el permiso de acceso global a los productos
+      if (auth()->user()->can('access_global_products')) {
+          // Si el usuario tiene permiso, obtener todas las categorías
+          $categories = ProductCategory::withCount('products') // Obtener conteo de productos
+              ->withSum('products', 'stock') // Obtener la suma del stock
+              ->get();
+      } else {
+          // Si el usuario no tiene permiso, obtener solo las categorías de su tienda
+          $categories = ProductCategory::where('store_id', auth()->user()->store_id)
+              ->withCount('products') // Obtener conteo de productos
+              ->withSum('products', 'stock') // Obtener la suma del stock
+              ->get();
+      }
 
-    // Mapear las categorías a un formato más manejable
-    $mappedCategories = $categories->map(function ($category) {
-        return [
-            'id' => $category->id,
-            'name' => $category->name,
-            'slug' => $category->slug,
-            'product_count' => $category->products_count, // Conteo de productos
-            'stock_count' => $category->products_sum_stock ?? 0, // Total del stock
-            'status' => $category->status,
-        ];
-    });
+      // Mapear las categorías a un formato más manejable
+      $mappedCategories = $categories->map(function ($category) {
+          return [
+              'id' => $category->id,
+              'name' => $category->name,
+              'slug' => $category->slug,
+              'product_count' => $category->products_count, // Conteo de productos
+              'stock_count' => $category->products_sum_stock ?? 0, // Total del stock
+              'status' => $category->status,
+          ];
+      });
 
-    // Calcular el total de categorías
-    $totalCategories = $categories->count();
+      // Calcular el total de categorías
+      $totalCategories = $categories->count();
 
-    // Encontrar la categoría con más productos
-    $categoryWithMostProducts = $categories->sortByDesc('products_count')->first();
+      // Encontrar la categoría con más productos
+      $categoryWithMostProducts = $categories->sortByDesc('products_count')->first();
 
-    // Encontrar la categoría con más stock
-    $categoryWithMostStock = $categories->sortByDesc('products_sum_stock')->first();
+      // Encontrar la categoría con más stock
+      $categoryWithMostStock = $categories->sortByDesc('products_sum_stock')->first();
 
-    // Devolver la respuesta con las categorías y estadísticas adicionales
-    return [
-        'categories' => $mappedCategories,
-        'total_categories' => $totalCategories,
-        'category_with_most_products' => [
-            'id' => $categoryWithMostProducts->id ?? null,
-            'name' => $categoryWithMostProducts->name ?? 'No disponible',
-            'product_count' => $categoryWithMostProducts->products_count ?? 0,
-        ],
-        'category_with_most_stock' => [
-            'id' => $categoryWithMostStock->id ?? null,
-            'name' => $categoryWithMostStock->name ?? 'No disponible',
-            'stock_count' => $categoryWithMostStock->products_sum_stock ?? 0,
-        ]
-    ];
-}
+      // Devolver la respuesta con las categorías y estadísticas adicionales, incluyendo el total de productos y stock
+      return [
+          'categories' => $mappedCategories,
+          'total_categories' => $totalCategories,
+          'category_with_most_products' => [
+              'id' => $categoryWithMostProducts->id ?? null,
+              'name' => $categoryWithMostProducts->name ?? 'No disponible',
+              'product_count' => $categoryWithMostProducts->products_count ?? 0, // Total de productos
+          ],
+          'category_with_most_stock' => [
+              'id' => $categoryWithMostStock->id ?? null,
+              'name' => $categoryWithMostStock->name ?? 'No disponible',
+              'stock_count' => $categoryWithMostStock->products_sum_stock ?? 0, // Total de stock
+          ]
+      ];
+  }
+
 
 
 }
