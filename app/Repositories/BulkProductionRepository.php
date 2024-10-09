@@ -9,6 +9,10 @@ use App\Models\BulkProductionBatch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\View;
+
 
 class BulkProductionRepository
 {
@@ -174,5 +178,32 @@ class BulkProductionRepository
             ->join('purchase_order_items', 'purchase_entries.purchase_order_items_id', '=', 'purchase_order_items.id')
             ->where('purchase_order_items.raw_material_id', $rawMaterialId)
             ->sum('batches.quantity');
+    }
+
+    public function getById($id)
+    {
+        $bulkProduction = BulkProduction::with('batches')->findOrFail($id);
+        $uniqueIdentifier = $bulkProduction->getUniqueIdentifier();
+        $url = route('bulk-productions.show', ['identifier' => $uniqueIdentifier]);
+
+        return response()->json([
+            'batches' => $bulkProduction->batches,
+            'qr_url' => $url,
+            'message' => 'Lotes encontrados exitosamente.'
+        ]);
+    }
+
+    public function getBatchInfoByIdentifier($identifier)
+    {
+        $idParts = explode('-', $identifier);
+        $id = $idParts[0];
+
+        $bulkProduction = BulkProduction::with('batches')->findOrFail($id);
+
+        if ($bulkProduction->getUniqueIdentifier() !== $identifier) {
+            abort(404, 'Información de lote no encontrada');
+        }
+
+        return $bulkProduction->batches;
     }
 }

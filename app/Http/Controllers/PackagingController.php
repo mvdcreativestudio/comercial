@@ -29,7 +29,8 @@ class PackagingController extends Controller
 
     public function store(StorePackagingRequest $request)
     {
-        $packaging = $this->packagingRepository->create($request->validated());
+        // Usar el repositorio para manejar la lógica de empaquetado
+        $packaging = $this->packagingRepository->createAndHandlePackaging($request->validated());
 
         if ($request->ajax()) {
             return response()->json([
@@ -41,6 +42,7 @@ class PackagingController extends Controller
 
         return redirect()->route('packagings.index')->with('success', 'Empaque creado con éxito.');
     }
+
 
     public function show($id)
     {
@@ -68,5 +70,12 @@ class PackagingController extends Controller
         } else {
             return response()->json(['message' => 'No se pudo encontrar el empaque que se deseó eliminar.'], 404);
         }
+    }
+
+    public function startProduction()
+    {
+        $bulkProductions = $this->packagingRepository->startProduction();
+
+        return response()->json($bulkProductions);
     }
 }

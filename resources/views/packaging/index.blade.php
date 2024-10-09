@@ -105,5 +105,66 @@
   </div>
 </div>
 
+<div class="d-flex justify-content-end mb-4">
+    <button type="button" id="openProductionModal" class="btn btn-primary" data-toggle="modal" data-target="#productionModal">
+      Abrir Modal de Producción
+    </button>
+    <button class="btn btn-primary ms-2" id="loadPackagesButton">
+       Stock Botellas
+    </button>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        @foreach($packagings as $packaging)
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm hover-shadow">
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Cantidad envasada:</strong> {{ $packaging->quantity_packaged }}<br>
+                            <strong>De la producción:</strong> {{ $packaging->bulk_production_id }}
+                            <strong>En el envase:</strong> {{ $packaging->package_id }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
+
+<!-- Modal de Bootstrap -->
+<div class="modal fade" id="productionModal" tabindex="-1" role="dialog" aria-labelledby="productionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="productionModalLabel">Iniciar Empaque</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="productionForm">
+          <label for="bulk_production">Producciones a envasar:</label>
+          <select id="bulk_production" name="bulk_production" class="form-control">
+            <!-- Aquí se llenarán las opciones mediante JS -->
+          </select>
+          <label for="package_id">Envase:</label>
+          <select id="package_id" name="package_id" class="form-control">
+            <!-- Aquí se llenarán los packages mediante JS -->
+          </select>
+          <label for="quantity_packaged">Cantidad a envasar:</label>
+          <input type="number" id="quantity_packaged" name="quantity_packaged" class="form-control" required />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary" id="submitProductionForm">Iniciar Empaque</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 @endsection

@@ -13,8 +13,8 @@ class Packaging extends Model
     protected $fillable = [
         'bulk_production_id',
         'quantity_packaged',
+        'package_id',
         'packaging_date',
-        'final_product_id',
     ];
 
     public function bulkProduction(): BelongsTo

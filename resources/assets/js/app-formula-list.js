@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
             { data: 'name' },
             { data: 'description' },
             { data: 'final_product_id' },
+            { data: 'unit_of_measure' },
+            { data: 'quantity' },
             {
                 data: null,
                 className: "text-center",
@@ -48,20 +50,21 @@ document.addEventListener('DOMContentLoaded', function () {
     // Enviar la solicitud AJAX para agregar una nueva fórmula
     $('#addFormulaForm').on('submit', function (e) {
         e.preventDefault();
-
-        let formData = {
-            _token: window.csrfToken,
-            name: $('#name').val(),
-            description: $('#description').val(),
-            final_product_id: $('#final_product_id').val()
-        };
-
+    
+        // Crear una instancia de FormData
+        let formData = new FormData(this);
+    
+        // Agregar el token CSRF manualmente a FormData
+        formData.append('_token', window.csrfToken);
+    
         $.ajax({
             type: 'POST',
             url: 'formulas',
             data: formData,
+            processData: false, // Evitar que jQuery procese los datos
+            contentType: false, // Evitar que jQuery establezca el Content-Type
             success: function (response) {
-                location.reload(); 
+                location.reload(); // Recargar la página si todo va bien
             },
             error: function (response) {
                 alert('Ocurrió un error al agregar la fórmula');
@@ -69,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+    
     
     // Lógica para mostrar u ocultar columnas
     $('.toggle-column').on('change', function () {

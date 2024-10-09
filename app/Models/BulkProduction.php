@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class BulkProduction extends Model
 {
@@ -18,9 +19,9 @@ class BulkProduction extends Model
         'quantity_used'
     ];
 
-    public function formula(): BelongsTo
+    public function formula()
     {
-        return $this->belongsTo(Formula::class, 'formula_id');
+        return $this->belongsTo(Formula::class);
     }
 
 
@@ -29,10 +30,16 @@ class BulkProduction extends Model
         return $this->hasMany(Product::class);
     }
 
-    public function bulkProductionBatches(): HasMany
+    public function batches()
     {
-        return $this->hasMany(BulkProductionBatch::class);
+        return $this->hasMany(BulkProductionBatch::class, 'bulk_productions_id');
     }
+
+    public function getUniqueIdentifier()
+    {
+        return $this->id . '-' . Str::slug($this->name);
+    }
+
 
     public function packaging(): HasMany
     {

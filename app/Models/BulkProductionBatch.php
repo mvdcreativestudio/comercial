@@ -16,9 +16,9 @@ class BulkProductionBatch extends Model
         'quantity_used'
     ];
 
-    public function bulkProduction(): BelongsTo
+    public function bulkProduction()
     {
-        return $this->belongsTo(BulkProduction::class, 'product_id');
+        return $this->belongsTo(BulkProduction::class, 'bulk_productions_id');
     }
 
     public function batch(): BelongsTo

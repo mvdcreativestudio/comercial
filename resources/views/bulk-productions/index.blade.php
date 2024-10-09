@@ -23,6 +23,7 @@
   window.bulkProductions = @json($bulkProductions);
   window.csrfToken = "{{ csrf_token() }}";
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 @vite(['resources/assets/js/app-bulk-productions-list.js'])
 @endsection
 
@@ -108,43 +109,43 @@
 <div class="card">
   <div class="card-header">
     <h5 class="card-title">Elaboraciones</h5>
-      <div class="d-flex justify-content-end">
-          <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProduction" aria-controls="offcanvasProduction">
-            Iniciar Producción
-          </button>      
-      </div>
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProduction" aria-controls="offcanvasProduction">
+        Iniciar Producción
+      </button>
+    </div>
     <div class="d-flex">
       <p class="text-muted small">
         <a href="" class="toggle-switches" data-bs-toggle="collapse" data-bs-target="#columnSwitches" aria-expanded="false" aria-controls="columnSwitches">Ver / Ocultar columnas de la tabla</a>
-        
+
       </p>
     </div>
     <div class="collapse" id="columnSwitches">
-    <div class="mt-0 d-flex flex-wrap">
-      @foreach (['ID', 'Fórmula', 'Cantidad producida', 'Fecha de elaboración', 'Cantidad utilizada', 'Acciones'] as $index => $label)
-      <div class="mx-3">
-        <label class="switch switch-square">
-          <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
-          <span class="switch-toggle-slider">
-            <span class="switch-on"><i class="bx bx-check"></i></span>
-            <span class="switch-off"><i class="bx bx-x"></i></span>
-          </span>
-          <span class="switch-label">{{ $label }}</span>
-        </label>
+      <div class="mt-0 d-flex flex-wrap">
+        @foreach (['ID', 'Fórmula', 'Cantidad producida', 'Cantidad utilizada', 'Fecha de elaboración','Acciones'] as $index => $label)
+        <div class="mx-3">
+          <label class="switch switch-square">
+            <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
+            <span class="switch-toggle-slider">
+              <span class="switch-on"><i class="bx bx-check"></i></span>
+              <span class="switch-off"><i class="bx bx-x"></i></span>
+            </span>
+            <span class="switch-label">{{ $label }}</span>
+          </label>
+        </div>
+        @endforeach
       </div>
-      @endforeach
     </div>
   </div>
-  </div>
-  <div class="card-datatable table-responsive">
+  <div class="card-datatable table-responsive mx-4 my-3">
     <table class="table datatables-bulk-productions border-top">
       <thead>
         <tr>
           <th>ID</th>
           <th>Fórmula</th>
           <th>Cantidad producida</th>
-          <th>Fecha de Elaboración</th>
           <th>Cantidad utilizada</th>
+          <th>Fecha de Elaboración</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -202,5 +203,65 @@
     </div>
   </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalBatches" tabindex="-1" aria-labelledby="modalBatchesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header justify-content-center">
+        <h5 class="modal-title" id="modalBatchesLabel">Batches Utilizados</h5>
+      </div>
+      
+      <div class="modal-body d-flex align-items-stretch">
+        <!-- Sección para los detalles de los batches -->
+        <div class="batch-details flex-grow-1 pe-3">
+          <!-- Aquí se insertarán los batches desde el AJAX -->
+        </div>
+
+        <!-- Contenedor para la línea divisoria vertical -->
+        <div class="divider-container d-flex align-items-center">
+          <div class="vr h-100"></div>
+        </div>
+
+        <!-- Nueva sección para el código QR -->
+        <div class="modal-qr ms-3 d-flex justify-content-center align-items-center">
+          <!-- Aquí se insertará el QR -->
+          <div id="qrcode"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="downloadQR">Descargar QR</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #modalBatches .modal-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  #modalBatches .modal-body {
+    min-height: 300px;
+  
+  }
+  #modalBatches .batch-details {
+    max-width: 70%;
+    overflow-y: auto;
+  }
+  #modalBatches .modal-qr {
+    min-width: 30%;
+  }
+  #modalBatches .divider-container {
+    padding: 10px 0;
+  }
+  #modalBatches .vr {
+    margin: 0 15px;
+    min-height: 250px; /* Ajusta este valor según sea necesario */
+  }
+</style>
 
 @endsection

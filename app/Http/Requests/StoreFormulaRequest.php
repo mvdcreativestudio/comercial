@@ -25,6 +25,8 @@ class StoreFormulaRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'final_product_id' => 'required|integer',
+            'unit_of_measure' => 'required|string|in:L,ml',
+            'quantity' => 'required|numeric|min:0'
         ];
     }
 }

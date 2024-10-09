@@ -43,6 +43,7 @@ use App\Http\Controllers\{
     BulkProductionController,
     BulkProductionBatchController,
     PackagingController,
+    PackageController,
 };
 
 // Middleware de autenticación y verificación de email
@@ -97,7 +98,7 @@ Route::middleware([
     |
     |
     */
-            
+
     Route::get('purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
     Route::post('purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
     Route::get('purchase-orders/{id}/edit', [PurchaseOrderController::class, 'edit'])->name('purchase-orders.edit');
@@ -134,8 +135,19 @@ Route::middleware([
 
     Route::get('bulk-productions', [BulkProductionController::class, 'index']);
     Route::post('start-production', [BulkProductionController::class, 'startProduction']);
+    Route::get('get-batches/{id}', [BulkProductionController::class, 'getBatches']);
+    Route::get('bulk-productions/{identifier}', [BulkProductionController::class, 'showBatchInfo'])->name('bulk-productions.show');
 
     Route::get('packagings', [PackagingController::class, 'index']);
+    Route::post('packagings', [PackagingController::class, 'store']);
+
+
+    Route::get('packages', [PackageController::class, 'index']);
+    Route::post('packages', [PackageController::class, 'store']);
+
+    Route::get('start-production', [PackagingController::class, 'startProduction']);
+    Route::get('packages-all', [PackageController::class, 'getAll']);
+
 
     /*
     |
@@ -197,7 +209,7 @@ Route::middleware([
         Route::post('toggle-store-status', [StoreController::class, 'toggleStoreStatus'])->name('toggle-status');
         Route::post('toggle-store-status-closed', [StoreController::class, 'toggleStoreStatusClosed'])->name('toggleStoreStatusClosed');
         Route::post('toggle-billing', [StoreController::class, 'toggleAutomaticBilling'])->name('toggleAutomaticBilling');
-      });
+    });
 
     // Gestión de Roles
     Route::prefix('roles/{role}')->name('roles.')->group(function () {
@@ -248,9 +260,9 @@ Route::middleware([
     Route::get('coupons/{id}', [CouponController::class, 'show'])->name('coupons.show');
 
     // Gestión de categorías
-    Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class,'deleteSelected'])-> name('categories.deleteSelected');
-    Route::post('product-categories/{id}/update-selected',[ProductCategoryController::class,'updateSelected'])-> name('categories.updateSelected');
-    Route::get('product-categories/{id}/get-selected',[ProductCategoryController::class,'getSelected'])-> name('categories.getSelected');
+    Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class, 'deleteSelected'])->name('categories.deleteSelected');
+    Route::post('product-categories/{id}/update-selected', [ProductCategoryController::class, 'updateSelected'])->name('categories.updateSelected');
+    Route::get('product-categories/{id}/get-selected', [ProductCategoryController::class, 'getSelected'])->name('categories.getSelected');
 
     // Edición de Sabores
     Route::get('/flavors/{id}', [ProductController::class, 'editFlavor'])->name('flavors.edit');
@@ -281,8 +293,8 @@ Route::middleware([
 
     // Producciones
     Route::group(['prefix' => 'productions'], function () {
-      Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
-      Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+        Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
+        Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
     });
 });
 
@@ -307,8 +319,8 @@ Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('
 
 // Rutas de autenticación de Tienda Abierta
 Route::middleware(['check.store.open'])->group(function () {
-  Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
-  // Otras rutas que deben estar protegidas
+    Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
+    // Otras rutas que deben estar protegidas
 });
 
 // MercadoPago WebHooks

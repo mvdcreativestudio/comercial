@@ -8,6 +8,7 @@ use App\Repositories\BulkProductionRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+
 class BulkProductionController extends Controller
 {
     protected $bulkProductionRepository;
@@ -16,6 +17,13 @@ class BulkProductionController extends Controller
     {
         $this->bulkProductionRepository = $bulkProductionRepository;
     }
+
+    public function getAll()
+    {
+        $bulkProductions = $this->bulkProductionRepository->getAll();
+        return response()->json([$bulkProductions]);
+    }
+
 
     public function index()
     {
@@ -92,5 +100,17 @@ class BulkProductionController extends Controller
         } else {
             return response()->json(['message' => 'No se pudo encontrar la producción masiva que se deseó borrar.'], 404);
         }
+    }
+
+    public function getBatches($id)
+    {
+        return $this->bulkProductionRepository->getById($id);
+    }
+
+
+    public function showBatchInfo($identifier)
+    {
+        $batches = $this->bulkProductionRepository->getBatchInfoByIdentifier($identifier);
+        return view('bulk-productions.show', compact('batches'));
     }
 }

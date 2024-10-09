@@ -14,6 +14,8 @@ class Formula extends Model
         'name',
         'description',
         'final_product_id',
+        'unit_of_measure',
+        'quantity'
     ];
 
     public function formulaRawMaterials(): HasMany
@@ -24,5 +26,10 @@ class Formula extends Model
     public function bulkProductions(): HasMany
     {
         return $this->hasMany(BulkProduction::class);
+    }
+
+    public function finalProduct()
+    {
+        return $this->belongsTo(Product::class, 'final_product_id');
     }
 }

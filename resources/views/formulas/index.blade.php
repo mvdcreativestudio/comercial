@@ -83,7 +83,7 @@
   </div>
   <div class="collapse" id="columnSwitches">
     <div class="mt-0 d-flex flex-wrap">
-      @foreach (['ID', 'Nombre', 'Descripción', 'Producto final', 'Pasos', 'Acciones'] as $index => $label)
+      @foreach (['ID', 'Nombre', 'Descripción', 'Producto final', 'Pasos', 'Unidad de medida', 'Cantidad', 'Acciones'] as $index => $label)
       <div class="mx-3">
         <label class="switch switch-square">
           <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
@@ -97,7 +97,7 @@
       @endforeach
     </div>
   </div>
-  <div class="card-datatable table-responsive mt-3">
+  <div class="card-datatable table-responsive mx-4 my-3">
     <table class="table datatables-formulas border-top">
       <thead>
         <tr>
@@ -105,6 +105,8 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Producto Final</th>
+          <th>Unidad de medida</th>
+          <th>Cantidad</th>
           <th>Pasos</th>
           <th>Acciones</th>
         </tr>
@@ -121,6 +123,8 @@
             @endphp
             {{ $finalProduct ? $finalProduct->name : 'Producto no encontrado' }}
           </td>
+          <td>{{ $formula->unit_of_measure }}</td>
+          <td>{{ $formula->quantity }}</td>
           <td></td>
         </tr>
         @endforeach
@@ -128,19 +132,19 @@
     </table>
   </div>
 </div>
-
-<!-- Off-Canvas para agregar fórmulas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="addFormulaOffCanvas" aria-labelledby="addFormulaOffCanvasLabel">
   <div class="offcanvas-header">
-    <h5 id="addFormulaOffCanvasLabel">Agregar Nueva Formula</h5>
+    <h5 id="addFormulaOffCanvasLabel">Agregar Nueva Fórmula</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <form id="addFormulaForm">
+    @csrf
       <div class="mb-3">
         <label for="name" class="form-label">Nombre</label>
         <input type="text" class="form-control" id="name" name="name" required>
       </div>
+
       <div class="mb-3">
         <label for="final_product_id" class="form-label">Producto final</label>
         <select class="form-control select2" id="final_product_id" name="final_product_id" required>
@@ -150,12 +154,30 @@
           @endforeach
         </select>
       </div>
+
       <div class="mb-3">
         <label for="description" class="form-label">Descripción</label>
         <textarea class="form-control" id="description" name="description"></textarea>
       </div>
+
+      <!-- Nuevo campo para seleccionar la unidad de medida -->
+      <div class="mb-3">
+        <label for="unit_of_measure" class="form-label">Unidad de Medida</label>
+        <select class="form-control" id="unit_of_measure" name="unit_of_measure" required>
+          <option value="L">Litro (L)</option>
+          <option value="ml">Mililitro (ml)</option>
+        </select>
+      </div>
+
+      <!-- Nuevo campo para ingresar la cantidad en decimales -->
+      <div class="mb-3">
+        <label for="quantity" class="form-label">Cantidad</label>
+        <input type="number" step="0.01" class="form-control" id="quantity" name="quantity" required>
+      </div>
+
       <button type="submit" class="btn btn-success">Guardar</button>
     </form>
   </div>
 </div>
+
 @endsection

@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><button class="dropdown-item btn-init" data-id="${row.id}">Iniciar producción</button></li>
+                        <li><button class="dropdown-item btn-VerLotes" data-id="${row.id}">Ver lotes</button></li>
                         <li><button class="dropdown-item btn-delete" data-id="${row.id}">Eliminar</button></li>
                     </ul>
                 </div>`;
@@ -86,30 +86,43 @@ document.addEventListener('DOMContentLoaded', function () {
       Swal.fire('Advertencia', 'Debe completar todos los campos correctamente', 'warning');
       return;
     }
+    $('#offcanvasProduction').offcanvas('hide');
 
-    // Enviar la solicitud AJAX para iniciar producción
-    $.ajax({
-      url: 'start-production',  // Endpoint para iniciar producción
-      method: 'POST',
-      data: {
-        formula_id: formula,
-        quantity: quantity,
-        _token: csrfToken  // Para seguridad CSRF
-      },
-      success: function (response) {
-        if (response.success) {
-              $('#offcanvasProduction').offcanvas('hide');
-
-          showProductionDetailsModal(response.step_batch_usage);
-        } else {
-          Swal.fire('Error', response.message, 'error');
-        }
-      },
-      error: function (xhr) {
-        Swal.fire('Error', 'Ocurrió un error al iniciar la producción', 'error');
+    // Mostrar la alerta de confirmación
+    Swal.fire({
+      title: '¿Estás seguro que deseas continuar?',
+      text: "Si le das a 'Aceptar' se restará la materia prima de stock y se creará la producción de la fórmula.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Enviar la solicitud AJAX para iniciar producción
+        $.ajax({
+          url: 'start-production',  // Endpoint para iniciar producción
+          method: 'POST',
+          data: {
+            formula_id: formula,
+            quantity: quantity,
+            _token: csrfToken  // Para seguridad CSRF
+          },
+          success: function (response) {
+            if (response.success) {
+              showProductionDetailsModal(response.step_batch_usage);
+            } else {
+              Swal.fire('Error', response.message, 'error');
+            }
+          },
+          error: function (xhr) {
+            Swal.fire('Error', 'Ocurrió un error al iniciar la producción', 'error');
+          }
+        });
       }
     });
   });
+
 
   function showProductionDetailsModal(stepBatchUsage) {
     // Limpiar el contenido del modal si se está reutilizando
@@ -205,4 +218,53 @@ document.addEventListener('DOMContentLoaded', function () {
     // Mostrar el modal
     $('#productionDetailsModal').modal('show');
   }
+
+  $(document).on('click', '.btn-VerLotes', function () {
+    const productionId = $(this).data('id');
+    $.ajax({
+      url: `get-batches/${productionId}`,
+      type: 'GET',
+      dataType: 'json',
+      success: function (response) {
+        if (response.batches && response.batches.length > 0) {
+          let modalBody = '';
+          response.batches.forEach(batch => {
+            const batchInfo = `Batch ID: ${batch.batch_id} - Cantidad utilizada: ${batch.quantity_used}`;
+            modalBody += `<p><strong>${batchInfo}</strong></p>`;
+          });
+          // Insertar detalles de batches en la batch-details
+          $('#modalBatches .batch-details').html(modalBody);
+
+          // Generar y añadir el QR code en la modal-qr
+          $('#modalBatches .modal-qr').html('<div id="qrcode"></div>');
+          new QRCode(document.getElementById("qrcode"), {
+            text: response.qr_url,
+            width: 128,
+            height: 128
+          });
+
+          // Mostrar el modal
+          $('#modalBatches').modal('show');
+        } else {
+          $('#modalBatches .batch-details').html('<p>No se encontraron lotes.</p>');
+          $('#modalBatches').modal('show');
+        }
+      },
+      error: function (xhr, status, error) {
+        $('#modalBatches .modal-body').html('<p>Error al cargar los lotes.</p>');
+        $('#modalBatches').modal('show');
+      }
+    });
+  });
+
+  // Add event listener for the download button
+  $(document).on('click', '#downloadQR', function () {
+    const qrCanvas = document.querySelector('#qrcode canvas');
+    if (qrCanvas) {
+      const link = document.createElement('a');
+      link.download = 'qr_code.png';
+      link.href = qrCanvas.toDataURL('image/png').replace("image/png", "image/octet-stream");
+      link.click();
+    }
+  });
 });

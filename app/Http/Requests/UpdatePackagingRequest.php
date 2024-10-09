@@ -16,8 +16,8 @@ class UpdatePackagingRequest extends FormRequest
         return [
             'bulk_production_id' => 'required|integer|exists:bulk_productions,id',
             'quantity_packaged' => 'required|integer|min:1',
+            'packaging_id' => 'required|integer',
             'packaging_date' => 'required|date',
-            'final_product_id' => 'required|integer|exists:final_products,id',
         ];
     }
 }
