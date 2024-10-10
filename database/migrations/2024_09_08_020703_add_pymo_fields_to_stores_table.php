@@ -12,10 +12,18 @@ return new class extends Migration
     public function up()
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->boolean('invoices_enabled')->default(false); // Campo para habilitar o no la facturación
-            $table->string('pymo_user')->nullable(); // Usuario para PyMo
-            $table->string('pymo_password')->nullable(); // Contraseña para PyMo
-            $table->string('pymo_branch_office')->nullable(); // Sucursal para PyMo
+            if (!Schema::hasColumn('stores', 'invoices_enabled')) {
+                $table->boolean('invoices_enabled')->default(false); // Campo para habilitar o no la facturación
+            }
+            if (!Schema::hasColumn('stores', 'pymo_user')) {
+                $table->string('pymo_user')->nullable(); // Usuario para PyMo
+            }
+            if (!Schema::hasColumn('stores', 'pymo_password')) {
+                $table->string('pymo_password')->nullable(); // Contraseña para PyMo
+            }
+            if (!Schema::hasColumn('stores', 'pymo_branch_office')) {
+                $table->string('pymo_branch_office')->nullable(); // Sucursal para PyMo
+            }
         });
     }
 
@@ -25,10 +33,18 @@ return new class extends Migration
     public function down()
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->dropColumn('invoices_enabled');
-            $table->dropColumn('pymo_user');
-            $table->dropColumn('pymo_password');
-            $table->dropColumn('pymo_branch_office');
+            if (Schema::hasColumn('stores', 'invoices_enabled')) {
+                $table->dropColumn('invoices_enabled');
+            }
+            if (Schema::hasColumn('stores', 'pymo_user')) {
+                $table->dropColumn('pymo_user');
+            }
+            if (Schema::hasColumn('stores', 'pymo_password')) {
+                $table->dropColumn('pymo_password');
+            }
+            if (Schema::hasColumn('stores', 'pymo_branch_office')) {
+                $table->dropColumn('pymo_branch_office');
+            }
         });
     }
 };

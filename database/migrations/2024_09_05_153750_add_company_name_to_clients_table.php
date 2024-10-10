@@ -14,7 +14,10 @@ class AddCompanyNameToClientsTable extends Migration
     public function up()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->string('company_name')->nullable()->after('type'); // Añade el campo company_name después del campo type
+            // Verificar si la columna company_name no existe antes de agregarla
+            if (!Schema::hasColumn('clients', 'company_name')) {
+                $table->string('company_name')->nullable()->after('type');
+            }
         });
     }
 
@@ -26,7 +29,10 @@ class AddCompanyNameToClientsTable extends Migration
     public function down()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->dropColumn('company_name');
+            // Verificar si la columna company_name existe antes de eliminarla
+            if (Schema::hasColumn('clients', 'company_name')) {
+                $table->dropColumn('company_name');
+            }
         });
     }
 }

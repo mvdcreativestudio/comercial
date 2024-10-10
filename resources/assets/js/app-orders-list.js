@@ -27,7 +27,14 @@ $(function () {
         },
         columns: [
           { data: 'id', type: 'num' },
-          { data: 'date' },
+          {
+            data: 'date',
+            type: 'datetime', // Definir explícitamente como datetime
+            render: function (data, type, full, meta) {
+              // Usar tanto la fecha (data) como la hora (full['time']) para el renderizado
+              return moment(data + ' ' + full['time']).locale('es').format('DD/MM/YY - hh:mm a'); // Combina fecha y hora
+            }
+          },
           { data: 'client_name' },
           { data: 'store_name' },
           { data: 'total' },
@@ -35,7 +42,7 @@ $(function () {
           { data: 'is_billed' },
           { data: '' }
         ],
-        order: [[1, 'desc']],
+        order: [[0, 'desc']],  // Ordenar por la columna de fecha de manera descendente
         columnDefs: [
           {
             targets: 0, // Enlazar el ID del pedido
@@ -43,47 +50,6 @@ $(function () {
             render: function (data, type, full, meta) {
               var uuid = full['uuid'];
               return '<a class="text-muted" href="' + baseUrl + 'admin/orders/' + uuid + '/show">#' + data + '</a>';
-            }
-          },
-          {
-            targets: 1,
-            render: function (data, type, full, meta) {
-              var date = moment(data).locale('es').format('DD/MM/YY');
-              var time = moment(full['time'], 'HH:mm:ss').format('hh:mm a');
-              return date + ' - ' + time;
-            }
-          },
-          {
-            targets: 2,
-            render: function (data, type, full, meta) {
-              var $name = full['client_name'],
-                $email = full['client_email'],
-                $initials = $name.replace(/[^A-Z]/g, '').substring(0, 2),
-                stateNum = Math.floor(Math.random() * 6),
-                states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'],
-                $state = states[stateNum];
-
-              return (
-                '<div class="d-flex justify-content-start align-items-center">' +
-                '<div class="avatar me-2"><span class="avatar-initial rounded-circle bg-label-' +
-                $state +
-                '">' +
-                $initials +
-                '</span></div>' +
-                '<div class="d-flex flex-column">' +
-                '<a href="' +
-                baseUrl +
-                'admin/orders/' +
-                full['uuid'] +
-                '/show" class="text-body"><h6 class="mb-0">' +
-                $name +
-                '</h6></a>' +
-                '<small class="text-muted">' +
-                $email +
-                '</small>' +
-                '</div>' +
-                '</div>'
-              );
             }
           },
           {
@@ -312,11 +278,11 @@ $(function () {
         let billed = $('.billed_filter select').val();
         let startDate = $('#startDate').val();
         let endDate = $('#endDate').val();
-      
+
         // Construir la URL con los parámetros válidos
         let url = '/admin/orders-export-excel?';
         let params = [];
-      
+
         if (client) {
           params.push(`client=${encodeURIComponent(client)}`);
         }
@@ -335,10 +301,10 @@ $(function () {
         if (endDate) {
           params.push(`end_date=${encodeURIComponent(endDate)}`);
         }
-      
+
         // Unir los parámetros a la URL
         url += params.join('&');
-      
+
         // Redirigir a la ruta para exportar, abriendo en una nueva pestaña
         window.open(url, '_blank');
       });

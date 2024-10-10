@@ -30,7 +30,7 @@ class StoreProductRequest extends FormRequest
             'recipes.*.raw_material_id' => 'required_without:recipes.*.used_flavor_id|exists:raw_materials,id',
             'recipes.*.used_flavor_id' => 'required_without:recipes.*.raw_material_id|exists:flavors,id',
             'recipes.*.quantity' => 'required_with:recipes|numeric|min:0.01',
-            'build_price' => 'required|numeric',
+            'build_price' => 'nullable|numeric',
         ];
     }
 
@@ -42,7 +42,6 @@ class StoreProductRequest extends FormRequest
             'categories' => 'Faltó completar el campo "CATEGORÍA"',
             'recipes.*.raw_material_id' => 'required_with:recipes|exists:raw_materials,id',
             'recipes.*.quantity' => 'required_with:recipes|numeric|min:0.01',
-            'build_price.required' => 'El precio de costo es obligatorio.',
             'build_price.numeric' => 'El precio de costo debe ser un número.',
         ];
     }

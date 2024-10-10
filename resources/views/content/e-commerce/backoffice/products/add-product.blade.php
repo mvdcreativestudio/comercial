@@ -193,8 +193,8 @@
           </div>
           <!-- build_price -->
           <div class="mb-3">
-            <label class="form-label" for="build_price">Precio de Costo</label>
-            <input type="number" step=".01" min="0" class="form-control" id="build_price" placeholder="Precio de Costo" name="build_price" aria-label="Introduzca el precio de Costo" required>
+            <label class="form-label" for="build_price">Costo</label>
+            <input type="number" step=".01" min="0" class="form-control" id="build_price" placeholder="Introduzca el costo del producto" name="build_price" aria-label="Introduzca costo">
           <div>
 
         </div>

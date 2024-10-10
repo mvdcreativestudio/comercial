@@ -11,17 +11,20 @@ return new class extends Migration
     */
     public function up()
     {
-        Schema::create('currency_rates', function (Blueprint $table) {
-            $table->id();
-            $table->string('name'); // Nombre de la moneda
-            $table->date('date'); // Fecha del tipo de cambio
-            $table->decimal('buy', 15, 5)->nullable(); // Valor de compra con 5 decimales
-            $table->decimal('sell', 15, 5)->nullable(); // Valor de venta con 5 decimales
-            $table->timestamps();
+        // Verificar si la tabla 'currency_rates' no existe antes de crearla
+        if (!Schema::hasTable('currency_rates')) {
+            Schema::create('currency_rates', function (Blueprint $table) {
+                $table->id();
+                $table->string('name'); // Nombre de la moneda
+                $table->date('date'); // Fecha del tipo de cambio
+                $table->decimal('buy', 15, 5)->nullable(); // Valor de compra con 5 decimales
+                $table->decimal('sell', 15, 5)->nullable(); // Valor de venta con 5 decimales
+                $table->timestamps();
 
-            // Clave única para evitar duplicados por nombre y fecha
-            $table->unique(['name', 'date']);
-        });
+                // Clave única para evitar duplicados por nombre y fecha
+                $table->unique(['name', 'date']);
+            });
+        }
     }
 
     /**
@@ -29,6 +32,9 @@ return new class extends Migration
     */
     public function down()
     {
-        Schema::dropIfExists('currency_rates');
+        // Eliminar la tabla solo si existe
+        if (Schema::hasTable('currency_rates')) {
+            Schema::dropIfExists('currency_rates');
+        }
     }
 };
