@@ -878,7 +878,7 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
     const subtotal = parseFloat($('.subtotal').text().replace(/[^\d.-]/g, '')) || 0;
 
     // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
-    if (total > 24000 && (!client || !client.id)) {
+    if (total > 600 && (!client || !client.id)) {
       mostrarError('Para ventas mayores a UYU24.000, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
       return;
     }
