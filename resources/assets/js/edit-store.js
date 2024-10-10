@@ -1,73 +1,117 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Seleccionar los elementos relevantes
-  const mercadoPagoSwitch = document.getElementById('mercadoPagoSwitch');
-  const mercadoPagoFields = document.getElementById('mercadoPagoFields');
-  const ecommerceSwitch = document.getElementById('ecommerceSwitch');
-  const ecommerceFields = document.getElementById('ecommerceFields');
-  const invoicesEnabledSwitch = document.getElementById('invoicesEnabledSwitch');
-  const pymoFields = document.getElementById('pymoFields');
+  const switches = [
+    { id: 'peyaEnviosSwitch', fieldsId: 'peyaEnviosFields', requiredFields: ['peyaEnviosKey'] },
+    {
+      id: 'mercadoPagoSwitch',
+      fieldsId: 'mercadoPagoFields',
+      requiredFields: ['mercadoPagoPublicKey', 'mercadoPagoAccessToken', 'mercadoPagoSecretKey']
+    },
+    { id: 'ecommerceSwitch', fieldsId: null },
+    { id: 'invoicesEnabledSwitch', fieldsId: 'pymoFields', requiredFields: ['pymoUser', 'pymoPassword', 'pymoBranchOffice'] }
+  ];
 
-  // Manejar la visibilidad inicial de los campos de PyMo
-  pymoFields.style.display = invoicesEnabledSwitch.checked ? 'block' : 'none';
-
-  // Evento para el switch de habilitar facturación
-  invoicesEnabledSwitch.addEventListener('change', function() {
-    pymoFields.style.display = this.checked ? 'block' : 'none';
+  // Añadir animación de transición
+  document.querySelectorAll('.integration-fields').forEach(field => {
+    field.style.transition = 'all 0.5s ease-in-out';
   });
 
-  // Verificar el estado inicial de los campos de MercadoPago
-  const mercadoPagoInitialState = mercadoPagoSwitch.checked;
-  mercadoPagoFields.style.display = mercadoPagoInitialState ? 'block' : 'none';
+  switches.forEach(switchObj => {
+    const toggleSwitch = document.getElementById(switchObj.id);
+    const fields = switchObj.fieldsId ? document.getElementById(switchObj.fieldsId) : null;
 
-  // Manejar el cambio en el switch de MercadoPago
-  mercadoPagoSwitch.addEventListener('change', function () {
-    if (mercadoPagoInitialState && !this.checked) {
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Se perderán los datos de la vinculación con MercadoPago y deberá ser realizada nuevamente',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar'
-      }).then(result => {
-        if (result.isConfirmed) {
-          mercadoPagoFields.style.display = 'none';
-        } else {
-          mercadoPagoSwitch.checked = true;
-        }
-      });
-    } else {
-      mercadoPagoFields.style.display = this.checked ? 'block' : 'none';
+    if (toggleSwitch.checked && fields) {
+      fields.style.display = 'block';
     }
+
+    toggleSwitch.addEventListener('change', function () {
+      console.log('Checkbox invoices_enabled changed:', this.checked); // Para verificar si se detecta el cambio
+
+      if (!this.checked && fields) {
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'Se perderán los datos de esta integración y deberá ser realizada nuevamente.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, desactivar',
+          cancelButtonText: 'Cancelar'
+        }).then(result => {
+          if (result.isConfirmed) {
+            fields.style.opacity = 0;
+            setTimeout(() => {
+              fields.style.display = 'none';
+              fields.style.opacity = 1;
+            }, 500);
+            // Limpia los campos al desactivar la integración
+            fields.querySelectorAll('input').forEach(input => input.value = '');
+            fields.querySelectorAll('.error-message').forEach(error => error.remove());
+          } else {
+            toggleSwitch.checked = true;
+          }
+        });
+      } else if (fields) {
+        fields.style.display = 'block';
+        fields.style.opacity = 0;
+        setTimeout(() => {
+          fields.style.opacity = 1;
+        }, 10);
+      }
+    });
+
+
   });
 
-  // Verificar el estado inicial de los campos de Ecommerce
-  const ecommerceInitialState = ecommerceSwitch.checked;
-  ecommerceFields.style.display = ecommerceInitialState ? 'block' : 'none';
+  // Validación en tiempo real
+  function validateInput(input, requiredFields = []) {
+    const errorMessage = document.createElement('small');
+    errorMessage.className = 'text-danger error-message';
 
-  // Manejar el cambio en el switch de Ecommerce
-  ecommerceSwitch.addEventListener('change', function () {
-    if (ecommerceInitialState && !this.checked) {
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Se perderán los datos de la vinculación con Ecommerce y deberá ser realizada nuevamente',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar'
-      }).then(result => {
-        if (result.isConfirmed) {
-          ecommerceFields.style.display = 'none';
-        } else {
-          ecommerceSwitch.checked = true;
-        }
-      });
+    if (input.nextElementSibling && input.nextElementSibling.classList.contains('error-message')) {
+      input.nextElementSibling.remove();
+    }
+
+    if (input.value.trim() === '' && requiredFields.includes(input.id)) {
+      errorMessage.textContent = 'Este campo es obligatorio.';
+      input.classList.add('is-invalid');
+      input.parentNode.appendChild(errorMessage);
+      return false;
     } else {
-      ecommerceFields.style.display = this.checked ? 'block' : 'none';
+      input.classList.remove('is-invalid');
+    }
+    return true;
+  }
+
+  // Validación antes de enviar el formulario
+  const submitButton = document.querySelector('button[type="submit"]'); // Selector específico del botón de envío
+
+  submitButton.addEventListener('click', function (event) {
+    let formIsValid = true;
+
+    switches.forEach(switchObj => {
+      const toggleSwitch = document.getElementById(switchObj.id);
+      const fields = switchObj.fieldsId ? document.getElementById(switchObj.fieldsId) : null;
+
+      if (toggleSwitch.checked && fields) {
+        const inputs = fields.querySelectorAll('input');
+
+        inputs.forEach(input => {
+          const isValid = validateInput(input, switchObj.requiredFields || []);
+          if (!isValid) {
+            formIsValid = false;
+          }
+        });
+      }
+    });
+
+    if (!formIsValid) {
+      event.preventDefault(); // Evita el envío del formulario si hay campos vacíos
+      Swal.fire({
+        title: 'Campos incompletos',
+        text: 'Por favor, complete todos los campos obligatorios antes de actualizar la empresa.',
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+      });
     }
   });
 });

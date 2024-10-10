@@ -1,6 +1,6 @@
 @extends('content.e-commerce.front.layouts.ecommerce-layout')
 
-@section('title', 'Anjos')
+@section('title', 'Sumeria')
 
 @section('content')
 

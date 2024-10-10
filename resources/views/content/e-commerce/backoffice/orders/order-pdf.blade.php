@@ -76,7 +76,7 @@
         <div class="order-meta">
             <p><strong>Fecha del pedido:</strong> {{ $order->date }}</p>
             <p><strong>Hora del pedido:</strong> {{ $order->time }}</p>
-            <p><strong>Tienda:</strong> {{ $order->store->name }}</p>
+            <p><strong>Empresa:</strong> {{ $order->store->name }}</p>
             <p><strong>Método de pago:</strong>
               @if($order->payment_method === 'card')
               <span class="badge bg-label-primary me-2 ms-2">MercadoPago</span>

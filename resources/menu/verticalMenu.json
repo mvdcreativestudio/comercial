@@ -31,8 +31,8 @@
       ]
     },
     {
-      "id": "tour-pedidos",
-      "name": "Pedidos",
+      "id": "tour-ventas",
+      "name": "Ventas",
       "icon": "menu-icon tf-icons bx bx-cart",
       "slug": "orders",
       "url": "/admin/orders"
@@ -58,17 +58,45 @@
           "url": "/admin/products"
         },
         {
+          "id": "stock",
+          "name": "Stock",
+          "icon": "menu-icon tf-icons bx bx-border-all",
+          "slug": "stock",
+          "url": "/admin/products/stock"
+        },
+        {
+          "id": "tour-productos-compuestos",
+          "name": "Productos Compuestos",
+          "icon": "menu-icon tf-icons bx bx-box",
+          "slug": "composite-products",
+          "url": "/admin/composite-products"
+        },
+        {
           "id": "tour-categorias",
           "name": "Categorías",
           "icon": "menu-icon tf-icons bx bx-list-ul",
           "slug": "product-categories",
           "url": "/admin/product-categories"
+        },
+        {
+          "id": "tour-productos-crear-en-masa",
+          "name": "Crear en Masa",
+          "icon": "menu-icon tf-icons bx bx-plus",
+          "slug": "bulk-products",
+          "url": "/admin/products/add"
+        },
+        {
+          "id": "tour-productos-editar-en-masa",
+          "name": "Editar en Masa",
+          "icon": "menu-icon tf-icons bx bx-edit",
+          "slug": "bulk-products",
+          "url": "/admin/products/edit"
         }
       ]
     },
     {
       "id": "tour-tiendas",
-      "name": "Tiendas",
+      "name": "Empresas",
       "icon": "menu-icon tf-icons bx bx-store-alt",
       "slug": "stores",
       "url": "/admin/stores"
@@ -125,24 +153,57 @@
       "submenu": [
         {
           "id": "tour-facturas",
-          "name": "Facturas",
+          "name": "Facturación",
           "icon": "menu-icon tf-icons bx bx-file",
           "slug": "invoices",
-          "url": "/admin/invoices"
-        },
-        {
-          "id": "tour-recibos",
-          "name": "Recibos",
-          "icon": "menu-icon tf-icons bx bx-receipt",
-          "slug": "receipts",
-          "url": "/admin/receipts"
+          "url": "/admin/invoices",
+          "submenu": [
+            {
+              "id": "tour-facturas",
+              "name": "Facturas Emitidas",
+              "icon": "menu-icon tf-icons bx bx-file",
+              "slug": "invoices",
+              "url": "/admin/invoices"
+            },
+            {
+              "id": "tour-facturas-recibidas",
+              "name": "CFE Recibidos",
+              "icon": "menu-icon tf-icons bx bx-file",
+              "slug": "received-documents",
+              "url": "/admin/received-cfes"
+            }
+          ]
         },
         {
           "id": "tour-asientos",
           "name": "Asientos",
           "icon": "menu-icon tf-icons bx bx-book",
           "slug": "entries",
-          "url": "/admin/entries"
+          "url": "/admin/entries",
+          "submenu": [
+            {
+              "id": "tour-asientos",
+              "name": "Ver Asientos",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entries",
+              "url": "/admin/entries"
+            },
+            {
+              "id": "tour-asientos-tipos",
+              "name": "Tipo de Asiento",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-types",
+              "url": "/admin/entry-types"
+            },
+            {
+              "id": "tour-asientos-cuentas",
+              "name": "Cuentas Contables",
+              "icon": "menu-icon tf-icons bx bx-book",
+              "slug": "entry-accounts",
+              "url": "/admin/entry-accounts"
+            }
+
+          ]
         },
         {
           "id": "tour-documentos-recibidos",
@@ -152,11 +213,41 @@
           "url": "/admin/received-cfes"
         },
         {
-          "id": "tour-configuracion-contabilidad",
-          "name": "Configuración",
-          "icon": "menu-icon tf-icons bx bx-cog",
-          "slug": "accounting-settings",
-          "url": "/admin/accounting/settings"
+          "id": "tour-gastos",
+          "name": "Gastos",
+          "icon": "menu-icon tf-icons bx bx-dollar",
+          "slug": "expenses",
+          "url": "/admin/expenses"
+        },
+        {
+          "id": "tour-ingresos",
+          "name": "Ingresos",
+          "icon": "menu-icon tf-icons bx bx-line-chart",
+          "slug": "incomes",
+          "url": "/admin/incomes",
+          "submenu": [
+            {
+              "id": "tour-ingresos-clients",
+              "name": "Clientes",
+              "icon": "menu-icon tf-icons bx bx-user",
+              "slug": "incomes-clients",
+              "url": "/admin/incomes-clients"
+            },
+            {
+              "id": "tour-ingresos-suppliers",
+              "name": "Proveedores",
+              "icon": "menu-icon tf-icons bx bx-briefcase",
+              "slug": "incomes-suppliers",
+              "url": "/admin/incomes-suppliers"
+            },
+            {
+              "id": "tour-ingresos-categorias",
+              "name": "Categorías",
+              "icon": "menu-icon tf-icons bx bx-category",
+              "slug": "income-categories",
+              "url": "/admin/income-categories"
+            }
+          ]
         }
       ]
     },
@@ -193,6 +284,61 @@
               "icon": "menu-icon tf-icons bx bx-cog",
               "slug": "settings",
               "url": "/admin/omnichannel/settings"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tour-cuentas-corrientes",
+      "name": "Cuentas Corrientes",
+      "icon": "menu-icon tf-icons bx bx-dollar",
+      "slug": "current-accounts",
+      "url": "/admin/current-accounts",
+      "submenu": [
+        {
+          "id": "tour-cuentas-corrientes-clientes",
+          "name": "Clientes",
+          "icon": "menu-icon tf-icons bx bx-user",
+          "slug": "current-accounts-clients",
+          "url": "/admin/current-accounts/clients",
+          "submenu": [
+            {
+              "id": "tour-cuentas-corrientes-clientes-ventas",
+              "name": "Ventas",
+              "icon": "menu-icon tf-icons bx bx-dollar",
+              "slug": "current-accounts-clients-sales",
+              "url": "/admin/current-account-client-sales"
+            },
+            {
+              "id": "tour-cuentas-corrientes-clientes-configuracion",
+              "name": "Configuración",
+              "icon": "menu-icon tf-icons bx bx-cog",
+              "slug": "current-accounts-clients-settings",
+              "url": "/admin/current-accounts-clients-settings"
+            }
+          ]
+        },
+        {
+          "id": "tour-cuentas-corrientes-proveedores",
+          "name": "Proveedores",
+          "icon": "menu-icon tf-icons bx bx-group",
+          "slug": "current-accounts-suppliers",
+          "url": "/admin/current-accounts/suppliers",
+          "submenu": [
+            {
+              "id": "tour-cuentas-corrientes-proveedores-compras",
+              "name": "Compras",
+              "icon": "menu-icon tf-icons bx bx-dollar",
+              "slug": "current-accounts-suppliers-purchases",
+              "url": "/admin/current-account-supplier-purs"
+            },
+            {
+              "id": "tour-cuentas-corrientes-proveedores-configuracion",
+              "name": "Configuración",
+              "icon": "menu-icon tf-icons bx bx-cog",
+              "slug": "current-accounts-suppliers-settings",
+              "url": "/admin/current-accounts-suppliers-settings"
             }
           ]
         }

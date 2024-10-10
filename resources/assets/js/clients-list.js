@@ -1,145 +1,141 @@
-'use strict';
+$(function () {
+  // Declaración de variables
+  var clientListContainer = $('.client-list-container');
+  var ajaxUrl = clientListContainer.data('ajax-url');
 
-// Datatable (jquery)
-$(document).ready(function () {
-  let borderColor, bodyBg, headingColor;
+  function fetchClients() {
+    $.ajax({
+      url: ajaxUrl,
+      method: 'GET',
+      success: function (response) {
+        var clients = response.data;
+        clientListContainer.html(''); // Limpiar el contenedor
 
-  if (isDarkStyle) {
-    borderColor = config.colors_dark.borderColor;
-    bodyBg = config.colors_dark.bodyBg;
-    headingColor = config.colors_dark.headingColor;
-  } else {
-    borderColor = config.colors.borderColor;
-    bodyBg = config.colors.bodyBg;
-    headingColor = config.colors.headingColor;
-  }
+        if (clients.length === 0) {
+          clientListContainer.html(`
+            <div class="col-12">
+              <div class="alert alert-info text-center">
+                <i class="bx bx-info-circle"></i> No hay clientes disponibles.
+              </div>
+            </div>
+          `);
+        } else {
+          clients.forEach(function (client) {
+            const fullName = `${client.name} ${client.lastname}`;
+            const truncatedName = fullName.length > 20 ? fullName.substring(0, 20) + '...' : fullName;
 
-  // Variable declaration for table
-  var dt_customer_table = $('.datatables-customers'),
-    select2 = $('.select2'),
-    customerView = baseUrl + 'app/ecommerce/customer/details/overview';
-  if (select2.length) {
-    var $this = select2;
-    $this.wrap('<div class="position-relative"></div>').select2({
-      placeholder: 'United States ',
-      dropdownParent: $this.parent()
-    });
-  }
+            const card = `
+              <div class="col-md-6 col-lg-4 col-12 client-card-wrapper">
+                <div class="client-card-container">
+                  <div class="client-card position-relative">
+                    <div class="client-card-header d-flex justify-content-between align-items-center">
+                      <h5 class="client-name mb-0" title="${truncatedName}" data-full-name="${fullName}" data-truncated-name="${truncatedName}">${truncatedName}</h5>
+                      <div class="d-flex align-items-center">
+                        <span class="client-type badge ${client.type === 'company' ? 'bg-primary' : 'bg-info'} me-2">${client.type === 'company' ? 'Empresa' : 'Persona'}</span>
+                        <div class="client-card-toggle">
+                          <i class="bx bx-chevron-down fs-3"></i>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="client-card-body" style="display: none;">
+                      <div class="d-flex flex-column h-100">
+                        <div>
+                          <p class="client-document mb-2"><strong>${client.type === 'company' ? 'RUT:' : 'CI:'}</strong> ${client.type === 'company' ? client.rut : client.ci}</p>
+                          ${client.type === 'company' ? `<p class="client-company mb-2"><strong>Razón Social:</strong> ${client.company_name}</p>` : ''}
+                          <p class="client-email mb-2"><i class="bx bx-envelope me-2"></i> ${client.email}</p>
+                          <p class="client-address mb-2"><i class="bx bx-map me-2"></i> ${client.address}</p>
+                          <p class="client-location mb-2"><i class="bx bx-buildings me-2"></i> ${client.city}, ${client.state}</p>
+                          ${client.phone ? `<p class="client-phone mb-2"><i class="bx bx-phone me-2"></i> ${client.phone}</p>` : ''}
+                          ${client.website ? `<p class="client-website mb-2"><i class="bx bx-globe me-2"></i> <a href="${client.website}" target="_blank">${client.website}</a></p>` : ''}
+                        </div>
+                        <div class="text-end mt-auto mb-2">
+                          <a href="clients/${client.id}" class="btn btn-sm btn-outline-primary view-client">
+                            Ver Cliente <i class="bx bx-right-arrow-alt ms-1"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
 
-  // customers datatable
-  if (dt_customer_table.length) {
-    var dt_customer = dt_customer_table.DataTable({
-      processing: true,
-      serverSide: true,
-      ajax: 'clients/datatable',
-      columns: [
-        { data: 'id', className: 'col-1' },
-        { data: 'name', className: 'col-1' },
-        { data: 'address', className: 'col-2' },
-        { data: 'city', className: 'col-1' },
-        { data: 'state', className: 'col-1' },
-        { data: 'doc_type', className: 'col-1' },
-        { data: 'document', className: 'col-1' }
-      ],
+            clientListContainer.append(card);
+          });
 
-      columnDefs: [
-        {
-          // Modificación para mostrar nombre completo
-          targets: 1,
-          render: function (data, type, row) {
-            return `${row.name} ${row.lastname}`;
-          }
-        },
-        {
-          targets: 5,
-          render: function (data, type, row) {
-            if (row.type == 'company') {
-              return 'RUT';
-            } else {
-              return 'CI';
+          // Agregar evento de clic para desplegar la información
+          $('.client-card').on('click', function (e) {
+            if (!$(e.target).closest('.view-client').length) {
+              e.preventDefault();
+              e.stopPropagation();
+              const $this = $(this);
+              const $icon = $this.find('.client-card-toggle i');
+              const $body = $this.find('.client-card-body');
+              const $wrapper = $this.closest('.client-card-wrapper');
+              const $name = $this.find('.client-name');
+
+              // Alternar la tarjeta seleccionada
+              $icon.toggleClass('bx-chevron-down bx-chevron-up');
+              $body.slideToggle();
+
+              // Cambiar el tamaño de la tarjeta entre col-12 y su tamaño original
+              $wrapper.toggleClass('col-md-6 col-lg-4 col-12');
+
+              // Mostrar nombre completo o truncado según si la tarjeta está abierta o cerrada
+              if ($body.is(':visible')) {
+                $name.text($name.data('full-name'));
+              } else {
+                $name.text($name.data('truncated-name'));
+              }
+
+              // Cerrar las demás tarjetas y restaurar su tamaño
+              $('.client-card-body').not($body).slideUp();
+              $('.client-card-wrapper').not($wrapper).removeClass('col-12').addClass('col-md-6 col-lg-4');
+              $('.client-card-toggle i').not($icon).removeClass('bx-chevron-up').addClass('bx-chevron-down');
+              $('.client-card-wrapper').not($wrapper).find('.client-name').each(function() {
+                $(this).text($(this).data('truncated-name'));
+              });
             }
-          }
-        },
-        // Modificación para mostrar CI o RUT dependiendo del tipo de cliente
-        {
-          targets: 6, // Asumiendo que la columna 'document' es la sexta columna
-          render: function (data, type, row) {
-            if (row.type === 'company') {
-              return row.rut ? row.rut : '-';
-            } else if (row.type === 'individual') {
-              return row.ci ? row.ci : '-';
-            }
-            return '-';
-          }
+          });
+
+          // Prevenir el cierre de la tarjeta al hacer clic en "Ver Cliente"
+          $('.view-client').on('click', function(e) {
+            e.stopPropagation();
+          });
+
+          // Evitar que el clic en el botón de edición propague al contenedor de la tarjeta
+          $('.edit-client').on('click', function(e) {
+            e.stopPropagation();
+            // Aquí puedes agregar la lógica para editar el cliente
+          });
         }
-      ],
-
-      order: [[2, 'desc']],
-      dom:
-        '<"card-header d-flex flex-wrap py-3"' +
-        '<"me-5 ms-n2"f>' +
-        '<"dt-action-buttons text-xl-end text-lg-start text-md-end text-start d-flex align-items-center justify-content-md-end gap-3 gap-sm-2 flex-wrap flex-sm-nowrap"lB>' +
-        '>t' +
-        '<"row mx-2"' +
-        '<"col-sm-12 col-md-6"i>' +
-        '<"col-sm-12 col-md-6"p>' +
-        '>',
-
-      language: {
-        search: '',
-        searchPlaceholder: 'Buscar...',
-        sLengthMenu: '_MENU_',
-        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-        infoFiltered: 'filtrados de _MAX_ productos',
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<'
-        },
-        emptyTable: 'No hay registros disponibles',
-        pagingType: 'full_numbers',
-        dom: 'Bfrtip',
-        renderer: 'bootstrap'
       },
-      // Buttons with Dropdown
-      buttons: [
-        {
-          text: '<i class="bx bx-plus me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Crear cliente</span>',
-          className: 'add-new btn btn-primary',
-          attr: {
-            'data-bs-toggle': 'offcanvas',
-            'data-bs-target': '#offcanvasEcommerceCustomerAdd'
-          }
-        }
-      ]
-    });
-    $('.dataTables_length').addClass('mt-0 mt-md-3 me-2');
-    $('.dt-action-buttons').addClass('pt-0');
-    // To remove default btn-secondary in export buttons
-    $('.dt-buttons > .btn-group > button').removeClass('btn-secondary');
-    $('.dt-buttons').addClass('d-flex flex-wrap');
-    $('.toggle-column').on('change', function () {
-      var column = dt_customer.column($(this).attr('data-column'));
-      column.visible(!column.visible());
+      error: function (xhr, status, error) {
+        console.error('Error al obtener los datos de clientes:', error);
+        clientListContainer.html(`
+          <div class="col-12">
+            <div class="alert alert-danger text-center">
+              <i class="bx bx-error-circle"></i> Error al cargar los clientes. Por favor, intente nuevamente.
+            </div>
+          </div>
+        `);
+      }
     });
   }
 
-  // Delete Record
-  $('.datatables-customers tbody').on('click', '.delete-record', function () {
-    dt_customer.row($(this).parents('tr')).remove().draw();
-  });
+  // Fetch clients on page load
+  fetchClients();
 
-  // Filter form control to default size
-  // ? setTimeout used for multilingual table initialization
-  setTimeout(() => {
-    $('.dataTables_filter .form-control').removeClass('form-control-sm');
-    $('.dataTables_length .form-select').removeClass('form-select-sm');
-    $('.dataTables_length .form-select').removeClass('form-select-sm');
-    $('.dataTables_length label select').addClass('form-select form-select');
-    $('.dataTables_filter label input').addClass('form-control');
-  }, 300);
+  // Implementar búsqueda de clientes
+  $('#searchClient').on('input', function () {
+    var searchTerm = $(this).val().toLowerCase();
+    $('.client-card').each(function () {
+      var clientInfo = $(this).text().toLowerCase();
+      $(this).closest('.col-md-6').toggle(clientInfo.includes(searchTerm));
+    });
+  });
 });
+
 
 // Validation & Phone mask
 (function () {
@@ -198,12 +194,146 @@ $(document).ready(function () {
 $(document).ready(function () {
   // Escucha cambios en los botones de radio del tipo de cliente
   $('input[type=radio][name=type]').change(function () {
+    clearErrors();
     if (this.value == 'individual') {
       $('#ciField').show();
+      $('#ci').attr('required', true);
       $('#rutField').hide();
+      $('#company_name').removeAttr('required');
+      $('#rut').removeAttr('required');
+      $('#ciudadAsterisk').hide();
+      $('#departamentoAsterisk').hide();
     } else if (this.value == 'company') {
       $('#ciField').hide();
+      $('#ci').removeAttr('required');
       $('#rutField').show();
+      $('#razonSocialField').show();
+      $('#company_name').attr('required', true);
+      $('#rut').attr('required', true);
+      $('#ciudadAsterisk').show();
+      $('#departamentoAsterisk').show();
     }
   });
 });
+
+
+document.getElementById('guardarCliente').addEventListener('click', function (e) {
+  e.preventDefault();
+
+  // Obtener los elementos de los campos del formulario
+  const nombre = document.getElementById('ecommerce-customer-add-name');
+  const apellido = document.getElementById('ecommerce-customer-add-lastname');
+  const tipo = document.querySelector('input[name="type"]:checked');  // Seleccionar el tipo de cliente (individual o company)
+  const email = document.getElementById('ecommerce-customer-add-email');
+  const ci = document.getElementById('ci');
+  const rut = document.getElementById('rut');
+  const razonSocial = document.getElementById('company_name');
+  const direccion = document.getElementById('ecommerce-customer-add-address');
+  const ciudad = document.getElementById('ecommerce-customer-add-town');
+  const departamento = document.getElementById('ecommerce-customer-add-state');
+
+  // Limpiar errores anteriores
+  clearErrors();
+
+  // Inicializar el indicador de error
+  let hasError = false;
+
+  // Validar campos obligatorios
+  if (nombre.value.trim() === '') {
+      showError(nombre, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (apellido.value.trim() === '') {
+      showError(apellido, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (email.value.trim() === '') {
+      showError(email, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (direccion.value.trim() === '') {
+      showError(direccion, 'Este campo es obligatorio');
+      hasError = true;
+  }
+
+  if (tipo.value === 'individual') {
+      // Validar CI para personas individuales
+      if (ci.value.trim() === '') {
+          showError(ci, 'Este campo es obligatorio');
+          hasError = true;
+      }
+      // Ocultar RUT y Razón Social si es individual
+      document.getElementById('rutField').style.display = 'none';
+      document.getElementById('ciField').style.display = 'block';
+  } else if (tipo.value === 'company') {
+      // Validar Razón Social y RUT para empresas
+    if (razonSocial.value.trim() === '') {
+      showError(razonSocial, 'Este campo es obligatorio');
+      hasError = true;
+    }
+
+    if (rut.value.trim() === '') {
+        // Validar solo una vez el RUT
+        if (!rut.parentElement.querySelector('.error-message')) {
+            showError(rut, 'Este campo es obligatorio');
+        }
+        hasError = true;
+    }
+
+    if (ciudad.value.trim() === '') {
+        showError(ciudad, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    if (departamento.value.trim() === '') {
+        showError(departamento, 'Este campo es obligatorio');
+        hasError = true;
+    }
+
+    // Mostrar campos RUT, Razón Social, Dirección, Ciudad y Departamento si es empresa
+    document.getElementById('rutField').style.display = 'block';
+    document.getElementById('razonSocialField').style.display = 'block';
+    document.getElementById('ciField').style.display = 'none';
+  }
+
+  if (hasError) {
+      return; // Detener la ejecución si hay errores
+  }
+
+  // Crear el objeto de datos a enviar
+  let data = {
+      name: nombre.value.trim(),
+      lastname: apellido.value.trim(),
+      type: tipo.value,
+      email: email.value.trim(),
+      address: direccion.value.trim(),
+      city: ciudad.value.trim(),
+      state: departamento.value.trim(),
+  };
+
+  if (tipo.value === 'individual') {
+      data.ci = ci.value.trim();
+  } else if (tipo.value === 'company') {
+      data.rut = rut.value.trim();
+      data.company_name = razonSocial.value.trim();
+  }
+
+  // Continuar con el envío del formulario
+  document.getElementById('eCommerceCustomerAddForm').submit();
+});
+
+function showError(input, message) {
+  const errorElement = document.createElement('small');
+  errorElement.className = 'text-danger error-message';
+  errorElement.innerText = message;
+  input.parentElement.appendChild(errorElement);
+}
+
+function clearErrors() {
+  // Eliminar solo los mensajes de error previos, no los asteriscos
+  const errors = document.querySelectorAll('.text-danger.error-message');
+  errors.forEach(error => error.remove());
+}

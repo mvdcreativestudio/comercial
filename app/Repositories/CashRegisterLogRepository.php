@@ -12,11 +12,21 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\Client;
 use App\Services\EmailService;
+use Illuminate\Support\Facades\Auth;
 
 
 
 class CashRegisterLogRepository
 {
+
+    protected $companySettings;
+
+    public function __construct($companySettings)
+    {
+        // Asigna companySettings al repositorio
+        $this->companySettings = $companySettings;
+    }
+
 
     public function hasOpenLogForUser(int $userId): ?int
     {
@@ -235,37 +245,58 @@ class CashRegisterLogRepository
     }
 
     /**
-     * Busca el ID del registro de caja dado un ID de caja registradora.
+     * Busca el ID del registro de caja dado un ID de caja registradora y devuelve el store_id.
      *
      * @param string $id
      *
-     * @return int|null
+     * @return array|null
      */
-    public function getCashRegisterLog(string $id)
+    public function getCashRegisterLogWithStore(string $id)
     {
         $openLog = CashRegisterLog::where('cash_register_id', $id)
             ->whereNull('close_time')
             ->first();
 
-        // Devuelve el ID del registro de caja si existe, de lo contrario, null
-        return $openLog ? $openLog->id : null;
+        if ($openLog) {
+            $cashRegister = $openLog->cashRegister; // Relación con CashRegister (asegúrate de tener la relación definida)
+            return [
+                'cash_register_log_id' => $openLog->id,
+                'store_id' => $cashRegister->store_id
+            ];
+        }
+
+        return null;
     }
 
+
     /**
-     * Obtiene todos los clientes.
+     * Obtiene todos los clientes según la configuración de clients_has_store.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAllClients(): \Illuminate\Database\Eloquent\Collection
     {
-        $clients = Client::select('id', 'name', 'lastname', 'ci', 'rut','type','company_name','phone','address','email')
-                     ->get()
-                     ->map(function ($client) {
-                         $client->ci = $client->ci ?? 'No CI';
-                         $client->rut = $client->rut ?? 'No RUT';
-                         return $client;
-                     });
-
-        return $clients;
+        if ($this->companySettings && $this->companySettings->clients_has_store == 1) {
+            // Filtrar los clientes que tienen el mismo store_id que el usuario autenticado
+            return Client::select('id', 'name', 'lastname', 'ci', 'rut', 'type', 'company_name', 'phone', 'address', 'email')
+                ->where('store_id', Auth::user()->store_id)  // Filtra por store_id del usuario autenticado
+                ->get()
+                ->map(function ($client) {
+                    $client->ci = $client->ci ?? 'No CI';
+                    $client->rut = $client->rut ?? 'No RUT';
+                    return $client;
+                });
+        } else {
+            // Si clients_has_store es 0, mostrar todos los clientes
+            return Client::select('id', 'name', 'lastname', 'ci', 'rut', 'type', 'company_name', 'phone', 'address', 'email')
+                ->get()
+                ->map(function ($client) {
+                    $client->ci = $client->ci ?? 'No CI';
+                    $client->rut = $client->rut ?? 'No RUT';
+                    return $client;
+                });
+        }
     }
+
+
 }

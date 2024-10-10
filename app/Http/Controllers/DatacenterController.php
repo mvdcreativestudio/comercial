@@ -26,9 +26,9 @@ class DatacenterController extends Controller
         // Obtén el rango de fechas basado en el periodo seleccionado
         list($startDate, $endDate) = $this->datacenterRepo->getDateRange($period, $startDate, $endDate);
 
-        // Verifica si el usuario tiene el permiso para ver todas las tiendas
+        // Verifica si el usuario tiene el permiso para ver todas las empresa
         if (!auth()->user()->can('view_all_datacenter')) {
-            // Si no tiene permiso, filtra por la tienda asignada al usuario
+            // Si no tiene permiso, filtra por la empresa asignada al usuario
             $storeIdForView = auth()->user()->store_id;
         }
 
@@ -36,7 +36,7 @@ class DatacenterController extends Controller
         $storesCount = $this->datacenterRepo->countStores();
         $registredClients = $this->datacenterRepo->countClients($startDate, $endDate, $storeIdForView);
         $productsCount = $this->datacenterRepo->countProducts($startDate, $endDate, $storeIdForView);
-        $categoriesCount = $this->datacenterRepo->countCategories();
+        $categoriesCount = $this->datacenterRepo->countCategories($storeIdForView);
         $ordersCount = $this->datacenterRepo->countOrders($startDate, $endDate, $storeIdForView);
 
         // Ingresos

@@ -22,6 +22,17 @@
 @endsection
 
 @section('content')
+
+@php
+    // Recuperar el ID de la tienda desde la sesión
+    $store_id = session('store.id');
+@endphp
+
+<script>
+    // Define el store_id en JavaScript desde la sesión de Laravel
+    const storeId = "{{ session('store.id') }}";
+</script>
+
 <div class="video-container">
   <video autoplay muted loop id="myVideo" class="video-background">
     <source src="./assets/img/videos/back-chelato.mp4" type="video/mp4">
@@ -80,6 +91,7 @@
         </div>
       </form>
     @endif
+
     <form action="{{ route('checkout.store') }}" id="checkout-form" method="POST">
       @csrf
 
@@ -87,6 +99,7 @@
       <input type="hidden" name="estimate_id" id="estimateIdInput" value="">
       <input type="hidden" name="city" id="city" />
       <input type="hidden" name="department" id="department" />
+      <input type="hidden" name="store_id" id="storeId" value="{{ $store_id }}" />
 
       <div class="card px-3">
         <div class="row">
@@ -370,9 +383,31 @@ document.querySelectorAll('input[name="payment_method"]').forEach((elem) => {
     });
 });
 
+
+
+
+async function getPedidosYaApiKey(storeId) {
+    try {
+        const response = await fetch(`/api/get-pedidosya-key/${storeId}`);
+        const data = await response.json();
+        return data.api_key;
+    } catch (error) {
+        console.error('Error fetching API key:', error);
+        return null;
+    }
+}
+
 document.getElementById('validate-address').addEventListener('click', async function(event) {
   if (document.getElementById('customRadioPedidosYa').checked) {
     event.preventDefault();
+
+    // Utiliza la variable JavaScript storeId directamente
+    const apiKey = await getPedidosYaApiKey(storeId)
+    if (!apiKey) {
+        alert('Error al obtener la API Key de PedidosYa.');
+        return;
+    }
+
 
     const googleMapsApiKey = '{{ $googleMapsApiKey }}';
     const referenceId = 'Chelato_PeYa_REF-' + Date.now();
@@ -431,6 +466,7 @@ document.getElementById('validate-address').addEventListener('click', async func
     });
 
     var requestData = {
+      store_id: storeId, // Asegúrate de incluir store_id
       referenceId: referenceId,
       items: items,
       isTest: true,
@@ -449,40 +485,51 @@ document.getElementById('validate-address').addEventListener('click', async func
       }]
     };
 
-    fetch('api/pedidos-ya/estimate-order', {
+    fetch('/api/pedidos-ya/estimate-order', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestData)
-    }).then(response => response.json())
-      .then(data => {
-        if (data.status == 400) {
-          handleApiReturns(data.code, data.status);
-        } else {
-          if (data.estimateId) {
-            handleApiReturns('Tu envío fue calculado con éxito.', 200);
+    })
+    .then(response => {
+      if (!response.ok) {
+        // Manejo del error
+        throw new Error('Network response was not ok: ' + response.statusText);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.status == 400) {
+        handleApiReturns(data.code, data.status);
+      } else {
+        if (data.estimateId) {
+          handleApiReturns('Tu envío fue calculado con éxito.', 200);
 
-            // Habilita el botón de confirmar pedido
-            document.getElementById('orderConfirm').removeAttribute('disabled');
+          // Habilita el botón de confirmar pedido
+          document.getElementById('orderConfirm').removeAttribute('disabled');
 
-            // Actualiza el costo de envío en el input hidden
-            document.getElementById('shippingCostInput').value = data.deliveryOffers[0].pricing.total;
+          // Actualiza el costo de envío en el input hidden
+          document.getElementById('shippingCostInput').value = data.deliveryOffers[0].pricing.total;
 
-            // Actualiza el id de la estimación
-            document.getElementById('estimateIdInput').value = data.estimateId;
+          // Actualiza el id de la estimación
+          document.getElementById('estimateIdInput').value = data.estimateId;
 
-            // Actualiza el costo de envío
-            document.getElementById('orderShippingCost').innerText = '{{ $settings->currency_symbol }}' + data.deliveryOffers[0].pricing.total;
+          // Actualiza el costo de envío
+          document.getElementById('orderShippingCost').innerText = '$' + data.deliveryOffers[0].pricing.total;
 
-            // Actualiza el total
-            document.getElementById('orderTotal').innerText = '{{ $settings->currency_symbol }}' + (parseFloat(data.deliveryOffers[0].pricing.total) + parseFloat('{{ $subtotal }}' - '{{ $discount }}'));
-          }
+          // Actualiza el total
+          document.getElementById('orderTotal').innerText = '$' + (parseFloat(data.deliveryOffers[0].pricing.total) + parseFloat('200' - '0'));
         }
-      })
-      .catch(error => {
-        console.log('Error:', error);
-      });
+        else {
+          handleApiReturns('Hubo un error al calcular el envío.');
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+
 
     function handleApiReturns(returnMessage, status = 400) {
       const alertDiv = document.getElementById('alert-container-location');

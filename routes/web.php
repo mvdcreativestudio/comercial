@@ -1,57 +1,69 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AccountingController;
+
+use App\Http\Controllers\CartController;
+
+use App\Http\Controllers\CashRegisterController;
+
+use App\Http\Controllers\CashRegisterLogController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CompanySettingsController;
+use App\Http\Controllers\CompositeProductController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\CrmController;
+use App\Http\Controllers\CurrentAccountClientSaleController;
+use App\Http\Controllers\CurrentAccountClientSalePaymentController;
+use App\Http\Controllers\CurrentAccountSupplierPurchaseController;
+use App\Http\Controllers\CurrentAccountSupplierPurchasePaymentController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DatacenterController;
+use App\Http\Controllers\EcommerceController;
+use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\EntryAccountController;
+use App\Http\Controllers\EntryController;
+use App\Http\Controllers\EntryDetailController;
+use App\Http\Controllers\EntryTypeController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpensePaymentMethodController;
+use App\Http\Controllers\IncomeClientController;
+use App\Http\Controllers\IncomeSupplierController;
+use App\Http\Controllers\InvoiceController;use App\Http\Controllers\language\LanguageController;
+use App\Http\Controllers\MercadoPagoController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OmnichannelController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderPdfController;
+use App\Http\Controllers\PosOrderController;
+use App\Http\Controllers\ProductCategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\RawMaterialController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierOrderController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use App\Http\Controllers\language\LanguageController;
-use App\Http\Controllers\{
-    DashboardController,
-    AccountingController,
-    CartController,
-    CheckoutController,
-    ClientController,
-    CrmController,
-    EcommerceController,
-    InvoiceController,
-    OmnichannelController,
-    OrderController,
-    ProductCategoryController,
-    ProductController,
-    RawMaterialController,
-    RoleController,
-    StoreController,
-    SupplierController,
-    SupplierOrderController,
-    WhatsAppController,
-    CouponController,
-    CompanySettingsController,
-    DatacenterController,
-    MercadoPagoController,
-    EmailTemplateController,
-    NotificationController,
-    OrderPdfController,
-    ProductionController,
-    CashRegisterController,
-    CashRegisterLogController,
-    PosOrderController,
-    UserController,
-
-};
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-  if (Auth::check()) {
-      // Si el usuario está autenticado
-      if (Gate::allows('access_open_close_stores')) {
-          // Si el usuario tiene el permiso `access_open_close_stores`
-          return redirect()->route('dashboard');
-      } else {
-          // Si el usuario no tiene el permiso `access_open_close_stores`
-          return redirect()->route('pdv.front');
-      }
-  } else {
-      // Si el usuario no está autenticado, redirigir al login
-      return redirect()->route('login');
-  }
+    if (Auth::check()) {
+        // Si el usuario está autenticado
+        if (Gate::allows('access_open_close_stores')) {
+            // Si el usuario tiene el permiso `access_open_close_stores`
+            return redirect()->route('dashboard');
+        } else {
+            // Si el usuario no tiene el permiso `access_open_close_stores`
+            return redirect()->route('pdv.front');
+        }
+    } else {
+        // Si el usuario no está autenticado, redirigir al login
+        return redirect()->route('login');
+    }
 })->name('home');
 
 // Middleware de autenticación y verificación de email
@@ -74,8 +86,49 @@ Route::middleware([
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-    Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
+    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/composite-products/datatable', [CompositeProductController::class, 'datatable'])->name('composites.datatable');
 
+    Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
+    Route::get('/expenses/datatable', [ExpenseController::class, 'datatable'])->name('expenses.datatable');
+    Route::get('/expense-payment-methods/datatable/{id}', [ExpensePaymentMethodController::class, 'datatable'])->name('expense-payment-methods.datatable');
+    Route::get('/entries/datatable', [EntryController::class, 'datatable'])->name('entries.datatable');
+    Route::get('/entry-details/datatable/{id}', [EntryDetailController::class, 'datatable'])->name('entry-details.datatable');
+    Route::get('/entry-types/datatable', [EntryTypeController::class, 'datatable'])->name('entry-types.datatable');
+    Route::get('/entry-accounts/datatable', [EntryAccountController::class, 'datatable'])->name('entry-accounts.datatable');
+    Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
+    Route::get('/invoices/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('accounting.receivedCfesData');
+    Route::get('/current-account-clients/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
+    // suppliers
+    Route::get('/current-account-suppliers/datatable', [CurrentAccountSupplierPurchaseController::class, 'datatable'])->name('current-account-suppliers.datatable');
+    Route::get('/incomes-clients/datatable', [IncomeClientController::class, 'datatable'])->name('income-clients.datatable');
+    Route::get('/incomes-suppliers/datatable', [IncomeSupplierController::class, 'datatable'])->name('income-suppliers.datatable');
+    // Stock de productos
+    Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
+
+    // Exportaciones
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
+    Route::get('/products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
+
+
+    // Importaciones Bulk
+    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
+
+
+    // Exportaciones
+    Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
+
+    // Importaciones Bulk
+    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
+
+
+
+    Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
+    Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
+
+    Route::get('/products/add', [ProductController::class, 'addBulk'])->name('products.addBulk');
+    Route::post('/products/add', [ProductController::class, 'storeBulk'])->name('products.storeBulk');
 
     // Recursos con acceso autenticado
     Route::resources([
@@ -95,9 +148,20 @@ Route::middleware([
         'productions' => ProductionController::class,
         'points-of-sales' => CashRegisterController::class,
         'pos-orders' => PosOrderController::class,
+        'composite-products' => CompositeProductController::class,
+        'expenses' => ExpenseController::class,
+        'expense-payment-methods' => ExpensePaymentMethodController::class,
+        'entries' => EntryController::class,
+        'entry-details' => EntryDetailController::class,
+        'entry-types' => EntryTypeController::class,
+        'entry-accounts' => EntryAccountController::class,
+        'current-account-client-sales' => CurrentAccountClientSaleController::class,
+        'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
+        'current-account-supplier-purs' => CurrentAccountSupplierPurchaseController::class,
+        'current-account-supplier-pays' => CurrentAccountSupplierPurchasePaymentController::class,
+        'incomes-clients' => IncomeClientController::class,
+        'incomes-suppliers' => IncomeSupplierController::class,
     ]);
-
-
 
     // Puntos de venta
 
@@ -113,7 +177,6 @@ Route::middleware([
     Route::get('/pdv/front', [CashRegisterLogController::class, 'front'])->name('pdv.front');
     Route::get('/pdv/front2', [CashRegisterLogController::class, 'front2'])->name('pdv.front2');
 
-
     // Productos para caja registradora
     Route::get('/pdv/products/{id}', [CashRegisterLogController::class, 'getProductsByCashRegister']);
     Route::get('/pdv/flavors', [CashRegisterLogController::class, 'getFlavorsForCashRegister']);
@@ -128,7 +191,6 @@ Route::middleware([
     Route::get('/pdv/client-session', [CashRegisterLogController::class, 'getClient']);
     Route::get('/pdv/storeid-session', [CashRegisterLogController::class, 'getStoreId']);
 
-
     // Datacenter
     Route::get('/datacenter-sales', [DatacenterController::class, 'sales'])->name('datacenter.sales');
     Route::get('/api/monthly-income', [DatacenterController::class, 'monthlyIncome']);
@@ -137,13 +199,16 @@ Route::middleware([
     Route::get('/datacenter/payment-methods', [DatacenterController::class, 'paymentMethodsData'])->name('datacenter.paymentMethodsData');
     Route::get('/datacenter/sales-by-seller', [DatacenterController::class, 'salesBySellerData'])->name('datacenter.salesBySellerData');
 
-
+    Route::get('/api/monthly-expenses', [DatacenterController::class, 'monthlyExpenses'])->name('datacenter.monthlyExpenses');
 
     // Gestión de Productos
     Route::get('products/{id}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::post('products/{id}/switchStatus', [ProductController::class, 'switchStatus'])->name('products.switchStatus');
 
-    // Gestión de Tiendas
+    // Gestión de Clientes
+    Route::put('/admin/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+
+    // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {
         Route::get('manage-users', [StoreController::class, 'manageUsers'])->name('manageUsers');
         Route::get('manage-hours', [StoreController::class, 'manageHours'])->name('manageHours');
@@ -153,7 +218,7 @@ Route::middleware([
         Route::post('toggle-store-status', [StoreController::class, 'toggleStoreStatus'])->name('toggle-status');
         Route::post('toggle-store-status-closed', [StoreController::class, 'toggleStoreStatusClosed'])->name('toggleStoreStatusClosed');
         Route::post('toggle-billing', [StoreController::class, 'toggleAutomaticBilling'])->name('toggleAutomaticBilling');
-      });
+    });
 
     // Gestión de Roles
     Route::prefix('roles/{role}')->name('roles.')->group(function () {
@@ -176,12 +241,14 @@ Route::middleware([
     // CRM y Contabilidad
     Route::get('crm', [CrmController::class, 'index'])->name('crm');
     Route::get('receipts', [AccountingController::class, 'receipts'])->name('receipts');
-    Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
+    // Route::get('entries', [AccountingController::class, 'entries'])->name('entries');
     Route::get('entrie', [AccountingController::class, 'entrie'])->name('entrie');
     Route::get('invoices', [AccountingController::class, 'getSentCfes'])->name('invoices');
     Route::post('invoices/{invoice}/emit-note', [AccountingController::class, 'emitNote'])->name('invoices.emitNote');
     Route::get('invoices/download/{id}', [AccountingController::class, 'downloadCfePdf'])->name('invoices.download');
-    route::post('invoices/{invoice}/emit-receipt', [AccountingController::class, 'emitReceipt'])->name('invoices.emitReceipt');
+    Route::post('invoices/{invoice}/emit-receipt', [AccountingController::class, 'emitReceipt'])->name('invoices.emitReceipt');
+    Route::post('invoices/update-cfes', [AccountingController::class, 'updateAllCfesStatus'])->name('invoices.updateCfes');
+    Route::post('invoices/update-all-cfes', [AccountingController::class, 'updateAllCfesStatusForAllStores'])->name('invoices.updateAllStoresCfes');
 
     Route::get('received-cfes', [AccountingController::class, 'receivedCfes'])->name('accounting.received_cfes');
 
@@ -198,6 +265,8 @@ Route::middleware([
     Route::post('/email-templates/update/{templateId?}', [EmailTemplateController::class, 'update'])->name('email-templates.update');
     Route::post('/upload-image', [EmailTemplateController::class, 'uploadImage'])->name('upload-image');
 
+    // EXCEL ORDERS
+    Route::get('/orders-export-excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
     // Gestión de Ordenes
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
@@ -210,9 +279,9 @@ Route::middleware([
     Route::get('get-coupon/{id}', [CouponController::class, 'getCouponByName'])->name('coupons.getCouponByName');
 
     // Gestión de categorías
-    Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class,'deleteSelected'])-> name('categories.deleteSelected');
-    Route::post('product-categories/{id}/update-selected',[ProductCategoryController::class,'updateSelected'])-> name('categories.updateSelected');
-    Route::get('product-categories/{id}/get-selected',[ProductCategoryController::class,'getSelected'])-> name('categories.getSelected');
+    Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class, 'deleteSelected'])->name('categories.deleteSelected');
+    Route::post('product-categories/{id}/update-selected', [ProductCategoryController::class, 'updateSelected'])->name('categories.updateSelected');
+    Route::get('product-categories/{id}/get-selected', [ProductCategoryController::class, 'getSelected'])->name('categories.getSelected');
 
     // Edición de Variaciones
     Route::get('/flavors/{id}', [ProductController::class, 'editFlavor'])->name('flavors.edit');
@@ -243,8 +312,91 @@ Route::middleware([
 
     // Producciones
     Route::group(['prefix' => 'productions'], function () {
-      Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
-      Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+        Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
+        Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+    });
+
+    // Productos compuestos
+    Route::group(['prefix' => 'composite-products'], function () {
+        Route::get('/{compositeProduct}/details', [CompositeProductController::class, 'details'])->name('composite-products.details');
+        Route::post('/delete-multiple', [CompositeProductController::class, 'deleteMultiple'])->name('composite-products.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Clientes
+    Route::group(['prefix' => 'current-account-client-sales'], function () {
+        Route::post('/delete-multiple', [CurrentAccountClientSaleController::class, 'deleteMultiple'])->name('current-account-client-sales.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Clientes Pagos
+    Route::group(['prefix' => 'current-account-client-payments'], function () {
+        // add payment and show form with id param
+        Route::get('/{currentAccountId}/add-payment', [CurrentAccountClientSalePaymentController::class, 'create'])->name('current-account-client-payments.create');
+
+        // edit payment
+        Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountClientSalePaymentController::class, 'edit'])->name('current-account-client-payments.edit');
+
+        Route::post('/delete-multiple', [CurrentAccountClientSalePaymentController::class, 'deleteMultiple'])->name('current-account-client-payments.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Proveedores
+    Route::group(['prefix' => 'current-account-supplier-purs'], function () {
+        Route::post('/delete-multiple', [CurrentAccountSupplierPurchaseController::class, 'deleteMultiple'])->name('current-account-supplier-purchases.deleteMultiple');
+    });
+
+    // Cuentas Corrientes Proveedores Pagos
+
+    Route::group(['prefix' => 'current-account-supplier-pays'], function () {
+        // add payment and show form with id param
+        Route::get('/{currentAccountId}/add-payment', [CurrentAccountSupplierPurchasePaymentController::class, 'create'])->name('current-account-supplier-pays.create');
+
+        // edit payment
+        Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountSupplierPurchasePaymentController::class, 'edit'])->name('current-account-supplier-pays.edit');
+
+        Route::post('/delete-multiple', [CurrentAccountSupplierPurchasePaymentController::class, 'deleteMultiple'])->name('current-account-supplier-pays.deleteMultiple');
+    });
+
+    // Gastos
+    Route::group(['prefix' => 'expenses'], function () {
+        // show
+        // Route::get('/{expense}/show', [ExpenseController::class, 'show'])->name('expenses.show');
+        Route::post('/delete-multiple', [ExpenseController::class, 'deleteMultiple'])->name('expenses.deleteMultiple');
+    });
+
+    // Métodos de Pago de Gastos
+    Route::group(['prefix' => 'expense-payment-methods'], function () {
+        // show
+        Route::get('/{expense}/detail', [ExpensePaymentMethodController::class, 'detail'])->name('expense-payment-methods.show');
+        // delete multiple
+        Route::post('/delete-multiple', [ExpensePaymentMethodController::class, 'deleteMultiple'])->name('expense-payment-methods.deleteMultiple');
+        // Route::get('/{expensePaymentMethod}/edit', [ExpensePaymentMethodController::class, 'edit'])->name('expense-payment-methods.edit');
+        // Route::post('/{expensePaymentMethod}/update', [ExpensePaymentMethodController::class, 'update'])->name('expense-payment-methods.update');
+        // Route::post('/{expensePaymentMethod}/delete', [ExpensePaymentMethodController::class, 'destroy'])->name('expense-payment-methods.delete');
+    });
+
+    // Asientos Contables
+    Route::group(['prefix' => 'entries'], function () {
+        Route::get('/{entry}/detail', [EntryController::class, 'detail'])->name('entries.show');
+        Route::post('/delete-multiple', [EntryController::class, 'deleteMultiple'])->name('entries.deleteMultiple');
+    });
+
+    // Tipos de Asientos Contables
+    Route::group(['prefix' => 'entry-types'], function () {
+        Route::post('/delete-multiple', [EntryTypeController::class, 'deleteMultiple'])->name('entry-types.deleteMultiple');
+    });
+
+    // Cuentas Contables
+    Route::group(['prefix' => 'entry-accounts'], function () {
+        Route::post('/delete-multiple', [EntryAccountController::class, 'deleteMultiple'])->name('entry-accounts.deleteMultiple');
+    });
+
+    // Ingresos de Clientes
+    Route::group(['prefix' => 'incomes-clients'], function () {
+        Route::post('/delete-multiple', [IncomeClientController::class, 'deleteMultiple'])->name('income-clients.deleteMultiple');
+    });
+
+    // Ingresos de Proveedores
+    Route::group(['prefix' => 'incomes-suppliers'], function () {
+        Route::post('/delete-multiple', [IncomeSupplierController::class, 'deleteMultiple'])->name('income-suppliers.deleteMultiple');
     });
 });
 
@@ -253,12 +405,11 @@ Route::resources([
     'checkout' => CheckoutController::class,
 ]);
 
-
 // E-Commerce
 // Route::get('/', [EcommerceController::class, 'home'])->name('home');
 Route::get('shop', [EcommerceController::class, 'index'])->name('shop'); //
-Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Tienda
-Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Tienda en el Carrito
+Route::get('store/{slug}', [EcommerceController::class, 'store'])->name('store'); // Empresa
+Route::post('/cart/select-store', [CartController::class, 'selectStore'])->name('cart.selectStore'); // Seleccionar Empresa en el Carrito
 Route::post('/cart/remove-item', [CartController::class, 'removeItem'])->name('cart.removeItem'); // Eliminar del Carrito
 Route::get('/checkout/{orderId}/payment', [CheckoutController::class, 'payment'])->name('checkout.payment'); // Pago de Orden
 Route::get('/checkout/success/{order:uuid}', [CheckoutController::class, 'success'])->name('checkout.success'); // Pago Exitoso
@@ -266,10 +417,10 @@ Route::get('/checkout/pending/{order:uuid}', [CheckoutController::class, 'pendin
 Route::get('/checkout/failure/{order:uuid}', [CheckoutController::class, 'failure'])->name('checkout.failure'); // Pago Fallido
 Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('apply.coupon'); // Aplicar Cupón
 
-// Rutas de autenticación de Tienda Abierta
+// Rutas de autenticación de Empresa Abierta
 Route::middleware(['check.store.open'])->group(function () {
-  Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
-  // Otras rutas que deben estar protegidas
+    Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
+    // Otras rutas que deben estar protegidas
 });
 
 // MercadoPago WebHooks
@@ -286,4 +437,3 @@ Route::post('/notifications/read', [NotificationController::class, 'markAsRead']
 
 // Sesión
 Route::get('/session/clear', [CartController::class, 'clearSession'])->name('session.clear'); // Limpiar Sesión
-

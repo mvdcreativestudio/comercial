@@ -21,11 +21,20 @@ $(function () {
           url: 'orders/datatable',
           data: function (d) {
             d.store_id = $('select[name="store_id"]').val(); // Añadir store_id a la petición
+            d.start_date = $('#startDate').val(); // Captura la fecha desde
+            d.end_date = $('#endDate').val(); // Captura la fecha hasta
           }
         },
         columns: [
           { data: 'id', type: 'num' },
-          { data: 'date' },
+          {
+            data: 'date',
+            type: 'datetime', // Definir explícitamente como datetime
+            render: function (data, type, full, meta) {
+              // Usar tanto la fecha (data) como la hora (full['time']) para el renderizado
+              return moment(data + ' ' + full['time']).locale('es').format('DD/MM/YY - hh:mm a'); // Combina fecha y hora
+            }
+          },
           { data: 'client_name' },
           { data: 'store_name' },
           { data: 'total' },
@@ -33,7 +42,7 @@ $(function () {
           { data: 'is_billed' },
           { data: '' }
         ],
-        order: [[1, 'desc']],
+        order: [[0, 'desc']],  // Ordenar por la columna de fecha de manera descendente
         columnDefs: [
           {
             targets: 0, // Enlazar el ID del pedido
@@ -41,47 +50,6 @@ $(function () {
             render: function (data, type, full, meta) {
               var uuid = full['uuid'];
               return '<a class="text-muted" href="' + baseUrl + 'admin/orders/' + uuid + '/show">#' + data + '</a>';
-            }
-          },
-          {
-            targets: 1,
-            render: function (data, type, full, meta) {
-              var date = moment(data).locale('es').format('DD/MM/YY');
-              var time = moment(full['time'], 'HH:mm:ss').format('hh:mm a');
-              return date + ' - ' + time;
-            }
-          },
-          {
-            targets: 2,
-            render: function (data, type, full, meta) {
-              var $name = full['client_name'],
-                $email = full['client_email'],
-                $initials = $name.replace(/[^A-Z]/g, '').substring(0, 2),
-                stateNum = Math.floor(Math.random() * 6),
-                states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'],
-                $state = states[stateNum];
-
-              return (
-                '<div class="d-flex justify-content-start align-items-center">' +
-                '<div class="avatar me-2"><span class="avatar-initial rounded-circle bg-label-' +
-                $state +
-                '">' +
-                $initials +
-                '</span></div>' +
-                '<div class="d-flex flex-column">' +
-                '<a href="' +
-                baseUrl +
-                'admin/orders/' +
-                full['uuid'] +
-                '/show" class="text-body"><h6 class="mb-0">' +
-                $name +
-                '</h6></a>' +
-                '<small class="text-muted">' +
-                $email +
-                '</small>' +
-                '</div>' +
-                '</div>'
-              );
             }
           },
           {
@@ -101,7 +69,6 @@ $(function () {
           {
             targets: 6, // Columna para mostrar si ha sido facturado
             render: function (data, type, full, meta) {
-              console.log(full);
               return data
                 ? '<span class="badge bg-success">Facturado</span>'
                 : '<span class="badge bg-danger">No Facturado</span>';
@@ -139,6 +106,7 @@ $(function () {
           '<"col-sm-12 col-md-6"i>' +
           '<"col-sm-12 col-md-6"p>' +
           '>',
+
         lengthMenu: [10, 25, 50, 100],
         language: {
           search: '',
@@ -156,16 +124,112 @@ $(function () {
           emptyTable: 'No hay pedidos disponibles',
           dom: 'Bfrtip',
           renderer: 'bootstrap'
+        },
+        initComplete: function () {
+          // Filtros personalizados para Cliente
+          this.api()
+            .columns(2) // Columna de cliente
+            .every(function () {
+              var column = this;
+              // Crear el select para el filtro de clientes
+              var select = $('<select class="form-select"><option value="">Todos los clientes</option></select>')
+                .appendTo('.client_filter')
+                .on('change', function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? val : '', true, false).draw();
+                });
+
+              // Poblar el select con los valores únicos de la columna de clientes
+              column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  select.append(`<option value="${d}">${d}</option>`);
+                });
+            });
+
+          // Filtros personalizados para Empresa
+          this.api()
+            .columns(3)
+            .every(function () {
+              var column = this;
+              var select = $('<select class="form-select"><option value="">Todas las empresas</option></select>')
+                .appendTo('.company_filter')
+                .on('change', function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? `^${val}$` : '', true, false).draw();
+                });
+
+              column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  select.append(`<option value="${d}">${d}</option>`);
+                });
+            });
+
+          // Filtros personalizados para Estado de Pago
+          this.api()
+            .columns(5)
+            .every(function () {
+              var column = this;
+              var select = $(
+                '<select class="form-select"><option value="">Todos los pagos</option><option value="PAGO">Pagado</option><option value="PENDIENTE">Pendiente</option><option value="FALLIDO">Fallido</option></select>'
+              )
+                .appendTo('.payment_filter')
+                .on('change', function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? `^${val}$` : '', true, false).draw();
+                });
+            });
+
+          // Filtros personalizados para Facturado
+          this.api()
+            .columns(6) // Columna 6 es la que contiene el estado de facturación
+            .every(function () {
+              var column = this;
+              var select = $(
+                '<select class="form-select">' +
+                  '<option value="">Todos</option>' +
+                  '<option value="Facturado">Facturado</option>' +
+                  '<option value="No Facturado">No Facturado</option>' +
+                  '</select>'
+              )
+                .appendTo('.billed_filter') // Añade el filtro a la clase .billed_filter
+                .on('change', function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                  column.search(val ? `^${val}$` : '', true, false).draw();
+                });
+            });
         }
       });
+
+      // Eliminar filtros de búsqueda
+      $(document).on('click', '#clear-filters', function () {
+        $('.client_filter select').val('').trigger('change');
+        $('.company_filter select').val('').trigger('change');
+        $('.payment_filter select').val('').trigger('change');
+        $('.billed_filter select').val('').trigger('change');
+        $('#startDate').val('');
+        $('#endDate').val('');
+        dt_products.search('').draw();
+      });
+
+      // Filtrar por fechas
+      $('#startDate, #endDate').on('change', function () {
+        dt_products.ajax.reload();
+      });
+
+      // Estilos buscador y paginación
+      $('.dataTables_length label select').addClass('form-select form-select-sm');
+      $('.dataTables_filter label input').addClass('form-control');
 
       $('.toggle-column').on('change', function () {
         var column = dt_products.column($(this).attr('data-column'));
         column.visible(!column.visible());
       });
-      // Estilos buscador y paginación
-      $('.dataTables_length label select').addClass('form-select form-select-sm');
-      $('.dataTables_filter label input').addClass('form-control');
 
       $('.datatables-order tbody').on('click', '.delete-record', function () {
         var recordId = $(this).data('id');
@@ -188,7 +252,11 @@ $(function () {
               },
               success: function (result) {
                 if (result.success) {
-                  Swal.fire('Eliminado!', 'El pedido ha sido eliminado.', 'success');
+                  Swal.fire(
+                    'Eliminado!',
+                    'El pedido ha sido eliminado y el stock de los productos ha sido reintegrado.',
+                    'success'
+                  );
                   dt_products.ajax.reload(null, false); // Recarga la tabla sin resetear la paginación
                 } else {
                   Swal.fire('Error!', 'No se pudo eliminar el pedido. Intente de nuevo.', 'error');
@@ -200,6 +268,45 @@ $(function () {
             });
           }
         });
+      });
+
+      $('#export-excel').on('click', function () {
+        // Capturar los valores de los filtros
+        let client = $('.client_filter select').val();
+        let company = $('.company_filter select').val();
+        let payment = $('.payment_filter select').val();
+        let billed = $('.billed_filter select').val();
+        let startDate = $('#startDate').val();
+        let endDate = $('#endDate').val();
+
+        // Construir la URL con los parámetros válidos
+        let url = '/admin/orders-export-excel?';
+        let params = [];
+
+        if (client) {
+          params.push(`client=${encodeURIComponent(client)}`);
+        }
+        if (company) {
+          params.push(`company=${encodeURIComponent(company)}`);
+        }
+        if (payment) {
+          params.push(`payment=${encodeURIComponent(payment)}`);
+        }
+        if (billed) {
+          params.push(`billed=${encodeURIComponent(billed)}`);
+        }
+        if (startDate) {
+          params.push(`start_date=${encodeURIComponent(startDate)}`);
+        }
+        if (endDate) {
+          params.push(`end_date=${encodeURIComponent(endDate)}`);
+        }
+
+        // Unir los parámetros a la URL
+        url += params.join('&');
+
+        // Redirigir a la ruta para exportar, abriendo en una nueva pestaña
+        window.open(url, '_blank');
       });
     }
   } catch (error) {

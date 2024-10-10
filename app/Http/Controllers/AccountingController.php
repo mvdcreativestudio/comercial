@@ -12,6 +12,8 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\EmitNoteRequest;
 use Illuminate\Support\Facades\Log;
 use App\Models\CFE;
+use App\Models\Store;
+use Illuminate\Http\Request;
 
 class AccountingController extends Controller
 {
@@ -49,7 +51,7 @@ class AccountingController extends Controller
     */
     public function entries(): View
     {
-        return view('content.accounting.entries');
+        return view('content.accounting.entries.index');
     }
 
     /**
@@ -59,7 +61,7 @@ class AccountingController extends Controller
     */
     public function entrie(): View
     {
-        return view('content.accounting.entrie');
+        return view('content.accounting.entries.entry-details.index');
     }
 
     /**
@@ -113,7 +115,7 @@ class AccountingController extends Controller
     public function saveRut(SaveRutRequest $request): RedirectResponse
     {
         $this->accountingRepository->saveRut($request->rut);
-        return redirect()->route('accounting.settings')->with('success_rut', 'RUT guardado correctamente.');
+        return redirect()->back()->with('success_rut', 'RUT guardado correctamente.');
     }
 
     /**
@@ -124,13 +126,11 @@ class AccountingController extends Controller
     */
     public function uploadLogo(UploadLogoRequest $request): RedirectResponse
     {
-        $rut = $this->accountingRepository->getRutSetting()->settingValue;
-
-        if ($this->accountingRepository->uploadCompanyLogo($rut, $request->file('logo'))) {
-            return redirect()->route('accounting.settings')->with('success_logo', 'Logo actualizado correctamente.');
+        if ($this->accountingRepository->uploadCompanyLogo($request->store_id, $request->file('logo'))) {
+            return redirect()->back()->with('success_logo', 'Logo actualizado correctamente.');
         }
 
-        return redirect()->route('accounting.settings')->with('error_logo', 'Error al actualizar el logo.');
+        return redirect()->back()->with('error_logo', 'Error al actualizar el logo.');
     }
 
     /**
@@ -167,65 +167,6 @@ class AccountingController extends Controller
         }
     }
 
-
-    /**
-     * Muestra la vista de CFEs recibidos.
-     *
-     * @return View
-    */
-    public function receivedCfes(): View
-    {
-        // Obtener el RUT de la tienda autenticada o de otra fuente
-        $store = auth()->user()->store;
-        $rut = $store->rut;
-
-        if (!$rut) {
-            return redirect()->back()->with('error', 'No se pudo obtener el RUT de la tienda.');
-        }
-
-        try {
-            // Obtener las cookies para la autenticación
-            $cookies = $this->accountingRepository->login();
-
-            if (!$cookies) {
-                return redirect()->back()->with('error', 'Error al iniciar sesión en el servicio PyMo.');
-            }
-
-            // Obtener los recibos desde el endpoint
-            $receivedCfes = $this->accountingRepository->fetchReceivedCfes($rut, $cookies);
-
-            if (!$receivedCfes) {
-                return view('content.accounting.received_cfes', ['cfes' => []]);
-            }
-
-            // Guardar o actualizar los recibos en la base de datos
-            foreach ($receivedCfes as $receivedCfe) {
-                CFE::updateOrCreate(
-                    [
-                        'type' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['TipoCFE'],
-                        'serie' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['Serie'],
-                        'nro' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['Nro']
-                    ],
-                    [
-                        'emitionDate' => $receivedCfe['CFE']['eFact']['Encabezado']['IdDoc']['FchEmis'],
-                        'total' => $receivedCfe['CFE']['eFact']['Encabezado']['Totales']['MntTotal'],
-                        'received' => true,
-                    ]
-                );
-            }
-
-            // Obtener los CFEs actualizados de la base de datos para mostrar en la vista
-            $cfes = CFE::where('recibido', true)->get();
-
-            return view('content.accounting.received_cfes', compact('cfes'));
-
-        } catch (\Exception $e) {
-            Log::error('Error al obtener los recibos recibidos: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al obtener los recibos recibidos.');
-        }
-    }
-
-
     /**
      * Maneja la emisión de un recibo sobre una factura o eTicket existente.
      *
@@ -243,4 +184,134 @@ class AccountingController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+    /**
+      * Maneja la llegada de un webhook de PyMo.
+      *
+      * @param Request $request
+      * @return void
+    */
+    public function webhook(Request $request): void
+    {
+        $data = $request->all(); // Obtener los datos del webhook
+
+        Log::info('Recibiendo webhook');
+
+        $type = $data['type']; // Obtener el tipo de webhook
+        $urlToCheck = $data['url_to_check']; // Obtener la URL a la que hacer la petición
+
+        switch ($type) { // Según el tipo de webhook
+            case 'CFE_STATUS_CHANGE': // Si es un cambio de estado de CFE
+                // Extraer el RUT y la sucursal usando expresiones regulares
+                preg_match('/\/companies\/(\d+)\/sentCfes\/(\d+)/', $urlToCheck, $matches);
+
+                if (isset($matches[1]) && isset($matches[2])) {
+                    $rut = $matches[1];         // Primer grupo de captura es el RUT
+                    $branchOffice = $matches[2]; // Segundo grupo de captura es la sucursal
+
+                    Log::info('Rut de la empresa Webhook: ' . $rut);
+                    Log::info('Branch Office Webhook: ' . $branchOffice);
+
+                    $this->accountingRepository->checkCfeStatus($rut, $branchOffice, $urlToCheck);
+                } else {
+                    Log::info('No se pudieron extraer el RUT y la sucursal de la URL.');
+                }
+                break;
+
+            default:
+                Log::info('Invalid request');
+                return;
+        }
+    }
+
+    /**
+     * Actualiza el estado de todos los CFEs para la empresa del usuario autenticado.
+     *
+     * @return JsonResponse
+    */
+    public function updateAllCfesStatus(): JsonResponse
+    {
+        try {
+            // Obtener la empresa del usuario autenticado
+            $store = auth()->user()->store;
+
+            if (!$store) {
+                return response()->json(['error' => 'No se encontró la empresa para el usuario autenticado.'], 404);
+            }
+
+            // Llamar al método del repositorio para actualizar los CFEs
+            $this->accountingRepository->updateAllCfesForStore($store);
+
+            return response()->json(['success' => 'Los estados de los CFEs se han actualizado correctamente.']);
+        } catch (\Exception $e) {
+            Log::error('Excepción al actualizar los CFEs: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al actualizar los CFEs.'], 500);
+        }
+    }
+
+    /**
+     * Actualiza el estado de todos los CFE's para todas las empresas.
+     *
+     * @return JsonResponse
+    */
+    public function updateAllCfesStatusForAllStores(): JsonResponse
+    {
+        try {
+            $this->accountingRepository->updateAllCfesStatusForAllStores();
+
+            return response()->json(['success' => 'Los estados de los CFEs se han actualizado correctamente.']);
+        } catch (\Exception $e) {
+            Log::error('Excepción al actualizar los CFEs: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al actualizar los CFEs.'], 500);
+        }
+    }
+
+    /**
+     * Muestra la vista de CFEs recibidos.
+     *
+     * @return RedirectResponse | View
+    */
+    public function receivedCfes(): RedirectResponse | View
+    {
+        $store = auth()->user()->store;
+
+        if (!$store) {
+            return redirect()->back()->with('error', 'No se encontró la empresa para el usuario autenticado.');
+        }
+
+        try {
+            $cfes = $this->accountingRepository->processReceivedCfes($store);
+
+            if (!$cfes) {
+                return redirect()->back()->with('error', 'No se encontraron CFE recibidos.');
+            }
+
+            return view('content.accounting.received_cfes', compact('cfes'));
+        } catch (\Exception $e) {
+            Log::error('Error al obtener los CFE recibidos: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al obtener los CFE recibidos.');
+        }
+    }
+
+    /**
+     * Obtiene los datos de los CFEs recibidos para la tabla en formato JSON.
+     *
+     * @return JsonResponse
+    */
+    public function getReceivedCfesData(): JsonResponse
+    {
+        try {
+            // Obtener la empresa del usuario autenticado
+            $store = auth()->user()->store;
+
+            // Obtener los datos formateados para la DataTable
+            $receivedCfesData = $this->accountingRepository->getReceivedCfesDataForDatatables($store);
+
+            // Retornar la respuesta en formato JSON para la DataTable
+            return DataTables::of($receivedCfesData)->make(true);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener los datos de los CFEs recibidos para la DataTable: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al obtener los datos de los CFEs recibidos.'], 500);
+        }
+  }
 }

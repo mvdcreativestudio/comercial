@@ -43,6 +43,15 @@ class Client extends Model
         return $this->hasMany(PosOrder::class);
     }
 
+    /**
+     * Obtiene las ordenes del cliente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
 
+    public function currentAccount()
+    {
+        return $this->hasOne(CurrentAccount::class);
+    }
 
 }

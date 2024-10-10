@@ -69,12 +69,14 @@ class CreatePermissions extends Command
                     'module' => 'accounting',
                     'submenus' => [
                         'invoices',
+                        'update_all_invoices',
                         'receipts',
                         'entries',
+                        'accounting-settings',
                         'received-documents',
-                        'accounting-settings'
+                        'expenses',
                     ],
-                    'view_all' => true,
+                    'view_all' => false,
                 ],
                 [
                     'slug' => 'clients',
@@ -87,9 +89,11 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'orders',
                         'products',
-                        'product-categories',
                         'settings',
-                        'product-flavors'
+                        'product-flavors',
+                        'product-categories',
+                        'composite-products',
+                        'bulk-products',
                     ],
                     'view_all' => true,
                 ],
@@ -113,7 +117,7 @@ class CreatePermissions extends Command
                     'module' => 'marketing',
                     'submenus' => [
                         'coupons',
-                        'settings'
+                        'settings',
                     ],
                     'view_all' => false,
                 ],
@@ -122,7 +126,7 @@ class CreatePermissions extends Command
                     'module' => 'marketing',
                     'submenus' => [
                         'chats',
-                        'settings'
+                        'settings',
                     ],
                     'view_all' => false,
                 ],
@@ -139,7 +143,7 @@ class CreatePermissions extends Command
                 [
                     'slug' => 'stores',
                     'module' => 'management',
-                    'view_all' => false,
+                    'view_all' => true,
                 ],
                 [
                     'slug' => 'roles',
@@ -186,7 +190,153 @@ class CreatePermissions extends Command
                     'module' => 'orders',
                     'view_all' => true,
                 ],
-            ]
+                [
+                    'slug' => 'expenses',
+                    'module' => 'expenses',
+                    'view_all' => true,
+                    "submenus" => [
+                        "delete_expenses",
+                    ],
+                ],
+                [
+                    'slug' => 'entries',
+                    'module' => 'entries',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entries',
+                        'entry-details',
+                        'entry-types',
+                        'entry-accounts',
+                        // 'entry-currencies',
+                        // 'entry-settings',
+                    ],
+                ],
+                [
+                    'slug' => 'entry-details',
+                    'module' => 'accounting',
+                    'view_all' => false,
+                ],
+                [
+                    'slug' => 'entry-types',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entry-types',
+                    ],
+                ],
+                [
+                    'slug' => 'entry-accounts',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_entry-accounts',
+                    ],
+                ],
+                [
+                    'slug' => 'composite-products',
+                    'module' => 'ecommerce',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_composite-products',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'current-accounts-clients',
+                        'current-accounts-suppliers',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-clients',
+                    'module' => 'current-accounts',
+                    'view_all' => false,
+                    'submenus' => [
+                        'current-accounts-clients-sales',
+                        'current-accounts-clients-payments',
+                        'current-accounts-clients-settings',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-clients-sales',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-clients-sales',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-suppliers',
+                    'module' => 'current-accounts',
+                    'view_all' => false,
+                    'submenus' => [
+                        'current-accounts-suppliers-purs',
+                        'current-accounts-suppliers-payments',
+                        'current-accounts-suppliers-settings',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-suppliers-purs',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-suppliers-purs',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-clients-payments',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-clients-payments',
+                    ],
+                ],
+                [
+                    'slug' => 'current-accounts-suppliers-payments',
+                    'module' => 'current-accounts',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_current-accounts-suppliers-payments',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'incomes-clients',
+                        'incomes-suppliers',
+                        'income-categories',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes-clients',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_incomes-clients',
+                    ],
+                ],
+                [
+                    'slug' => 'incomes-suppliers',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_incomes-suppliers',
+                    ],
+                ],
+                [
+                    'slug' => 'income-categories',
+                    'module' => 'incomes',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_income-categories',
+                    ],
+                ],
+
+            ],
         ];
 
         // Asegurar que el rol de superadmin existe
@@ -212,7 +362,7 @@ class CreatePermissions extends Command
     {
         // Crear o buscar el permiso base y asignar el módulo
         $permissionName = 'access_' . $slug;
-        $permission = Permission::firstOrCreate(
+        $permission = Permission::updateOrCreate(
             ['name' => $permissionName],
             ['module' => $module]
         );

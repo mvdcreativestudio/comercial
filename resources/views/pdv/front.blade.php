@@ -9,24 +9,12 @@
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
 'resources/assets/vendor/libs/select2/select2.scss',
+'resources/assets/vendor/libs/toastr/toastr.scss',
+'resources/assets/vendor/libs/animate-css/animate.scss'
 // 'resources/assets/vendor/libs/bootstrap/bootstrap.min.css',
 // 'resources/assets/vendor/libs/fontawesome/fontawesome.min.css'
 ])
 
-<style>
-  .modal-bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%; /* Ajusta la altura según sea necesario */
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  margin: 0;
-}
-
-</style>
 @endsection
 
 @section('vendor-script')
@@ -35,7 +23,9 @@
 // 'resources/assets/vendor/libs/select2/select2.min.js',
 // 'resources/assets/vendor/libs/bootstrap/bootstrap.bundle.min.js',
 // 'resources/assets/vendor/libs/fontawesome/fontawesome.min.js',
+
 'resources/assets/vendor/libs/select2/select2.js',
+'resources/assets/vendor/libs/toastr/toastr.js',
 'resources/assets/js/pdv.js'
 ])
 
@@ -58,25 +48,34 @@ $currencySymbol = $settings->currency_symbol;
 <div class="container-fluid">
   <div id="errorContainer" class="alert alert-danger d-none" role="alert"></div>
   <div class="row">
-    <div class="col-12">
-      <h2 class="mb-4 text-center text-md-start">Punto de Venta</h2>
+    <div class="col-12 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <h2 class="text-center text-md-start mb-2 mb-md-0">Punto de Venta</h2>
+      {{-- Botón para cerrar caja --}}
+      <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger btn-sm d-flex align-items-center">
+        <i class="bx bx-lock-alt me-2"></i> Cerrar Caja
+      </button>
     </div>
 
     <div class="col-12">
       <div class="row align-items-center p-3 mb-4 card sticky-top">
-        {{-- Buscador de productos --}}
+
+        {{-- Buscador de productos y botón de cambio de vista --}}
         <div class="col-12 mb-3">
-          <div class="input-group">
+          <div class="d-flex">
             <input class="form-control" type="search" placeholder="Buscar por nombre o código" id="html5-search-input" />
-            <button class="btn btn-primary"><i class="bx bx-search-alt"></i></button>
+            <div class="ms-2">
+              {{-- Botón de cambio de vista --}}
+              <button id="toggle-view-btn" class="btn btn-outline-secondary d-flex align-items-center" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="Ver productos en lista">
+                <i class="bx bx-list-ul fs-5"></i>
+              </button>
+            </div>
           </div>
         </div>
-        {{-- Fin buscador de productos --}}
 
         {{-- Botones de acciones --}}
-        <div class="col-12 d-flex flex-column flex-md-row justify-content-md-end align-items-center">
+        <div class="col-12 d-flex flex-column flex-md-row justify-content-md-end text-end align-items-center">
           {{-- Botón de categorías --}}
-          <div class="btn-group mb-2 mb-md-0 ms-md-2">
+          {{-- <div class="btn-group mb-2 mb-md-0 ms-md-2">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="bx bx-category"></i> Categorías
             </button>
@@ -87,24 +86,15 @@ $currencySymbol = $settings->currency_symbol;
                 </div>
                 <div class="mb-2" id="category-container">
                   {{-- Aquí se cargarán las categorías dinámicamente --}}
-                </div>
+                {{-- </div>
               </form>
             </div>
-          </div>
-
-          {{-- Botón para cerrar caja --}}
-          <button type="button" id="submit-cerrar-caja" class="btn btn-outline-danger d-flex align-items-center mb-2 mb-md-0 ms-md-2">
-            <i class="bx bx-lock-alt me-2"></i> Cerrar Caja
-          </button>
-
-          {{-- Botón de cambio de vista --}}
-          <button id="toggle-view-btn" class="btn btn-outline-secondary d-flex align-items-center mb-2 mb-md-0 ms-md-2" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="left" data-bs-html="true" title="Ver productos en lista">
-            <i class="bx bx-list-ul fs-5"></i>
-          </button>
+          </div> --}}
 
           {{-- Botón para ver carrito --}}
-          <button id="view-cart-btn" class="btn btn-outline-secondary d-flex align-items-center mb-2 mb-md-0 ms-md-2 position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
-            <i class="bx bx-cart fs-5"></i>
+          <button id="view-cart-btn" class="btn btn-lg btn-success d-flex align-items-center mb-2 mb-md-5 ms-md-2 position-fixed bottom-0 end-0 m-4 mb-5" data-bs-toggle="modal" data-bs-target="#cartModal">
+            <i class="bx bx-cart fs-5 me-2"></i>
+            <a class="">Continuar</a>
             <span id="cart-count" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
           </button>
         </div>
@@ -121,54 +111,47 @@ $currencySymbol = $settings->currency_symbol;
 
 
 <!-- Modal para ver el carrito -->
-<div class="modal modal-bottom fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"> <!-- Cambiado a modal-lg para pantallas pequeñas -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-light">
-        <h5 class="modal-title" id="cartModalLabel">🛒 Carrito de Compras</h5>
+        <h5 class="modal-title" id="cartModalLabel">
+          <i class="bx bx-cart me-2"></i> Resumen de la venta
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- Contenedor dinámico de productos del carrito -->
-        <div id="cart-items" class="table-responsive"> <!-- Agregar clase table-responsive para pantallas pequeñas -->
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Producto</th>
-                <th class="text-center">Cantidad</th>
-                <th class="text-center">Precio</th>
-                <th class="text-center">Total</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="cart-items-body">
-              <!-- Aquí se agregarán los productos del carrito -->
-            </tbody>
-          </table>
+        <div id="cart-items" class="row gy-3">
+          <!-- Aquí se agregarán los productos del carrito en formato de tarjeta -->
         </div>
+
         <!-- Totales -->
-        <div class="mt-3 d-flex flex-column flex-md-row justify-content-md-end align-items-md-center">
-          <div class="mb-2 mb-md-0">
-            <span><strong>Subtotal:</strong> <span class="subtotal">$191.440,00</span></span>
+        <div class="totals-container mt-4 p-3 shadow-sm rounded bg-light d-flex flex-column align-items-end" style="max-width: 350px; margin-left: auto;">
+          <div class="totals-item d-flex justify-content-between align-items-center w-100 mb-2">
+            <h6 class="text-muted">Subtotal:</h6>
+            <h6 class="subtotal text-primary fw-bold">$770</h6>
           </div>
-          <div class="mb-2 mb-md-0 ms-md-3">
-            <span><strong>Envío:</strong> <span>$0</span></span>
-          </div>
-          <div class="border-top pt-2 ms-md-3">
-            <span><strong>Total:</strong> <span class="total">$191.440,00</span></span>
+          {{-- <div class="totals-item d-flex justify-content-between align-items-center w-100 mb-2">
+            <small class="text-muted"><i class="bx bx-package"></i> Envío:</small>
+            <small class="text-dark">$0</small>
+          </div> --}}
+          <div class="totals-item d-flex justify-content-between align-items-center w-100 border-top pt-2">
+            <h5 class="text-dark">Total:</h5>
+            <h4 class="total text-dark fw-bold">$770</h4>
           </div>
         </div>
-      </div>
-      <div class="modal-footer d-flex justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <a href="{{ route('pdv.front2') }}" class="btn btn-primary">Pagar</a>
+
+        <!-- Botón de acciones -->
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-outline-danger me-2" type="button" data-bs-dismiss="modal">Cerrar</button>
+          <a href="{{ route('pdv.front2') }}" class="btn btn-primary disabled" id="finalizarVentaBtn" aria-disabled="true" tabindex="-1">Finalizar Venta</a>
+        </div>
+
       </div>
     </div>
   </div>
 </div>
-
-
-
 
 
 <!-- Offcanvas Crear Cliente -->
