@@ -192,10 +192,10 @@
                             </div>
                             <!-- Build Price -->
                             <div class="mb-3">
-                                <label class="form-label" for="build_price">Precio de Costo</label>
+                                <label class="form-label" for="build_price">Costo</label>
                                 <input type="number" step=".01" min="0" class="form-control"
-                                    id="build_price" placeholder="Precio de Costo" name="build_price"
-                                    aria-label="Introduzca el precio de Costo" required
+                                    id="build_price" placeholder="Introduzca el costo del producto" name="build_price"
+                                    aria-label="Introduzca el costo"
                                     value="{{ $product->build_price }}">
                             </div>
                             <!-- Hidden field for disabled status -->

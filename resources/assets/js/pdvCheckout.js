@@ -277,7 +277,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
             if (responseConfig.showCloseButton) {
                 swalInstance.then(() => {
                     Swal.close();
-                    window.history.back();
                 });
             }
         }
@@ -1101,7 +1100,7 @@ $.ajax({
         enviarTransaccionPos(token);
       }).fail(function (error) {
         console.error('Error al obtener el token del POS:', error);
-      }); */
+      });*/
     }
   });
 
