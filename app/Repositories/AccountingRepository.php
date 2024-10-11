@@ -1015,7 +1015,7 @@ class AccountingRepository
         //     $exchangeRate = (float) $usdRate->sell;
         // } else {
         //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
+        // }
 
         $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
@@ -1518,7 +1518,7 @@ class AccountingRepository
               'date' => $cfe->emitionDate,
               'issuer_name' => $cfe->issuer_name ?? 'N/A',
               'type' => $typeCFEs[$cfe->type] ?? 'N/A',
-              'currency' => 'UYU',
+              'currency' => $cfe->currency,
               'total' => $cfe->total,
               'qrUrl' => $cfe->qrUrl,
               'serie' => $cfe->serie,
