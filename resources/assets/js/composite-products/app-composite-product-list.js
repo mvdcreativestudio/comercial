@@ -30,7 +30,7 @@ $(function () {
         columns: [
           { data: 'switch', orderable: false, searchable: false },
           { data: 'id', type: 'num' },
-          { data: 'title' },
+          { data: 'name' },
           { data: 'store_name' },
           { data: 'price' },
           { data: 'recommended_price' },

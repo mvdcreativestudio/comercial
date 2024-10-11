@@ -24,7 +24,7 @@ class UpdateCompositeProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric'], // Validación para el precio
             'recommended_price' => ['required', 'numeric'], // Validación para el precio recomendado

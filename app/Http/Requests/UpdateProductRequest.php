@@ -37,7 +37,7 @@ class UpdateProductRequest extends FormRequest
           'recipes.*.quantity' => 'nullable|numeric|min:0.01',
           'recipes.*.used_flavor_id' => 'nullable|exists:flavors,id',
           'recipes.*.units_per_bucket' => 'nullable|numeric|min:1',
-        'build_price' => 'required|numeric',
+          'build_price' => 'nullable|numeric',
       ];
     }
 }

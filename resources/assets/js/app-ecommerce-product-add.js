@@ -414,7 +414,7 @@
       });
     });
   });
-  
+
   document.getElementById('bar_code').addEventListener('keypress', function(event) {
     // Si el código de la tecla presionada es 13 (Enter)
     if (event.keyCode === 13 || event.which === 13) {

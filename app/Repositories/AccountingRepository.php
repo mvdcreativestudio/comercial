@@ -476,7 +476,7 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
-        // Activar si se necesita obtener la tasa de cambio más cercana a la fecha de la orden (se vende en USD)
+        // // Activar si se necesita obtener la tasa de cambio más cercana a la fecha de la orden (se vende en USD)
         // $usdRate = CurrencyRate::where('name', 'Dólar')
         //     ->first()
         //     ->histories()
@@ -545,7 +545,7 @@ class AccountingRepository
           'Receptor' => (object) [], // Inicializar como objeto vacío
           'Totales' => [
               'TpoMoneda' => 'UYU', // Moneda de la factura
-              // 'TpoCambio' => $exchangeRate, // Tipo de cambio
+              'TpoCambio' => $exchangeRate, // Tipo de cambio
           ],
           'Items' => $items,
         ];
@@ -751,13 +751,13 @@ class AccountingRepository
     private function prepareNoteData(CFE $invoice, float $noteAmount, string $reason, string $noteType): array
     {
         $order = $invoice->order;
-      // $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
+        $usdRate = CurrencyRate::where('name', 'Dólar')->orderBy('date', 'desc')->first();
 
-      // if ($usdRate) {
-      //     $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
-      // } else {
-      //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-      // }
+        if ($usdRate) {
+            $exchangeRate = (float) str_replace(',', '.', $usdRate->sell);
+        } else {
+            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        }
 
       // Utilizar los datos del receptor del CFE existente
       $tipoDocRecep = $invoice->type == 111 ? 2 : 3; // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
@@ -1003,7 +1003,7 @@ class AccountingRepository
     {
         $order = $invoice->order;
 
-        // Modificar si se vende en USD
+        // // Modificar si se vende en USD
         // // Obtener la tasa de cambio del historial de CurrencyRate
         // $usdRate = CurrencyRate::where('name', 'Dólar')
         //     ->first()
@@ -1015,7 +1015,7 @@ class AccountingRepository
         //     $exchangeRate = (float) $usdRate->sell;
         // } else {
         //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        // }
+        }
 
         $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
@@ -1408,6 +1408,8 @@ class AccountingRepository
                 $caeData = $cfeData['CAEData'] ?? [];
                 $adenda = $receivedCfe['Adenda'] ?? null;
 
+                Log::info('Datos de total: ' . $totales['TpoMoneda']);
+
                 $cfeEntry = [
                     'store_id' => $store->id,
                     'type' => $idDoc['TipoCFE'] ?? null,
@@ -1420,6 +1422,7 @@ class AccountingRepository
                     ]),
                     'caeExpirationDate' => $caeData['FecVenc'] ?? null,
                     'total' => $totales['MntTotal'] ?? 0,
+                    'currency' => $totales['TpoMoneda'] ?? 'USD',
                     'status' => $receivedCfe['cfeStatus'] ?? 'PENDING_REVISION',
                     'balance' => $totales['MntTotal'] ?? 0,
                     'received' => true,
@@ -1475,19 +1478,21 @@ class AccountingRepository
                 ->where('store_id', $store->id)
                 ->whereIn('type', $validTypes)
                 ->where('received', true)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('emitionDate', 'desc')
                 ->get();
         } else {
             // Si no se proporciona una empresa específica, obtener todos los CFEs recibidos
             $cfes = CFE::with('order.client', 'order.store')
                 ->whereIn('type', $validTypes)
                 ->where('received', true)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('emitionDate', 'desc')
                 ->get();
         }
 
+        $totalItems = $cfes->count(); // Obtener la cantidad total de elementos
+
         // Formatear la colección de datos para el DataTable
-        return $cfes->map(function ($cfe) {
+        return $cfes->map(function ($cfe, $index) use ($totalItems) {
           $typeCFEs = [
             101 => 'eTicket',
             102 => 'eTicket - Nota de Crédito',
@@ -1514,11 +1519,12 @@ class AccountingRepository
           }
 
           return [
-              'id' => $cfe->id,
+              'id' => $totalItems - $index,
               'date' => $cfe->emitionDate,
               'issuer_name' => $cfe->issuer_name ?? 'N/A',
               'type' => $typeCFEs[$cfe->type] ?? 'N/A',
-              'currency' => 'UYU',
+
+              'currency' => $cfe->currency,
               'total' => $cfe->total,
               'qrUrl' => $cfe->qrUrl,
               'serie' => $cfe->serie,

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddCompanyNameToClientsTable extends Migration
+class MakeNameLastnameNullableInClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,8 @@ class AddCompanyNameToClientsTable extends Migration
     public function up()
     {
         Schema::table('clients', function (Blueprint $table) {
-            // Verificar si la columna company_name no existe antes de agregarla
-            if (!Schema::hasColumn('clients', 'company_name')) {
-                $table->string('company_name')->nullable()->after('type');
-            }
+            $table->string('name')->nullable()->change();
+            $table->string('lastname')->nullable()->change();
         });
     }
 
@@ -29,10 +27,8 @@ class AddCompanyNameToClientsTable extends Migration
     public function down()
     {
         Schema::table('clients', function (Blueprint $table) {
-            // Verificar si la columna company_name existe antes de eliminarla
-            if (Schema::hasColumn('clients', 'company_name')) {
-                $table->dropColumn('company_name');
-            }
+            $table->string('name')->nullable(false)->change();
+            $table->string('lastname')->nullable(false)->change();
         });
     }
 }

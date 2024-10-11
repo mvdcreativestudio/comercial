@@ -14,6 +14,9 @@ class RemoveColumnsFromCurrencyRates extends Migration
     public function up()
     {
         Schema::table('currency_rates', function (Blueprint $table) {
+            // Eliminar la restricción de clave única
+            $table->dropUnique('currency_rates_name_date_unique');
+
             // Eliminar las columnas date, buy, y sell
             $table->dropColumn(['date', 'buy', 'sell']);
         });
@@ -31,6 +34,9 @@ class RemoveColumnsFromCurrencyRates extends Migration
             $table->date('date')->nullable();
             $table->decimal('buy', 10, 5)->nullable();
             $table->decimal('sell', 10, 5)->nullable();
+
+            // Restaurar la restricción de clave única
+            $table->unique(['name', 'date']);
         });
     }
 }

@@ -60,7 +60,7 @@ class DatacenterController extends Controller
         // Obtener todos los locales para el filtro por local
         $stores = Store::all();
 
-        // Gráfica de promedio de pedidos por hora
+        // Gráfica de promedio de ventas por hora
         $storeIdForChart = null;
         if (!auth()->user()->can('view_all_datacenter')) {
             $storeIdForChart = auth()->user()->store_id;

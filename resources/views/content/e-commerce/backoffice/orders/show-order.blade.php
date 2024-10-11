@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Detalle de pedido')
+@section('title', 'Detalle de la venta')
 
 @if (request()->is('*/pdf'))
     <!-- Cargar estilos CSS directamente -->
@@ -74,12 +74,12 @@ $changeTypeTranslations = [
 @endphp
 
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light"></span> Detalles del pedido
+  <span class="text-muted fw-light"></span> Detalles de la venta
 </h4>
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 card p-3">
   <div class="d-flex flex-column justify-content-center">
-    <h6 class="mb-1 mt-3">Pedido #{{ $order->id }}
+    <h6 class="mb-1 mt-3">Venta #{{ $order->id }}
       @if($order->payment_status === 'paid')
         <span class="badge bg-label-info me-2 ms-2">Pago</span>
       @elseif($order->payment_status === 'pending')
@@ -112,7 +112,7 @@ $changeTypeTranslations = [
       @endif
     </h6>
     @if($store->invoices_enabled)
-    <!-- Mostrar si el pedido ha sido facturado -->
+    <!-- Mostrar si la venta ha sido facturada -->
     <h6 class="card-title mb-1 mt-1">Estado de la Facturación:
       @if($order->is_billed)
         <span class="badge bg-label-success me-2 ms-2">Facturado</span>
@@ -158,7 +158,7 @@ $changeTypeTranslations = [
   <div class="col-12 col-lg-8">
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="card-title m-0">Detalles del pedido</h5>
+        <h5 class="card-title m-0">Detalles de la venta</h5>
       </div>
       <div class="card-datatable table-responsive">
         <table class="datatables-order-details table" data-order-id="{{ $order->id }}">
@@ -209,7 +209,7 @@ $changeTypeTranslations = [
 <!-- Order Status Changes Table -->
 <div class="card mb-4">
   <div class="card-header">
-    <h5 class="card-title m-0">Actualizaciones del pedido</h5>
+    <h5 class="card-title m-0">Actualizaciones de la venta</h5>
   </div>
   <div class="card-body">
     <ul class="timeline pb-0 mb-0">
