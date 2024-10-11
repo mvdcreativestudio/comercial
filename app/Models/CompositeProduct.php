@@ -14,10 +14,12 @@ class CompositeProduct extends Model
 
     protected $fillable = [
         'store_id',
-        'title',
+        'name',
         'description',
         'price',
         'recommended_price',
+        'image',
+        'stock',
     ];
 
     /**

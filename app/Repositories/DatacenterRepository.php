@@ -311,10 +311,10 @@ class DatacenterRepository
             $orderQuery->where('store_id', $storeId);
         }
 
-        // Calcular el total de los pedidos pagados
+        // Calcular el total de los ventas pagadas
         $totalPaidOrders = $orderQuery->sum('total');
 
-        // Contar la cantidad de pedidos pagados
+        // Contar la cantidad de ventas pagadas
         $totalPaidOrdersCount = $orderQuery->count();
 
         if ($totalPaidOrdersCount > 0) {
@@ -357,7 +357,7 @@ class DatacenterRepository
                 break;
         }
 
-        // Consulta de pedidos del módulo de e-commerce y ventas físicas
+        // Consulta de ventas del módulo de e-commerce y ventas físicas
         $orderQuery = Order::select(
             DB::raw('SUM(total) as total'),
             DB::raw('YEAR(date) as year'),
@@ -451,7 +451,7 @@ class DatacenterRepository
     {
         $stores = Store::all();
 
-        // Consulta de todos los pedidos con estado pagado
+        // Consulta de todos los ventas con estado pagado
         $orderQuery = Order::where('payment_status', 'paid');
         if ($storeId) {
             $orderQuery->where('store_id', $storeId);
@@ -461,7 +461,7 @@ class DatacenterRepository
         $data = [];
 
         foreach ($stores as $store) {
-            // Consulta de pedidos por tienda específica con estado pagado
+            // Consulta de ventas por tienda específica con estado pagado
             $storeOrdersQuery = Order::where('store_id', $store->id)
                 ->where('payment_status', 'paid');
             if ($storeId) {
@@ -495,7 +495,7 @@ class DatacenterRepository
      */
     public function getSalesPercentByStore(string $startDate, string $endDate): array
     {
-        // Obtener el total de pedidos pagados en el rango de fechas
+        // Obtener el total de ventas pagados en el rango de fechas
         $totalPaidOrdersQuery = Order::whereBetween('date', [$startDate, $endDate])
             ->where('payment_status', 'paid');
         $totalPaidOrders = $totalPaidOrdersQuery->sum('total');
@@ -541,7 +541,7 @@ class DatacenterRepository
  */
 public function getSalesPercentByProduct(string $startDate, string $endDate, int $storeId = null): array
 {
-    // Consulta de pedidos con filtro de fecha y local
+    // Consulta de ventas con filtro de fecha y local
     $query = Order::whereBetween('date', [$startDate, $endDate])
         ->where('payment_status', 'paid');
 
@@ -553,7 +553,7 @@ public function getSalesPercentByProduct(string $startDate, string $endDate, int
 
     $productSales = [];
 
-    // Procesar todos los pedidos
+    // Procesar todos los ventas
     foreach ($orders as $order) {
         $products = json_decode($order->products, true);
 
@@ -647,7 +647,7 @@ public function getSalesPercentByProduct(string $startDate, string $endDate, int
     }
 
     /**
-     * Obtener el promedio de pedidos por hora para gráfica.
+     * Obtener el promedio de ventas por hora para gráfica.
      *
      * @param string|null $startDate
      * @param string|null $endDate
@@ -712,7 +712,7 @@ public function getSalesPercentByProduct(string $startDate, string $endDate, int
 
         $categorySales = [];
 
-        // Procesar pedidos de Order
+        // Procesar ventas de Order
         foreach ($orders as $order) {
             $products = json_decode($order->products, true);
 

@@ -23,7 +23,7 @@ class CheckoutController extends Controller
     protected $checkoutRepository;
 
     /**
-     * El repositorio de pedidos para la gestión de pedidos.
+     * El repositorio de ventas para la gestión de ventas.
      *
      * @var OrderRepository
      */

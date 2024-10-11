@@ -955,3 +955,90 @@ tr.odd {
   text-align: right;
   margin-top: auto;
 }
+
+/** Clientes */
+
+.clients-card-container {
+  margin-bottom: 10px;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+}
+
+.clients-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  padding-bottom: 5px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.clients-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.clients-card-body {
+  flex-grow: 1;
+  display: none;
+  margin-top: 15px;
+}
+
+.clients-name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333333;
+}
+
+.clients-type {
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  font-weight: 600;
+}
+
+.clients-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.clients-card p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #666666;
+}
+
+.clients-card p i {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  color: #888888;
+}
+
+.clients-card-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+
+@media (max-width: 768px) {
+  .clients-card {
+    padding: 15px;
+  }
+
+  .clients-name {
+    font-size: 1rem;
+  }
+
+  .clients-card p {
+    font-size: 0.95rem;
+  }
+
+}
+
+.bg-primary-op {
+  background-color: #181818a8;
+}

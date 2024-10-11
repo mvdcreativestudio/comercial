@@ -245,7 +245,7 @@ $(function () {
                   baseUrl +
                   'admin/orders/' +
                   full['order_uuid'] +
-                  '" class="dropdown-item">Ver Orden</a>' +
+                  '" class="dropdown-item">Ver Venta</a>' +
                   '<a href="#" class="dropdown-item btn-ver-detalles" data-id="' +
                   full['id'] +
                   '">Ver Detalles</a>' +
