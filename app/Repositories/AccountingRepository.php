@@ -1015,7 +1015,7 @@ class AccountingRepository
         //     $exchangeRate = (float) $usdRate->sell;
         // } else {
         //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
+        // }
 
         $data = [
             'clientEmissionId' => $invoice->order->uuid . '-R',
