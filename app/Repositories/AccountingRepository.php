@@ -129,7 +129,7 @@ class AccountingRepository
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
               'type' => $typeCFEs[$invoice->type] ?? 'N/A',
-              'currency' => 'USD',
+              'currency' => 'UYU',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
               'order_uuid' => $invoice->order->uuid,
@@ -195,7 +195,7 @@ class AccountingRepository
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
               'type' => $typeCFEs[$invoice->type] ?? 'N/A',
-              'currency' => 'USD',
+              'currency' => 'UYU',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
               'order_uuid' => $invoice->order->uuid,
@@ -476,20 +476,20 @@ class AccountingRepository
         $client = $order->client;
         $products = is_string($order->products) ? json_decode($order->products, true) : $order->products;
 
-        // Activar si se necesita obtener la tasa de cambio más cercana a la fecha de la orden (se vende en USD)
-        $usdRate = CurrencyRate::where('name', 'Dólar')
-            ->first()
-            ->histories()
-            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
-            ->first(); // Obtener la tasa de cambio más cercana a la fecha de la orden
+        // // Activar si se necesita obtener la tasa de cambio más cercana a la fecha de la orden (se vende en USD)
+        // $usdRate = CurrencyRate::where('name', 'Dólar')
+        //     ->first()
+        //     ->histories()
+        //     ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+        //     ->first(); // Obtener la tasa de cambio más cercana a la fecha de la orden
 
-        Log::info('Tasa de cambio: ' . $usdRate);
+        // Log::info('Tasa de cambio: ' . $usdRate);
 
-        if ($usdRate) {
-            $exchangeRate = (float) $usdRate->sell;
-        } else {
-            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
-        }
+        // if ($usdRate) {
+        //     $exchangeRate = (float) $usdRate->sell;
+        // } else {
+        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        // }
 
         $proportion = ($amountToBill < $order->total) ? $amountToBill / $order->total : 1;
 
@@ -544,7 +544,7 @@ class AccountingRepository
           ],
           'Receptor' => (object) [], // Inicializar como objeto vacío
           'Totales' => [
-              'TpoMoneda' => 'USD', // Moneda de la factura
+              'TpoMoneda' => 'UYU', // Moneda de la factura
               'TpoCambio' => $exchangeRate, // Tipo de cambio
           ],
           'Items' => $items,
@@ -772,8 +772,8 @@ class AccountingRepository
         ],
         'Receptor' => (object) [], // Inicializar como objeto vacío
         'Totales' => [
-            'TpoMoneda' => 'USD',
-            'TpoCambio' => $exchangeRate,
+            'TpoMoneda' => 'UYU',
+            // 'TpoCambio' => $exchangeRate,
         ],
         'Referencia' => [
             [
@@ -1003,18 +1003,18 @@ class AccountingRepository
     {
         $order = $invoice->order;
 
-        // Modificar si se vende en USD
-        // Obtener la tasa de cambio del historial de CurrencyRate
-        $usdRate = CurrencyRate::where('name', 'Dólar')
-            ->first()
-            ->histories()
-            ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
-            ->first();
+        // // Modificar si se vende en USD
+        // // Obtener la tasa de cambio del historial de CurrencyRate
+        // $usdRate = CurrencyRate::where('name', 'Dólar')
+        //     ->first()
+        //     ->histories()
+        //     ->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, date, ?))', [$order->created_at])
+        //     ->first();
 
-        if ($usdRate) {
-            $exchangeRate = (float) $usdRate->sell;
-        } else {
-            throw new \Exception('No se encontró el tipo de cambio para el dólar.');
+        // if ($usdRate) {
+        //     $exchangeRate = (float) $usdRate->sell;
+        // } else {
+        //     throw new \Exception('No se encontró el tipo de cambio para el dólar.');
         }
 
         $data = [
@@ -1026,9 +1026,9 @@ class AccountingRepository
             ],
             'Receptor' => (object) [], // Inicializar como objeto vacío
             'Totales' => [
-                'TpoMoneda' => 'USD',
+                'TpoMoneda' => 'UYU',
                 // Activar si se vende en USD
-                'TpoCambio' => $exchangeRate, // Tasa de cambio en USD
+                // 'TpoCambio' => $exchangeRate, // Tasa de cambio en USD
             ],
             'Referencia' => [
                 [
@@ -1518,7 +1518,7 @@ class AccountingRepository
               'date' => $cfe->emitionDate,
               'issuer_name' => $cfe->issuer_name ?? 'N/A',
               'type' => $typeCFEs[$cfe->type] ?? 'N/A',
-              'currency' => 'USD',
+              'currency' => 'UYU',
               'total' => $cfe->total,
               'qrUrl' => $cfe->qrUrl,
               'serie' => $cfe->serie,
