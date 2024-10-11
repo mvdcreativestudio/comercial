@@ -44,8 +44,8 @@
     <div class="card-body">
         <div class="row gy-4">
             <div class="col-md-6">
-                <h6 class="mb-2">Título:</h6>
-                <p>{{ $compositeProduct->title }}</p>
+                <h6 class="mb-2">Nombre:</h6>
+                <p>{{ $compositeProduct->name }}</p>
             </div>
             <div class="col-md-6">
                 <h6 class="mb-2">Empresa:</h6>

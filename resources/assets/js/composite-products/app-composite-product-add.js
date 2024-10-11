@@ -261,7 +261,7 @@
       const route = $('#addCompositeProductForm').attr('action');
       console.log(route);
       const formData = {
-        title: $('#composite-product-name').val(),
+        name: $('#composite-product-name').val(),
         description: $('#description').val(),
         price: $('#price').val(),
         recommended_price: $('#recommended_price').val(),
@@ -290,7 +290,7 @@
         success: function (response) {
           Swal.fire({
             icon: 'success',
-            title: 'Producto Compuesto Agregado',
+            title: 'Producto Compuesto creado correctamente',
             text: response.message
           }).then(result => {
             window.location.href = `${baseUrl}admin/composite-products/${response.id}`;
