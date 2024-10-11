@@ -548,7 +548,7 @@ document.getElementById('timePeriodSelector').addEventListener('change', functio
     </div>
   </div>
 
-  <!-- Gráfica de promedio de pedidos por hora -->
+  <!-- Gráfica de promedio de ventas por hora -->
   <div class="col-12 mb-4 mt-4">
     <div class="card">
       <div class="card-header">

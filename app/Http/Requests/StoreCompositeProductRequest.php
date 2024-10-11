@@ -24,7 +24,7 @@ class StoreCompositeProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric'], // Validación para el precio
             'recommended_price' => ['required', 'numeric'], // Validación para el precio recomendado
@@ -43,8 +43,8 @@ class StoreCompositeProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'El título es obligatorio.',
-            'title.max' => 'El título no puede tener más de 255 caracteres.',
+            'name.required' => 'El nombre es obligatorio.',
+            'name.max' => 'El nombre no puede tener más de 255 caracteres.',
             'price.required' => 'El precio es obligatorio.',
             'price.numeric' => 'El precio debe ser un número.',
             'recommended_price.required' => 'El precio recomendado es obligatorio.',

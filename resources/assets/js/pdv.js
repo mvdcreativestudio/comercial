@@ -369,7 +369,8 @@ $(document).ready(function() {
                   price: priceToUse,
                   flavors: selectedFlavors,
                   quantity: quantity, // Usar la cantidad deseada
-                  category_id: category_id
+                  category_id: category_id,
+
               });
 
               updateCart();
@@ -401,7 +402,8 @@ $(document).ready(function() {
                   price: priceToUse,
                   flavors: [],
                   quantity: quantity, // Usar la cantidad deseada
-                  category_id: category_id
+                  category_id: category_id,
+                  isComposite: product.is_composite ? 1 : 0 
               });
           }
 
@@ -412,6 +414,32 @@ $(document).ready(function() {
           toastr.success(`<strong>${product.name}</strong> agregado correctamente`);
         }
     }
+
+    function addCompositeProductToCart(productId) {
+      // Obtener los productos internos que componen el paquete
+      $.ajax({
+          url: `${baseUrl}api/composite-products/${productId}`,
+          type: 'GET',
+          success: function(response) {
+              // Agregar cada producto interno al carrito
+              response.items.forEach(item => {
+                  const cartItem = {
+                      id: item.id,
+                      name: item.name,
+                      price: item.price,
+                      quantity: item.quantity,
+                      is_composite: product.is_composite ? 1 : 0 // Convertir true/false a 1/0
+                    };
+                  cart.push(cartItem);
+              });
+              updateCart();
+          },
+          error: function(xhr) {
+              mostrarError('Error al agregar producto compuesto: ' + xhr.responseText);
+          }
+      });
+    }
+
 
     // Función para mostrar errores
     function mostrarError(mensaje) {
@@ -479,12 +507,18 @@ $(document).ready(function() {
 
 
 
-  // Manejar el clic en el botón "Agregar al carrito"
-  $(document).on('click', '.add-to-cart', function() {
+    // Manejar el clic en el botón "Agregar al carrito"
+    $(document).on('click', '.add-to-cart', function() {
       const productId = $(this).data('id');
-      const productType = $(this).data('type');
-      addToCart(productId, productType);
-  });
+      const isComposite = $(this).data('composite'); // Cambiar "type" por "composite"
+
+      if (isComposite) {
+          // Lógica para productos compuestos
+          addCompositeProductToCart(productId);
+      } else {
+          addToCart(productId);
+      }
+    });
 
 
 

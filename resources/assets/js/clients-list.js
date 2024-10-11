@@ -24,87 +24,123 @@ $(function () {
             const fullName = `${client.name} ${client.lastname}`;
             const truncatedName = fullName.length > 20 ? fullName.substring(0, 20) + '...' : fullName;
 
+            // Aplica la función de capitalización a los nombres y cualquier otro campo relevante
+            const capitalizedFullName = capitalizeFirstLetter(fullName);
+            const capitalizedCompanyName = client.company_name ? capitalizeFirstLetter(client.company_name) : '';
+            const capitalizedTruncatedName = capitalizeFirstLetter(truncatedName);
+
+
             const card = `
-              <div class="col-md-6 col-lg-4 col-12 client-card-wrapper">
-                <div class="client-card-container">
-                  <div class="client-card position-relative">
-                    <div class="client-card-header d-flex justify-content-between align-items-center">
-                      <h5 class="client-name mb-0" title="${truncatedName}" data-full-name="${fullName}" data-truncated-name="${truncatedName}">${truncatedName}</h5>
-                      <div class="d-flex align-items-center">
-                        <span class="client-type badge ${client.type === 'company' ? 'bg-primary' : 'bg-info'} me-2">${client.type === 'company' ? 'Empresa' : 'Persona'}</span>
-                        <div class="client-card-toggle">
-                          <i class="bx bx-chevron-down fs-3"></i>
-                        </div>
+            <div class="col-md-6 col-lg-4 col-12 client-card-wrapper">
+              <div class="clients-card-container">
+                <div class="clients-card position-relative">
+                  <div class="clients-card-header d-flex justify-content-between align-items-center">
+                    <h5 class="clients-name mb-0" title="${client.type === 'company' ? capitalizedCompanyName : capitalizedTruncatedName}" data-full-name="${client.type === 'company' ? capitalizedCompanyName : capitalizedFullName}" data-truncated-name="${client.type === 'company' ? capitalizedCompanyName : capitalizedTruncatedName}">
+                      ${client.type === 'company' ? capitalizedCompanyName : capitalizedTruncatedName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                    </h5>
+                    <div class="d-flex align-items-center">
+                      <span class="clients-type badge ${client.type === 'company' ? 'bg-primary' : 'bg-primary-op'} me-2">
+                        ${client.type === 'company' ? 'Empresa' : 'Persona'}
+                      </span>
+                      <div class="clients-card-toggle">
+                        <i class="bx bx-chevron-down fs-3"></i>
                       </div>
                     </div>
-                    <div class="client-card-body" style="display: none;">
-                      <div class="d-flex flex-column h-100">
-                        <div>
-                          <p class="client-document mb-2"><strong>${client.type === 'company' ? 'RUT:' : 'CI:'}</strong> ${client.type === 'company' ? client.rut : client.ci}</p>
-                          ${client.type === 'company' ? `<p class="client-company mb-2"><strong>Razón Social:</strong> ${client.company_name}</p>` : ''}
-                          <p class="client-email mb-2"><i class="bx bx-envelope me-2"></i> ${client.email}</p>
-                          <p class="client-address mb-2"><i class="bx bx-map me-2"></i> ${client.address}</p>
-                          <p class="client-location mb-2"><i class="bx bx-buildings me-2"></i> ${client.city}, ${client.state}</p>
-                          ${client.phone ? `<p class="client-phone mb-2"><i class="bx bx-phone me-2"></i> ${client.phone}</p>` : ''}
-                          ${client.website ? `<p class="client-website mb-2"><i class="bx bx-globe me-2"></i> <a href="${client.website}" target="_blank">${client.website}</a></p>` : ''}
-                        </div>
-                        <div class="text-end mt-auto mb-2">
-                          <a href="clients/${client.id}" class="btn btn-sm btn-outline-primary view-client">
-                            Ver Cliente <i class="bx bx-right-arrow-alt ms-1"></i>
-                          </a>
-                        </div>
+                  </div>
+                  <div class="clients-card-body" style="display: none;">
+                    <div class="d-flex flex-column h-100">
+                      <div>
+                        <!-- Condicional para mostrar nombre y apellido si están disponibles -->
+                        ${client.type === 'company' && client.name && client.lastname ? `
+                          <p class="clients-personal-name mb-2">
+                            <strong>Representante:</strong> ${capitalizeFirstLetter(client.name)} ${capitalizeFirstLetter(client.lastname)}
+                          </p>
+                        ` : ''}
+
+                        <p class="clients-document mb-2">
+                          <strong>${client.type === 'company' ? 'RUT:' : 'CI:'}</strong>
+                          ${client.type === 'company' ? client.rut : client.ci}
+                        </p>
+                        ${client.type === 'company' ? `<p class="clients-company mb-2"><strong>Razón Social:</strong> ${capitalizedCompanyName}</p>` : ''}
+
+                        <!-- Condicional para email (siempre presente) -->
+                        <p class="clients-email mb-2"><i class="bx bx-envelope me-2"></i> ${client.email}</p>
+
+                        <!-- Condicionales para evitar mostrar campos vacíos, nulos o con valor "-" -->
+                        ${client.address && client.address !== '-' ? `<p class="clients-address mb-2"><i class="bx bx-map me-2"></i> ${capitalizeFirstLetter(client.address)}</p>` : ''}
+                        ${(client.city && client.city !== '-') || (client.state && client.state !== '-') || (client.department && client.department !== '-') ? `
+                          <p class="clients-location mb-2">
+                            <i class="bx bx-buildings me-2"></i>
+                            ${client.city && client.city !== '-' ? capitalizeFirstLetter(client.city) : ''}${client.city && client.city !== '-' && ((client.state && client.state !== '-') || (client.department && client.department !== '-')) ? ', ' : ''}${client.state && client.state !== '-' ? capitalizeFirstLetter(client.state) : ''}${client.state && client.state !== '-' && (client.department && client.department !== '-') ? ', ' : ''}${client.department && client.department !== '-' ? capitalizeFirstLetter(client.department) : ''}
+                          </p>` : ''}
+                        ${client.phone && client.phone !== '-' ? `<p class="clients-phone mb-2"><i class="bx bx-phone me-2"></i> ${client.phone}</p>` : ''}
+                        ${client.website && client.website !== '-' ? `<p class="clients-website mb-2"><i class="bx bx-globe me-2"></i> <a href="${client.website}" target="_blank">${client.website}</a></p>` : ''}
+
+                      </div>
+                      <div class="text-end mt-auto mb-2">
+                        <a href="clients/${client.id}" class="btn btn-sm btn-outline-primary view-clients">
+                          Ver Cliente <i class="bx bx-right-arrow-alt ms-1"></i>
+                        </a>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            `;
+            </div>
+          `;
 
             clientListContainer.append(card);
           });
 
+          // Función para capitalizar solo la primera letra de cada palabra y convertir el resto a minúsculas
+          function capitalizeFirstLetter(str) {
+            return str
+              .toLowerCase() // Convierte todo a minúsculas primero
+              .replace(/(^|\s)[a-záéíóúñ]/g, function (match) {
+                return match.toUpperCase(); // Luego capitaliza la primera letra de cada palabra
+              });
+          }
+
           // Agregar evento de clic para desplegar la información
-          $('.client-card').on('click', function (e) {
-            if (!$(e.target).closest('.view-client').length) {
+          $('.clients-card').on('click', function (e) {
+            if (!$(e.target).closest('.view-clients').length) {
               e.preventDefault();
               e.stopPropagation();
               const $this = $(this);
-              const $icon = $this.find('.client-card-toggle i');
-              const $body = $this.find('.client-card-body');
-              const $wrapper = $this.closest('.client-card-wrapper');
-              const $name = $this.find('.client-name');
+              const $icon = $this.find('.clients-card-toggle i');
+              const $body = $this.find('.clients-card-body');
+              const $wrapper = $this.closest('.clients-card-wrapper');
+              const $name = $this.find('.clients-name');
 
               // Alternar la tarjeta seleccionada
               $icon.toggleClass('bx-chevron-down bx-chevron-up');
               $body.slideToggle();
 
-              // Cambiar el tamaño de la tarjeta entre col-12 y su tamaño original
-              $wrapper.toggleClass('col-md-6 col-lg-4 col-12');
 
               // Mostrar nombre completo o truncado según si la tarjeta está abierta o cerrada
               if ($body.is(':visible')) {
-                $name.text($name.data('full-name'));
+                $name.text(capitalizeFirstLetter($name.data('full-name').toLowerCase()));
               } else {
-                $name.text($name.data('truncated-name'));
+                $name.text(capitalizeFirstLetter($name.data('truncated-name').toLowerCase()));
               }
 
               // Cerrar las demás tarjetas y restaurar su tamaño
-              $('.client-card-body').not($body).slideUp();
-              $('.client-card-wrapper').not($wrapper).removeClass('col-12').addClass('col-md-6 col-lg-4');
-              $('.client-card-toggle i').not($icon).removeClass('bx-chevron-up').addClass('bx-chevron-down');
-              $('.client-card-wrapper').not($wrapper).find('.client-name').each(function() {
-                $(this).text($(this).data('truncated-name'));
+              $('.clients-card-body').not($body).hide();
+              $('.clients-card-toggle i').not($icon).removeClass('bx-chevron-up').addClass('bx-chevron-down');
+              $('.clients-card-wrapper').not($wrapper).find('.clients-name').each(function() {
+                $(this).text(capitalizeFirstLetter($(this).data('truncated-name').toLowerCase()));
               });
             }
           });
 
+
           // Prevenir el cierre de la tarjeta al hacer clic en "Ver Cliente"
-          $('.view-client').on('click', function(e) {
+          $('.view-clients').on('click', function(e) {
             e.stopPropagation();
           });
 
           // Evitar que el clic en el botón de edición propague al contenedor de la tarjeta
-          $('.edit-client').on('click', function(e) {
+          $('.edit-clients').on('click', function(e) {
             e.stopPropagation();
             // Aquí puedes agregar la lógica para editar el cliente
           });

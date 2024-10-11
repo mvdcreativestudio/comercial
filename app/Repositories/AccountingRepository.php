@@ -1518,7 +1518,7 @@ class AccountingRepository
               'date' => $cfe->emitionDate,
               'issuer_name' => $cfe->issuer_name ?? 'N/A',
               'type' => $typeCFEs[$cfe->type] ?? 'N/A',
-              'currency' => 'USD',
+              'currency' => $cfe->currency,
               'total' => $cfe->total,
               'qrUrl' => $cfe->qrUrl,
               'serie' => $cfe->serie,

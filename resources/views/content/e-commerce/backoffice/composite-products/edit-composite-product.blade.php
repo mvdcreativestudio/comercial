@@ -73,12 +73,12 @@
             <h5 class="card-title mb-0">Información del Producto Compuesto</h5>
           </div>
           <div class="card-body">
-            <!-- Campo para el título del producto compuesto -->
+            <!-- Campo para el nombre del producto compuesto -->
             <div class="mb-3">
-              <label class="form-label" for="composite-product-name">Título</label>
+              <label class="form-label" for="composite-product-name">Nombre</label>
               <input type="text" class="form-control" id="composite-product-name"
-                placeholder="Nombre del producto compuesto" name="title" aria-label="Nombre del producto compuesto"
-                value="{{ $compositeProduct->title }}" required>
+                placeholder="Nombre del producto compuesto" name="name" aria-label="Nombre del producto compuesto"
+                value="{{ $compositeProduct->name }}" required>
             </div>
             <!-- Campo para la descripción del producto compuesto -->
             <div class="mb-3">

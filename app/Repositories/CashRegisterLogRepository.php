@@ -6,6 +6,7 @@ use App\Models\CashRegisterLog;
 use Yajra\DataTables\DataTables;
 use App\Models\Flavor;
 use App\Models\Product;
+use App\Models\CompositeProduct;
 use App\Models\ProductCategory;
 use App\Models\CashRegister;
 use Illuminate\Database\Eloquent\Collection;
@@ -181,7 +182,7 @@ class CashRegisterLogRepository
     }
 
     /**
-     * Toma los productos de la tienda de la caja registradora.
+     * Toma los productos de la tienda de la caja registradora, incluyendo productos compuestos.
      *
      * @param int $id
      * @return \Illuminate\Database\Eloquent\Collection
@@ -196,10 +197,28 @@ class CashRegisterLogRepository
 
         $storeId = $cashRegister->store_id;
 
-        $products = Product::where('store_id', $storeId)->get();
+        // Obtener los productos de la tabla products y agregar el campo 'type'
+        $products = Product::where('store_id', $storeId)
+            ->get()
+            ->map(function ($product) {
+                $product->is_composite = 0; // Agregar un campo 'type' indicando que es un producto normal
+                return $product;
+            });
 
-        return $products;
+        // Obtener los productos compuestos de la tabla composite_products y agregar el campo 'type'
+        $compositeProducts = CompositeProduct::where('store_id', $storeId)
+            ->get()
+            ->map(function ($compositeProduct) {
+                $compositeProduct->is_composite = 1; // Agregar un campo 'type' indicando que es un producto compuesto
+                return $compositeProduct;
+            });
+
+        // Combinar ambos conjuntos de productos en una única colección
+        $allProducts = $products->merge($compositeProducts);
+
+        return $allProducts;
     }
+
 
     /**
      * Toma los variaciones para crear los productos con varios variaciones.

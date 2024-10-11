@@ -298,11 +298,11 @@
       </div>
       <div class="modal-body">
         <p>La venta se ha realizado exitosamente.</p>
-        <p>¿Desea ver la orden?</p>
+        <p>¿Desea ver la venta?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" id="verOrdenBtn" class="btn btn-primary">Ver Orden</button>
+        <button type="button" id="verOrdenBtn" class="btn btn-primary">Ver Venta</button>
       </div>
     </div>
   </div>
