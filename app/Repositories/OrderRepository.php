@@ -2,8 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Enums\CurrentAccounts\StatusPaymentEnum;
+use App\Enums\CurrentAccounts\TransactionTypeEnum;
 use App\Helpers\Helpers;
 use App\Models\Client;
+use App\Models\CurrentAccount;
+use App\Models\CurrentAccountInitialCredit;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\OrderStatusChange;
@@ -98,6 +102,11 @@ class OrderRepository
             $order->save();
             Log::info('Orden actualizada con los productos');
 
+            // if payment_method is internalCredit
+            if ($request->payment_method === 'internalCredit') {
+                $this->createInternalCredit($order);
+            }
+
             DB::commit();
             Log::info('Transacción de base de datos confirmada');
 
@@ -115,7 +124,6 @@ class OrderRepository
                 Log::info('No se emite factura electrónica para esta orden');
                 $order->update(['is_billed' => false]);
             }
-
             return $order;
         } catch (\Exception $e) {
             Log::error('Error durante la creación de la orden', ['exception' => $e->getMessage()]);
@@ -469,5 +477,35 @@ class OrderRepository
         }
 
         return $query->get(); // Retornar los resultados
+    }
+
+    private function createInternalCredit(Order $order)
+    {
+        // verify if exist client in current account
+        $currentAccount = CurrentAccount::where('client_id', $order->client_id)->first();
+
+        if ($currentAccount) {
+            CurrentAccountInitialCredit::create([
+                'total_debit' => $order->total,
+                'description' => 'Compra Interna',
+                'current_account_id' => $currentAccount->id,
+                'current_account_settings_id' => 1,
+            ]);
+        } else {
+            $currentAccount = CurrentAccount::create([
+                'client_id' => $order->client_id,
+                'payment_total_debit' => $order->total,
+                'status' => StatusPaymentEnum::UNPAID,
+                'transaction_type' => TransactionTypeEnum::SALE,
+                'currency_id' => 1,
+            ]);
+
+            CurrentAccountInitialCredit::create([
+                'total_debit' => $order->total,
+                'description' => 'Compra Interna',
+                'current_account_id' => $currentAccount->id,
+                'current_account_settings_id' => 1,
+            ]);
+        }
     }
 }

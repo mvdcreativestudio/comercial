@@ -173,10 +173,19 @@
             </label>
           </div>
 
-          <div class="payment-option">
+          <div class="payment-option mb-3">
             <input class="btn-check" type="radio" name="paymentMethod" id="credit" autocomplete="off">
             <label class="btn btn-outline-primary w-100 text-start" for="credit">
               <i class="bx bx-credit-card-front me-2"></i> Crédito
+            </label>
+          </div>
+
+          {{-- Credito interno --}}
+
+          <div class="payment-option">
+            <input class="btn-check" type="radio" name="paymentMethod" id="internalCredit" autocomplete="off">
+            <label class="btn btn-outline-primary w-100 text-start" for="internalCredit">
+              <i class="bx bx-credit-card-front me-2"></i> Crédito Interno
             </label>
           </div>
         </div>

@@ -248,6 +248,29 @@
               "url": "/admin/income-categories"
             }
           ]
+        },
+        {
+          "id": "tour-cuentas-corrientes",
+          "name": "Cuentas Corrientes",
+          "icon": "menu-icon tf-icons bx bx-dollar",
+          "slug": "current-accounts",
+          "url": "/admin/current-accounts",
+          "submenu" :[
+            {
+              "id": "tour-cuentas-corrientes",
+              "name": "Cuentas Corrientes",
+              "icon": "menu-icon tf-icons bx bx-dollar",
+              "slug": "current-accounts",
+              "url": "/admin/current-accounts"
+            },
+            {
+              "id": "tour-cuentas-corrientes-configuracion",
+              "name": "Configuración",
+              "icon": "menu-icon tf-icons bx bx-cog",
+              "slug": "current-accounts-settings",
+              "url": "/admin/current-accounts-settings"
+            }
+          ]
         }
       ]
     },
@@ -284,61 +307,6 @@
               "icon": "menu-icon tf-icons bx bx-cog",
               "slug": "settings",
               "url": "/admin/omnichannel/settings"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "tour-cuentas-corrientes",
-      "name": "Cuentas Corrientes",
-      "icon": "menu-icon tf-icons bx bx-dollar",
-      "slug": "current-accounts",
-      "url": "/admin/current-accounts",
-      "submenu": [
-        {
-          "id": "tour-cuentas-corrientes-clientes",
-          "name": "Clientes",
-          "icon": "menu-icon tf-icons bx bx-user",
-          "slug": "current-accounts-clients",
-          "url": "/admin/current-accounts/clients",
-          "submenu": [
-            {
-              "id": "tour-cuentas-corrientes-clientes-ventas",
-              "name": "Ventas",
-              "icon": "menu-icon tf-icons bx bx-dollar",
-              "slug": "current-accounts-clients-sales",
-              "url": "/admin/current-account-client-sales"
-            },
-            {
-              "id": "tour-cuentas-corrientes-clientes-configuracion",
-              "name": "Configuración",
-              "icon": "menu-icon tf-icons bx bx-cog",
-              "slug": "current-accounts-clients-settings",
-              "url": "/admin/current-accounts-clients-settings"
-            }
-          ]
-        },
-        {
-          "id": "tour-cuentas-corrientes-proveedores",
-          "name": "Proveedores",
-          "icon": "menu-icon tf-icons bx bx-group",
-          "slug": "current-accounts-suppliers",
-          "url": "/admin/current-accounts/suppliers",
-          "submenu": [
-            {
-              "id": "tour-cuentas-corrientes-proveedores-compras",
-              "name": "Compras",
-              "icon": "menu-icon tf-icons bx bx-dollar",
-              "slug": "current-accounts-suppliers-purchases",
-              "url": "/admin/current-account-supplier-purs"
-            },
-            {
-              "id": "tour-cuentas-corrientes-proveedores-configuracion",
-              "name": "Configuración",
-              "icon": "menu-icon tf-icons bx bx-cog",
-              "slug": "current-accounts-suppliers-settings",
-              "url": "/admin/current-accounts-suppliers-settings"
             }
           ]
         }

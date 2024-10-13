@@ -891,6 +891,14 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
       posSales = total;
     }
 
+    if (paymentMethod === 'internalCredit') {
+      // validar si se selecciono un cliente
+      if (!client || !client.id) {
+        mostrarError('Para ventas con crédito interno, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
+        return;
+      }
+    }
+
     // Definir docType y doc en función del tipo de cliente
     let docType = null;
     let doc = null;
