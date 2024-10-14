@@ -227,18 +227,11 @@
           "url": "/admin/incomes",
           "submenu": [
             {
-              "id": "tour-ingresos-clients",
-              "name": "Clientes",
+              "id": "tour-ingresos",
+              "name": "Ingresos",
               "icon": "menu-icon tf-icons bx bx-user",
-              "slug": "incomes-clients",
-              "url": "/admin/incomes-clients"
-            },
-            {
-              "id": "tour-ingresos-suppliers",
-              "name": "Proveedores",
-              "icon": "menu-icon tf-icons bx bx-briefcase",
-              "slug": "incomes-suppliers",
-              "url": "/admin/incomes-suppliers"
+              "slug": "incomes",
+              "url": "/admin/incomes"
             },
             {
               "id": "tour-ingresos-categorias",

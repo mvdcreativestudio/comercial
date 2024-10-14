@@ -1,6 +1,6 @@
 $(document).ready(function () {
   // Eliminar registro
-  $('.datatables-incomes-clients tbody').on('click', '.delete-record', function () {
+  $('.datatables-incomes tbody').on('click', '.delete-record', function () {
     var recordId = $(this).data('id');
     deleteIncome(recordId);
   });
@@ -9,7 +9,7 @@ $(document).ready(function () {
   $('#deleteSelected').on('click', function () {
     var selectedIds = [];
 
-    $('.datatables-incomes-clients tbody input[type="checkbox"]:checked').each(function () {
+    $('.datatables-incomes tbody input[type="checkbox"]:checked').each(function () {
       selectedIds.push($(this).data('id'));
     });
 
@@ -39,7 +39,7 @@ $(document).ready(function () {
     }).then(result => {
       if (result.isConfirmed) {
         $.ajax({
-          url: 'incomes-clients/' + recordId,
+          url: 'incomes/' + recordId,
           type: 'DELETE',
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -47,7 +47,7 @@ $(document).ready(function () {
           success: function (result) {
             if (result.success) {
               Swal.fire('Eliminado!', 'El ingreso ha sido eliminado.', 'success');
-              $('.datatables-incomes-clients').DataTable().ajax.reload();
+              $('.datatables-incomes').DataTable().ajax.reload();
             } else {
               Swal.fire('Error!', 'No se pudo eliminar el ingreso. Intente de nuevo.', 'error');
             }
@@ -78,7 +78,7 @@ $(document).ready(function () {
     }).then(result => {
       if (result.isConfirmed) {
         $.ajax({
-          url: 'incomes-clients/delete-multiple',
+          url: 'incomes/delete-multiple',
           type: 'POST',
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -89,7 +89,7 @@ $(document).ready(function () {
           success: function (result) {
             if (result.success) {
               Swal.fire('Eliminado!', 'Los ingresos seleccionados han sido eliminados.', 'success');
-              $('.datatables-incomes-clients').DataTable().ajax.reload();
+              $('.datatables-incomes').DataTable().ajax.reload();
               $('#dropdownMenuButton').addClass('d-none');
 
             } else {

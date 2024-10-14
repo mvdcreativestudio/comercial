@@ -19,16 +19,16 @@
 ])
 <script>
   window.baseUrl = "{{ url('/') }}";
-  window.detailUrl = "{{ route('incomes-clients.show', ':id') }}";
+  window.detailUrl = "{{ route('incomes.show', ':id') }}";
 </script>
 @endsection
 
 @section('page-script')
 @vite([
-'resources/assets/js/incomes/incomes-clients/app-incomes-clients-list.js',
-'resources/assets/js/incomes/incomes-clients/app-incomes-clients-add.js',
-'resources/assets/js/incomes/incomes-clients/app-incomes-clients-edit.js',
-'resources/assets/js/incomes/incomes-clients/app-incomes-clients-delete.js',
+'resources/assets/js/incomes/incomes/app-incomes-list.js',
+'resources/assets/js/incomes/incomes/app-incomes-add.js',
+'resources/assets/js/incomes/incomes/app-incomes-edit.js',
+'resources/assets/js/incomes/incomes/app-incomes-delete.js',
 ])
 @endsection
 
@@ -77,7 +77,7 @@
   <div class="card pb-3">
     <h5 class="card-header pb-0">
       Ingresos
-      <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addIncomeClientModal">
+      <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addIncomeModal">
         Agregar Ingreso
       </button>
       <div class="d-flex">
@@ -163,9 +163,10 @@
 
       <!-- Filter for incomes -->
       <div class="d-flex justify-content-start align-items-center row py-3 gap-3 mb-0 pb-0 gap-md-0">
-        <div class="col-md-2 client_filter">
-          <label for="client">Cliente</label>
+        <div class="col-md-2 entity_type">
+          <label for="entityType">Entidad</label>
         </div>
+
         <div class="col-md-2 category_filter">
           <label for="category">Categoría</label>
         </div>
@@ -179,9 +180,15 @@
           <input type="date" class="form-control date-range-filter" id="endDate" placeholder="Fecha de fin">
         </div>
         {{-- button for clear filters --}}
-        <div class="col-md-2 mt-2">
-          <button class="btn btn-outline-danger btn-sm clear-filters" id="clear-filters">
+        <div class="col-md-2 d-flex flex-column mt-2">
+          <button class="btn btn-outline-danger btn-sm clear-filters w-100 mb-2" id="clear-filters">
             <i class="fas fa-eraser"></i> Limpiar Filtros
+          </button>
+          <button class="btn btn-outline-success btn-sm export-excel w-100" id="export-excel">
+            <i class="fas fa-file-excel"></i> Exportar a Excel
+          </button>
+          <button class="btn btn-outline-primary btn-sm export-pdf w-100 mt-2" id="export-pdf">
+            <i class="fas fa-file-pdf"></i> Exportar a PDF
           </button>
         </div>
       </div>
@@ -190,7 +197,7 @@
 
   <div class="card-datatable table-responsive pt-0">
     @if($incomes->count() > 0)
-    <table class="table datatables-incomes-clients" data-symbol="{{ $settings->currency_symbol }}">
+    <table class="table datatables-incomes" data-symbol="{{ $settings->currency_symbol }}">
       <thead>
         <tr>
           <th>
@@ -200,7 +207,8 @@
           </th>
           <th>N°</th>
           <th>Fecha</th>
-          <th>Cliente</th>
+          <th>Entidad</th>
+          <th>Descripción</th>
           <th>Método de Pago</th>
           <th>Importe</th>
           <th>Categoría</th>
@@ -213,13 +221,13 @@
     </table>
     @else
     <div class="text-center py-5">
-      <h4>No hay ingresos de Clientes</h4>
+      <h4>No hay ingresos</h4>
       <p class="text-muted">Agrega un nuevo ingreso para comenzar</p>
     </div>
     @endif
   </div>
 </div>
 
-@include('content.accounting.incomes.incomes-clients.add-income-client')
-@include('content.accounting.incomes.incomes-clients.edit-income-client')
+@include('content.accounting.incomes.income.add-income')
+@include('content.accounting.incomes.income.edit-income')
 @endsection

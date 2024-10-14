@@ -1,7 +1,7 @@
 $(function () {
   // Variables para colores y símbolos
   let borderColor, bodyBg, headingColor;
-  let $currencySymbol = $('.datatables-incomes-suppliers').data('symbol');
+  let $currencySymbol = $('.datatables-incomes').data('symbol');
 
   // Configuración de colores basada en el estilo (oscuro o claro)
   if (isDarkStyle) {
@@ -14,24 +14,48 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
-  var dt_income_table = $('.datatables-incomes-suppliers');
+  var dt_income_table = $('.datatables-incomes');
 
   try {
     // Inicializa DataTable si el elemento existe
     if (dt_income_table.length) {
       var dt_incomes = dt_income_table.DataTable({
         ajax: {
-          url: 'incomes-suppliers/datatable',
+          url: 'incomes/datatable',
           data: function (d) {
             d.start_date = $('#startDate').val();
             d.end_date = $('#endDate').val();
+            d.entity_type = $('#entityType').val(); // Captura el filtro de entidad (cliente, proveedor, otros)
           }
         },
         columns: [
           { data: 'switch', orderable: false, searchable: false },
           { data: 'id', type: 'num' },
           { data: 'income_date' },
-          { data: 'supplier_name' },
+          {
+            data: null, // Columna para "Entidad" (Cliente, Proveedor, Ninguno)
+            render: function (data, type, full, meta) {
+              if (full.client_name) {
+                return 'Cliente';
+              } else if (full.supplier_name) {
+                return 'Proveedor';
+              } else {
+                return 'Ninguno';
+              }
+            }
+          },
+          {
+            data: null, // Columna para el nombre del Cliente/Proveedor o "Ninguno"
+            render: function (data, type, full, meta) {
+              if (full.client_name) {
+                return full.client_name;
+              } else if (full.supplier_name) {
+                return full.supplier_name;
+              } else {
+                return 'Ninguno';
+              }
+            }
+          },
           { data: 'payment_method_name' },
           { data: 'income_amount' },
           { data: 'income_category_name' },
@@ -57,7 +81,7 @@ $(function () {
             }
           },
           {
-            targets: 5,
+            targets: 6,
             render: function (data, type, full, meta) {
               return $currencySymbol + parseFloat(data).toFixed(2);
             }
@@ -95,7 +119,7 @@ $(function () {
           paginate: {
             first: '<<',
             last: '>>',
-            next: '>',
+            next: '> ',
             previous: '<'
           },
           pagingType: 'full_numbers',
@@ -103,29 +127,20 @@ $(function () {
           renderer: 'bootstrap'
         },
         initComplete: function () {
-          // Filtros personalizados para columnas
-          this.api()
-            .columns(3)
-            .every(function () {
-              var column = this;
-              var select = $('<select class="form-select"><option value="">Todos los proveedores</option></select>')
-                .appendTo('.supplier_filter')
-                .on('change', function () {
-                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                  column.search(val ? `^${val}$` : '', true, false).draw();
-                });
-
-              column
-                .data()
-                .unique()
-                .sort()
-                .each(function (d, j) {
-                  select.append(`<option value="${d}">${d}</option>`);
-                });
+          // Filtro dinámico para entidad (cliente, proveedor, otros)
+          var column = this.api().column(3); // Columna que contiene el tipo de entidad
+          var select = $(
+            '<select class="form-select"><option value="">Todos</option><option value="Cliente">Clientes</option><option value="Proveedor">Proveedores</option><option value="Ninguno">Ninguno</option></select>'
+          )
+            .appendTo('.entity_type') // Rellenar el filtro
+            .on('change', function () {
+              var val = $.fn.dataTable.util.escapeRegex($(this).val());
+              column.search(val ? `^${val}$` : '', true, false).draw(); // Filtrar por entidad
             });
 
+          // Filtro dinámico para categoría
           this.api()
-            .columns(6)
+            .columns(7)
             .every(function () {
               var column = this;
               var select = $('<select class="form-select"><option value="">Todas las categorías</option></select>')
@@ -158,23 +173,23 @@ $(function () {
 
       // Check/uncheck todos los checkboxes
       $('#checkAll').on('change', function () {
-        var checkboxes = $('.datatables-incomes-suppliers tbody input[type="checkbox"]');
+        var checkboxes = $('.datatables-incomes tbody input[type="checkbox"]');
         checkboxes.prop('checked', $(this).prop('checked'));
         toggleActionsMenu();
       });
 
       // Activar/desactivar checkbox principal
-      $('.datatables-incomes-suppliers tbody').on('change', 'input[type="checkbox"]', function () {
+      $('.datatables-incomes tbody').on('change', 'input[type="checkbox"]', function () {
         toggleActionsMenu();
         var allChecked =
-          $('.datatables-incomes-suppliers tbody input[type="checkbox"]').length ===
-          $('.datatables-incomes-suppliers tbody input[type="checkbox"]:checked').length;
+          $('.datatables-incomes tbody input[type="checkbox"]').length ===
+          $('.datatables-incomes tbody input[type="checkbox"]:checked').length;
         $('#checkAll').prop('checked', allChecked);
       });
 
       // Eliminar filtros de búsqueda
       $(document).on('click', '#clear-filters', function () {
-        $('.supplier_filter select').val('').trigger('change');
+        $('.entity_type select').val('').trigger('change'); // Limpiar filtro de entidad
         $('.category_filter select').val('').trigger('change');
         $('#startDate').val('');
         $('#endDate').val('');
@@ -189,7 +204,7 @@ $(function () {
 
       function toggleActionsMenu() {
         // Muestra u oculta el menú de acciones dependiendo de la cantidad de checkboxes seleccionados
-        var selectedCount = $('.datatables-incomes-suppliers tbody input[type="checkbox"]:checked').length;
+        var selectedCount = $('.datatables-incomes tbody input[type="checkbox"]:checked').length;
         if (selectedCount >= 2) {
           $('#dropdownMenuButton').removeClass('d-none');
           $('#columnSwitches').collapse('show');
@@ -198,8 +213,72 @@ $(function () {
           $('#columnSwitches').collapse('hide');
         }
       }
-
     }
+
+    $('#export-excel').on('click', function () {
+      // Capturar los valores de los filtros
+      let entityType = $('.entity_type select').val(); // Tipo de Entidad (Cliente/Proveedor/Ninguno)
+      let categoryId = $('.category_filter select').val(); // Categoría
+      let startDate = $('#startDate').val(); // Fecha desde
+      let endDate = $('#endDate').val(); // Fecha hasta
+
+      // Construir la URL con los parámetros válidos
+      let url = '/admin/incomes-export-excel?';
+      let params = [];
+
+      // Verificar y agregar los parámetros a la URL
+      if (entityType) {
+        params.push(`entity_type=${encodeURIComponent(entityType)}`);
+      }
+      if (startDate) {
+        params.push(`start_date=${encodeURIComponent(startDate)}`);
+      }
+      // categoryId
+      if (categoryId) {
+        params.push(`category_id=${encodeURIComponent(categoryId)}`);
+      }
+      if (endDate) {
+        params.push(`end_date=${encodeURIComponent(endDate)}`);
+      }
+
+      // Unir los parámetros a la URL
+      url += params.join('&');
+
+      // Redirigir a la ruta para exportar, abriendo en una nueva pestaña
+      window.open(url, '_blank');
+    });
+
+    $('#export-pdf').on('click', function () {
+      // Capturar los valores de los filtros
+      let entityType = $('.entity_type select').val(); // Tipo de Entidad (Cliente/Proveedor/Ninguno)
+      let categoryId = $('.category_filter select').val(); // Categoría
+      let startDate = $('#startDate').val(); // Fecha desde
+      let endDate = $('#endDate').val(); // Fecha hasta
+
+      // Construir la URL con los parámetros válidos
+      let url = '/admin/incomes-export-pdf?';
+      let params = [];
+
+      // Verificar y agregar los parámetros a la URL
+      if (entityType) {
+        params.push(`entity_type=${encodeURIComponent(entityType)}`);
+      }
+      if (categoryId) {
+        params.push(`category_id=${encodeURIComponent(categoryId)}`);
+      }
+      if (startDate) {
+        params.push(`start_date=${encodeURIComponent(startDate)}`);
+      }
+      if (endDate) {
+        params.push(`end_date=${encodeURIComponent(endDate)}`);
+      }
+
+      // Unir los parámetros a la URL
+      url += params.join('&');
+
+      // Redirigir a la ruta para exportar, abriendo en una nueva pestaña
+      window.open(url, '_blank');
+    });
   } catch (error) {
     console.error('Error al inicializar DataTable:', error);
   }

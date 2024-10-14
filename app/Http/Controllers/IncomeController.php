@@ -2,31 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreIncomeClientRequest;
-use App\Http\Requests\UpdateIncomeClientRequest;
-use App\Repositories\IncomeClientRepository;
+use App\Exports\IncomeExport;
+use App\Http\Requests\StoreIncomeRequest;
+use App\Http\Requests\UpdateIncomeRequest;
+use App\Repositories\IncomeRepository;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
-class IncomeClientController extends Controller
+class IncomeController extends Controller
 {
     /**
      * El repositorio para las operaciones de ingresos.
      *
-     * @var IncomeClientRepository
+     * @var IncomeRepository
      */
-    protected $incomeClientRepository;
+    protected $incomeRepository;
 
     /**
      * Inyecta el repositorio en el controlador y los middleware.
      *
-     * @param IncomeClientRepository $incomeClientRepository
+     * @param IncomeRepository $incomeRepository
      */
-    public function __construct(IncomeClientRepository $incomeClientRepository)
+    public function __construct(IncomeRepository $incomeRepository)
     {
-        $this->middleware(['check_permission:access_incomes-clients', 'user_has_store'])->only(
+        $this->middleware(['check_permission:access_incomes', 'user_has_store'])->only(
             [
                 'index',
                 'create',
@@ -35,14 +38,14 @@ class IncomeClientController extends Controller
             ]
         );
 
-        $this->middleware(['check_permission:access_delete_incomes-clients'])->only(
+        $this->middleware(['check_permission:access_delete_incomes'])->only(
             [
                 'destroy',
                 'deleteMultiple',
             ]
         );
 
-        $this->incomeClientRepository = $incomeClientRepository;
+        $this->incomeRepository = $incomeRepository;
     }
 
     /**
@@ -52,9 +55,9 @@ class IncomeClientController extends Controller
      */
     public function index(): View
     {
-        $incomes = $this->incomeClientRepository->getAllIncomes();
+        $incomes = $this->incomeRepository->getAllIncomes();
         // dd($incomes);
-        return view('content.accounting.incomes.incomes-clients.index', $incomes);
+        return view('content.accounting.incomes.income.index', $incomes);
     }
 
     /**
@@ -70,15 +73,15 @@ class IncomeClientController extends Controller
     /**
      * Almacena un nuevo ingreso en la base de datos.
      *
-     * @param StoreIncomeClientRequest $request
+     * @param StoreIncomeRequest $request
      * @return JsonResponse
      */
-    public function store(StoreIncomeClientRequest $request): JsonResponse
+    public function store(StoreIncomeRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
         try {
-            $income = $this->incomeClientRepository->store($validated);
+            $income = $this->incomeRepository->store($validated);
             return response()->json(['success' => true, 'data' => $income]);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -94,7 +97,7 @@ class IncomeClientController extends Controller
      */
     public function show(int $id): View
     {
-        $income = $this->incomeClientRepository->getIncomeById($id);
+        $income = $this->incomeRepository->getIncomeById($id);
         return view('content.accounting.incomes.details-income', compact('income'));
     }
 
@@ -107,7 +110,7 @@ class IncomeClientController extends Controller
     public function edit(int $id): JsonResponse
     {
         try {
-            $income = $this->incomeClientRepository->getIncomeById($id);
+            $income = $this->incomeRepository->getIncomeById($id);
             return response()->json($income);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -118,16 +121,16 @@ class IncomeClientController extends Controller
     /**
      * Actualiza un ingreso específico.
      *
-     * @param UpdateIncomeClientRequest $request
+     * @param UpdateIncomeRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function update(UpdateIncomeClientRequest $request, int $id): JsonResponse
+    public function update(UpdateIncomeRequest $request, int $id): JsonResponse
     {
         $validated = $request->validated();
 
         try {
-            $income = $this->incomeClientRepository->update($id, $validated);
+            $income = $this->incomeRepository->update($id, $validated);
             return response()->json(['success' => true, 'data' => $income]);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -145,7 +148,7 @@ class IncomeClientController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            $this->incomeClientRepository->destroyIncome($id);
+            $this->incomeRepository->destroyIncome($id);
             return response()->json(['success' => true, 'message' => 'Ingreso eliminado correctamente.']);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
@@ -162,7 +165,7 @@ class IncomeClientController extends Controller
     public function deleteMultiple(Request $request): JsonResponse
     {
         try {
-            $this->incomeClientRepository->deleteMultipleIncomes($request->input('ids'));
+            $this->incomeRepository->deleteMultipleIncomes($request->input('ids'));
             return response()->json(['success' => true, 'message' => 'Ingresos eliminados correctamente.']);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -177,6 +180,39 @@ class IncomeClientController extends Controller
      */
     public function datatable(Request $request): mixed
     {
-        return $this->incomeClientRepository->getIncomesForDataTable($request);
+        return $this->incomeRepository->getIncomesForDataTable($request);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            $entityType = $request->input('entity_type');
+            $categoryId = $request->input('category_id');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            $incomes = $this->incomeRepository->getIncomesForExport($entityType, $categoryId, $startDate, $endDate);
+            return Excel::download(new IncomeExport($incomes), 'ingresos-' . date('Y-m-d_H-i-s') . '.xlsx');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->back()->with('error', 'Error al exportar los ingresos a Excel. Por favor, intente nuevamente.');
+        }
+    }
+
+    public function exportPdf(Request $request)
+    {
+        try {
+            $entityType = $request->input('entity_type');
+            $categoryId = $request->input('category_id');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $incomes = $this->incomeRepository->getIncomesForExport($entityType, $categoryId, $startDate, $endDate);
+
+            $pdf = Pdf::loadView('content.accounting.incomes.income.export-pdf', compact('incomes'));
+            return $pdf->download('ingresos-' . date('Y-m-d_H-i-s') . '.pdf');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->back()->with('error', 'Error al exportar los ingresos a PDF. Por favor, intente nuevamente.');
+        }
     }
 }

@@ -22,8 +22,7 @@ use App\Http\Controllers\EntryDetailController;
 use App\Http\Controllers\EntryTypeController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpensePaymentMethodController;
-use App\Http\Controllers\IncomeClientController;
-use App\Http\Controllers\IncomeSupplierController;
+use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\NotificationController;
@@ -95,8 +94,7 @@ Route::middleware([
     Route::get('/invoices/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('accounting.receivedCfesData');
     Route::get('/current-accounts/datatable', [CurrentAccountController::class, 'datatable'])->name('current-accounts.datatable');
     // suppliers
-    Route::get('/incomes-clients/datatable', [IncomeClientController::class, 'datatable'])->name('income-clients.datatable');
-    Route::get('/incomes-suppliers/datatable', [IncomeSupplierController::class, 'datatable'])->name('income-suppliers.datatable');
+    Route::get('/incomes/datatable', [IncomeController::class, 'datatable'])->name('income.datatable');
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
@@ -116,6 +114,10 @@ Route::middleware([
     // exportar excel
     Route::get('/current-accounts-export-excel', [CurrentAccountController::class, 'exportExcel'])->name('current-account.export.excel');
     Route::get('/current-accounts-export-pdf', [CurrentAccountController::class, 'exportPdf'])->name('current-account.pdf');
+
+    // exportar excel
+    Route::get('/incomes-export-excel', [IncomeController::class, 'exportExcel'])->name('income.export.excel');
+    Route::get('/incomes-export-pdf', [IncomeController::class, 'exportPdf'])->name('income.pdf');
 
     Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
     Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
@@ -150,8 +152,7 @@ Route::middleware([
         'entry-accounts' => EntryAccountController::class,
         'current-accounts' => CurrentAccountController::class,
         'current-account-payments' => CurrentAccountPaymentController::class,
-        'incomes-clients' => IncomeClientController::class,
-        'incomes-suppliers' => IncomeSupplierController::class,
+        'incomes' => IncomeController::class,
     ]);
 
     // Puntos de venta
@@ -363,13 +364,8 @@ Route::middleware([
     });
 
     // Ingresos de Clientes
-    Route::group(['prefix' => 'incomes-clients'], function () {
-        Route::post('/delete-multiple', [IncomeClientController::class, 'deleteMultiple'])->name('income-clients.deleteMultiple');
-    });
-
-    // Ingresos de Proveedores
-    Route::group(['prefix' => 'incomes-suppliers'], function () {
-        Route::post('/delete-multiple', [IncomeSupplierController::class, 'deleteMultiple'])->name('income-suppliers.deleteMultiple');
+    Route::group(['prefix' => 'incomes'], function () {
+        Route::post('/delete-multiple', [IncomeController::class, 'deleteMultiple'])->name('income-clients.deleteMultiple');
     });
 });
 

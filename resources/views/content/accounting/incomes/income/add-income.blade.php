@@ -1,9 +1,9 @@
 <!-- Modal Add New Income -->
-<div class="modal fade" id="addIncomeClientModal" tabindex="-1" aria-labelledby="addIncomeClientModalLabel" aria-hidden="true">
+<div class="modal fade" id="addIncomeModal" tabindex="-1" aria-labelledby="addIncomeModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addIncomeClientModalLabel">Agregar Nuevo Ingreso Cliente</h5>
+        <h5 class="modal-title" id="addIncomeModalLabel">Agregar Nuevo Ingreso</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -23,7 +23,7 @@
           <!-- Fecha del Ingreso -->
           <div class="mb-3">
             <label for="income_date" class="form-label">Fecha del Ingreso</label>
-            <input type="date" class="form-control" id="income_date" name="income_date" required>
+            <input type="date" class="form-control" id="income_date" name="income_date" required value="{{ date('Y-m-d') }}">
           </div>
 
           <!-- Importe del Ingreso -->
@@ -54,13 +54,34 @@
             </select>
           </div>
 
-          <!-- Cliente -->
+          <!-- Tipo de Entidad -->
           <div class="mb-3">
+            <label for="entity_type" class="form-label">Tipo de Entidad</label>
+            <select class="form-select" id="entity_type" name="entity_type" required>
+              <option value="none" selected>Ninguno</option>
+              <option value="client">Cliente</option>
+              <option value="supplier">Proveedor</option>
+            </select>
+          </div>
+
+          <!-- Cliente (se oculta inicialmente) -->
+          <div class="mb-3" id="client_field" style="display: none;">
             <label for="client_id" class="form-label">Cliente</label>
-            <select class="form-select" id="client_id" name="client_id" required>
+            <select class="form-select" id="client_id" name="client_id">
               <option value="" selected disabled>Seleccione un cliente</option>
               @foreach($clients as $client)
                 <option value="{{ $client->id }}">{{ $client->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <!-- Proveedor (se oculta inicialmente) -->
+          <div class="mb-3" id="supplier_field" style="display: none;">
+            <label for="supplier_id" class="form-label">Proveedor</label>
+            <select class="form-select" id="supplier_id" name="supplier_id">
+              <option value="" selected disabled>Seleccione un proveedor</option>
+              @foreach($suppliers as $supplier)
+                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
               @endforeach
             </select>
           </div>
@@ -68,7 +89,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" id="submitIncomeClientBtn" data-route="{{ route('incomes-clients.store') }}">Guardar Ingreso</button>
+        <button type="button" class="btn btn-primary" id="submitIncomeBtn" data-route="{{ route('incomes.store') }}">Guardar Ingreso</button>
       </div>
     </div>
   </div>

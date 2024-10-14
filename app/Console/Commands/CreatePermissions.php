@@ -280,25 +280,9 @@ class CreatePermissions extends Command
                     'module' => 'incomes',
                     'view_all' => true,
                     'submenus' => [
-                        'incomes-clients',
-                        'incomes-suppliers',
+                        'incomes',
+                        'delete_incomes',
                         'income-categories',
-                    ],
-                ],
-                [
-                    'slug' => 'incomes-clients',
-                    'module' => 'incomes',
-                    'view_all' => true,
-                    'submenus' => [
-                        'delete_incomes-clients',
-                    ],
-                ],
-                [
-                    'slug' => 'incomes-suppliers',
-                    'module' => 'incomes',
-                    'view_all' => true,
-                    'submenus' => [
-                        'delete_incomes-suppliers',
                     ],
                 ],
                 [

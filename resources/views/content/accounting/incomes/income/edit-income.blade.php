@@ -1,13 +1,13 @@
 <!-- Modal Edit Income -->
-<div class="modal fade" id="editIncomeSupplierModal" tabindex="-1" aria-labelledby="editIncomeSupplierModalLabel" aria-hidden="true">
+<div class="modal fade" id="editIncomeModal" tabindex="-1" aria-labelledby="editIncomeModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="editIncomeSupplierModalLabel">Editar Ingreso Proveedor</h5>
+        <h5 class="modal-title" id="editIncomeModalLabel">Editar Ingreso</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="editIncomeSupplierForm">
+        <form id="editIncomeForm">
           <!-- Nombre del Ingreso -->
           <div class="mb-3">
             <label for="edit_income_name" class="form-label">Nombre del Ingreso</label>
@@ -54,10 +54,31 @@
             </select>
           </div>
 
-          <!-- Proveedor -->
+          <!-- Tipo de Entidad -->
           <div class="mb-3">
+            <label for="edit_entity_type" class="form-label">Tipo de Entidad</label>
+            <select class="form-select" id="edit_entity_type" name="entity_type" required>
+              <option value="none" selected>Ninguno</option>
+              <option value="client">Cliente</option>
+              <option value="supplier">Proveedor</option>
+            </select>
+          </div>
+
+          <!-- Cliente (se oculta inicialmente) -->
+          <div class="mb-3" id="edit_client_field" style="display: none;">
+            <label for="edit_client_id" class="form-label">Cliente</label>
+            <select class="form-select" id="edit_client_id" name="client_id">
+              <option value="" selected disabled>Seleccione un cliente</option>
+              @foreach($clients as $client)
+                <option value="{{ $client->id }}">{{ $client->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <!-- Proveedor (se oculta inicialmente) -->
+          <div class="mb-3" id="edit_supplier_field" style="display: none;">
             <label for="edit_supplier_id" class="form-label">Proveedor</label>
-            <select class="form-select" id="edit_supplier_id" name="supplier_id" required>
+            <select class="form-select" id="edit_supplier_id" name="supplier_id">
               <option value="" selected disabled>Seleccione un proveedor</option>
               @foreach($suppliers as $supplier)
                 <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
@@ -68,7 +89,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" id="submitEditIncomeSupplierBtn" data-route="{{ route('incomes-suppliers.update', ':id') }}">Guardar Cambios</button>
+        <button type="button" class="btn btn-primary" id="submitEditIncomeBtn" data-route="{{ route('incomes.update', ':id') }}">Guardar Cambios</button>
       </div>
     </div>
   </div>
