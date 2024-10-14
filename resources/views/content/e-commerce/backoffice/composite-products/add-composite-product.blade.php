@@ -76,7 +76,7 @@
             <div class="mb-3">
               <label class="form-label" for="composite-product-name">Título</label>
               <input type="text" class="form-control" id="composite-product-name"
-                placeholder="Nombre del producto compuesto" name="title" aria-label="Nombre del producto compuesto"
+                placeholder="Nombre del producto compuesto" name="name" aria-label="Nombre del producto compuesto"
                 required>
             </div>
             <!-- Campo para la descripción del producto compuesto -->

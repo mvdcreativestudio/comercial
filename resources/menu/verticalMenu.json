@@ -160,7 +160,7 @@
           "submenu": [
             {
               "id": "tour-facturas",
-              "name": "Ver Facturación",
+              "name": "Facturas Emitidas",
               "icon": "menu-icon tf-icons bx bx-file",
               "slug": "invoices",
               "url": "/admin/invoices"

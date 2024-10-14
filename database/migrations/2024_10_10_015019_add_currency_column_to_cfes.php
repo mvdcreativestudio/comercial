@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cfes', function (Blueprint $table) {
-            // Verificar si la columna 'received' no existe antes de agregarla
-            if (!Schema::hasColumn('cfes', 'received')) {
-                $table->boolean('received')->default(false)->after('balance');
-            }
+            $table->string('currency')->default('USD')->after('total');
         });
     }
 
@@ -25,10 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cfes', function (Blueprint $table) {
-            // Verificar si la columna 'received' existe antes de eliminarla
-            if (Schema::hasColumn('cfes', 'received')) {
-                $table->dropColumn('received');
-            }
+            $table->dropColumn('currency');
         });
     }
 };

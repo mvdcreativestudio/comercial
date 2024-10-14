@@ -29,7 +29,7 @@ class ProductTemplateExport implements FromArray, WithHeadings, WithEvents
     public function headings(): array
     {
         return [
-            'Nombre', 'SKU', 'Descripción', 'Precio_antiguo', 'Precio', 'Descuento',
+            'Nombre', 'SKU', 'Descripción', 'Precio', 'Precio_oferta', 'Descuento',
             'Imagen', 'Stock', 'Margen_seguridad', 'Categoria'
         ];
     }

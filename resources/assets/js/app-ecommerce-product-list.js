@@ -88,8 +88,8 @@ $(function () {
             const truncatedName = rowData.name.length > 20 ? rowData.name.substring(0, 20) + '...' : rowData.name;
 
             // Determinar qué precio mostrar
-            const priceToShow = rowData.price !== null ? rowData.price : rowData.old_price;
-            const priceClass = rowData.price !== null ? '' : '';
+            const priceToShow = rowData.price > 0 ? rowData.price : rowData.old_price; // Cambiado para mostrar old_price si price es 0
+            const priceClass = rowData.price !== null ? '' : ''; // Añadido para mostrar un estilo diferente si no hay precio
 
             const card = `
               <div class="col-md-6 col-lg-4 col-12 mb-4">
@@ -231,4 +231,29 @@ $(function () {
     window.location.href = exportUrl + '?' + queryString;
   });
 
+  // Manejar el clic en el botón de descargar plantilla
+  $('#download-template').on('click', function (e) {
+    e.preventDefault(); // Prevenir el comportamiento por defecto del enlace
+
+    Swal.fire({
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        content: 'swal-content',
+        confirmButton: 'btn btn-outline-primary',
+        cancelButton: 'btn btn-outline-danger'
+      },
+      title: 'Atención',
+      text: 'Recuerde crear todas las categorías de productos que necesite previo a la descarga de la plantilla',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirigir a la ruta de descarga de plantilla
+        window.location.href = $(this).attr('href');
+      }
+    });
+  });
 });

@@ -260,7 +260,7 @@
       const route = $('#editCompositeProductForm').attr('action');
 
       const formData = {
-        title: $('#composite-product-name').val(),
+        name: $('#composite-product-name').val(),
         description: $('#description').val(),
         price: $('#price').val(),
         recommended_price: $('#recommended_price').val(),

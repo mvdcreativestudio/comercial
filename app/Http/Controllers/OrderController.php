@@ -17,7 +17,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class OrderController extends Controller
 {
     /**
-     * El repositorio para las operaciones de pedidos.
+     * El repositorio para las operaciones de ventas.
      *
      * @var OrderRepository
      */
@@ -54,7 +54,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Muestra una lista de todos los pedidos.
+     * Muestra una lista de todos los ventas.
      *
      * @return View
      */
@@ -144,7 +144,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Obtiene los pedidos para la DataTable.
+     * Obtiene los ventas para la DataTable.
      *
      * @return mixed
      */
@@ -224,7 +224,7 @@ class OrderController extends Controller
             return Excel::download(new OrdersExport($orders), 'orders-'.date('Y-m-d_H-i-s').'.xlsx');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->back()->with('error', 'Error al exportar los pedidos. Por favor, intente nuevamente.');
+            return redirect()->back()->with('error', 'Error al exportar las ventas. Por favor, intente nuevamente.');
         }
     }
 }

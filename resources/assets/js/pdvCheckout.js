@@ -277,7 +277,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
             if (responseConfig.showCloseButton) {
                 swalInstance.then(() => {
                     Swal.close();
-                    window.history.back();
                 });
             }
         }
@@ -614,18 +613,23 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
     clientList.empty(); // Limpiar la lista existente
 
     clients.forEach(client => {
-      const clientType = client.type === 'company' ? 'Empresa' : 'Persona';
-      const clientDoc = client.type === 'company' ? client.rut : client.ci;
-      const clientDocLabel = client.type === 'company' ? 'RUT' : 'CI';
-      const razonSocialText = client.company_name ? client.company_name : '-';
-      const razonSocial =
-        client.type === 'company' ? `<p class="client-info"><strong>Razón Social:</strong> ${razonSocialText}</p>` : '';
+        const clientType = client.type === 'company' ? 'Empresa' : 'Persona';
+        const clientDoc = client.type === 'company' ? client.rut : client.ci;
+        const clientDocLabel = client.type === 'company' ? 'RUT' : 'CI';
 
-      const clientCard = `
+        // Si es una empresa, mostrar company_name, si es una persona, mostrar name y lastname
+        const displayName = client.type === 'company'
+            ? client.company_name || '-'
+            : `${client.name || '-'} ${client.lastname || '-'}`;
+
+        const razonSocial =
+            client.type === 'company' ? `<p class="client-info"><strong>Razón Social:</strong> ${client.company_name || '-'}</p>` : '';
+
+        const clientCard = `
             <div class="client-card card mb-2" style="border: none; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
                 <div class="card-body d-flex justify-content-between align-items-center p-2">
                     <div class="client-details">
-                        <h6 class="card-title mb-1">${client.name || '-'} ${client.lastname || '-'}</h6>
+                        <h6 class="card-title mb-1">${displayName}</h6>
                         ${razonSocial}
                         <p class="client-info"><strong>Tipo de Cliente:</strong> ${clientType}</p>
                         <p class="client-info"><strong>${clientDocLabel}:</strong> ${clientDoc ? clientDoc : 'No disponible'}</p>
@@ -635,7 +639,7 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
             </div>
         `;
 
-      clientList.append(clientCard);
+        clientList.append(clientCard);
     });
 
     // Event listener para el botón "Seleccionar"
@@ -702,10 +706,19 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
       document.getElementById('ciField').style.display = 'block';
       document.getElementById('rutField').style.display = 'none';
       document.getElementById('razonSocialField').style.display = 'none';
+
+      // Mostrar los asteriscos en nombre y apellido
+      document.querySelector('label[for="nombreCliente"] .text-danger').style.display = 'inline';
+      document.querySelector('label[for="apellidoCliente"] .text-danger').style.display = 'inline';
+
     } else if (tipo === 'company') {
       document.getElementById('ciField').style.display = 'none';
       document.getElementById('rutField').style.display = 'block';
       document.getElementById('razonSocialField').style.display = 'block';
+
+      // Ocultar los asteriscos en nombre y apellido
+      document.querySelector('label[for="nombreCliente"] .text-danger').style.display = 'none';
+      document.querySelector('label[for="apellidoCliente"] .text-danger').style.display = 'none';
     }
   });
 
@@ -724,34 +737,39 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
     clearErrors();
 
     // Validación básica...
-    if (nombre.value.trim() === '') {
-        showError(nombre, 'Este campo es obligatorio');
-        hasError = true;
-    }
-
-    if (apellido.value.trim() === '') {
-        showError(apellido, 'Este campo es obligatorio');
-        hasError = true;
-    }
-
     if (tipo.value.trim() === '') {
-        showError(tipo, 'Este campo es obligatorio');
-        hasError = true;
+      showError(tipo, 'Este campo es obligatorio');
+      hasError = true;
     }
 
+    // Si el tipo de cliente es "individual", validar nombre y apellido
+    if (tipo.value === 'individual') {
+      if (nombre.value.trim() === '') {
+          showError(nombre, 'El nombre es obligatorio para clientes individuales');
+          hasError = true;
+      }
+
+      if (apellido.value.trim() === '') {
+          showError(apellido, 'El apellido es obligatorio para clientes individuales');
+          hasError = true;
+      }
+
+      if (ci.value.trim() === '') {
+          showError(ci, 'El documento de identidad es obligatorio para clientes individuales');
+          hasError = true;
+      }
+    }
+
+    // Validar que el campo "email" no esté vacío
     if (email.value.trim() === '') {
-        showError(email, 'Este campo es obligatorio');
-        hasError = true;
+      showError(email, 'Este campo es obligatorio');
+      hasError = true;
     }
 
+    // Validar que "dirección" no esté vacía (si es aplicable a ambos tipos de cliente)
     if (direccion.value.trim() === '') {
-        showError(direccion, 'Este campo es obligatorio');
-        hasError = true;
-    }
-
-    if (tipo.value === 'individual' && ci.value.trim() === '') {
-        showError(ci, 'Este campo es obligatorio');
-        hasError = true;
+      showError(direccion, 'Este campo es obligatorio');
+      hasError = true;
     }
 
     if (tipo.value === 'company') {
@@ -810,9 +828,6 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
         mostrarError('Error al guardar el cliente: ' + error);
     });
   });
-
-
-
 
 
   // Función para mostrar el mensaje de error
@@ -879,8 +894,8 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
     const subtotal = parseFloat($('.subtotal').text().replace(/[^\d.-]/g, '')) || 0;
 
     // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
-    if (total > 24000 && (!client || !client.id)) {
-      mostrarError('Para ventas mayores a UYU24.000, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
+    if (total > 600 && (!client || !client.id)) {
+      mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado a la venta. Puede seleccionar uno existente o crear uno nuevo.');
       return;
     }
 
@@ -915,6 +930,8 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
       doc = '00000000';
     }
 
+    // console.log para ver los productos que se enviarán a orderData
+    console.log(cart);
 
     const orderData = {
       date: new Date().toISOString().split('T')[0],
@@ -925,7 +942,13 @@ function consultarEstadoTransaccion(transactionId, sTransactionId, transactionDa
       discount: discount,
       client_id: client && client.id ? client.id : null,
       client_type: client && client.type ? client.type : 'no-client',
-      products: JSON.stringify(cart),
+      products: JSON.stringify(cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        is_composite: item.isComposite || false  // Identificar si es un producto compuesto
+      }))),
       subtotal: subtotal,
       total: total - discount,
       notes: $('textarea').val() || '',
@@ -1001,7 +1024,7 @@ $.ajax({
               text: 'La venta se ha realizado exitosamente.',
               icon: 'success',
               showCancelButton: userHasPermission('access_orders'),
-              confirmButtonText: userHasPermission('access_orders') ? 'Ver Orden' : 'Cerrar',
+              confirmButtonText: userHasPermission('access_orders') ? 'Ver Venta' : 'Cerrar',
               cancelButtonText: 'Cerrar',
               timer: 5000,
               timerProgressBar: true,
@@ -1109,7 +1132,7 @@ $.ajax({
         enviarTransaccionPos(token);
       }).fail(function (error) {
         console.error('Error al obtener el token del POS:', error);
-      }); */
+      });*/
     }
   });
 

@@ -27,7 +27,7 @@ class ClientRepository
     {
         // Iniciar la consulta básica
         $query = Client::select(['id', 'name', 'lastname', 'company_name', 'type', 'rut', 'ci', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document'])
-            ->orderBy('id', 'desc');
+            ->orderBy('name', 'asc');
 
         // Verificar la configuración de clients_has_store
         if ($this->companySettings && $this->companySettings->clients_has_store == 1) {

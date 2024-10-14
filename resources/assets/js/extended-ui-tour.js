@@ -73,13 +73,13 @@
       {
         id: 'tour-ecommerce',
         title: 'E-Commerce',
-        text: 'Gestiona tu tienda en línea y las ventas realizadas a través de ella. Aquí puedes ver los pedidos, productos, categorías y más.',
+        text: 'Gestiona tu tienda en línea y las ventas realizadas a través de ella. Aquí puedes ver los ventas, productos, categorías y más.',
         attachTo: { element: '#tour-ecommerce', on: 'right' },
       },
       {
         id: 'tour-pedidos',
-        title: 'Pedidos',
-        text: 'Gestiona los pedidos de tus clientes. Esta sección te permite ver el estado de los pedidos, actualizarlos y gestionar su cumplimiento.',
+        title: 'Ventas',
+        text: 'Gestiona los pedidos de tus clientes. Esta sección te permite ver el estado de los ventas, actualizarlos y gestionar su cumplimiento.',
         attachTo: { element: '#tour-pedidos', on: 'right' },
       },
       {

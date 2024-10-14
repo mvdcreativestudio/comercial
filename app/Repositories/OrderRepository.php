@@ -280,12 +280,12 @@ class OrderRepository
             'stores.name as store_name',
             DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name"),
         ])
-            ->join('clients', 'orders.client_id', '=', 'clients.id')
-            ->join('stores', 'orders.store_id', '=', 'stores.id');
+        ->join('clients', 'orders.client_id', '=', 'clients.id')
+        ->join('stores', 'orders.store_id', '=', 'stores.id');
 
         // Verificar permisos del usuario
         if (!Auth::user()->can('view_all_ecommerce')) {
-            $query->where('orders.store_id', Auth::user()->store_id)->orderBy('orders.created_at', 'desc');
+            $query->where('orders.store_id', Auth::user()->store_id);
         }
 
         // Filtrar por rango de fechas
@@ -295,10 +295,15 @@ class OrderRepository
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
+        // Aplicar siempre el orden descendente por fecha y hora
+        $query->orderBy('orders.date', 'desc')
+              ->orderBy('orders.time', 'desc'); // Orden adicional por hora si las fechas son iguales
+
         $dataTable = DataTables::of($query)->make(true);
 
         return $dataTable;
     }
+
 
     /**
      * Obtiene los productos de un pedido para la DataTable.
