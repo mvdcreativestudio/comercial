@@ -151,4 +151,16 @@ class Product extends Model
     {
         $this->attributes['discount'] = round($value, 2);
     }
+
+    /**
+     * Obtiene el precio del producto.
+     * @param float|null $value
+     * @return float
+    */
+    public function priceLists()
+    {
+        return $this->belongsToMany(PriceList::class, 'price_list_products')
+                    ->withPivot('price')
+                    ->withTimestamps();
+    }
 }

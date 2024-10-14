@@ -207,6 +207,8 @@ Route::middleware([
 
     // Gestión de Clientes
     Route::put('/admin/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+    // Obtener los productos con los precios personalizados según la lista de precios asignada al cliente
+    Route::get('/price-list/{priceListId}/products', [ClientController::class, 'getProductsByPriceList']);
 
     // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {
