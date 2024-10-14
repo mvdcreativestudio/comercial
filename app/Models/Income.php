@@ -21,6 +21,10 @@ class Income extends Model
         'supplier_id',
     ];
 
+    protected $casts = [
+        'income_date' => 'datetime',
+    ];
+
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class);
