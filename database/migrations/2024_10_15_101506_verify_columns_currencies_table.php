@@ -15,16 +15,16 @@ return new class extends Migration
     {
         Schema::table('currencies', function (Blueprint $table) {
             if (!Schema::hasColumn('currencies', 'code')) {
-                $table->string('code')->unique();
+                $table->string('code')->unique()->after('id');
             }
             if (!Schema::hasColumn('currencies', 'symbol')) {
-                $table->string('symbol');
+                $table->string('symbol')->after('code');
             }
             if (!Schema::hasColumn('currencies', 'name')) {
-                $table->string('name');
+                $table->string('name')->after('symbol');
             }
             if (!Schema::hasColumn('currencies', 'exchange_rate')) {
-                $table->decimal('exchange_rate', 15, 8);
+                $table->decimal('exchange_rate', 15, 8)->after('name');
             }
         });
     }
