@@ -17,6 +17,7 @@ class Income extends Model
         'income_amount',
         'payment_method_id',
         'income_category_id',
+        'currency_id',
         'client_id',
         'supplier_id',
     ];
@@ -34,6 +35,12 @@ class Income extends Model
     public function incomeCategory()
     {
         return $this->belongsTo(IncomeCategory::class);
+    }
+
+    // Relación con Currency
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     // Relación con Client (opcional)

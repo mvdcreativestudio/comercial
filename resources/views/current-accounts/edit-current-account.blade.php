@@ -1,7 +1,9 @@
 @extends('layouts/layoutMaster')
 
 @section('title', 'Editar Cuenta Corriente')
-
+<script>
+  var currentAccountSettings = @json($currentAccountSettings);
+</script>
 @section('page-script')
 @vite([
 'resources/assets/js/current-accounts/app-current-account-edit.js'

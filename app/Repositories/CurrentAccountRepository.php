@@ -257,6 +257,7 @@ class CurrentAccountRepository
             'clients.name as client_name',
             'suppliers.name as supplier_name',
             'currencies.code as currency_code',
+            'currencies.symbol as symbol',
         ])
             ->leftJoin('clients', 'current_accounts.client_id', '=', 'clients.id')
             ->leftJoin('suppliers', 'current_accounts.supplier_id', '=', 'suppliers.id')

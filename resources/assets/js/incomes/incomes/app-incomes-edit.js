@@ -55,6 +55,7 @@ $(document).ready(function () {
         $('#edit_income_amount').val(data.income_amount);
         $('#edit_payment_method_id').val(data.payment_method_id);
         $('#edit_income_category_id').val(data.income_category_id);
+        $('#edit_currency_id').val(data.currency_id);
 
         // Lógica para mostrar Cliente o Proveedor según el tipo de entidad
         if (data.client_id != null) {
@@ -86,6 +87,7 @@ $(document).ready(function () {
       income_amount: $('#edit_income_amount').val(),
       payment_method_id: $('#edit_payment_method_id').val(),
       income_category_id: $('#edit_income_category_id').val(),
+      currency_id: $('#edit_currency_id').val(),
       client_id: $('#edit_client_id').val(),
       supplier_id: $('#edit_supplier_id').val(),
       '_token': $('meta[name="csrf-token"]').attr('content')

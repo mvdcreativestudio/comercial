@@ -1,7 +1,9 @@
 @extends('layouts/layoutMaster')
 
 @section('title', 'Agregar Nueva Cuenta Corriente')
-
+<script>
+  var currentAccountSettings = @json($currentAccountSettings);
+</script>
 @section('page-script')
 @vite([
 'resources/assets/js/current-accounts/app-current-account-add.js'
@@ -58,7 +60,7 @@
       <div class="mb-3">
         <label for="description" class="form-label">Descripción</label>
         <input type="text" class="form-control" id="description" name="description" required
-          placeholder="Ingrese una descripción de la cuenta" value="Credito Initial" disabled>
+          placeholder="Ingrese una descripción de la cuenta" value="Crédito Inicial" disabled>
       </div>
 
       <div class="mb-3">
@@ -82,9 +84,6 @@
         <label for="current_account_settings_id" class="form-label">Tipo de Crédito</label>
         <select class="form-select" id="current_account_settings_id" name="current_account_settings_id" required>
           <option value="" selected disabled>Seleccione el tipo de crédito</option>
-          @foreach($currentAccountSettings as $setting)
-          <option value="{{ $setting->id }}">{{ $setting->payment_terms }}</option>
-          @endforeach
         </select>
       </div>
 

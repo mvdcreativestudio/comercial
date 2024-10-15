@@ -45,6 +45,7 @@ $(document).ready(function() {
       income_amount: $('#income_amount').val(),
       payment_method_id: $('#payment_method_id').val(),
       income_category_id: $('#income_category_id').val(),
+      currency_id: $('#currency_id').val(),
     };
 
     // Agregar client_id o supplier_id según el tipo de entidad seleccionado

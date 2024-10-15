@@ -267,6 +267,7 @@
           <th>Importe</th>
           <th>Abonado</th>
           <th>Categoria</th>
+          <th>Moneda</th>
           <th>Estado de Pago</th>
           <th>Estado Temporal</th>
           <th>Acciones</th>
