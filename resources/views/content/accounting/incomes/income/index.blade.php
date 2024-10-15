@@ -212,6 +212,7 @@
           <th>Método de Pago</th>
           <th>Importe</th>
           <th>Categoría</th>
+          <th>Moneda</th>
           <th>Acciones</th>
         </tr>
       </thead>

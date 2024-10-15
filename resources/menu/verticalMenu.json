@@ -224,46 +224,14 @@
           "name": "Ingresos",
           "icon": "menu-icon tf-icons bx bx-line-chart",
           "slug": "incomes",
-          "url": "/admin/incomes",
-          "submenu": [
-            {
-              "id": "tour-ingresos",
-              "name": "Ingresos",
-              "icon": "menu-icon tf-icons bx bx-user",
-              "slug": "incomes",
-              "url": "/admin/incomes"
-            },
-            {
-              "id": "tour-ingresos-categorias",
-              "name": "Categorías",
-              "icon": "menu-icon tf-icons bx bx-category",
-              "slug": "income-categories",
-              "url": "/admin/income-categories"
-            }
-          ]
+          "url": "/admin/incomes"
         },
         {
           "id": "tour-cuentas-corrientes",
           "name": "Cuentas Corrientes",
           "icon": "menu-icon tf-icons bx bx-dollar",
           "slug": "current-accounts",
-          "url": "/admin/current-accounts",
-          "submenu" :[
-            {
-              "id": "tour-cuentas-corrientes",
-              "name": "Cuentas Corrientes",
-              "icon": "menu-icon tf-icons bx bx-dollar",
-              "slug": "current-accounts",
-              "url": "/admin/current-accounts"
-            },
-            {
-              "id": "tour-cuentas-corrientes-configuracion",
-              "name": "Configuración",
-              "icon": "menu-icon tf-icons bx bx-cog",
-              "slug": "current-accounts-settings",
-              "url": "/admin/current-accounts-settings"
-            }
-          ]
+          "url": "/admin/current-accounts"
         }
       ]
     },

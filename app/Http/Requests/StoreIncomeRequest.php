@@ -30,6 +30,7 @@ class StoreIncomeRequest extends FormRequest
             'income_amount' => ['required', 'numeric'],
             'payment_method_id' => ['required', 'exists:payment_methods,id'],
             'income_category_id' => ['required', 'exists:income_categories,id'],
+            'currency_id' => ['required', 'exists:currencies,id'],
             'client_id' => ['nullable', 'exists:clients,id'], // Es nullable ya que es opcional
             'supplier_id' => ['nullable', 'exists:suppliers,id'], // Es nullable ya que es opcional
         ];
@@ -56,6 +57,8 @@ class StoreIncomeRequest extends FormRequest
             'payment_method_id.exists' => 'El método de pago seleccionado no es válido.',
             'income_category_id.required' => 'La categoría del ingreso es obligatoria.',
             'income_category_id.exists' => 'La categoría seleccionada no es válida.',
+            'currency_id.required' => 'La moneda del ingreso es obligatoria.',
+            'currency_id.exists' => 'La moneda seleccionada no es válida.',
             'client_id.exists' => 'El cliente seleccionado no es válido.',
             'supplier_id.exists' => 'El proveedor seleccionado no es válido.',
         ];

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Helpers\Helpers;
 use App\Models\Client;
+use App\Models\Currency;
 use App\Models\Income;
 use App\Models\IncomeCategory;
 use App\Models\PaymentMethod;
@@ -29,7 +30,8 @@ class IncomeRepository
         $incomeCategories = IncomeCategory::all();
         $clients = Client::all();
         $suppliers = Supplier::all();
-        return compact('incomes', 'totalIncomes', 'totalIncomeAmount', 'paymentMethods', 'incomeCategories', 'clients', 'suppliers');
+        $currencies = Currency::all();
+        return compact('incomes', 'totalIncomes', 'totalIncomeAmount', 'paymentMethods', 'incomeCategories', 'clients', 'suppliers', 'currencies');
     }
 
     /**
@@ -51,6 +53,7 @@ class IncomeRepository
                 'income_amount' => $data['income_amount'],
                 'payment_method_id' => $data['payment_method_id'],
                 'income_category_id' => $data['income_category_id'],
+                'currency_id' => $data['currency_id'],
                 'client_id' => $data['client_id'],
                 'supplier_id' => $data['supplier_id']
             ]);
@@ -95,6 +98,7 @@ class IncomeRepository
                 'income_amount' => $data['income_amount'],
                 'payment_method_id' => $data['payment_method_id'],
                 'income_category_id' => $data['income_category_id'],
+                'currency_id' => $data['currency_id'],
                 'client_id' => $data['client_id'],
                 'supplier_id' => $data['supplier_id']
             ]);
@@ -156,17 +160,21 @@ class IncomeRepository
             'incomes.income_amount',
             'incomes.payment_method_id',
             'incomes.income_category_id',
+            'incomes.currency_id',
             'incomes.client_id',
             'incomes.supplier_id',
             'incomes.created_at',
             'clients.name as client_name',
             'suppliers.name as supplier_name',
             'income_categories.income_name as income_category_name',
+            'currencies.name as currency_name',
+            'currencies.symbol as currency_symbol',
             'payment_methods.description as payment_method_name',
         ])
             ->leftJoin('clients', 'incomes.client_id', '=', 'clients.id') // Permitir ingresos sin cliente
             ->leftJoin('suppliers', 'incomes.supplier_id', '=', 'suppliers.id') // Permitir ingresos sin proveedor
             ->leftJoin('income_categories', 'incomes.income_category_id', '=', 'income_categories.id')
+            ->leftJoin('currencies', 'incomes.currency_id', '=', 'currencies.id')
             ->leftJoin('payment_methods', 'incomes.payment_method_id', '=', 'payment_methods.id')
             ->orderBy('incomes.id', 'desc');
 

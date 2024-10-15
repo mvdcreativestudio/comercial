@@ -59,6 +59,7 @@ $(function () {
           { data: 'payment_method_name' },
           { data: 'income_amount' },
           { data: 'income_category_name' },
+          { data: 'currency_name' },
           { data: '' }
         ],
         columnDefs: [
@@ -83,8 +84,18 @@ $(function () {
           {
             targets: 6,
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
+              const symbol = full.currency_symbol ?? '$';
+              return symbol + parseFloat(data).toFixed(2);
             }
+          },
+          {
+            targets: 8,
+            render: function (data, type, full, meta) {
+              return full.currency_name
+                ? full.currency_name
+                : 'Sin Moneda';
+            }
+
           },
           {
             targets: -1,

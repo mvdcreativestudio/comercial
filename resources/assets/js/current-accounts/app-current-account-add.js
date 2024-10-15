@@ -44,6 +44,8 @@ $(document).ready(function() {
   // Lógica de selección de tipo de entidad (cliente o proveedor)
   $('#entity_type').on('change', function() {
     let selectedType = $(this).val();
+    filterCreditTypeOptions(selectedType); // Filtrar tipos de crédito según la selección de entidad
+
     if (selectedType === 'client') {
       // Mostrar select de clientes
       $('#clientSelectWrapper').removeClass('d-none');
@@ -57,6 +59,25 @@ $(document).ready(function() {
       $('#clientSelectWrapper, #supplierSelectWrapper').addClass('d-none');
     }
   });
+
+  // Filtrar tipos de crédito según el tipo de entidad
+  function filterCreditTypeOptions(entityType) {
+    let filteredOptions = '';
+
+
+    filteredOptions += '<option value="" selected disabled>Seleccione el tipo de crédito</option>';
+
+    // Filtrar según transaction_type: 'Sale' para clientes, 'Purchase' para proveedores
+    currentAccountSettings.forEach(function(setting) {
+      if ((entityType === 'client' && setting.transaction_type === 'Sale') ||
+          (entityType === 'supplier' && setting.transaction_type === 'Purchase')) {
+        filteredOptions += `<option value="${setting.id}">${setting.payment_terms}</option>`;
+      }
+    });
+
+    // Actualizar las opciones del select de tipo de crédito
+    $('#current_account_settings_id').html(filteredOptions).prop('disabled', false);
+  }
 
   // Función para enviar los datos de la nueva cuenta corriente
   function submitNewCurrentAccount() {
@@ -76,8 +97,6 @@ $(document).ready(function() {
     var route = $('#submitCurrentAccountBtn').data('route');
     var formData = {
       total_debit: $('#total_debit').val(),
-      // entity_id: entityId, // Se envía ya sea cliente o proveedor
-      // entity_type: entityType, // Nuevo campo para indicar el tipo de entidad
       client_id: $('#client_id').val(),
       supplier_id: $('#supplier_id').val(),
       current_account_settings_id: $('#current_account_settings_id').val(),

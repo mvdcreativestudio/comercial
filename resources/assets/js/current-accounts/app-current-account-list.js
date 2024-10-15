@@ -94,13 +94,15 @@ $(function () {
           {
             targets: 5, // Total debit
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
+              const symbol = full.symbol ?? '$';
+              return symbol + parseFloat(data).toFixed(2);
             }
           },
           {
             targets: 6, // Payment amount
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
+              const symbol = full.symbol ?? '$';
+              return symbol + parseFloat(data).toFixed(2);
             }
           },
           {

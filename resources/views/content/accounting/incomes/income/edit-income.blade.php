@@ -54,6 +54,17 @@
             </select>
           </div>
 
+          <!-- Moneda del Ingreso -->
+          <div class="mb-3">
+            <label for="edit_currency_id" class="form-label">Moneda</label>
+            <select class="form-select" id="edit_currency_id" name="currency_id" required>
+              <option value="" selected disabled>Seleccione una moneda</option>
+              @foreach($currencies as $currency)
+                <option value="{{ $currency->id }}">{{ $currency->name }}</option>
+              @endforeach
+            </select>
+          </div>
+
           <!-- Tipo de Entidad -->
           <div class="mb-3">
             <label for="edit_entity_type" class="form-label">Tipo de Entidad</label>
