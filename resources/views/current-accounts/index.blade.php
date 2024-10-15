@@ -262,8 +262,9 @@
                     <th>Fecha Creación</th>
                     <th>Tipo de Entidad</th>
                     <th>Descripción</th>
-                    <th>Debe</th>
-                    <th>Haber</th>
+                    <th>Ventas</th>
+                    <th>Pagos</th>
+                    <th>Saldo</th>
                     <th>Moneda</th>
                     <th>Estado de Pago</th>
                     <th>Acciones</th>

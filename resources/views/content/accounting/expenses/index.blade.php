@@ -263,6 +263,7 @@
           <th>N°</th>
           <th>Fecha</th>
           <th>Proveedor</th>
+          <th>Concepto</th>
           <th>Tienda</th>
           <th>Importe</th>
           <th>Abonado</th>
