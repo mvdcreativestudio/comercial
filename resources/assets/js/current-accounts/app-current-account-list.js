@@ -95,6 +95,9 @@ $(function () {
             targets: 5, // Total debit
             render: function (data, type, full, meta) {
               const symbol = full.symbol ?? '$';
+              if (full.total_debit === null) {
+                return symbol + parseFloat(0).toFixed(2);
+              }
               return symbol + parseFloat(data).toFixed(2);
             }
           },
@@ -102,6 +105,9 @@ $(function () {
             targets: 6, // Payment amount
             render: function (data, type, full, meta) {
               const symbol = full.symbol ?? '$';
+              if (full.payment_amount === null) {
+                return symbol + parseFloat(0).toFixed(2);
+              }
               return symbol + parseFloat(data).toFixed(2);
             }
           },

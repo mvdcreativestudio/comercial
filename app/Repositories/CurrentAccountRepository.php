@@ -262,6 +262,7 @@ class CurrentAccountRepository
             ->leftJoin('clients', 'current_accounts.client_id', '=', 'clients.id')
             ->leftJoin('suppliers', 'current_accounts.supplier_id', '=', 'suppliers.id')
             ->leftJoin('currencies', 'current_accounts.currency_id', '=', 'currencies.id')
+            ->orderBy('current_accounts.created_at', 'desc')
             ->whereNull('current_accounts.deleted_at');
 
         // Filtrar por rango de fechas
