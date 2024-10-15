@@ -8,18 +8,18 @@ $(document).ready(function () {
     if (this.value === 'client') {
       clientField.show();
       supplierField.hide();
-      $('#edit_client_id').prop('required', true);
-      $('#edit_supplier_id').prop('required', false);
+      $('#edit_client_id').prop('required', true).val('');
+      $('#edit_supplier_id').prop('required', false).val('');
     } else if (this.value === 'supplier') {
       supplierField.show();
       clientField.hide();
-      $('#edit_supplier_id').prop('required', true);
-      $('#edit_client_id').prop('required', false);
+      $('#edit_supplier_id').prop('required', true).val('');
+      $('#edit_client_id').prop('required', false).val('');
     } else {
       clientField.hide();
       supplierField.hide();
-      $('#edit_client_id').prop('required', false);
-      $('#edit_supplier_id').prop('required', false);
+      $('#edit_client_id').prop('required', false).val('');
+      $('#edit_supplier_id').prop('required', false).val('');
     }
   });
 

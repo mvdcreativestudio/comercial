@@ -34,7 +34,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Contabilidad /</span> Ingresos Clientes
+  <span class="text-muted fw-light">Contabilidad /</span> Ingresos
 </h4>
 
 @if (Auth::user()->can('access_datacenter'))
