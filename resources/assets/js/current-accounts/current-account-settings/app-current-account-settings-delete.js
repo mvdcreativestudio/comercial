@@ -1,16 +1,15 @@
 $(document).ready(function () {
-  // Eliminar registro
-  $('.datatables-expenses tbody').on('click', '.delete-record', function () {
+  // Eliminar registro de configuración de cuenta corriente
+  $('.datatables-current-account-settings tbody').on('click', '.delete-record', function () {
     var recordId = $(this).data('id');
-    deleteExpense(recordId);
+    deleteCurrentAccountSetting(recordId);
   });
 
-  // Eliminar múltiples registros
-
+  // Eliminar múltiples registros de configuración de cuenta corriente
   $('#deleteSelected').on('click', function () {
     var selectedIds = [];
 
-    $('.datatables-expenses tbody input[type="checkbox"]:checked').each(function () {
+    $('.datatables-current-account-settings tbody input[type="checkbox"]:checked').each(function () {
       selectedIds.push($(this).data('id'));
     });
 
@@ -18,18 +17,18 @@ $(document).ready(function () {
       Swal.fire({
         icon: 'warning',
         title: 'Atención',
-        text: 'Por favor, seleccione al menos un gasto para eliminar.'
+        text: 'Por favor, seleccione al menos una configuración para eliminar.'
       });
       return;
     }
 
-    confirmMultipleDeletionExpense(selectedIds);
+    confirmMultipleDeletionCurrentAccountSetting(selectedIds);
   });
 
-  function deleteExpense(recordId) {
-    // Función para eliminar un gasto
+  function deleteCurrentAccountSetting(recordId) {
+    // Función para eliminar una configuración de cuenta corriente
     Swal.fire({
-      title: '¿Estás seguro de eliminar este gasto?',
+      title: '¿Estás seguro de eliminar esta configuración?',
       text: 'Esta acción no se puede deshacer',
       icon: 'warning',
       showCancelButton: true,
@@ -40,24 +39,24 @@ $(document).ready(function () {
     }).then(result => {
       if (result.isConfirmed) {
         $.ajax({
-          url: 'expenses/' + recordId,
+          url: 'current-account-settings/' + recordId,
           type: 'DELETE',
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
           success: function (result) {
             if (result.success) {
-              Swal.fire('Eliminado!', 'El cupón ha sido eliminado.', 'success');
-              $('.datatables-expenses').DataTable().ajax.reload();
+              Swal.fire('Eliminado!', 'La configuración ha sido eliminada.', 'success');
+              location.reload();
             } else {
-              Swal.fire('Error!', 'No se pudo eliminar el cupón. Intente de nuevo.', 'error');
+              Swal.fire('Error!', 'No se pudo eliminar la configuración. Intente de nuevo.', 'error');
             }
           },
           error: function (xhr, ajaxOptions, thrownError) {
             if (xhr.status === 403) {
               Swal.fire('Permiso denegado!', xhr.responseJSON.message, 'error');
             } else {
-              Swal.fire('Error!', 'No se pudo eliminar el gasto: ' + (xhr.responseJSON.message || thrownError), 'error');
+              Swal.fire('Error!', 'No se pudo eliminar la configuración: ' + (xhr.responseJSON.message || thrownError), 'error');
             }
           }
         });
@@ -65,10 +64,10 @@ $(document).ready(function () {
     });
   }
 
-  function confirmMultipleDeletionExpense(selectedIds) {
+  function confirmMultipleDeletionCurrentAccountSetting(selectedIds) {
     // Muestra un modal de confirmación para eliminar múltiples registros
     Swal.fire({
-      title: '¿Estás seguro de eliminar los gastos seleccionados?',
+      title: '¿Estás seguro de eliminar las configuraciones seleccionadas?',
       text: 'Esta acción no se puede deshacer',
       icon: 'warning',
       showCancelButton: true,
@@ -79,7 +78,7 @@ $(document).ready(function () {
     }).then(result => {
       if (result.isConfirmed) {
         $.ajax({
-          url: 'expenses/delete-multiple',
+          url: 'current-account-settings/delete-multiple',
           type: 'POST',
           headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -89,18 +88,17 @@ $(document).ready(function () {
           },
           success: function (result) {
             if (result.success) {
-              Swal.fire('Eliminado!', 'Los gastos seleccionados han sido eliminados.', 'success');
-              // dt_expenses.ajax.reload(null, false);
-              $('.datatables-expenses').DataTable().ajax.reload();
+              Swal.fire('Eliminado!', 'Las configuraciones seleccionadas han sido eliminadas.', 'success');
+              location.reload();
             } else {
-              Swal.fire('Error!', 'No se pudieron eliminar los gastos seleccionados. Intente de nuevo.', 'error');
+              Swal.fire('Error!', 'No se pudieron eliminar las configuraciones seleccionadas. Intente de nuevo.', 'error');
             }
           },
           error: function (xhr, ajaxOptions, thrownError) {
             if (xhr.status === 403) {
               Swal.fire('Permiso denegado!', xhr.responseJSON.message, 'error');
             } else {
-              Swal.fire('Error!', 'No se pudo eliminar el gasto: ' + (xhr.responseJSON.message || thrownError), 'error');
+              Swal.fire('Error!', 'No se pudo eliminar la configuración: ' + (xhr.responseJSON.message || thrownError), 'error');
             }
           }
         });

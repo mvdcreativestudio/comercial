@@ -173,6 +173,7 @@ class ExpenseRepository
             'currencies.name as currency_name',
             'currencies.symbol as currency_symbol',
             'stores.name as store_name',
+            'expenses.concept',
         ])
             ->join('suppliers', 'expenses.supplier_id', '=', 'suppliers.id')
             ->join('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')

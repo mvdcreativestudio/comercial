@@ -9,6 +9,10 @@
       <div class="modal-body">
         <form id="addNewExpenseForm">
           <div class="mb-3">
+            <label for="concept" class="form-label">Concepto</label>
+            <input type="text" class="form-control" id="concept" name="concept" required placeholder="Ingrese el concepto del gasto">
+          </div>
+          <div class="mb-3">
             <label for="amount" class="form-label">Monto</label>
             <input type="number" class="form-control" id="amount" name="amount" required placeholder="Ingrese el monto del gasto">
           </div>

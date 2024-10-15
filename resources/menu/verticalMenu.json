@@ -217,21 +217,69 @@
           "name": "Gastos",
           "icon": "menu-icon tf-icons bx bx-dollar",
           "slug": "expenses",
-          "url": "/admin/expenses"
+          "url": "/admin/expenses",
+          "submenu": [
+            {
+              "id": "tour-gastos",
+              "name": "Gastos",
+              "icon": "menu-icon tf-icons bx bx-dollar",
+              "slug": "expenses",
+              "url": "/admin/expenses"
+            },
+            {
+              "id": "tour-gastos-categorias",
+              "name": "Categorías",
+              "icon": "menu-icon tf-icons bx bx-category",
+              "slug": "expense-categories",
+              "url": "/admin/expense-categories"
+            }
+          ]
         },
         {
           "id": "tour-ingresos",
           "name": "Ingresos",
           "icon": "menu-icon tf-icons bx bx-line-chart",
           "slug": "incomes",
-          "url": "/admin/incomes"
+          "url": "/admin/incomes",
+          "submenu": [
+            {
+              "id": "tour-ingresos",
+              "name": "Ingresos",
+              "icon": "menu-icon tf-icons bx bx-user",
+              "slug": "incomes",
+              "url": "/admin/incomes"
+            },
+            {
+              "id": "tour-ingresos-categorias",
+              "name": "Categorías",
+              "icon": "menu-icon tf-icons bx bx-category",
+              "slug": "income-categories",
+              "url": "/admin/income-categories"
+            }
+          ]
         },
         {
           "id": "tour-cuentas-corrientes",
           "name": "Cuentas Corrientes",
           "icon": "menu-icon tf-icons bx bx-dollar",
           "slug": "current-accounts",
-          "url": "/admin/current-accounts"
+          "url": "/admin/current-accounts",
+          "submenu" :[
+            {
+              "id": "tour-cuentas-corrientes",
+              "name": "Cuentas Corrientes",
+              "icon": "menu-icon tf-icons bx bx-dollar",
+              "slug": "current-accounts",
+              "url": "/admin/current-accounts"
+            },
+            {
+              "id": "tour-cuentas-corrientes-configuracion",
+              "name": "Configuración",
+              "icon": "menu-icon tf-icons bx bx-cog",
+              "slug": "current-account-settings",
+              "url": "/admin/current-account-settings"
+            }
+          ]
         }
       ]
     },

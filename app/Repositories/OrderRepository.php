@@ -492,7 +492,7 @@ class OrderRepository
         if ($currentAccount) {
             CurrentAccountInitialCredit::create([
                 'total_debit' => $order->total,
-                'description' => 'Compra Interna',
+                'description' => 'Compra Interna - <a href="' . route('orders.show', $order->uuid) . '">Pedido #' . $order->id . '</a>',
                 'current_account_id' => $currentAccount->id,
                 'current_account_settings_id' => 1,
             ]);
@@ -504,10 +504,10 @@ class OrderRepository
                 'transaction_type' => TransactionTypeEnum::SALE,
                 'currency_id' => 1,
             ]);
-
+        
             CurrentAccountInitialCredit::create([
                 'total_debit' => $order->total,
-                'description' => 'Compra Interna',
+                'description' => 'Compra Interna - <a href="' . route('orders.show', $order->uuid) . '">Pedido #' . $order->id . '</a>',
                 'current_account_id' => $currentAccount->id,
                 'current_account_settings_id' => 1,
             ]);

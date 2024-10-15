@@ -197,6 +197,15 @@ class CreatePermissions extends Command
                     'view_all' => true,
                     "submenus" => [
                         "delete_expenses",
+                        "expense-categories",
+                    ],
+                ],
+                [
+                    "slug" => "expense-categories",
+                    "module" => "expenses",
+                    "view_all" => true,
+                    "submenus" => [
+                        "delete_expense-categories",
                     ],
                 ],
                 [
@@ -247,7 +256,7 @@ class CreatePermissions extends Command
                     'view_all' => true,
                     'submenus' => [
                         'current-accounts',
-                        'current-accounts-settings',
+                        'current-account-settings',
                     ],
                 ],
                 [
@@ -268,11 +277,11 @@ class CreatePermissions extends Command
                     ],
                 ],
                 [
-                    'slug' => 'current-accounts-settings',
+                    'slug' => 'current-account-settings',
                     'module' => 'current-accounts',
                     'view_all' => true,
                     'submenus' => [
-                        'delete_current-accounts-settings',
+                        'delete_current-account-settings',
                     ],
                 ],
                 [
