@@ -67,7 +67,7 @@ class CompositeProductRepository
             $compositeProduct = new CompositeProduct();
             $compositeProduct->fill($data);
 
-            // Calcular el precio recomendado sumando los precios de los productos individuales
+            // Calcular el costo total sumando los precios de los productos individuales
             $compositeProduct->save();
 
             // Añadir productos individuales al producto compuesto con sus cantidades
@@ -150,7 +150,7 @@ class CompositeProductRepository
                 ->whereNotIn('product_id', $incomingProductIds)
                 ->delete();
 
-            // Recalcular y actualizar el precio recomendado sumando los precios de los productos individuales
+            // Recalcular y actualizar el costo total sumando los precios de los productos individuales
             $compositeProduct->recommended_price = CompositeProductDetail::where('composite_product_id', $compositeProduct->id)
                 ->join('products', 'composite_product_details.product_id', '=', 'products.id')
                 ->sum(DB::raw('products.build_price * composite_product_details.quantity_composite_product'));
