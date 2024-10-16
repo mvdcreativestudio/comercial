@@ -44,6 +44,7 @@ use App\Http\Controllers\{
     BulkProductionBatchController,
     PackagingController,
     PackageController,
+    PackageComponentController,
 };
 
 // Middleware de autenticación y verificación de email
@@ -126,6 +127,7 @@ Route::middleware([
     Route::post('formula-steps', [FormulaRawMaterialController::class, 'store']);
     Route::post('formula-steps-csv', [FormulaRawMaterialController::class, 'storeCSV']);
     Route::post('formula-steps-production', [FormulaRawMaterialController::class, 'getFormulaStepsById']);
+    Route::post('formula-steps-multiple', [FormulaRawMaterialController::class, 'storeMultiple']);
 
     Route::get('purchase-entries', [PurchaseEntryController::class, 'index']);
     Route::post('purchase-entries-multiple', [PurchaseEntryController::class, 'storeMultiple']);
@@ -134,20 +136,27 @@ Route::middleware([
     Route::post('batches-multiple', [BatchController::class, 'storeBatches']);
 
     Route::get('bulk-productions', [BulkProductionController::class, 'index']);
+    Route::delete('bulk-productions/{id}', [BulkProductionController::class, 'destroy']);
     Route::post('start-production', [BulkProductionController::class, 'startProduction']);
     Route::get('get-batches/{id}', [BulkProductionController::class, 'getBatches']);
     Route::get('bulk-productions/{identifier}', [BulkProductionController::class, 'showBatchInfo'])->name('bulk-productions.show');
 
     Route::get('packagings', [PackagingController::class, 'index']);
     Route::post('packagings', [PackagingController::class, 'store']);
+    Route::delete('packagings/{id}', [PackagingController::class, 'destroy']);
 
 
     Route::get('packages', [PackageController::class, 'index']);
     Route::post('packages', [PackageController::class, 'store']);
+    Route::delete('packages/{id}', [PackageController::class, 'destroy']);
 
     Route::get('start-production', [PackagingController::class, 'startProduction']);
     Route::get('packages-all', [PackageController::class, 'getAll']);
 
+    Route::get('package-components', [PackageComponentController::class, 'index']);
+    Route::post('package-components', [PackageComponentController::class, 'store']);
+    Route::delete('package-components/{id}', [PackageComponentController::class, 'destroy']);
+    Route::get('package-components-select', [PackageComponentController::class, 'getComponents']);
 
     /*
     |

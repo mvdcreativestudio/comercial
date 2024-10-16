@@ -122,7 +122,7 @@
     </div>
     <div class="collapse" id="columnSwitches">
       <div class="mt-0 d-flex flex-wrap">
-        @foreach (['ID', 'Fórmula', 'Cantidad producida', 'Cantidad utilizada', 'Fecha de elaboración','Acciones'] as $index => $label)
+        @foreach (['ID', 'Fórmula', 'Cantidad producida', 'Cantidad utilizada', 'Fecha de elaboración','Operario','Acciones'] as $index => $label)
         <div class="mx-3">
           <label class="switch switch-square">
             <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
@@ -146,6 +146,7 @@
           <th>Cantidad producida</th>
           <th>Cantidad utilizada</th>
           <th>Fecha de Elaboración</th>
+          <th>Operario</th>
           <th>Acciones</th>
         </tr>
       </thead>

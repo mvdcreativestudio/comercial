@@ -16,7 +16,8 @@ class BulkProduction extends Model
         'formula_id',
         'quantity_produced',
         'production_date',
-        'quantity_used'
+        'quantity_used',
+        'user_id'
     ];
 
     public function formula()
@@ -37,7 +38,8 @@ class BulkProduction extends Model
 
     public function getUniqueIdentifier()
     {
-        return $this->id . '-' . Str::slug($this->name);
+        $encryptedId = base64_encode($this->id);
+        return substr($encryptedId, 0, 4) . '-' . Str::slug($this->name);  
     }
 
 

@@ -12,14 +12,24 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\View;
-
+use Illuminate\Support\Facades\Auth;
 
 class BulkProductionRepository
 {
     public function getAll()
     {
-        return BulkProduction::all();
+        return BulkProduction::select(
+            'bulk_productions.*',
+            'formulas.quantity as formula_quantity',
+            'formulas.unit_of_measure as formula_unit_of_measure',
+            'formulas.name as formula_name',
+            'users.name as user_name'
+        )
+            ->join('formulas', 'bulk_productions.formula_id', '=', 'formulas.id')
+            ->join('users', 'bulk_productions.user_id', '=', 'users.id')
+            ->get();
     }
+
 
     public function find($id)
     {
@@ -65,12 +75,15 @@ class BulkProductionRepository
                 ];
             }
 
+            $userId = Auth::id();
+
             // 3. Crea el elemento de la producción en la tabla.
             $bulkProduction = BulkProduction::create([
                 'formula_id' => $formulaId,
                 'quantity_produced' => $quantity,
                 'production_date' => Carbon::now(),
-                'quantity_used' => 0
+                'quantity_used' => 0,
+                'user_id' => $userId
             ]);
 
             // 4. Procesa cada paso (step) con sus materias primas y registra los lotes (batches) utilizados.
@@ -120,6 +133,10 @@ class BulkProductionRepository
                 throw new \Exception("No available batch for raw material ID: {$material['raw_material_id']}");
             }
 
+
+            $rawMaterial = $this->getRawMaterial($material['raw_material_id']);
+
+
             // Verificación del Lote y la cantidad.
             $batch = Batch::find($batch->id);
             if (!$batch || $batch->quantity <= 0) {
@@ -145,7 +162,9 @@ class BulkProductionRepository
                 // Registrar el uso del batch en este paso
                 $batchesUsed[] = [
                     'batch_id' => $batch->id,
-                    'quantity_used' => $quantityToUse
+                    'name' => $batch->batch_number,
+                    'quantity_used' => $quantityToUse,
+                    'unit_of_measure' => $rawMaterial->unit_of_measure
                 ];
             } catch (\Exception $e) {
                 Log::error("Error procesando el batch {$batch->id}: " . $e->getMessage());
@@ -158,6 +177,14 @@ class BulkProductionRepository
         }
 
         return $batchesUsed;
+    }
+
+    private function getRawMaterial(int $rawMaterialId)
+    {
+        return DB::table('raw_materials')
+            ->where('id', $rawMaterialId)
+            ->select('unit_of_measure')
+            ->first();
     }
 
     private function getOldestBatch(int $rawMaterialId)
@@ -193,17 +220,25 @@ class BulkProductionRepository
         ]);
     }
 
-    public function getBatchInfoByIdentifier($identifier)
+    public function getBatchInfoByIdentifier($encryptedIdentifier)
     {
-        $idParts = explode('-', $identifier);
-        $id = $idParts[0];
+        // Desencriptar el identificador
+        $id = $this->decryptId($encryptedIdentifier);
 
+        // Buscar la producción con el ID desencriptado
         $bulkProduction = BulkProduction::with('batches')->findOrFail($id);
 
-        if ($bulkProduction->getUniqueIdentifier() !== $identifier) {
+        if ($bulkProduction->getUniqueIdentifier() !== $encryptedIdentifier) {
             abort(404, 'Información de lote no encontrada');
         }
 
         return $bulkProduction->batches;
+    }
+
+    public function decryptId($encryptedIdentifier)
+    {
+        // Desencriptar los 2 bytes para obtener el ID original (ejemplo simple usando base64)
+        $decoded = base64_decode($encryptedIdentifier);
+        return intval($decoded);  // Convertirlo de nuevo a un número si es necesario
     }
 }

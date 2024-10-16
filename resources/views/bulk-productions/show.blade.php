@@ -86,7 +86,7 @@
                         <i class="fas fa-box card-icon"></i>
                         <h5 class="card-title batch-id">Batch ID: {{ $batch->batch_id }}</h5>
                         <p class="card-text quantity-used">
-                            {{ $batch->quantity_used }}
+                            Cantidad utilizada: {{ $batch->quantity_used }} 
                         </p>
                     </div>
                 </div>

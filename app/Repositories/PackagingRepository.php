@@ -6,6 +6,7 @@ use App\Models\Packaging;
 use App\Models\Package;
 use App\Models\Formula;
 use App\Models\BulkProduction;
+use App\Models\PackageComponent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -13,8 +14,19 @@ class PackagingRepository
 {
     public function getAll()
     {
-        return Packaging::all();
+        return DB::table('packagings')
+            ->join('packages', 'packagings.package_id', '=', 'packages.id')
+            ->join('bulk_productions', 'packagings.bulk_production_id', '=', 'bulk_productions.id')
+            ->join('formulas', 'bulk_productions.formula_id', '=', 'formulas.id')
+            ->select(
+                'packagings.*',
+                'packages.name as package_name',
+                'bulk_productions.formula_id as formula_id',
+                'formulas.name as formula_name'
+            )
+            ->get();
     }
+
 
     public function find($id)
     {
@@ -62,8 +74,8 @@ class PackagingRepository
 
     public function createAndHandlePackaging(array $data)
     {
-        Log::info($data); 
-        DB::beginTransaction(); 
+        Log::info($data);
+        DB::beginTransaction();
 
         try {
             $packaging = Packaging::create($data);
@@ -97,12 +109,38 @@ class PackagingRepository
                 }
             }
 
-            DB::commit(); 
+            // Verificar y actualizar el stock de la etiqueta
+            if (!empty($data['label_id'])) {
+                $labelComponent = PackageComponent::find($data['label_id']);
+                if ($labelComponent) {
+                    $labelComponent->stock -= $data['quantity_packaged'];
+                    if (!$labelComponent->save()) {
+                        throw new \Exception('Failed to update label component stock.');
+                    }
+                } else {
+                    throw new \Exception('Label component not found.');
+                }
+            }
+
+            // Verificar y actualizar el stock de la tapa 
+            if (!empty($data['tap_id'])) {
+                $tapComponent = PackageComponent::find($data['tap_id']);
+                if ($tapComponent) {
+                    $tapComponent->stock -= $data['quantity_packaged'];
+                    if (!$tapComponent->save()) {
+                        throw new \Exception('Failed to update tap component stock.');
+                    }
+                } else {
+                    throw new \Exception('Tap component not found.');
+                }
+            }
+
+            DB::commit();
             return $packaging;
         } catch (\Exception $e) {
-            DB::rollBack(); 
+            DB::rollBack();
             Log::error('Error in createAndHandlePackaging: ' . $e->getMessage());
-            throw $e; 
+            throw $e;
         }
     }
 

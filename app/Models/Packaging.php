@@ -26,4 +26,9 @@ class Packaging extends Model
     {
         return $this->belongsTo(Product::class, 'final_product_id');
     }
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'package_id');
+    }
 }

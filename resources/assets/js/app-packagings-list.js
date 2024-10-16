@@ -19,13 +19,13 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'GET',
             success: function (data) {
                 $('#bulk_production').empty();
-    
+
                 $.each(data, function (index, bulkProduction) {
-                
-                    var formulaQuantity = bulkProduction.formula_quantity || 1; 
-    
+
+                    var formulaQuantity = bulkProduction.formula_quantity || 1;
+
                     var totalQuantity = bulkProduction.quantity_available * formulaQuantity;
-    
+
                     $('#bulk_production').append(
                         $('<option>', {
                             value: bulkProduction.bulk_production_id,
@@ -65,16 +65,64 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Error al obtener los paquetes.');
             }
         });
+
+        $.ajax({
+            url: 'package-components-select', // Ruta para obtener los paquetes
+            type: 'GET',
+            success: function (data) {
+                // Limpiar los selects antes de llenarlos
+                $('#tap_id').empty();
+                $('#label_id').empty();
+
+                $('#tap_id').append(
+                    $('<option>', {
+                        value: '',
+                        text: 'Seleccionar una tapa (Opcional)'
+                    })
+                );
+
+                $('#label_id').append(
+                    $('<option>', {
+                        value: '',
+                        text: 'Seleccionar una etiqueta (Opcional)'
+                    })
+                );
+                // Rellenar el select de tapas
+                $.each(data.taps, function (index, tap) {
+                    $('#tap_id').append(
+                        $('<option>', {
+                            value: tap.id,
+                            text: 'ID: ' + tap.id + ' - ' + tap.name
+                        })
+                    );
+                });
+
+                // Rellenar el select de etiquetas
+                $.each(data.labels, function (index, label) {
+                    $('#label_id').append(
+                        $('<option>', {
+                            value: label.id,
+                            text: 'ID: ' + label.id + ' - ' + label.name
+                        })
+                    );
+                });
+            },
+            error: function () {
+                alert('Error al obtener los paquetes.');
+            }
+        });
     });
 
     // Manejar el submit del formulario
     $('#submitProductionForm').click(function (e) {
         e.preventDefault();
-    
+
         const bulkProductionId = $('#bulk_production').val();
         const quantityToPackage = parseFloat($('#quantity_packaged').val()); // Quantity of packages
         const packageId = $('#package_id').val();
-        
+        const labelId = $('#label_id').val() ? $('#label_id').val() : null;
+        const tapId = $('#tap_id').val() ? $('#tap_id').val() : null;
+
         const packageSize = parseFloat($('#package_id option:selected').data('size')); // Package size
         const packageUnitOfMeasure = $('#package_id option:selected').data('unit-of-measure').toLowerCase(); // Unit of measure of the package
         const packageStock = parseFloat($('#package_id option:selected').data('stock')); // Package stock
@@ -84,41 +132,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function convertToMl(value, unit) {
             if (unit === 'l') {
-                return value * 1000; 
+                return value * 1000;
             }
-            return value; 
+            return value;
         }
 
         const bulkQuantityInMl = convertToMl(bulkQuantityProduced, bulkUnitOfMeasure);
         const packageSizeInMl = convertToMl(packageSize, packageUnitOfMeasure);
         const totalToPackageInMl = quantityToPackage * packageSizeInMl;
-    
+
         if (totalToPackageInMl > bulkQuantityInMl) {
             $('#productionModal').modal('hide');
             swal.fire('Error', 'No hay suficiente cantidad en la producción a granel.', 'error');
             return;
         }
-    
+
         if (quantityToPackage > packageStock) {
             $('#productionModal').modal('hide');
             swal.fire('Error', 'No hay suficiente stock del paquete seleccionado.', 'error');
             return;
         }
-    
+
 
         let quantityUsedInMl = totalToPackageInMl;
         let quantityUsed;
-    
+
         if (bulkUnitOfMeasure === 'l' || bulkUnitOfMeasure === 'L') {
-            if(packageUnitOfMeasure === 'l' || packageUnitOfMeasure === 'L'){
-                quantityUsed = (quantityToPackage * packageSize) / formulaInfo; 
-            }else{
-                quantityUsed =((quantityToPackage * packageSize)/1000) / formulaInfo
+            if (packageUnitOfMeasure === 'l' || packageUnitOfMeasure === 'L') {
+                quantityUsed = (quantityToPackage * packageSize) / formulaInfo;
+            } else {
+                quantityUsed = ((quantityToPackage * packageSize) / 1000) / formulaInfo
             }
         } else {
-            quantityUsed = (quantityToPackage * packageSizeInMl)/ formulaInfo; // In terms of package size
+            quantityUsed = (quantityToPackage * packageSizeInMl) / formulaInfo; // In terms of package size
         }
-    
+
         quantityUsed = parseFloat(quantityUsed.toFixed(2));
         console.log(quantityUsed);
 
@@ -128,8 +176,10 @@ document.addEventListener('DOMContentLoaded', function () {
             data: {
                 bulk_production_id: bulkProductionId,
                 quantity_packaged: quantityToPackage,
-                quantity_used: quantityUsed, 
+                quantity_used: quantityUsed,
                 package_id: packageId,
+                label_id: labelId,
+                tap_id: tapId,
                 packaging_date: new Date().toISOString().slice(0, 10)
             },
             success: function (response) {
@@ -144,4 +194,49 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    $(document).on('click', '.btn-delete-packaging', function () {
+        var packagingId = $(this).data('id');
+
+        eliminarPackaging(packagingId);
+    });
+
+    function eliminarPackaging(packagingId) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción. El envasado será eliminado y el stock agregado al producto se mantendrá igual.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `packagings/${packagingId}`,  // Cambia esta ruta por la correcta
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (response) {
+                        Swal.fire(
+                            'Eliminado!',
+                            'El envasado ha sido eliminado.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (error) {
+                        Swal.fire(
+                            'Error!',
+                            'Ocurrió un problema al intentar eliminar el envasado.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
 });

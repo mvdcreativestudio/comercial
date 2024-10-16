@@ -72,39 +72,11 @@
       "slug": "manufacturing",
       "submenu": [
         {
-          "id": "tour-packagings",
-          "name": "Envasados",
-          "icon": "menu-icon tf-icons bx bx-droplet",
-          "slug": "packagings",
-          "url": "/admin/packagings"
-        },
-        {
           "id": "tour-materias-primas",
           "name": "Materias Primas",
           "icon": "menu-icon tf-icons bx bx-box",
           "slug": "raw-materials",
           "url": "/admin/raw-materials"
-        },
-        {
-          "id": "bulk-productions",
-          "name": "Elaboraciones",
-          "icon": "menu-icon tf-icons bx bx-atom",
-          "slug": "bulk-productions",
-          "url": "/admin/bulk-productions"
-        },
-        {
-          "id": "formulas",
-          "name": "Fórmulas",
-          "icon": "menu-icon tf-icons bx bx-test-tube",
-          "slug": "formulas",
-          "url": "/admin/formulas"
-        },
-        {
-          "id": "batches",
-          "name": "Lotes",
-          "icon": "menu-icon tf-icons bx bx-package",
-          "slug": "batches",
-          "url": "/admin/batches"
         },
         {
           "id": "tour-proveedores",
@@ -119,6 +91,34 @@
           "icon": "menu-icon tf-icons bx bx-receipt",
           "slug": "purchase-orders",
           "url": "/admin/purchase-orders"
+        },
+        {
+          "id": "batches",
+          "name": "Lotes",
+          "icon": "menu-icon tf-icons bx bx-package",
+          "slug": "batches",
+          "url": "/admin/batches"
+        },
+        {
+          "id": "formulas",
+          "name": "Fórmulas",
+          "icon": "menu-icon tf-icons bx bx-test-tube",
+          "slug": "formulas",
+          "url": "/admin/formulas"
+        },
+        {
+          "id": "bulk-productions",
+          "name": "Elaboraciones",
+          "icon": "menu-icon tf-icons bx bx-atom",
+          "slug": "bulk-productions",
+          "url": "/admin/bulk-productions"
+        },
+        {
+          "id": "tour-packagings",
+          "name": "Envasados",
+          "icon": "menu-icon tf-icons bx bx-droplet",
+          "slug": "packagings",
+          "url": "/admin/packagings"
         }
       ]
     },

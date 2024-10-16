@@ -142,4 +142,122 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    $('#repeater').repeater({
+        initEmpty: false,
+        show: function () {
+            $(this).slideDown();
+            populateRawMaterialsSelect($(this).find('select[name="raw-material"]'));
+        },
+        hide: function (deleteElement) {
+            $(this).slideUp(deleteElement);
+        },
+        ready: function (setIndexes) {
+            $('select[name="raw-material"]').each(function() {
+                populateRawMaterialsSelect($(this));
+            });
+            $(this).find('select[name="raw-material"]').each(function() {
+                populateRawMaterialsSelect($(this));
+            });
+        },
+        isFirstItemUndeletable: false
+    });
+
+    function populateRawMaterialsSelect(selectElement) {
+        selectElement.empty();
+        selectElement.append('<option value="">Seleccionar materia prima</option>');
+        
+        for (var id in rawMaterialsData) {
+            selectElement.append(`<option value="${id}">${rawMaterialsData[id].name}</option>`);
+        }
+    }
+    
+    $(document).on('click', '.addStepsModal', function () {
+        $('#stepsModal').modal('show');
+    });
+
+    let rawMaterialsData = {}; // Para almacenar los materiales y sus unidades de medida
+
+    // Cargar materias primas cuando se abre el modal
+    $('#stepsModal').on('show.bs.modal', function () {
+        $.ajax({
+            url: 'purchase-orders-items-raw-materials',
+            method: 'GET',
+            success: function (response) {
+                var rawMaterialSelect = $('#raw-material');
+                rawMaterialSelect.empty(); // Limpiar opciones previas
+                rawMaterialSelect.append('<option value="">Seleccionar materia prima</option>');
+
+                // Iterar sobre la respuesta y añadir las opciones al select
+                $('select[name="raw-material"]').each(function () {
+                    populateRawMaterialsSelect($(this));
+                });
+                response.forEach(function (item) {
+                    rawMaterialsData[item.id] = item.unit_of_measure; // Guardar el unit_of_measure
+                    rawMaterialSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                });
+            },
+            error: function () {
+                alert('Error al cargar las materias primas.');
+            }
+        });
+    });
+
+    // Detectar cambio en el selector de materias primas
+    $('#raw-material').change(function () {
+        var selectedRawMaterial = $(this).val();
+        var quantityInput = $('.lot-quantity');
+        var unitOfMeasureSpan = $('#unit-of-measure');
+
+        if (selectedRawMaterial) {
+            // Habilitar el campo de cantidad si hay una materia prima seleccionada
+            quantityInput.prop('disabled', false);
+
+            // Mostrar la unidad de medida correspondiente
+            var unitOfMeasure = rawMaterialsData[selectedRawMaterial];
+            unitOfMeasureSpan.text(unitOfMeasure);
+        } else {
+            // Deshabilitar el campo de cantidad si no se selecciona materia prima
+            quantityInput.prop('disabled', true);
+            unitOfMeasureSpan.text('--'); // Resetear la unidad de medida
+        }
+    });
+
+    $(document).on('click', '#save-lots', function() {
+        // Recoger los datos del formulario
+        var stepsData = $('#steps-form').serializeArray();
+        
+        // Transformar los datos para que se ajusten a la estructura esperada por el servidor
+        var formattedData = {};
+        stepsData.forEach(function(item) {
+            if (!formattedData[item.name]) {
+                formattedData[item.name] = [];
+            }
+            formattedData[item.name].push(item.value);
+        });
+    
+        // Enviar los datos a la ruta storeMultiple
+        $.ajax({
+            url: 'formula-steps-multiple', 
+            method: 'POST',
+            data: {
+                steps: formattedData, // Datos del formulario
+                _token: window.csrfToken
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#stepsModal').modal('hide'); // Cierra el modal
+                    location.reload();
+                } else {
+                    alert('Hubo un error al guardar los pasos.'); // Manejo de errores
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al enviar datos:', error);
+                alert('Error al enviar datos. Por favor, intenta de nuevo.');
+            }
+        });
+    });
+
+    
 });

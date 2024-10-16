@@ -3,28 +3,29 @@ document.addEventListener('DOMContentLoaded', function () {
     var table = $('.datatables-batches').DataTable({
         data: batches, // Datos de las fórmulas
         columns: [
-            { data: 'batch_number' },
-            { data: 'quantity' },
-            { data: 'production_date' },
-            { data: 'expiration_date' },
-            { data: 'purchase_entries_id' }
+            { data: 'batch_number', title: 'Nro Lote' },
+            { data: 'item_name', title: 'Materia prima / Producto' },
+            { data: 'quantity', title: 'Cantidad' },
+            { data: 'production_date', title: 'Fecha producción' },
+            { data: 'expiration_date', title: 'Fecha expiración' },
+            { data: 'purchase_entries_id', title: 'ID entrada producto' },
         ],
         responsive: true,
         language: {
             url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json'
         },
-        // Agrega la clase de Bootstrap a la tabla
-        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6">>'+
              '<"row"<"col-sm-12"tr>>' +
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-        pageLength: 10
+        pageLength: 10,
+        searching: true
     });
 
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             var min = $('#start-time').val();
             var max = $('#end-time').val();
-            var expDateStr = data[3]; 
+            var expDateStr = data[4]; 
     
             function parseDMY(dateStr) {
                 var parts = dateStr.split('-');
@@ -69,5 +70,8 @@ document.addEventListener('DOMContentLoaded', function () {
         column.visible(!column.visible());
     });
 
+    $('#item-name-filter').on('keyup', function() {
+        table.column(1).search(this.value).draw();
+    });
 
 });

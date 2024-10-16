@@ -5,10 +5,39 @@ document.addEventListener('DOMContentLoaded', function () {
     data: bulkProductions, // Datos de las fórmulas
     columns: [
       { data: 'id' },
-      { data: 'formula_id' },
-      { data: 'quantity_produced' },
-      { data: 'quantity_used' },
-      { data: 'production_date' },
+      { data: 'formula_name' }, 
+      {
+        data: null, // Cantidad producida
+        render: function (data, type, row) {
+          let quantityProduced = row.quantity_produced * row.formula_quantity;
+          return quantityProduced + ' ' + row.formula_unit_of_measure;
+        }
+      },
+      {
+        data: null, // Cantidad utilizada
+        render: function (data, type, row) {
+          let quantityUsed = row.quantity_used * row.formula_quantity;
+          return quantityUsed + ' ' + row.formula_unit_of_measure;
+        }
+      },
+      {
+        data: 'production_date', // Fecha de elaboración
+        render: function (data, type, row) {
+          // Convertir la fecha a un objeto Date
+          let date = new Date(data);
+          let day = String(date.getDate()).padStart(2, '0'); // Formato dd
+          let month = String(date.getMonth() + 1).padStart(2, '0'); // Formato mm
+          let year = String(date.getFullYear()).slice(-2); // Formato yy
+          let hours = String(date.getHours()).padStart(2, '0'); // Hora
+          let minutes = String(date.getMinutes()).padStart(2, '0'); // Minutos
+
+          // Devolver el formato: dd-mm-yy hh:mm
+          return `<strong>Fecha: </strong>${day}-${month}-${year}<strong> Hora: </strong>${hours}:${minutes}`;
+        }
+      },
+      {
+        data: 'user_name'
+      },
       {
         data: null,
         className: "text-center",
@@ -33,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+
   // Lógica para mostrar u ocultar columnas
   $('.toggle-column').on('change', function () {
     var column = table.column($(this).attr('data-column'));
@@ -41,12 +71,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // Evento para eliminar fórmula
-  $(document).on('click', '.btn-delete', function () {
-    var id = $(this).data('id');
-    if (confirm('¿Seguro que deseas eliminar esta fórmula?')) {
-      console.log("Eliminar fórmula con ID:", id);
-    }
-  });
+  $(document).on('click', '.btn-delete', function() {
+    var itemId = $(this).data('id');
+
+    eliminarProduccionAGranel(itemId);
+});
+
+function eliminarProduccionAGranel(itemId) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esto. No se volverá a agregar el stock de los lotes utilizados para la producción a granel.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `bulk-productions/${itemId}`,
+                type: 'DELETE',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire(
+                        'Eliminado!',
+                        'La producción a granel ha sido eliminada.',
+                        'success'
+                    ).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function(error) {
+                    Swal.fire(
+                        'Error!',
+                        'Ocurrió un problema al intentar eliminar la producción a granel.',
+                        'error'
+                    );
+                }
+            });
+        }
+    });
+  }
 
   // Cargar las fórmulas cuando se abre el off-canvas
   $('#offcanvasProduction').on('show.bs.offcanvas', function () {
@@ -148,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (stepData.batches_used && stepData.batches_used.length > 0) {
         stepHtml += '<p><strong>Lotes utilizados:</strong></p><ul>';
         stepData.batches_used.forEach(function (batch) {
-          stepHtml += `<li>Lote ${batch.batch_id}: ${batch.quantity_used} unidades utilizadas</li>`;
+          stepHtml += `<li>Lote ${batch.name}: ${batch.quantity_used} ${batch.unit_of_measure}</li>`;
         });
         stepHtml += '</ul>';
       }

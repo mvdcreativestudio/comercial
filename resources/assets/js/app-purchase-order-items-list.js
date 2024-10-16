@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    let id = $('#purchaseOrderId').data('id'); 
+    let id = $('#purchaseOrderId').data('id');
 
     let rawMaterialsMap = {};
     var table;
@@ -7,17 +7,18 @@ document.addEventListener('DOMContentLoaded', function () {
     $.ajax({
         url: 'purchase-orders-items-raw-materials',
         method: 'GET',
-        success: function(response) {
+        success: function (response) {
             var select = $('#raw_material_id');
-            select.empty(); 
-            response.forEach(function(material) {
+            select.empty();
+            select.html('<option value="" selected disabled>Seleccione una opción</option>');
+            response.forEach(function (material) {
                 select.append(`<option value="${material.id}">${material.name}</option>`);
                 rawMaterialsMap[material.id] = material.name;
             });
 
             initDataTable();
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             console.error('Error al cargar las materias primas:', error);
             console.error('Detalles:', xhr.responseText);
         }
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function initDataTable() {
         table = $('.datatables-purchase-order-items').DataTable({
-            "order": [[ 0, "desc" ]],
+            "order": [[0, "desc"]],
             data: purchaseOrderItems.map(item => {
                 return {
                     ...item,
@@ -39,18 +40,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 { data: 'product_id' },
                 { data: 'quantity' },
                 { data: 'currency' },
-                { data: 'unit_price'},
-                { 
-                    data: null, 
-                    render: function(data, type, row) {
+                { data: 'unit_price' },
+                {
+                    data: null,
+                    render: function (data, type, row) {
                         return (row.quantity * row.unit_price).toFixed(2);
                     }
                 },
                 {
                     data: null,
                     className: "text-center",
-                    orderable: false, 
-                    render: function(data, type, row) {
+                    orderable: false,
+                    render: function (data, type, row) {
                         return `
                         <div class="dropdown">
                             <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json'
             },
-            drawCallback: function() {
+            drawCallback: function () {
                 updateOrderValue();
                 updateUniqueMaterialsCount();
             }
@@ -78,54 +79,64 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateOrderValue() {
         let totalUSD = 0;
         let totalUYU = 0;
-    
-        table.rows().every(function() {
+
+        table.rows().every(function () {
             let data = this.data();
             let total = data.quantity * data.unit_price;
-    
+
             if (data.currency === 'USD') {
                 totalUSD += total;
             } else if (data.currency === 'UYU') {
                 totalUYU += total;
             }
         });
-    
+
         // Actualizar el valor de las tarjetas
         $('.total-usd').text('$' + totalUSD.toFixed(2));
         $('.total-uyu').text('UYU ' + totalUYU.toFixed(2));
     }
-    
+
 
     // Manejo de la visibilidad de columnas
-    $('.toggle-column').on('change', function(e) {
+    $('.toggle-column').on('change', function (e) {
         var column = table.column($(this).attr('data-column'));
         column.visible(!column.visible());
     });
 
     function updateUniqueMaterialsCount() {
         let uniqueMaterials = new Set();
-        table.rows().every(function() {
+        table.rows().every(function () {
             let data = this.data();
             uniqueMaterials.add(data.raw_material_id);
         });
         $('.different-raw-materials').text(uniqueMaterials.size);
     }
 
-    $('#addItemForm').on('submit', function(event) {
+    $('#addItemForm').on('submit', function (event) {
         event.preventDefault();
-    
+
         let rawMaterialId = $('#raw_material_id').val();
         let unitPrice = parseFloat($('#unit_price').val()).toFixed(2);
         let currency = $('#currency').val();
-    
+
+
+        // Verificar si no se ha seleccionado una materia prima
+        if (!rawMaterialId) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Debe seleccionar una materia prima antes de enviar el formulario.',
+                icon: 'error'
+            });
+            return;  // No se envía el formulario
+        }
         // Realizar la llamada para obtener el último precio de la materia prima
         $.ajax({
             url: `raw-material-prices/${rawMaterialId}`,
             method: 'GET',
-            success: function(response) {
+            success: function (response) {
                 let lastPrice = response.price ? parseFloat(response.price).toFixed(2) : null;
                 let lastCurrency = response.currency ? response.currency : null;
-    
+
                 // Verificar si no existe un precio anterior
                 if (lastPrice === null || lastPrice === undefined) {
                     Swal.fire({
@@ -158,12 +169,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     submitForm();
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error al verificar el precio anterior:', error);
             }
         });
     });
-    
+
     // Función para hacer el POST de nuevos precios y luego agregar el item a la orden
     function submitFormWithNewPrice(rawMaterialId, currency, unitPrice) {
         $.ajax({
@@ -177,16 +188,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 currency: currency,
                 price: unitPrice
             },
-            success: function() {
+            success: function () {
                 // Proceder con el envío del formulario
                 submitForm();
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error al registrar el nuevo precio:', error);
             }
         });
     }
-    
+
     // Función para proceder con el envío del formulario de items de orden de compra
     function submitForm() {
         console.log(id);
@@ -197,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 value: id
             }).prependTo('#addItemForm');
         }
-    
+
         $.ajax({
             url: 'purchase-order-items/',
             method: 'POST',
@@ -205,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: {
                 'X-CSRF-TOKEN': window.csrfToken
             },
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     let newItem = response.purchaseOrderItem;
                     newItem.raw_material_name = rawMaterialsMap[newItem.raw_material_id] || 'Desconocido';
@@ -214,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $('#addItemForm')[0].reset();  // Resetear el formulario
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error:', error);
                 console.error('Detalles:', xhr.responseText);
             }
@@ -223,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    $(document).on('click', '.btn-delete', function() {
+    $(document).on('click', '.btn-delete', function () {
         var itemId = $(this).data('id');
         console.log(itemId);
 
@@ -248,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content')
                     },
-                    success: function(response) {
+                    success: function (response) {
                         Swal.fire(
                             'Eliminado!',
                             'El item ha sido eliminada de la orden.',
@@ -257,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             window.location.reload();
                         });
                     },
-                    error: function(error) {
+                    error: function (error) {
                         Swal.fire(
                             'Error!',
                             'Ocurrió un problema al intentar eliminar el item de la orden de compra.',
@@ -268,4 +279,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    $('#raw_material_id').on('change', function () {
+        let rawMaterialId = $(this).val();
+
+        // Hacer la solicitud para obtener el último precio del material seleccionado
+        $.ajax({
+            url: `raw-material-prices/${rawMaterialId}`,
+            method: 'GET',
+            success: function (response) {
+                // Rellenar el campo de precio y moneda con el último valor registrado
+                if (response.price) {
+                    $('#unit_price').val(parseFloat(response.price).toFixed(2));
+                }
+                if (response.currency) {
+                    $('#currency').val(response.currency);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error al obtener el último precio:', error);
+            }
+        });
+    });
+
 });

@@ -35,15 +35,15 @@ class FormulaRawMaterialRepository
         return $formulaRawMaterial->delete();
     }
 
-    public function bulkInsert(array $rows)
+    public function bulkInsert(array $rows, $formulaId)
     {
         foreach ($rows as $row) {
             FormulaRawMaterial::create([
-                'formula_id' => $row['formula_id'],
+                'formula_id' => $formulaId,
                 'raw_material_id' => $row['raw_material_id'],
                 'quantity_required' => $row['quantity_required'],
                 'step' => $row['step'],
-                'clarification' => $row['clarification'],
+                'clarification' => $row['clarification'] ?? null,
             ]);
         }
     }
