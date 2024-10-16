@@ -71,7 +71,7 @@ $(function () {
             }
           },
           {
-            targets: 3,
+            targets: 2,
             render: function (data, type, full, meta) {
               return moment(data).locale('es').format('DD/MM/YY');
             }
