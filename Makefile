@@ -1,10 +1,12 @@
 # Makefile para ejecutar un proyecto Laravel con Sail
 
 # Variables
-APP_NAME = php_base
-NGINX = nginx_base
-# MYSQL = mysql_base
-# PHP_MY_ADMIN = phpmyadmin_base
+
+APP_NAME = php_teraloapp
+NGINX = nginx_teraloapp
+# MYSQL = mysql_teraloapp
+# PHP_MY_ADMIN = phpmyadmin_teraloapp
+
 # Desarrollo
 dev_install:
 	docker compose -f docker-compose.dev.yml up -d --build
@@ -16,7 +18,7 @@ dev_install_no_cache:
 dev_setup:
 	# docker compose -f docker-compose.dev.yml exec $(PHP_MY_ADMIN) chmod 777 /sessions
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) bash -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && chmod -R 775 /var/www/storage /var/www/bootstrap/cache"
-	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_base 3306 echo 'MySQL is up'"
+	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_teraloapp 3306 echo 'MySQL is up'"
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) composer install
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) npm install --legacy-peer-deps
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan key:generate
@@ -33,12 +35,6 @@ dev_vite:
 dev_migrate:
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate
 
-dev_rollback:
-	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan migrate:rollback
-
-dev_permisos:
-	docker compose -f docker-compose.prod.yml exec $(APP_NAME) php artisan create:modules-permissions
-
 dev_clear:
 	docker compose -f docker-compose.dev.yml down
 
@@ -50,7 +46,7 @@ prod_install:
 prod_setup:
 	# docker compose -f docker-compose.prod.yml exec $(PHP_MY_ADMIN) chmod 777 /sessions
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) bash -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && chmod -R 775 /var/www/storage /var/www/bootstrap/cache"
-	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_base 3306 echo 'MySQL is up'"
+	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_teraloapp 3306 echo 'MySQL is up'"
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) composer install --no-dev
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) npm install
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan key:generate
@@ -66,9 +62,6 @@ prod_clear:
 
 prod_migrate:
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) php artisan migrate
-
-prod_permisos:
-	docker compose -f docker-compose.prod.yml exec $(APP_NAME) php artisan create:modules-permissions
 
 prod_vite:
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) npm run build
