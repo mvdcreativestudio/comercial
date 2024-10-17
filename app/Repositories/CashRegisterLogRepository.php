@@ -166,9 +166,6 @@ class CashRegisterLogRepository
         }
     }
 
-
-
-
     /**
      * Verifica si hay un log abierto para una caja registradora específica.
      *
@@ -289,7 +286,7 @@ class CashRegisterLogRepository
 
 
     /**
-     * Obtiene todos los clientes según la configuración de clients_has_store.
+     * Obtiene todos los clientes según la configuración de clients_has_store, incluyendo información sobre si tienen una lista de precios asignada.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -298,24 +295,29 @@ class CashRegisterLogRepository
         if ($this->companySettings && $this->companySettings->clients_has_store == 1) {
             // Filtrar los clientes que tienen el mismo store_id que el usuario autenticado
             return Client::select('id', 'name', 'lastname', 'ci', 'rut', 'type', 'company_name', 'phone', 'address', 'email')
+                ->with('priceLists:id')  // Incluir información sobre las listas de precios
                 ->where('store_id', Auth::user()->store_id)  // Filtra por store_id del usuario autenticado
                 ->get()
                 ->map(function ($client) {
                     $client->ci = $client->ci ?? 'No CI';
                     $client->rut = $client->rut ?? 'No RUT';
+                    $client->price_list_id = $client->priceLists->isNotEmpty() ? $client->priceLists->first()->id : null;  // Asignar el ID de la lista de precios
                     return $client;
                 });
         } else {
             // Si clients_has_store es 0, mostrar todos los clientes
             return Client::select('id', 'name', 'lastname', 'ci', 'rut', 'type', 'company_name', 'phone', 'address', 'email')
+                ->with('priceLists:id')  // Incluir información sobre las listas de precios
                 ->get()
                 ->map(function ($client) {
                     $client->ci = $client->ci ?? 'No CI';
                     $client->rut = $client->rut ?? 'No RUT';
+                    $client->price_list_id = $client->priceLists->isNotEmpty() ? $client->priceLists->first()->id : null;  // Asignar el ID de la lista de precios
                     return $client;
                 });
         }
     }
+
 
 
 }

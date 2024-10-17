@@ -24,8 +24,10 @@ use App\Http\Controllers\EntryTypeController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpensePaymentMethodController;
+use App\Http\Controllers\IncomeClientController;
+use App\Http\Controllers\IncomeSupplierController;
 use App\Http\Controllers\IncomeCategoryController;
-use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\NotificationController;
@@ -208,6 +210,8 @@ Route::middleware([
 
     // Gestión de Clientes
     Route::put('/admin/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+    // Obtener los productos con los precios personalizados según la lista de precios asignada al cliente
+    Route::get('/price-list/{priceListId}/products', [ClientController::class, 'getProductsByPriceList']);
 
     // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {

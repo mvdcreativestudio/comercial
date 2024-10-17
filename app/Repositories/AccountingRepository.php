@@ -503,7 +503,7 @@ class AccountingRepository
 
             $discountPercentage = round((($order->subtotal - $order->total) / $order->subtotal) * 100, 0);
 
-            // Precio unitario del producto de la orden (con IVA incluido)
+            // Costo Unitario del producto de la orden (con IVA incluido)
             $productPriceConIVA = round($product['price'], 2);
 
             // Descuento aplicado al precio con IVA
@@ -527,7 +527,7 @@ class AccountingRepository
                 "DescuentoPct" => $discountPercentage, // % de descuento aplicado
                 "DescuentoMonto" => $discountAmount, // Monto de descuento por unidad
                 "MontoItem" => round(($productPriceConIVA - $discountAmount) * $adjustedAmount, 2), // Monto del ítem con IVA
-                'PrecioUnitario' => $productPriceConIVA, // Precio unitario del producto con IVA
+                'PrecioUnitario' => $productPriceConIVA, // Costo Unitario del producto con IVA
             ];
         }, $products, array_keys($products));
 
@@ -1523,7 +1523,6 @@ class AccountingRepository
               'date' => $cfe->emitionDate,
               'issuer_name' => $cfe->issuer_name ?? 'N/A',
               'type' => $typeCFEs[$cfe->type] ?? 'N/A',
-
               'currency' => $cfe->currency,
               'total' => $cfe->total,
               'qrUrl' => $cfe->qrUrl,

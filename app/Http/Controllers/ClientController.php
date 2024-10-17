@@ -10,6 +10,7 @@ use Illuminate\View\View;
 use App\Models\CompanySettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
+use App\Models\Product;
 
 class ClientController extends Controller
 {
@@ -135,5 +136,16 @@ class ClientController extends Controller
     public function datatable(): mixed
     {
         return $this->clientRepository->getClientsForDatatable();
+    }
+
+    public function getProductsByPriceList($priceListId)
+    {
+        // Consulta los productos asociados con la lista de precios
+        $products = Product::select('products.id', 'products.name', 'price_list_products.price')
+            ->join('price_list_products', 'products.id', '=', 'price_list_products.product_id')
+            ->where('price_list_products.price_list_id', $priceListId)
+            ->get();
+
+        return response()->json(['products' => $products], 200);
     }
 }
