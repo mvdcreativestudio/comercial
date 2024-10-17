@@ -54,6 +54,7 @@
   </div>
 </div>
 
+
 @if(session('success'))
 <div class="alert alert-success d-flex" role="alert">
   <span class="badge badge-center rounded-pill bg-success border-label-success p-3 me-2"><i class="bx bx-user fs-6"></i></span>
