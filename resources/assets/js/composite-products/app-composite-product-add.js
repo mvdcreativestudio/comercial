@@ -265,6 +265,7 @@
         description: $('#description').val(),
         price: $('#price').val(),
         recommended_price: $('#recommended_price').val(),
+        stock: $('#stock').val(),
         store_id: $('#store_id').val(),
         products: []
       };

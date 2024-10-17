@@ -29,6 +29,7 @@ class StoreCompositeProductRequest extends FormRequest
             'price' => ['required', 'numeric'], // Validación para el precio
             'recommended_price' => ['required', 'numeric'], // Validación para el costo total
             'store_id' => ['required', 'exists:stores,id'],
+            'stock' => ['nullable', 'integer', 'min:0'], // Asegura que 'stock' sea un entero positivo
             'products' => ['required', 'array'], // Asegura que 'products' sea un array
             'products.*.product_id' => ['required', 'exists:products,id'], // Asegura que cada 'product_id' existe
             'products.*.quantity' => ['required', 'integer', 'min:1'], // Asegura que cada 'quantity' sea un entero positivo
@@ -49,6 +50,8 @@ class StoreCompositeProductRequest extends FormRequest
             'price.numeric' => 'El precio debe ser un número.',
             'recommended_price.numeric' => 'El costo total debe ser un número.',
             'store_id.required' => 'La empresa es obligatoria.',
+            'stock.integer' => 'El stock debe ser un número entero.',
+            'stock.min' => 'El stock no puede ser negativo.',
             'products.required' => 'Debes agregar al menos un producto.',
             'products.*.product_id.required' => 'El ID del producto es obligatorio.',
             'products.*.product_id.exists' => 'El producto seleccionado no existe.',

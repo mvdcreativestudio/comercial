@@ -89,9 +89,15 @@
       <div class="col-lg-4">
         <div class="card h-100">
           <div class="card-header">
-            <h5 class="card-title mb-0">Precios</h5>
+            <h5 class="card-title mb-0">Precios y Stock</h5>
           </div>
           <div class="card-body">
+            <!-- Campo para stock -->
+            <div class="mb-3">
+              <label class="form-label" for="stock">Stock Inicial</label>
+              <input type="number" class="form-control" id="stock" placeholder="Establecer stock incial del producto compuesto"
+                name="stock">
+            </div>
             <!-- Campo para el precio final -->
             <div class="mb-3">
               <label class="form-label" for="price">Precio Final</label>
