@@ -16,11 +16,6 @@
 ])
 @endsection
 
-@section('page-script')
-@vite([
-'resources/assets/js/composite-products/app-composite-product-details.js'
-])
-@endsection
 
 @section('content')
 <h4 class="py-3 mb-4">
@@ -33,7 +28,7 @@
         <i class="bx bx-left-arrow-alt"></i> Volver Atrás
     </a>
     <a href="{{ route('composite-products.edit', $compositeProduct->id) }}" class="btn btn-primary">
-        <i class="bx bx-edit"></i> Editar Producto Compuesto
+        <i class="bx bx-edit"></i> Editar
     </a>
 </div>
 
@@ -63,6 +58,10 @@
                 <h6 class="mb-2">Fecha de Creación:</h6>
                 <p>{{ $compositeProduct->created_at->format('d/m/Y') }}</p>
             </div>
+            <div class="col-md-6">
+              <h6 class="mb-2">Stock:</h6>
+              <p>{{ $compositeProduct->stock }}</p>
+          </div>
         </div>
     </div>
 </div>

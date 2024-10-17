@@ -221,7 +221,7 @@
       calculateTotalRecommendedPrice(); // Calcular costo total al seleccionar productos
     });
 
-    // Recalcular costo ttotal al cambiar la cantidad
+    // Recalcular costo total al cambiar la cantidad
     selectedProductsTable.on('input', '.product-quantity', function (event) {
       const input = $(this);
       if (input.val() <= 0) {

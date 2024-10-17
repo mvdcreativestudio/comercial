@@ -266,6 +266,8 @@ class CompositeProductRepository
      */
     public function getAllProducts(): mixed
     {
-        return Product::whereNotNull('price')->get();
+        return Product::whereNotNull('old_price')
+                      ->where('is_trash', 0)
+                      ->get();
     }
 }

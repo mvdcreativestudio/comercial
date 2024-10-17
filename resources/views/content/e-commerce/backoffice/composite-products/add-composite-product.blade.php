@@ -171,11 +171,11 @@
             <div class="mb-3">
               <label class="form-label" for="store_id">Empresa</label>
               <select id="store_id" class="form-select" data-placeholder="Seleccione la Empresa" name="store_id"
-                required>
-                <option value="" selected disabled>Seleccione una empresa</option>
-                @foreach ($stores as $store)
-                <option value="{{ $store->id }}">{{ $store->name }}</option>
-                @endforeach
+                  required {{ count($stores) === 1 ? 'disabled' : '' }}>
+                  <option value="" selected disabled>Seleccione una empresa</option>
+                  @foreach ($stores as $store)
+                      <option value="{{ $store->id }}" {{ count($stores) === 1 ? 'selected' : '' }}>{{ $store->name }}</option>
+                  @endforeach
               </select>
             </div>
           </div>
