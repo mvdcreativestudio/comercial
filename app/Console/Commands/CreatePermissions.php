@@ -75,6 +75,7 @@ class CreatePermissions extends Command
                         'accounting-settings',
                         'received-documents',
                         'expenses',
+                        'current-accounts',
                     ],
                     'view_all' => false,
                 ],
@@ -196,6 +197,15 @@ class CreatePermissions extends Command
                     'view_all' => true,
                     "submenus" => [
                         "delete_expenses",
+                        "expense-categories",
+                    ],
+                ],
+                [
+                    "slug" => "expense-categories",
+                    "module" => "expenses",
+                    "view_all" => true,
+                    "submenus" => [
+                        "delete_expense-categories",
                     ],
                 ],
                 [
@@ -245,60 +255,33 @@ class CreatePermissions extends Command
                     'module' => 'current-accounts',
                     'view_all' => true,
                     'submenus' => [
-                        'current-accounts-clients',
-                        'current-accounts-suppliers',
+                        'current-accounts',
+                        'current-account-settings',
                     ],
                 ],
                 [
-                    'slug' => 'current-accounts-clients',
-                    'module' => 'current-accounts',
-                    'view_all' => false,
-                    'submenus' => [
-                        'current-accounts-clients-sales',
-                        'current-accounts-clients-payments',
-                        'current-accounts-clients-settings',
-                    ],
-                ],
-                [
-                    'slug' => 'current-accounts-clients-sales',
+                    'slug' => 'current-accounts',
                     'module' => 'current-accounts',
                     'view_all' => true,
                     'submenus' => [
-                        'delete_current-accounts-clients-sales',
+                        'current-account-payments',
+                        'delete_current-accounts',
                     ],
                 ],
                 [
-                    'slug' => 'current-accounts-suppliers',
-                    'module' => 'current-accounts',
-                    'view_all' => false,
-                    'submenus' => [
-                        'current-accounts-suppliers-purs',
-                        'current-accounts-suppliers-payments',
-                        'current-accounts-suppliers-settings',
-                    ],
-                ],
-                [
-                    'slug' => 'current-accounts-suppliers-purs',
+                    'slug' => 'current-account-payments',
                     'module' => 'current-accounts',
                     'view_all' => true,
                     'submenus' => [
-                        'delete_current-accounts-suppliers-purs',
+                        'delete_current-account-payments',
                     ],
                 ],
                 [
-                    'slug' => 'current-accounts-clients-payments',
+                    'slug' => 'current-account-settings',
                     'module' => 'current-accounts',
                     'view_all' => true,
                     'submenus' => [
-                        'delete_current-accounts-clients-payments',
-                    ],
-                ],
-                [
-                    'slug' => 'current-accounts-suppliers-payments',
-                    'module' => 'current-accounts',
-                    'view_all' => true,
-                    'submenus' => [
-                        'delete_current-accounts-suppliers-payments',
+                        'delete_current-account-settings',
                     ],
                 ],
                 [
@@ -306,25 +289,9 @@ class CreatePermissions extends Command
                     'module' => 'incomes',
                     'view_all' => true,
                     'submenus' => [
-                        'incomes-clients',
-                        'incomes-suppliers',
+                        'incomes',
+                        'delete_incomes',
                         'income-categories',
-                    ],
-                ],
-                [
-                    'slug' => 'incomes-clients',
-                    'module' => 'incomes',
-                    'view_all' => true,
-                    'submenus' => [
-                        'delete_incomes-clients',
-                    ],
-                ],
-                [
-                    'slug' => 'incomes-suppliers',
-                    'module' => 'incomes',
-                    'view_all' => true,
-                    'submenus' => [
-                        'delete_incomes-suppliers',
                     ],
                 ],
                 [

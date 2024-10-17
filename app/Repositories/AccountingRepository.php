@@ -1408,6 +1408,8 @@ class AccountingRepository
                 $caeData = $cfeData['CAEData'] ?? [];
                 $adenda = $receivedCfe['Adenda'] ?? null;
 
+                Log::info('Datos de total: ' . $totales['TpoMoneda']);
+
                 $cfeEntry = [
                     'store_id' => $store->id,
                     'type' => $idDoc['TipoCFE'] ?? null,
@@ -1420,6 +1422,7 @@ class AccountingRepository
                     ]),
                     'caeExpirationDate' => $caeData['FecVenc'] ?? null,
                     'total' => $totales['MntTotal'] ?? 0,
+                    'currency' => $totales['TpoMoneda'] ?? 'USD',
                     'status' => $receivedCfe['cfeStatus'] ?? 'PENDING_REVISION',
                     'balance' => $totales['MntTotal'] ?? 0,
                     'received' => true,
@@ -1475,19 +1478,21 @@ class AccountingRepository
                 ->where('store_id', $store->id)
                 ->whereIn('type', $validTypes)
                 ->where('received', true)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('emitionDate', 'desc')
                 ->get();
         } else {
             // Si no se proporciona una empresa específica, obtener todos los CFEs recibidos
             $cfes = CFE::with('order.client', 'order.store')
                 ->whereIn('type', $validTypes)
                 ->where('received', true)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('emitionDate', 'desc')
                 ->get();
         }
 
+        $totalItems = $cfes->count(); // Obtener la cantidad total de elementos
+
         // Formatear la colección de datos para el DataTable
-        return $cfes->map(function ($cfe) {
+        return $cfes->map(function ($cfe, $index) use ($totalItems) {
           $typeCFEs = [
             101 => 'eTicket',
             102 => 'eTicket - Nota de Crédito',
@@ -1514,7 +1519,7 @@ class AccountingRepository
           }
 
           return [
-              'id' => $cfe->id,
+              'id' => $totalItems - $index,
               'date' => $cfe->emitionDate,
               'issuer_name' => $cfe->issuer_name ?? 'N/A',
               'type' => $typeCFEs[$cfe->type] ?? 'N/A',

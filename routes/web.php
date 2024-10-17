@@ -1,11 +1,8 @@
 <?php
 
 use App\Http\Controllers\AccountingController;
-
 use App\Http\Controllers\CartController;
-
 use App\Http\Controllers\CashRegisterController;
-
 use App\Http\Controllers\CashRegisterLogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ClientController;
@@ -13,10 +10,9 @@ use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\CompositeProductController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CrmController;
-use App\Http\Controllers\CurrentAccountClientSaleController;
-use App\Http\Controllers\CurrentAccountClientSalePaymentController;
-use App\Http\Controllers\CurrentAccountSupplierPurchaseController;
-use App\Http\Controllers\CurrentAccountSupplierPurchasePaymentController;
+use App\Http\Controllers\CurrentAccountController;
+use App\Http\Controllers\CurrentAccountPaymentController;
+use App\Http\Controllers\CurrentAccountSettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatacenterController;
 use App\Http\Controllers\EcommerceController;
@@ -25,10 +21,12 @@ use App\Http\Controllers\EntryAccountController;
 use App\Http\Controllers\EntryController;
 use App\Http\Controllers\EntryDetailController;
 use App\Http\Controllers\EntryTypeController;
+use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpensePaymentMethodController;
 use App\Http\Controllers\IncomeClientController;
 use App\Http\Controllers\IncomeSupplierController;
+use App\Http\Controllers\IncomeCategoryController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\MercadoPagoController;
@@ -93,17 +91,18 @@ Route::middleware([
     Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
     Route::get('/expenses/datatable', [ExpenseController::class, 'datatable'])->name('expenses.datatable');
     Route::get('/expense-payment-methods/datatable/{id}', [ExpensePaymentMethodController::class, 'datatable'])->name('expense-payment-methods.datatable');
+    Route::get('/expense-categories/datatable', [ExpenseCategoryController::class, 'datatable'])->name('expense-categories.datatable');
     Route::get('/entries/datatable', [EntryController::class, 'datatable'])->name('entries.datatable');
     Route::get('/entry-details/datatable/{id}', [EntryDetailController::class, 'datatable'])->name('entry-details.datatable');
     Route::get('/entry-types/datatable', [EntryTypeController::class, 'datatable'])->name('entry-types.datatable');
     Route::get('/entry-accounts/datatable', [EntryAccountController::class, 'datatable'])->name('entry-accounts.datatable');
     Route::get('/invoices/datatable', [AccountingController::class, 'getInvoicesData'])->name('invoices.datatable');
     Route::get('/invoices/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('accounting.receivedCfesData');
-    Route::get('/current-account-clients/datatable', [CurrentAccountClientSaleController::class, 'datatable'])->name('current-accounts.datatable');
+    Route::get('/current-accounts/datatable', [CurrentAccountController::class, 'datatable'])->name('current-accounts.datatable');
+    Route::get('/current-account-settings/datatable', [CurrentAccountSettingsController::class, 'datatable'])->name('current-account-settings.datatable');
     // suppliers
-    Route::get('/current-account-suppliers/datatable', [CurrentAccountSupplierPurchaseController::class, 'datatable'])->name('current-account-suppliers.datatable');
-    Route::get('/incomes-clients/datatable', [IncomeClientController::class, 'datatable'])->name('income-clients.datatable');
-    Route::get('/incomes-suppliers/datatable', [IncomeSupplierController::class, 'datatable'])->name('income-suppliers.datatable');
+    Route::get('/incomes/datatable', [IncomeController::class, 'datatable'])->name('income.datatable');
+    Route::get('/income-categories/datatable', [IncomeCategoryController::class, 'datatable'])->name('income-categories.datatable');
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
@@ -111,11 +110,8 @@ Route::middleware([
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
     Route::get('/products/download-template', [ProductController::class, 'downloadTemplate'])->name('products.download-template');
 
-
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
-
-
 
     // Exportaciones
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
@@ -123,7 +119,13 @@ Route::middleware([
     // Importaciones Bulk
     Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
 
+    // exportar excel
+    Route::get('/current-accounts-export-excel', [CurrentAccountController::class, 'exportExcel'])->name('current-account.export.excel');
+    Route::get('/current-accounts-export-pdf', [CurrentAccountController::class, 'exportPdf'])->name('current-account.pdf');
 
+    // exportar excel
+    Route::get('/incomes-export-excel', [IncomeController::class, 'exportExcel'])->name('income.export.excel');
+    Route::get('/incomes-export-pdf', [IncomeController::class, 'exportPdf'])->name('income.pdf');
 
     Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
     Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
@@ -152,16 +154,16 @@ Route::middleware([
         'composite-products' => CompositeProductController::class,
         'expenses' => ExpenseController::class,
         'expense-payment-methods' => ExpensePaymentMethodController::class,
+        'expense-categories' => ExpenseCategoryController::class,
         'entries' => EntryController::class,
         'entry-details' => EntryDetailController::class,
         'entry-types' => EntryTypeController::class,
         'entry-accounts' => EntryAccountController::class,
-        'current-account-client-sales' => CurrentAccountClientSaleController::class,
-        'current-account-client-payments' => CurrentAccountClientSalePaymentController::class,
-        'current-account-supplier-purs' => CurrentAccountSupplierPurchaseController::class,
-        'current-account-supplier-pays' => CurrentAccountSupplierPurchasePaymentController::class,
-        'incomes-clients' => IncomeClientController::class,
-        'incomes-suppliers' => IncomeSupplierController::class,
+        'current-accounts' => CurrentAccountController::class,
+        'current-account-payments' => CurrentAccountPaymentController::class,
+        'current-account-settings' => CurrentAccountSettingsController::class,
+        'incomes' => IncomeController::class,
+        'income-categories' => IncomeCategoryController::class,
     ]);
 
     // Puntos de venta
@@ -325,37 +327,19 @@ Route::middleware([
         Route::post('/delete-multiple', [CompositeProductController::class, 'deleteMultiple'])->name('composite-products.deleteMultiple');
     });
 
-    // Cuentas Corrientes Clientes
-    Route::group(['prefix' => 'current-account-client-sales'], function () {
-        Route::post('/delete-multiple', [CurrentAccountClientSaleController::class, 'deleteMultiple'])->name('current-account-client-sales.deleteMultiple');
+    // Cuentas Corrientes
+    Route::group(['prefix' => 'current-accounts'], function () {
+        Route::post('/delete-multiple', [CurrentAccountController::class, 'deleteMultiple'])->name('current-account.deleteMultiple');
     });
 
-    // Cuentas Corrientes Clientes Pagos
-    Route::group(['prefix' => 'current-account-client-payments'], function () {
-        // add payment and show form with id param
-        Route::get('/{currentAccountId}/add-payment', [CurrentAccountClientSalePaymentController::class, 'create'])->name('current-account-client-payments.create');
+    // Cuentas Corrientes Pagos
+    Route::group(['prefix' => 'current-account-payments'], function () {
+        Route::get('/{currentAccountId}/add-payment', [CurrentAccountPaymentController::class, 'create'])->name('current-account-payments.create');
 
         // edit payment
-        Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountClientSalePaymentController::class, 'edit'])->name('current-account-client-payments.edit');
+        // Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountPaymentController::class, 'edit'])->name('current-account-payments.edit');
 
-        Route::post('/delete-multiple', [CurrentAccountClientSalePaymentController::class, 'deleteMultiple'])->name('current-account-client-payments.deleteMultiple');
-    });
-
-    // Cuentas Corrientes Proveedores
-    Route::group(['prefix' => 'current-account-supplier-purs'], function () {
-        Route::post('/delete-multiple', [CurrentAccountSupplierPurchaseController::class, 'deleteMultiple'])->name('current-account-supplier-purchases.deleteMultiple');
-    });
-
-    // Cuentas Corrientes Proveedores Pagos
-
-    Route::group(['prefix' => 'current-account-supplier-pays'], function () {
-        // add payment and show form with id param
-        Route::get('/{currentAccountId}/add-payment', [CurrentAccountSupplierPurchasePaymentController::class, 'create'])->name('current-account-supplier-pays.create');
-
-        // edit payment
-        Route::get('/{currentAccountPaymentId}/edit', [CurrentAccountSupplierPurchasePaymentController::class, 'edit'])->name('current-account-supplier-pays.edit');
-
-        Route::post('/delete-multiple', [CurrentAccountSupplierPurchasePaymentController::class, 'deleteMultiple'])->name('current-account-supplier-pays.deleteMultiple');
+        // Route::post('/delete-multiple', [CurrentAccountPaymentController::class, 'deleteMultiple'])->name('current-account-payments.deleteMultiple');
     });
 
     // Gastos
@@ -363,6 +347,11 @@ Route::middleware([
         // show
         // Route::get('/{expense}/show', [ExpenseController::class, 'show'])->name('expenses.show');
         Route::post('/delete-multiple', [ExpenseController::class, 'deleteMultiple'])->name('expenses.deleteMultiple');
+    });
+
+    // Categorías de Gastos
+    Route::group(['prefix' => 'expense-categories'], function () {
+        Route::post('/delete-multiple', [ExpenseCategoryController::class, 'deleteMultiple'])->name('expense-categories.deleteMultiple');
     });
 
     // Métodos de Pago de Gastos
@@ -393,13 +382,16 @@ Route::middleware([
     });
 
     // Ingresos de Clientes
-    Route::group(['prefix' => 'incomes-clients'], function () {
-        Route::post('/delete-multiple', [IncomeClientController::class, 'deleteMultiple'])->name('income-clients.deleteMultiple');
+    Route::group(['prefix' => 'incomes'], function () {
+        Route::post('/delete-multiple', [IncomeController::class, 'deleteMultiple'])->name('income-clients.deleteMultiple');
     });
 
-    // Ingresos de Proveedores
-    Route::group(['prefix' => 'incomes-suppliers'], function () {
-        Route::post('/delete-multiple', [IncomeSupplierController::class, 'deleteMultiple'])->name('income-suppliers.deleteMultiple');
+    // Categorías de Ingresos
+    Route::group(['prefix' => 'income-categories'], function () {
+        Route::post('/delete-multiple', [IncomeCategoryController::class, 'deleteMultiple'])->name('income-categories.deleteMultiple');
+    });
+    Route::group(['prefix' => 'current-account-settings'], function () {
+        Route::post('/delete-multiple', [CurrentAccountSettingsController::class, 'deleteMultiple'])->name('current-account-settings.deleteMultiple');
     });
 });
 

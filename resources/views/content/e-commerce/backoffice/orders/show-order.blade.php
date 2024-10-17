@@ -109,6 +109,8 @@ $changeTypeTranslations = [
         <span class="me-2 ms-2">Débito</span>
       @elseif($order->payment_method === 'credit')
         <span class="me-2 ms-2">Crédito</span>
+      @elseif($order->payment_method === 'internalCredit')
+              <span class="me-2 ms-2">Crédito Interno</span>
       @endif
     </h6>
     @if($store->invoices_enabled)

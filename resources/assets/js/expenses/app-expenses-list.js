@@ -47,10 +47,12 @@ $(function () {
           { data: 'id', type: 'num' },
           { data: 'due_date' },
           { data: 'supplier_name' },
+          { data: 'concept' },
           { data: 'store_name' },
           { data: 'amount' },
           { data: 'total_payments' },
           { data: 'category_name' },
+          { data: 'currency_name' },
           { data: 'status' },
           { data: 'temporal_status' },
           { data: '' }
@@ -75,19 +77,21 @@ $(function () {
             }
           },
           {
-            targets: 5,
-            render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
-            }
-          },
-          {
             targets: 6,
             render: function (data, type, full, meta) {
-              return $currencySymbol + parseFloat(data).toFixed(2);
+              const symbol = full.currency_symbol ?? '$';
+              return symbol + parseFloat(data).toFixed(2);
             }
           },
           {
-            targets: 8,
+            targets: 7,
+            render: function (data, type, full, meta) {
+              const symbol = full.currency_symbol ?? '$';
+              return symbol + parseFloat(data).toFixed(2);
+            }
+          },
+          {
+            targets: 10,
             render: function (data, type, full, meta) {
               const statusMap = {
                 Paid: { class: 'bg-success', text: 'PAGADO' },
@@ -98,7 +102,7 @@ $(function () {
             }
           },
           {
-            targets: 9,
+            targets: 11,
             render: function (data, type, full, meta) {
               return `<span class="badge pill ${temporalStatusMap[data].class}">${temporalStatusMap[data].text}</span>`;
             }
@@ -168,7 +172,7 @@ $(function () {
             });
 
           this.api()
-            .columns(4)
+            .columns(5)
             .every(function () {
               var column = this;
               var select = $('<select class="form-select"><option value="">Todos los locales</option></select>')
@@ -193,7 +197,7 @@ $(function () {
                 });
             });
           this.api()
-            .columns(7)
+            .columns(8)
             .every(function () {
               var column = this;
               var select = $('<select class="form-select"><option value="">Todos las categorias</option></select>')
@@ -212,7 +216,7 @@ $(function () {
                 });
             });
           this.api()
-            .columns(8)
+            .columns(10)
             .every(function () {
               var column = this;
               var select = $('<select class="form-select"><option value="">Todos los estados</option></select>')
