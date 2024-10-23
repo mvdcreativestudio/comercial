@@ -60,6 +60,13 @@ class UpdateStoreRequest extends FormRequest
             ];
         }
 
+        if ($this->boolean('scanntech')) {
+            $rules += [
+                'scanntechCompany' => 'required|string|max:255',
+                'scanntechBranch' => 'required|string|max:255',
+            ];
+        }
+
         return $rules;
     }
 }

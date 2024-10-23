@@ -11,6 +11,9 @@ use App\Models\CompanySettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use App\Models\Product;
+use App\Models\Client;
+use App\Models\PriceList;
+use Illuminate\Support\Facades\Log;
 
 class ClientController extends Controller
 {
@@ -140,12 +143,88 @@ class ClientController extends Controller
 
     public function getProductsByPriceList($priceListId)
     {
-        // Consulta los productos asociados con la lista de precios
+        // Obtener los productos y el precio específico de la lista de precios desde la tabla price_list_products
         $products = Product::select('products.id', 'products.name', 'price_list_products.price')
             ->join('price_list_products', 'products.id', '=', 'price_list_products.product_id')
             ->where('price_list_products.price_list_id', $priceListId)
             ->get();
-
-        return response()->json(['products' => $products], 200);
+    
+        return response()->json(['products' => $products]);
     }
+    
+
+    public function getClientPriceList($clientId)
+    {
+        // Buscar el cliente por ID
+        $client = Client::with('priceLists')->find($clientId);
+
+        if (!$client) {
+            return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+
+        // Verificar si el cliente tiene una lista de precios asociada
+        $priceListId = null;
+        if ($client->priceLists->isNotEmpty()) {
+            $priceListId = $client->priceLists->first()->id; // Obtenemos el primer ID de lista de precios
+        }
+
+        return response()->json([
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'lastname' => $client->lastname,
+                'type' => $client->type,
+                'company_name' => $client->company_name,
+                'price_list_id' => $priceListId
+            ]
+        ]);
+    }
+
+    public function getPriceLists($clientId)
+{
+    try {
+        // Registrar en el log el ID del cliente que estamos intentando obtener
+        Log::info("Intentando obtener lista de precios para el cliente con ID: {$clientId}");
+
+        // Buscar el cliente por su ID, cargando también la relación con la lista de precios
+        $client = Client::with('priceList')->findOrFail($clientId);
+        Log::info("Cliente encontrado: ", ['client' => $client]);
+
+        // Verificar si el cliente tiene una lista de precios asignada
+        if ($client->priceList) {
+            Log::info("Lista de precios encontrada: ", ['price_list' => $client->priceList]);
+
+            return response()->json([
+                'status' => 'success',
+                'price_list' => [
+                    'id' => $client->priceList->id,
+                    'name' => $client->priceList->name,
+                ]
+            ], 200);
+        } else {
+            Log::warning("El cliente con ID: {$clientId} no tiene una lista de precios asignada.");
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El cliente no tiene una lista de precios asignada'
+            ], 404);
+        }
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        Log::error("Cliente con ID: {$clientId} no encontrado. Excepción: " . $e->getMessage());
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Cliente no encontrado'
+        ], 404);
+    } catch (\Exception $e) {
+        Log::error("Error inesperado al obtener la lista de precios para el cliente con ID: {$clientId}. Excepción: " . $e->getMessage());
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Error al obtener la lista de precios: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
 }

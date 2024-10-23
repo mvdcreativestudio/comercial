@@ -54,6 +54,11 @@
             </div>
           </div>
         </div>
+        @if(isset($posDevice))
+    <p>POS Device: {{ $posDevice->identifier }} (User: {{ $posDevice->user }})</p>
+@else
+    <p>No POS device is associated with the open cash register.</p>
+@endif
 
         <div class="col-12 mb-3">
           <div id="client-info" class="card shadow-sm p-4 mb-3 rounded-lg border-0 client-info-card" style="display: block;">
@@ -78,6 +83,9 @@
                 <div class="col-md-6 mb-3">
                   <p class="mb-1" id="client-company" style="display:none;"></p>
                   <p class="mb-1"><strong id="client-doc-label" class="text-muted">CI:</strong> <span id="client-doc" class="text-body fw-bold">-</span></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <p class="mb-1"><strong class="text-muted">Lista de Precios:</strong> <span id="client-price-list" class="text-body fw-bold">-</span></p>
                 </div>
               </div>
             </div>

@@ -45,6 +45,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\SupplierOrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\PosDeviceController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -212,6 +213,8 @@ Route::middleware([
     Route::put('/admin/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
     // Obtener los productos con los precios personalizados según la lista de precios asignada al cliente
     Route::get('/price-list/{priceListId}/products', [ClientController::class, 'getProductsByPriceList']);
+    Route::get('/client-price-list/{clientId}', [ClientController::class, 'getClientPriceList']);
+    Route::get('/price-lists/{clientId}', [ClientController::class, 'getPriceLists']);
 
     // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {
@@ -393,6 +396,11 @@ Route::middleware([
     Route::group(['prefix' => 'current-account-settings'], function () {
         Route::post('/delete-multiple', [CurrentAccountSettingsController::class, 'deleteMultiple'])->name('current-account-settings.deleteMultiple');
     });
+
+    // POS Devices
+    Route::post('/pos/devices/store', [PosDeviceController::class, 'store'])->name('pos.devices.store');
+    Route::put('/pos/devices/update/{id}', [PosDeviceController::class, 'update'])->name('pos.devices.update');
+
 });
 
 // Recursos con acceso público
