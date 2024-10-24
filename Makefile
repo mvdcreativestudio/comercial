@@ -2,10 +2,10 @@
 
 # Variables
 
-APP_NAME = php_teraloapp
-NGINX = nginx_teraloapp
-# MYSQL = mysql_teraloapp
-# PHP_MY_ADMIN = phpmyadmin_teraloapp
+APP_NAME = php_base
+NGINX = nginx_base
+# MYSQL = mysql_base
+# PHP_MY_ADMIN = phpmyadmin_base
 
 # Desarrollo
 dev_install:
@@ -18,7 +18,7 @@ dev_install_no_cache:
 dev_setup:
 	# docker compose -f docker-compose.dev.yml exec $(PHP_MY_ADMIN) chmod 777 /sessions
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) bash -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && chmod -R 775 /var/www/storage /var/www/bootstrap/cache"
-	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_teraloapp 3306 echo 'MySQL is up'"
+	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_base 3306 echo 'MySQL is up'"
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) composer install
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) npm install --legacy-peer-deps
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan key:generate
@@ -38,6 +38,12 @@ dev_migrate:
 dev_clear:
 	docker compose -f docker-compose.dev.yml down
 
+dev_create_migration:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan make:migration $(name)
+
+dev_permissions:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan create:modules-permissions
+
 # Producción
 
 prod_install:
@@ -46,7 +52,7 @@ prod_install:
 prod_setup:
 	# docker compose -f docker-compose.prod.yml exec $(PHP_MY_ADMIN) chmod 777 /sessions
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) bash -c "chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && chmod -R 775 /var/www/storage /var/www/bootstrap/cache"
-	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_teraloapp 3306 echo 'MySQL is up'"
+	# docker exec $(APP_NAME) /bin/sh -c "wait-for-it.sh mysql_base 3306 echo 'MySQL is up'"
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) composer install --no-dev
 	docker compose -f docker-compose.prod.yml exec $(APP_NAME) npm install
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan key:generate

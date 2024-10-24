@@ -280,6 +280,13 @@
               "url": "/admin/current-account-settings"
             }
           ]
+        },
+        {
+          "id": "tour-moneda",
+          "name": "Moneda",
+          "icon": "menu-icon tf-icons bx bx-euro",
+          "slug": "currencies",
+          "url": "/admin/currencies"
         }
       ]
     },

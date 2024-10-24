@@ -76,6 +76,7 @@ class CreatePermissions extends Command
                         'received-documents',
                         'expenses',
                         'current-accounts',
+                        'currencies'
                     ],
                     'view_all' => false,
                 ],
@@ -302,7 +303,14 @@ class CreatePermissions extends Command
                         'delete_income-categories',
                     ],
                 ],
-
+                [
+                    'slug' => 'currencies',
+                    'module' => 'accounting',
+                    'view_all' => true,
+                    'submenus' => [
+                        'delete_currencies',
+                    ],
+                ]
             ],
         ];
 
