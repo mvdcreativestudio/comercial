@@ -48,7 +48,7 @@ $(function () {
             data: null, // Columna para el nombre del Cliente/Proveedor o "Ninguno"
             render: function (data, type, full, meta) {
               if (full.client_name) {
-                return full.client_name;
+                return full.client_name + ' ' + full.client_lastname;
               } else if (full.supplier_name) {
                 return full.supplier_name;
               } else {

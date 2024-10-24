@@ -130,6 +130,20 @@ Route::middleware([
     Route::get('/incomes-export-excel', [IncomeController::class, 'exportExcel'])->name('income.export.excel');
     Route::get('/incomes-export-pdf', [IncomeController::class, 'exportPdf'])->name('income.pdf');
 
+
+    // exportar excel entries
+    Route::get('/entries-export-excel', [EntryController::class, 'exportExcel'])->name('entries.export.excel');
+    Route::get('/entries-export-pdf', [EntryController::class, 'exportPdf'])->name('entries.pdf');
+
+    // exportar excel entries details
+    Route::get('/entry-details-export-excel/{id}', [EntryDetailController::class, 'exportExcel'])->name('entry-details.export.excel');
+    Route::get('/entry-details-export-pdf/{id}', [EntryDetailController::class, 'exportPdf'])->name('entry-details.pdf');
+
+
+    // exportar excel expenses
+    Route::get('/expenses-export-excel', [ExpenseController::class, 'exportExcel'])->name('expenses.export.excel');
+    Route::get('/expenses-export-pdf', [ExpenseController::class, 'exportPdf'])->name('expenses.pdf');
+
     Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
     Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
 

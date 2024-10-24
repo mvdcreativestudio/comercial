@@ -79,7 +79,7 @@
             <select class="form-select" id="client_id" name="client_id">
               <option value="" selected disabled>Seleccione un cliente</option>
               @foreach($clients as $client)
-                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                <option value="{{ $client->id }}">{{ $client->name }} {{ $client->lastname }}</option>
               @endforeach
             </select>
           </div>

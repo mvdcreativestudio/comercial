@@ -4,9 +4,9 @@
 
 @section('vendor-style')
 @vite([
-    'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-    'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-    'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'
+'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'
 ])
 @endsection
 
@@ -15,7 +15,7 @@
 
 @section('vendor-script')
 @vite([
-    'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'
+'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'
 ])
 <script>
     window.baseUrl = "{{ url('/') }}";
@@ -24,8 +24,8 @@
 
 @section('page-script')
 @vite([
-    'resources/assets/js/current-accounts/app-current-account-list.js',
-    'resources/assets/js/current-accounts/app-current-account-delete.js',
+'resources/assets/js/current-accounts/app-current-account-list.js',
+'resources/assets/js/current-accounts/app-current-account-delete.js',
 ])
 @endsection
 
@@ -228,23 +228,24 @@
                 </div>
                 <div class="col-md-2">
                     <label for="startDate">Fecha Desde</label>
-                    <input type="date" class="form-control date-range-filter" id="startDate" placeholder="Fecha de inicio">
+                    <input type="date" class="form-control date-range-filter" id="startDate"
+                        placeholder="Fecha de inicio">
                 </div>
                 <div class="col-md-2">
                     <label for="endDate">Fecha Hasta</label>
                     <input type="date" class="form-control date-range-filter" id="endDate" placeholder="Fecha de fin">
                 </div>
-                <div class="col-md-2 d-flex flex-column mt-2">
-                    <button class="btn btn-outline-danger btn-sm clear-filters w-100 mb-2" id="clear-filters">
-                      <i class="fas fa-eraser"></i> Limpiar Filtros
+                <div class="col-md-2 mt-2">
+                    <button class="btn btn-outline-danger btn-sm clear-filters" id="clear-filters">
+                        <i class="fas fa-eraser"></i>
                     </button>
-                    <button class="btn btn-outline-success btn-sm export-excel w-100" id="export-excel">
-                      <i class="fas fa-file-excel"></i> Exportar a Excel
+                    <button class="btn btn-outline-success btn-sm export-excel" id="export-excel">
+                        <i class="fas fa-file-excel"></i>
                     </button>
-                    <button class="btn btn-outline-primary btn-sm export-pdf w-100 mt-2" id="export-pdf">
-                      <i class="fas fa-file-pdf"></i> Exportar a PDF
+                    <button class="btn btn-outline-primary btn-sm export-pdf" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i>
                     </button>
-                  </div>
+                </div>
             </div>
         </h5>
     </div>

@@ -27,7 +27,8 @@ $(document).ready(function() {
           text: response.message
         }).then(result => {
           // Recargar la tabla de categorías de ingresos si es necesario
-          $('.datatables-income-categories').DataTable().ajax.reload();
+          // $('.datatables-income-categories').DataTable().ajax.reload();
+          location.reload();
         });
       },
       error: function (xhr) {

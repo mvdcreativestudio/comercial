@@ -51,7 +51,8 @@ $(document).ready(function () {
       data: formData,
       success: function () {
         $('#editIncomeCategoryModal').modal('hide');
-        $('.datatables-income-categories').DataTable().ajax.reload();
+        // $('.datatables-income-categories').DataTable().ajax.reload();
+        location.reload();
         Swal.fire('¡Actualizado!', 'La categoría de ingreso ha sido actualizada con éxito.', 'success');
       },
       error: function (xhr) {

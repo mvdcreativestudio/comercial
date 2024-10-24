@@ -165,6 +165,7 @@ class IncomeRepository
             'incomes.supplier_id',
             'incomes.created_at',
             'clients.name as client_name',
+            'clients.lastname as client_lastname',
             'suppliers.name as supplier_name',
             'income_categories.income_name as income_category_name',
             'currencies.name as currency_name',
