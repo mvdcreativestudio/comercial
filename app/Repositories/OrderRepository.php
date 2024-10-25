@@ -167,12 +167,18 @@ class OrderRepository
      */
     private function prepareOrderData(string $paymentMethod, $request): array
     {
-        $subtotal = array_reduce(session('cart', []), function ($carry, $item) {
-            return $carry + ($item['price'] ?? $item['old_price']) * $item['quantity'];
-        }, 0);
-
+        $products = json_decode($request['products'], true);
+        $subtotal = 0;
+    
+        // Recorre los productos y usa el precio de la lista de precios si está disponible
+        foreach ($products as $item) {
+            // Si hay un precio específico en el carrito (de la lista de precios), úsalo
+            $price = $item['price'] ?? $item['old_price'];
+            $subtotal += $price * $item['quantity'];
+        }
+    
         Log::info('Request de prepareOrderData', ['request' => $request->all()]);
-
+    
         return [
             'date' => now(),
             'time' => now()->format('H:i:s'),
@@ -194,6 +200,7 @@ class OrderRepository
             'cash_register_log_id' => $request->cash_register_log_id,
         ];
     }
+    
 
     /**
      * Carga las relaciones de un pedido.

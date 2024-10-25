@@ -218,6 +218,11 @@
             <span class="fw-medium me-2">Teléfono:</span>
             <span>{{ $client->phone }}</span>
           </li>
+          <li class="mb-3">
+            <span class="fw-medium me-2">Listas de Precios:</span>
+            <span>{{ $priceListNames }}</span>
+          </li>
+          
         </ul>
         <div class="d-flex justify-content-center pt-3">
           <a href="javascript:;" class="btn btn-primary me-3" data-bs-target="#editUser" data-bs-toggle="modal">Editar</a>
@@ -268,6 +273,17 @@
           <div class="col-12 col-md-6">
             <label class="form-label" for="modalEditUserCountry">País</label>
             <input type="text" id="modalEditUserCountry" name="country" class="form-control" value="{{ $client->country }}" />
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="modalEditUserPriceList">Lista de Precios</label>
+            <select id="modalEditUserPriceList" name="price_list_id" class="form-control">
+                <option value="" disabled selected>Seleccione una lista de precios</option>
+                @foreach($priceLists as $priceList)
+                    <option value="{{ $priceList->id }}" {{ $client->priceLists->contains($priceList->id) ? 'selected' : '' }}>
+                        {{ $priceList->name }}
+                    </option>
+                @endforeach
+            </select>
           </div>
           <div class="col-12 text-center">
             <button type="submit" class="btn btn-primary me-sm-3 me-1">Guardar cambios</button>

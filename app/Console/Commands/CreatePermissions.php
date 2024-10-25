@@ -86,6 +86,11 @@ class CreatePermissions extends Command
                     'view_all' => false,
                 ],
                 [
+                    'slug' => 'price-lists',
+                    'module' => 'sales',
+                    'view_all' => true,
+                ],
+                [
                     'slug' => 'ecommerce',
                     'module' => 'ecommerce',
                     'submenus' => [

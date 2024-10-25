@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PriceList extends Model
 {
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description', 'store_id'];
 
     // Relación muchos a muchos con clientes
     public function customers()
@@ -21,5 +21,11 @@ class PriceList extends Model
         return $this->belongsToMany(Product::class, 'price_list_products')
                     ->withPivot('price')
                     ->withTimestamps();
+    }
+
+    // Relación uno a muchos inversa con tiendas
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 }

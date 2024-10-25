@@ -12,6 +12,8 @@ use App\Repositories\CashRegisterRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\PriceList;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
@@ -48,7 +50,8 @@ class CashRegisterLogController extends Controller
 
     public function front2()
     {
-        return view('pdv.front2');
+      $priceLists = PriceList::all();
+      return view('pdv.front2', compact('priceLists'));
     }
 
     /**
@@ -231,18 +234,21 @@ class CashRegisterLogController extends Controller
             // Crear el nuevo cliente
             $newClient = $this->cashRegisterLogRepository->createClient($validatedData);
 
-            // Agregar log
-            Log::info('Nuevo cliente creado desde PDV', [
-                'client_id' => $newClient->id,
-                'name' => $newClient->name,
-                'email' => $newClient->email,
-                'type' => $newClient->type,
-            ]);
+            // Verificar si se ha proporcionado una lista de precios y guardarla en la tabla `client_price_lists`
+            if (isset($validatedData['price_list_id'])) {
+                DB::table('client_price_lists')->insert([
+                    'client_id' => $newClient->id,
+                    'price_list_id' => $validatedData['price_list_id'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cliente creado correctamente.',
-                'client' => $newClient, // Devuelve los datos completos del cliente
+                'client' => $newClient
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error al crear cliente desde PDV: ' . $e->getMessage());
