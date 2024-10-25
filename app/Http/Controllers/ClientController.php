@@ -109,7 +109,12 @@ class ClientController extends Controller
     {
         // Obtén el cliente con sus listas de precios asociadas
         $client = $this->clientRepository->getClientById($id);
-        $priceLists = PriceList::all();
+        
+        if(Auth::user()->can('view_all_price-lists')) {
+            $priceLists = PriceList::all();
+        } else {
+            $priceLists = PriceList::where('store_id', Auth::user()->store_id)->get();
+        }
 
         // Si el cliente tiene listas de precios, únelas en una cadena separada por comas
         $priceListNames = $client->priceLists->isNotEmpty()
@@ -201,17 +206,6 @@ class ClientController extends Controller
     public function datatable(): mixed
     {
         return $this->clientRepository->getClientsForDatatable();
-    }
-
-    public function getProductsByPriceList($priceListId)
-    {
-        // Obtener los productos y el precio específico de la lista de precios desde la tabla price_list_products
-        $products = Product::select('products.id', 'products.name', 'price_list_products.price')
-            ->join('price_list_products', 'products.id', '=', 'price_list_products.product_id')
-            ->where('price_list_products.price_list_id', $priceListId)
-            ->get();
-    
-        return response()->json(['products' => $products]);
     }
     
 

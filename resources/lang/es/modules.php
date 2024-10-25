@@ -15,4 +15,6 @@ return [
     'current-accounts' => 'Cuentas Corrientes',
     'incomes' => 'Ingresos',
     'integrations' => 'Integraciones',
+    'sales' => 'Ventas',
+    'products' => 'Productos',
 ];

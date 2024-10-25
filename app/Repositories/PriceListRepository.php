@@ -18,6 +18,17 @@ class PriceListRepository
     }    
 
     /**
+     * Obtiene las listas de precio según el ID de la Store.
+     * 
+     * @param int $storeId
+     * @return mixed
+     */
+    public function getByStoreId(int $storeId)
+    {
+        return PriceList::where('store_id', $storeId)->withCount('products')->get();
+    }
+
+    /**
      * Crea una nueva lista de precios.
      *
      * @param array $data
