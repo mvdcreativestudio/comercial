@@ -38,13 +38,14 @@
       <input type="text" id="searchPriceList" class="form-control" placeholder="Buscar lista por Nombre..." aria-label="Buscar Lista de Precios">
     </div>
   </div> --}}
-
-  <div class="text-end d-flex gap-2">
-    <!-- Botón para abrir el modal de crear lista de precios -->
-    <button type="button" class="btn btn-success btn-sm shadow-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#createPriceListModal">
-        <i class="bx bx-plus"></i> Nueva Lista de Precios
-    </button>
-  </div>
+  @can('access_create-price-lists')
+    <div class="text-end d-flex gap-2">
+        <!-- Botón para abrir el modal de crear lista de precios -->
+        <button type="button" class="btn btn-success btn-sm shadow-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#createPriceListModal">
+            <i class="bx bx-plus"></i> Nueva Lista de Precios
+        </button>
+    </div>
+  @endcan
 </div>
 
 @if(session('success'))

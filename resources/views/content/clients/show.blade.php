@@ -277,7 +277,11 @@
           <div class="col-12">
             <label class="form-label" for="modalEditUserPriceList">Lista de Precios</label>
             <select id="modalEditUserPriceList" name="price_list_id" class="form-control">
-                <option value="" disabled selected>Seleccione una lista de precios</option>
+                @if($client->priceLists->count() == 0)
+                    <option value="" disabled selected>No hay listas de precios disponibles</option>
+                @else 
+                    <option value="" disabled selected>Seleccione una lista de precios</option>
+                @endif
                 @foreach($priceLists as $priceList)
                     <option value="{{ $priceList->id }}" {{ $client->priceLists->contains($priceList->id) ? 'selected' : '' }}>
                         {{ $priceList->name }}

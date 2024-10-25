@@ -229,12 +229,12 @@ Route::middleware([
     Route::post('products/{id}/switchStatus', [ProductController::class, 'switchStatus'])->name('products.switchStatus');
 
     // Gestión de Listas de Precios
-    Route::get('/price-lists', [PriceListController::class, 'index'])->name('price-lists');
+    Route::get('/price-lists', [PriceListController::class, 'index'])->name('price-lists.index');
     Route::get('/price-lists/create', [PriceListController::class, 'create'])->name('price-lists.create');
     Route::post('/price-lists/store', [PriceListController::class, 'store'])->name('price-lists.store');
     Route::get('/price-lists/{priceList}/edit', [PriceListController::class, 'edit'])->name('price-lists.edit');
     Route::put('/price-lists/{priceList}/update', [PriceListController::class, 'update'])->name('price-lists.update');
-    Route::post('/price-lists/{priceList}/delete', [PriceListController::class, 'deletePriceList'])->name('price-lists.delete');
+    Route::delete('/price-lists/{priceList}/delete', [PriceListController::class, 'destroy'])->name('price-lists.destroy');
     Route::get('/price-lists/{show}', [PriceListController::class, 'show'])->name('price-lists.show');
     Route::get('/price-lists/{storeId}/{priceListId}/products', [PriceListController::class, 'getProducts'])->name('price-lists.products');
     // Gestión de Clientes

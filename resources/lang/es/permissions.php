@@ -129,4 +129,12 @@ return [
     'access_point-of-sale' => 'Acceder a Punto de Venta',
     'access_cash-registers' => 'Acceder a Cajas Registradoras',
     'view_all_cash-registers' => 'Ver todas las Cajas Registradoras',
+
+    // Listas de Precios
+    'access_price-lists' => 'Activar Módulo Listas de Precios',
+    'view_all_price-lists' => 'Ver todas las Listas de Precios (Global)',
+    'access_show-price-lists' => 'Ver Lista de Precios',
+    'access_create-price-lists' => 'Crear Listas de Precios',
+    'access_edit-price-lists' => 'Editar Listas de Precios',
+    'access_delete-price-lists' => 'Eliminar Listas de Precios',
 ];

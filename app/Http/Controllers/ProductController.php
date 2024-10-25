@@ -28,8 +28,6 @@ use Maatwebsite\Excel\Validators\ValidationException;
 use App\Models\CompanySettings;
 
 
-
-
 class ProductController extends Controller
 {
   /**

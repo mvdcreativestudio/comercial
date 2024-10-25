@@ -19,14 +19,19 @@ class PriceListController extends Controller
 {
     protected $priceListRepo;
 
-    /**
-     * Inyecta el repositorio en el controlador.
-     *
-     * @param PriceListRepository $priceListRepo
-     */
+      /**
+   * Inyecta el repositorio en el controlador.
+   *
+   * @param  PriceListRepository  $priceListRepo
+    */
     public function __construct(PriceListRepository $priceListRepo)
     {
-        $this->middleware('auth');
+        $this->middleware(['check_permission:access_price-lists'])->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
+        $this->middleware('check_permission:access_show-price-lists')->only('show', 'getProducts');
+        $this->middleware('check_permission:access_create-price-lists')->only('create', 'store');
+        $this->middleware('check_permission:access_edit-price-lists')->only('edit', 'update');
+        $this->middleware('check_permission:access_delete-price-lists')->only('destroy');
+    
         $this->priceListRepo = $priceListRepo;
     }
 
@@ -37,18 +42,15 @@ class PriceListController extends Controller
      */
     public function index(): View
     {
-        // Obtener todas las listas de precios con el conteo de productos asociados
-        $priceLists = $this->priceListRepo->getAll();
-
         // Verificar si el usuario tiene permiso para acceder a todas las tiendas o solo a las suyas
-        if (Auth::user()->can('access_global_stores')) {
+        if (Auth::user()->can('view_all_stores') && Auth::user()->can('view_all_price-lists')) {
             $stores = Store::select('id', 'name')->get();
         } else {
             $stores = Store::select('id', 'name')->where('id', Auth::user()->store_id)->get();
         }
 
         // Devolver la vista con las listas de precios y las tiendas para los filtros
-        return view('content.e-commerce.backoffice.price-lists.index', compact('priceLists', 'stores'));
+        return view('content.e-commerce.backoffice.price-lists.index', compact('stores'));
     }
 
 
@@ -89,8 +91,15 @@ class PriceListController extends Controller
     public function show(int $id): View
     {
         $priceList = $this->priceListRepo->getPriceListById($id);
+
+        // Verificar si el usuario tiene permiso para ver todas las listas o solo las de su tienda
+        if (!Auth::user()->can('view_all_price-lists') && $priceList->store_id !== Auth::user()->store_id) {
+            abort(403, 'No tienes permiso para ver esta lista de precios.');
+        }
+
         return view('content.e-commerce.backoffice.price-lists.show', compact('priceList'));
     }
+
 
     /**
      * Muestra el formulario para editar una lista de precios.
@@ -131,8 +140,6 @@ class PriceListController extends Controller
         return redirect()->route('price-lists.edit', $priceList->id)->with('success', 'Lista de precios actualizada correctamente.');
     }
     
-    
-
     /**
      * Elimina una lista de precios.
      *
@@ -152,7 +159,11 @@ class PriceListController extends Controller
      */
     public function datatable(): JsonResponse
     {
-        $priceLists = $this->priceListRepo->getAll();  // Asegúrate de que getAll() ya incluya `withCount('products')`
+        if(Auth::user()->can('view_all_price-lists')) {
+            $priceLists = $this->priceListRepo->getAll();
+        } else {
+            $priceLists = $this->priceListRepo->getByStoreId(Auth::user()->store_id);
+        }
         
         $data = [];
 

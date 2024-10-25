@@ -12,7 +12,7 @@
                 <h4 class="mb-0">
                     {{ $priceList->name }}
                 </h4>
-                <a href="#" id="backButton" class="btn btn-primary">
+                <a href="#" id="backButton" class="btn btn-sm btn-primary">
                     <i class="bx bx-arrow-back me-1"></i> Volver
                 </a>                  
               </div>
@@ -128,7 +128,7 @@
       if (previousPage && previousPage !== window.location.href) {
         window.location.href = previousPage; // Redirigir a la página anterior si es diferente
       } else {
-        window.location.href = "{{ route('price-lists') }}"; // Redirigir a una página específica si es la misma
+        window.location.href = "{{ route('price-lists.index') }}"; // Redirigir a una página específica si es la misma
       }
     });
   </script>
