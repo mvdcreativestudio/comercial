@@ -110,7 +110,7 @@
 
     <div class="d-flex justify-content-end mb-4">
       <button type="button" id="openProductionModal" class="btn btn-primary" data-toggle="modal" data-target="#productionModal">
-        Abrir Modal de Envasado
+        Envasar Materia Prima
       </button>
       <button class="btn btn-primary ms-2" id="loadPackagesButton">
         Stock Envase
@@ -154,9 +154,8 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="productionModalLabel">Iniciar Empaque</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
+            <h5 class="modal-title" id="productionModalLabel">Iniciar Envasado</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </button>
           </div>
           <div class="modal-body">
@@ -174,12 +173,11 @@
               <select id="tap_id" name="tap_id" class="form-control">
               </select>
               <label for="quantity_packaged">Cantidad a envasar:</label>
-              <input type="number" id="quantity_packaged" name="quantity_packaged" class="form-control" required />
+              <input type="number" id="quantity_packaged" name="quantity_packaged" class="form-control" placeholder="Ingrese una cantidad a envasar" required />
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            <button type="submit" class="btn btn-primary" id="submitProductionForm">Iniciar Empaque</button>
+            <button type="submit" class="btn btn-primary" id="submitProductionForm">Iniciar Envasado</button>
           </div>
         </div>
       </div>

@@ -63,6 +63,10 @@
                 <img id="image-preview" src="#" alt="Vista previa de la imagen" class="img-fluid" style="display: none;"/>
               </div>
             </div>
+            <div class="mb-3">
+              <label class="form-label" for="raw-material-stock">Stock</label>
+              <input type="number" class="form-control" id="raw-material-stock" name="stock" value="{{ $rawMaterial->stock ?? '' }}" placeholder="Cantidad en stock">
+            </div>
             @if ($errors->any())
               @foreach ($errors->all() as $error)
                 <div class="alert alert-danger">

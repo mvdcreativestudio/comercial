@@ -118,7 +118,7 @@
         <!-- Botón para abrir el offcanvas alineado a la derecha -->
         <div class="d-flex justify-content-end mb-4">
             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTapLabel" aria-controls="offcanvasTapLabel">
-                Agregar
+                Crear 
             </button>
         </div>
 
@@ -141,16 +141,21 @@
                                 <!-- Precio y costo-->
                                 <li class="mb-2">
                                     <i class="fas fa-dollar-sign text-secondary me-2"></i>
-                                    <strong>Costo:</strong> {{ $component->cost }} <strong>  Precio:</strong>  {{ $component->price }}
+                                    <strong>Costo:</strong> {{ $component->cost }} <strong> Precio:</strong> {{ $component->price }}
                                 </li>
                                 <li>
                                     <i class="fas fa-cubes text-secondary me-2"></i>
                                     <strong>Stock:</strong> {{ $component->stock }}
                                 </li>
                             </ul>
-                            <button class="btn btn-outline-danger btn-delete-package position-absolute" data-id="{{ $component->id }}">
-                                <i class="fas fa-trash-alt fa"></i>
-                            </button>
+                            <div class="button-group position-absolute top-50 end-0 translate-middle-y me-3">
+                                <button class="btn btn-outline-primary btn-edit-stock me-2" data-id="{{ $component->id }}" data-bs-toggle="modal" data-bs-target="#editStockModal">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-delete-package" data-id="{{ $component->id }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -164,7 +169,7 @@
 <!-- Offcanvas para agregar tapitas y etiquetas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasTapLabel" aria-labelledby="offcanvasTapLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasTapLabel">Agregar Tapita/Etiqueta</h5>
+        <h5 class="offcanvas-title" id="offcanvasTapLabel">Crear Tapa/Etiqueta</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -195,29 +200,55 @@
             </div>
             <div class="mb-3">
                 <label for="price" class="form-label">Precio</label>
-                <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+                <input type="number" step="0.01" class="form-control" id="price" name="price">
             </div>
             <button type="submit" class="btn btn-success">Guardar</button>
         </form>
     </div>
 </div>
 
-
+<!-- Modal for editing stock -->
+<div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="editStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStockModalLabel">Agregar Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editStockForm">
+                    <input type="hidden" id="componentId" name="componentId">
+                    <div class="mb-3">
+                        <label for="stockToAdd" class="form-label">Cantidad de stock a agregar</label>
+                        <input type="number" class="form-control" id="stockToAdd" name="stockToAdd" required min="1">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="addStockButton">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     .card {
         overflow: hidden;
     }
 
+    .button-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-edit-stock,
     .btn-delete-package {
-        top: 50%;
-        right: 1rem;
-        transform: translateY(5%);
-        padding: 0.75rem;
+        padding: 0.5rem;
         line-height: 1;
         border-radius: 50%;
-        width: 2rem;
-        height: 2rem;
+        width: 2.5rem;
+        height: 2.5rem;
         display: flex;
         align-items: center;
         justify-content: center;

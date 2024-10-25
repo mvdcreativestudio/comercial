@@ -33,4 +33,13 @@ class PackageRepository
         $package = Package::find($id);
         return $package ? $package->delete() : false;
     }
+
+    public function updatePackageStock($id, $stockToAdd)
+    {
+        $component = Package::findOrFail($id);
+        $component->stock += $stockToAdd;
+        $component->save();
+
+        return $component;
+    }
 }

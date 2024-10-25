@@ -189,6 +189,11 @@ class CreatePermissions extends Command
                 'module' => 'management',
                 'view_all' => false,
             ],
+            [
+                'slug' => 'raw-materials-edit',
+                'module' => 'manufacturing',
+                'view_all' => false,
+            ],
         ]
       ];
 

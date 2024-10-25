@@ -34,4 +34,13 @@ class PackageComponentRepository
         $packageComponent = PackageComponent::find($id);
         return $packageComponent->delete();
     }
+
+    public function updatePackageComponentStock($id, $stockToAdd)
+    {
+        $component = PackageComponent::findOrFail($id);
+        $component->stock += $stockToAdd;
+        $component->save();
+
+        return $component;
+    }
 }

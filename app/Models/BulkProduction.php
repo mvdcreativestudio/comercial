@@ -13,6 +13,7 @@ class BulkProduction extends Model
     use HasFactory;
 
     protected $fillable = [
+        'batch_number',
         'formula_id',
         'quantity_produced',
         'production_date',
@@ -38,10 +39,8 @@ class BulkProduction extends Model
 
     public function getUniqueIdentifier()
     {
-        $encryptedId = base64_encode($this->id);
-        return substr($encryptedId, 0, 4) . '-' . Str::slug($this->name);  
+        return $this->id . '-' . Str::slug($this->name);
     }
-
 
     public function packaging(): HasMany
     {

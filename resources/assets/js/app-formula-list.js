@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
             { data: 'id' },
             { data: 'name' },
             { data: 'description' },
-            { data: 'final_product_id' },
+            { data: 'product.name' },
             { data: 'unit_of_measure' },
             { data: 'quantity' },
             {
@@ -144,15 +144,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     
-
-    // Evento para eliminar fórmula
-    $(document).on('click', '.btn-delete', function () {
-        var id = $(this).data('id');
-        if (confirm('¿Seguro que deseas eliminar esta fórmula?')) {
-            console.log("Eliminar fórmula con ID:", id);
-        }
-    });
-
     $(document).on('click', '.btn-view-raw-materials', function() {
         var formulaId = $(this).data('id');
     
@@ -171,6 +162,60 @@ document.addEventListener('DOMContentLoaded', function () {
             error: function(xhr, status, error) {
                 console.error('Error:', error);
                 console.error('Detalles:', xhr.responseText);
+            }
+        });
+    });
+
+    $('.datatables-formulas').on('click', '.btn-delete', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¿Deseas eliminar este elemento?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `formulas/${id}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (data) {
+                        if (data.success) {
+                            Swal.fire(
+                                'Eliminado',
+                                'El elemento ha sido eliminado.',
+                                'success'
+                            ).then(result => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });;
+
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'No se pudo eliminar el elemento.',
+                                'error'
+                            );
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                        Swal.fire(
+                            'Error',
+                            'Ocurrió un error al intentar eliminar el elemento.',
+                            'error'
+                        );
+                    }
+                });
             }
         });
     });

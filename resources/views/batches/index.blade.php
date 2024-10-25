@@ -109,7 +109,7 @@
           </div>
           <div class="collapse" id="columnSwitches">
             <div class="mt-0 d-flex flex-wrap">
-              @foreach (['Nro Lote', 'Materia Prima / Producto', 'Cantidad', 'Fecha producción', 'Fecha expiración', 'ID entrada producto'] as $index => $label)
+              @foreach (['Nro Lote', 'Materia Prima / Producto', 'Cantidad', 'Fecha producción', 'Fecha expiración'] as $index => $label)
               <div class="mx-3">
                 <label class="switch switch-square">
                   <input type="checkbox" class="toggle-column switch-input" data-column="{{ $index }}" checked>
@@ -133,7 +133,6 @@
                     <th>Cantidad</th>
                     <th>Fecha producción</th>
                     <th>Fecha expiración</th>
-                    <th>ID entrada producto</th>
                   </tr>
                 </thead>
                 <!-- Aquí se debería cargar el contenido de la tabla mediante DataTables -->

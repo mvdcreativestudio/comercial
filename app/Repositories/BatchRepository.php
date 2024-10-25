@@ -15,13 +15,15 @@ class BatchRepository
             ->leftJoin('raw_materials', 'purchase_order_items.raw_material_id', '=', 'raw_materials.id')
             ->leftJoin('products', 'purchase_order_items.product_id', '=', 'products.id')
             ->leftJoin('purchase_orders', 'purchase_entries.purchase_order_items_id', '=', 'purchase_orders.id')
+            ->leftJoin('suppliers', 'suppliers.id', '=', 'purchase_orders.supplier_id')
             ->select(
                 'batches.batch_number',    // Número de lote
                 'batches.quantity',        // Cantidad
                 'batches.production_date', // Fecha de producción
                 'batches.expiration_date', // Fecha de expiración
                 'purchase_entries.id as purchase_entries_id', // ID de entrada
-                DB::raw('COALESCE(raw_materials.name, products.name) as item_name') // Materia prima / Producto
+                DB::raw('COALESCE(raw_materials.name, products.name) as item_name'),
+                'suppliers.name as suppliers_name'
             )
             ->get();
     }

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
             select.empty();
             select.html('<option value="" selected disabled>Seleccione una opción</option>');
             response.forEach(function (material) {
-                select.append(`<option value="${material.id}">${material.name}</option>`);
+                select.append(`<option value="${material.id}"  data-unit-measure="${material.unit_of_measure}">${material.name}</option>`);
                 rawMaterialsMap[material.id] = material.name;
             });
 
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function () {
             columns: [
                 { data: 'id' },
                 { data: 'raw_material_name' },
-                { data: 'product_id' },
                 { data: 'quantity' },
                 { data: 'currency' },
                 { data: 'unit_price' },
@@ -136,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             success: function (response) {
                 let lastPrice = response.price ? parseFloat(response.price).toFixed(2) : null;
                 let lastCurrency = response.currency ? response.currency : null;
-
+                $('#addItemOffCanvas').offcanvas('hide');
                 // Verificar si no existe un precio anterior
                 if (lastPrice === null || lastPrice === undefined) {
                     Swal.fire({
@@ -254,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `purchase-order-items/${id}`,
+                    url: `purchase-order-items/${itemId}`,
                     type: 'DELETE',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content')
@@ -283,17 +282,21 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#raw_material_id').on('change', function () {
         let rawMaterialId = $(this).val();
 
+        const selectedRawMaterial = this.options[this.selectedIndex];
+        const unitOfMeasure = selectedRawMaterial.getAttribute('data-unit-measure');
+        const measurementUnit = (unitOfMeasure == "Unidades") ? "Un" : unitOfMeasure;
+        document.getElementById('unit_of_measure').value = measurementUnit;
         // Hacer la solicitud para obtener el último precio del material seleccionado
         $.ajax({
             url: `raw-material-prices/${rawMaterialId}`,
             method: 'GET',
             success: function (response) {
                 // Rellenar el campo de precio y moneda con el último valor registrado
-                if (response.price) {
+                if (response.price && response.currency) {
                     $('#unit_price').val(parseFloat(response.price).toFixed(2));
-                }
-                if (response.currency) {
                     $('#currency').val(response.currency);
+                } else {
+                    $('#unit_price').val(undefined);
                 }
             },
             error: function (xhr, status, error) {

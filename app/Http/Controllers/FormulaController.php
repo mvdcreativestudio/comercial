@@ -6,7 +6,7 @@ use App\Http\Requests\StoreFormulaRequest;
 use App\Http\Requests\UpdateFormulaRequest;
 use App\Repositories\FormulaRepository;
 use App\Repositories\ProductRepository;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request;use Illuminate\Support\Facades\Log;
 
 class FormulaController extends Controller
 {
@@ -22,6 +22,7 @@ class FormulaController extends Controller
     public function index()
     {
         $formulas = $this->formulaRepository->getAll();
+        Log::info($formulas);
         $products = $this->productRepository->getAll();
         return view('formulas.index', compact('formulas','products'));
     }
@@ -75,9 +76,9 @@ class FormulaController extends Controller
     {
         $deleted = $this->formulaRepository->delete($id);
         if ($deleted) {
-            return response()->json(['message' => 'Fórmula borrada exitosamente.']);
+            return response()->json(['success' => 'Fórmula eliminada correctamente.'], 200);
         } else {
-            return response()->json(['message' => 'No se pudo encontrar la fórmula que se deseó borrar.'], 404);
-        }    
+            return response()->json(['error' => 'Error al intentar eliminar la fórmula.'], 500);
+        }
     }
 }

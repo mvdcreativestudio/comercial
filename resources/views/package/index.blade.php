@@ -4,17 +4,17 @@
 
 @section('vendor-style')
 @vite([
-    'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
-    'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-    'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
-    'resources/assets/vendor/libs/select2/select2.scss'
+'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
+'resources/assets/vendor/libs/select2/select2.scss'
 ])
 @endsection
 
 @section('vendor-script')
 @vite([
-    'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-    'resources/assets/vendor/libs/select2/select2.js'
+'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+'resources/assets/vendor/libs/select2/select2.js'
 ])
 @endsection
 
@@ -76,7 +76,7 @@
               </div>
               <hr class="d-none d-sm-block d-lg-none me-4">
             </div>
-            
+
             <!-- Segundo widget -->
             <div class="col-sm-6 col-lg-4">
               <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
@@ -93,7 +93,7 @@
               </div>
               <hr class="d-none d-sm-block d-lg-none">
             </div>
-            
+
             <!-- Tercer widget -->
             <div class="col-sm-12 col-lg-4">
               <div class="d-flex justify-content-between align-items-start pb-3 pb-sm-0 card-widget-3">
@@ -121,38 +121,43 @@
         Agregar envase
       </button>
       <button class="btn btn-primary ms-2" id="loadTapLabels">
-       Stock tapas/etiquetas
-    </button>
+        Stock tapas/etiquetas
+      </button>
     </div>
 
     <!-- Segunda card que contiene las tarjetas generadas por el foreach -->
-        <div class="container mt-2">
-          <div class="row g-4">
-            @foreach($packages as $package)
-              <div class="col-md-6">
-                <div class="card h-100 border-0 shadow-sm hover-shadow transition">
-                  <div class="card-body p-4 position-relative">
-                    <h5 class="card-title text-primary mb-3">{{ $package->name }}</h5>
-                    <ul class="list-unstyled mb-0">
-                      <li class="mb-2"><i class="fas fa-box text-secondary me-2"></i> <strong>Tamaño:</strong> {{ $package->size }} {{ $package->unit_of_measure }}</li>
-                      <li><i class="fas fa-cubes text-secondary me-2"></i> <strong>Stock:</strong> {{ $package->stock }}</li>
-                    </ul>
-                    <button class="btn btn-outline-danger btn-delete-package position-absolute" data-id="{{ $package->id }}">
-                      <i class="fas fa-trash-alt fa"></i>
-                    </button>
-                  </div>
-                </div>
+    <div class="container mt-2">
+      <div class="row g-4">
+        @foreach($packages as $package)
+        <div class="col-md-6">
+          <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+            <div class="card-body p-4 position-relative">
+              <h5 class="card-title text-primary mb-3">{{ $package->name }}</h5>
+              <ul class="list-unstyled mb-0">
+                <li class="mb-2"><i class="fas fa-box text-secondary me-2"></i> <strong>Tamaño:</strong> {{ $package->size }} {{ $package->unit_of_measure }}</li>
+                <li><i class="fas fa-cubes text-secondary me-2"></i> <strong>Stock:</strong> {{ $package->stock }}</li>
+              </ul>
+              <div class="button-group position-absolute top-50 end-0 translate-middle-y me-3">
+                <button class="btn btn-outline-primary btn-edit-stock me-2" data-id="{{ $package->id }}" data-bs-toggle="modal" data-bs-target="#editStockModal">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-delete-package" data-id="{{ $package->id }}">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
               </div>
-            @endforeach
+            </div>
           </div>
         </div>
+        @endforeach
       </div>
     </div>
+  </div>
+</div>
 
 <!-- Offcanvas para agregar -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasPackage" aria-labelledby="offcanvasPackageLabel">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="offcanvasPackageLabel">Agregar Package</h5>
+    <h5 class="offcanvas-title" id="offcanvasPackageLabel">Agregar envase</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
@@ -175,7 +180,7 @@
       </div>
       <div class="mb-3">
         <label for="price" class="form-label">Precio</label>
-        <input type="number" step="0.01" class="form-control" id="price" name="price" required>
+        <input type="number" step="0.01" class="form-control" id="price" name="price">
       </div>
       <div class="mb-3">
         <label for="unit_of_measure" class="form-label">Unidad de Medida</label>
@@ -197,32 +202,55 @@
   </div>
 </div>
 
-
+<!-- Modal for editing stock -->
+<div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="editStockModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editStockModalLabel">Agregar Stock</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editStockForm">
+          <input type="hidden" id="componentId" name="componentId">
+          <div class="mb-3">
+            <label for="stockToAdd" class="form-label">Cantidad de stock a agregar</label>
+            <input type="number" class="form-control" id="stockToAdd" name="stockToAdd" required min="1">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="addStockButton">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
 <style>
-.card {
+  .card {
     overflow: hidden;
-}
+  }
 
-.btn-delete-package {
-    top: 50%;
-    right: 1rem;
-    transform: translateY(5%);
-    padding: 0.75rem;
+  .button-group {
+    display: flex;
+    align-items: center;
+  }
+
+  .btn-edit-stock,
+  .btn-delete-package {
+    padding: 0.5rem;
     line-height: 1;
     border-radius: 50%;
-    width: 2rem;
-    height: 2rem;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-}
+  }
 
 
-.hover-shadow:hover {
+  .hover-shadow:hover {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-
+  }
 </style>
 @endsection
-

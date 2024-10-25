@@ -47,4 +47,42 @@ $(document).ready(function () {
             }
         });
     }
+
+
+    const editStockModal = document.getElementById('editStockModal');
+    const editStockForm = document.getElementById('editStockForm');
+    const addStockButton = document.getElementById('addStockButton');
+
+    editStockModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const componentId = button.getAttribute('data-id');
+        document.getElementById('componentId').value = componentId;
+    });
+
+    addStockButton.addEventListener('click', function() {
+        const componentId = document.getElementById('componentId').value;
+        const stockToAdd = document.getElementById('stockToAdd').value;
+
+        fetch(`package-components/${componentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': window.csrfToken
+            },
+            body: JSON.stringify({ stockToAdd: stockToAdd })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(editStockModal).hide();
+                location.reload();
+            } else {
+                alert('Error updating stock');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating stock');
+        });
+    });
 });

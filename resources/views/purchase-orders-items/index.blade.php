@@ -117,7 +117,7 @@
   <div class="card-header">
     <div class="d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0">Materias primas de la orden</h5>
-      <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addItemOffCanvas">Agregar Item</button>
+      <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addItemOffCanvas">Gestionar Orden</button>
     </div>
     <div class="d-flex">
       <p class="text-muted small">
@@ -148,7 +148,6 @@
             <tr>
               <th>ID</th>
               <th>Materia Prima</th>
-              <th>Producto</th>
               <th>Cantidad</th>
               <th>Moneda</th>
               <th>Precio Unitario</th>
@@ -179,13 +178,15 @@
       </div>
       <div class="mb-3">
         <label for="quantity" class="form-label">Cantidad</label>
-        <input type="number" class="form-control" id="quantity" name="quantity" required>
-      </div>
+        <div class="input-group">
+          <input type="number" class="form-control" id="quantity" name="quantity" required>
+          <input type="text" class="form-control" id="unit_of_measure" style="max-width: 80px" readonly>
+        </div>      </div>
       <div class="mb-3">
       <label for="unit_price" class="form-label">Precio Unitario</label>
         <div class="input-group">
             <input type="number" step="0.01" class="form-control" id="unit_price" name="unit_price" required>
-            <select class="form-select" id="currency" name="currency">
+            <select class="form-select" id="currency" name="currency" required>
                   <option value="USD">USD</option>
                   <option value="UYU">UYU</option>
               </select>

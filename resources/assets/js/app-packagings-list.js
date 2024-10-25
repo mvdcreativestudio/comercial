@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'GET',
             success: function (data) {
                 $('#bulk_production').empty();
+                $('#bulk_production').append('<option value="" disabled selected>Seleccione una producción</option>');
 
                 $.each(data, function (index, bulkProduction) {
 
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     $('#bulk_production').append(
                         $('<option>', {
                             value: bulkProduction.bulk_production_id,
-                            text: bulkProduction.formula_name + ' - ' + totalQuantity + ' ' + bulkProduction.formula_unit_of_measure,
+                            text: bulkProduction.formula_name + ' - ' + totalQuantity + ' ' + bulkProduction.formula_unit_of_measure +' - ' + bulkProduction.batch_number,
                             'data-quantity-produced': totalQuantity,
                             'data-unit-of-measure': bulkProduction.formula_unit_of_measure,
                             'data-formula-quantity': formulaQuantity
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'GET',
             success: function (data) {
                 $('#package_id').empty();
+                $('#package_id').append('<option value="" disabled selected>Seleccione un envase</option>');
 
                 $.each(data[0], function (index, pck) {
                     $('#package_id').append(

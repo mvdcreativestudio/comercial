@@ -91,9 +91,9 @@ class FormulaRawMaterialController extends Controller
     {
         $deleted = $this->formulaRawMaterialRepository->delete($id);
         if ($deleted) {
-            return response()->json(['message' => 'Material crudo de la fórmula borrado exitosamente.']);
+            return response()->json(['success' => 'Paso eliminado correctamente.'], 200);
         } else {
-            return response()->json(['message' => 'No se pudo encontrar el material crudo que se deseó borrar.'], 404);
+            return response()->json(['error' => 'Hubo un error al intentar eliminar el paso.'], 500);
         }
     }
 

@@ -66,7 +66,8 @@ class PackagingRepository
                 'formulas.description as formula_description',
                 'formulas.unit_of_measure as formula_unit_of_measure',
                 'formulas.quantity as formula_quantity',
-                'formulas.id as formula_id'
+                'formulas.id as formula_id',
+                'bulk_productions.batch_number'
             )
             ->having('quantity_available', '>', 0) // Mostrar solo las producciones que aún tienen cantidad disponible
             ->get();

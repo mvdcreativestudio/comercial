@@ -126,7 +126,7 @@
   <div class="card-header">
     <div class="d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0">Órdenes de Compra</h5>
-      <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addOrderOffCanvas">Agregar Orden</button>
+      <button class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#addOrderOffCanvas">Crear</button>
     </div>
     <div class="d-flex">
       <p class="text-muted small">
@@ -187,8 +187,8 @@
       <div class="mb-3">
         <label for="status" class="form-label">Estado</label>
         <select class="form-select" id="status" name="status" required>
-          <option value="0">Cancelada</option>
           <option value="1">Pendiente</option>
+          <option value="0">Cancelada</option>
           <option value="2">Completada</option>
         </select>
       </div>
@@ -196,7 +196,7 @@
         <label for="due_date" class="form-label">Fecha de Vencimiento</label>
         <input type="date" class="form-control" id="due_date" name="due_date" required>
       </div>
-      <button type="submit" class="btn btn-success">Guardar</button>
+      <button type="submit" class="btn btn-success">Crear</button>
     </form>
   </div>
 </div>

@@ -46,4 +46,5 @@ return [
   'view_all_batches' => 'Ver todos los lotes',
   'view_all_bulk_productions' => 'Ver todas las Producciones',
   'view_all_packagings' => 'Ver envasados.',
+  'raw-materials-edit' => 'Editar materias primas.',
 ];

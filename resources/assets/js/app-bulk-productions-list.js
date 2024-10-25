@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var table = $('.datatables-bulk-productions').DataTable({
     data: bulkProductions, // Datos de las fórmulas
     columns: [
-      { data: 'id' },
-      { data: 'formula_name' }, 
+      { data: 'batch_number' },
+      { data: 'formula_name' },
       {
         data: null, // Cantidad producida
         render: function (data, type, row) {
@@ -71,48 +71,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // Evento para eliminar fórmula
-  $(document).on('click', '.btn-delete', function() {
+  $(document).on('click', '.btn-delete', function () {
     var itemId = $(this).data('id');
 
     eliminarProduccionAGranel(itemId);
-});
+  });
 
-function eliminarProduccionAGranel(itemId) {
+  function eliminarProduccionAGranel(itemId) {
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: "No podrás revertir esto. No se volverá a agregar el stock de los lotes utilizados para la producción a granel.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
+      title: '¿Estás seguro?',
+      text: "No podrás revertir esto. No se volverá a agregar el stock de los lotes utilizados para la producción a granel.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `bulk-productions/${itemId}`,
-                type: 'DELETE',
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    Swal.fire(
-                        'Eliminado!',
-                        'La producción a granel ha sido eliminada.',
-                        'success'
-                    ).then(() => {
-                        window.location.reload();
-                    });
-                },
-                error: function(error) {
-                    Swal.fire(
-                        'Error!',
-                        'Ocurrió un problema al intentar eliminar la producción a granel.',
-                        'error'
-                    );
-                }
+      if (result.isConfirmed) {
+        $.ajax({
+          url: `bulk-productions/${itemId}`,
+          type: 'DELETE',
+          data: {
+            _token: $('meta[name="csrf-token"]').attr('content')
+          },
+          success: function (response) {
+            Swal.fire(
+              'Eliminado!',
+              'La producción a granel ha sido eliminada.',
+              'success'
+            ).then(() => {
+              window.location.reload();
             });
-        }
+          },
+          error: function (error) {
+            Swal.fire(
+              'Error!',
+              'Ocurrió un problema al intentar eliminar la producción a granel.',
+              'error'
+            );
+          }
+        });
+      }
     });
   }
 
@@ -147,6 +147,7 @@ function eliminarProduccionAGranel(itemId) {
   $('#productionForm').on('submit', function (e) {
     e.preventDefault();
 
+    let batch_number = $('#name').val();
     let formula = $('#formula').val();
     let quantity = $('#quantity').val();
 
@@ -164,7 +165,7 @@ function eliminarProduccionAGranel(itemId) {
       showCancelButton: true,
       confirmButtonText: 'Aceptar',
       cancelButtonText: 'Cancelar',
-      reverseButtons: true
+      reverseButtons: false
     }).then((result) => {
       if (result.isConfirmed) {
         // Enviar la solicitud AJAX para iniciar producción
@@ -172,6 +173,7 @@ function eliminarProduccionAGranel(itemId) {
           url: 'start-production',  // Endpoint para iniciar producción
           method: 'POST',
           data: {
+            batch_number: batch_number,
             formula_id: formula,
             quantity: quantity,
             _token: csrfToken  // Para seguridad CSRF
@@ -222,20 +224,33 @@ function eliminarProduccionAGranel(itemId) {
       }
 
       stepHtml += `
-                    </div>
-                    ${isCurrent ? `
-                        <div class="ms-3">
-                            <button class="btn ${isLast ? 'btn-danger' : 'btn-success'} complete-step" data-step="${index}">
-                                ${isLast ? 'Finalizar' : 'Completado'}
-                            </button>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
+                  </div>
+                  ${isCurrent ? `
+                      <div class="ms-3">
+                          <button class="btn ${isLast ? 'btn-danger finalize-step' : 'btn-success complete-step'}" data-step="${index}">
+                              ${isLast ? 'Finalizar' : 'Completado'}
+                          </button>
+                      </div>
+                  ` : ''}
+                  </div>
+                  </div>
+              `;
+
 
       return stepHtml;
     }
+
+    // Captura de eventos de botones "Completado" y "Finalizar"
+  document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('complete-step')) {
+        const stepIndex = event.target.getAttribute('data-step');
+    }
+    
+    if (event.target.classList.contains('finalize-step')) {
+        location.reload();
+    }
+  });
+
 
     function renderAllSteps() {
       let modalContent = '<div class="container-fluid">';

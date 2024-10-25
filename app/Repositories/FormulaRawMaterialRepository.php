@@ -9,8 +9,11 @@ class FormulaRawMaterialRepository
     public function getAll($id)
     {
         return FormulaRawMaterial::where('formula_id', $id)
+            ->join('raw_materials', 'formula_raw_materials.raw_material_id', '=', 'raw_materials.id')
+            ->select('formula_raw_materials.*', 'raw_materials.name') 
             ->get();
     }
+
 
     public function find($id)
     {

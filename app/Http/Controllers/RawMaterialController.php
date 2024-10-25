@@ -9,6 +9,8 @@ use App\Http\Requests\UpdateRawMaterialRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
+
 
 class RawMaterialController extends Controller
 {
@@ -125,8 +127,13 @@ class RawMaterialController extends Controller
      */
     public function update(UpdateRawMaterialRequest $request, RawMaterial $rawMaterial): RedirectResponse
     {
-        $this->rawMaterialRepository->update($rawMaterial, $request->validated());
-        return redirect()->route('raw-materials.index')->with('success', 'Materia prima actualizada correctamente.');
+        if (Auth::user()->hasPermissionTo('access_raw-materials-edit')) 
+        {
+            $this->rawMaterialRepository->update($rawMaterial, $request->validated());
+            return redirect()->route('raw-materials.index')->with('success', 'Materia prima actualizada correctamente.');
+        }
+        return redirect()->route('raw-materials.index')->with('error', 'No tienes permiso para editar.');
+
     }
 
     /**

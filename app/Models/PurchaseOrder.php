@@ -22,13 +22,13 @@ class PurchaseOrder extends Model
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
-    public function purchaseOrderItems(): HasMany
+    public function purchaseOrderItems()
     {
-        return $this->hasMany(PurchaseOrderItem::class);
+        return $this->hasMany(PurchaseOrderItem::class, 'purchase_orders_id');
     }
 
     public function supplierInvoice(): HasMany
     {
-      return $this->hasMany(SupplierInvoice::class);
+        return $this->hasMany(SupplierInvoice::class);
     }
 }

@@ -94,12 +94,6 @@ class RawMaterialRepository
         // Actualizar la materia prima
         $rawMaterial->update($data);
 
-        // Si se proporciona un stock nuevo, actualiza el stock en la tienda
-        if (isset($data['stock'])) {
-            $storeId = auth()->user()->store_id;
-            $rawMaterial->stores()->updateExistingPivot($storeId, ['stock' => $data['stock']]);
-        }
-
         return $rawMaterial;
     }
 

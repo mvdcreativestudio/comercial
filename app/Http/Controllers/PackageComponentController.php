@@ -88,4 +88,19 @@ class PackageComponentController extends Controller
             'labels' => $labels,
         ]);
     }
+
+    public function updatePackageComponentStock(Request $request, $id)
+    {
+        $request->validate([
+            'stockToAdd' => 'required|integer|min:1',
+        ]);
+
+        $component = $this->packageComponentRepository->updatePackageComponentStock($id, $request->stockToAdd);
+
+        if ($component) {
+            return response()->json(['success' => true, 'message' => 'Stock updated successfully']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Error updating stock'], 400);
+        }
+    }
 }

@@ -29,8 +29,8 @@ class BatchController extends Controller
             $batch->production_date = Carbon::parse($batch->production_date)->format('d-m-Y');
             $batch->expiration_date = Carbon::parse($batch->expiration_date)->format('d-m-Y');
             return $batch;
-        });        
-        return view('batches.index', compact('batches','totalBatches'));
+        });
+        return view('batches.index', compact('batches', 'totalBatches'));
     }
 
     public function create()
@@ -78,38 +78,38 @@ class BatchController extends Controller
             return response()->json(['message' => 'Lote borrado exitosamente.']);
         } else {
             return response()->json(['message' => 'No se pudo encontrar el lote que se deseó borrar.'], 404);
-        }    
-    }
-
-    public function storeBatches(Request $request)
-{
-    $batches = $request->input('batches');
-    $purchaseEntriesId = $request->input('purchase_entries_id');
-
-    // Validar cada lote individualmente
-    foreach ($batches as $batch) {
-        $batchRequest = new StoreBatchRequest();
-        $batchRequest->merge($batch); // Merge los datos del lote actual
-        $validator = Validator::make($batchRequest->all(), $batchRequest->rules());
-
-        if ($validator->fails()) {
-            return response()->json(['error' => 'Validación fallida para uno de los lotes.', 'details' => $validator->errors()], 422);
         }
     }
 
-    // Si todas las validaciones pasan, guarda los lotes
-    $data = [
-        'batches' => $batches,
-        'purchase_entries_id' => $purchaseEntriesId,
-    ];
+    public function storeBatches(Request $request)
+    {
+        $batches = $request->input('batches');
+        $purchaseEntriesId = $request->input('purchase_entries_id');
 
-    // Llamar al método del repository para guardar los datos
-    $result = $this->batchRepository->createBatches($data);
+        // Validar cada lote individualmente
+        foreach ($batches as $batch) {
+            $batchRequest = new StoreBatchRequest();
+            $batchRequest->merge($batch); // Merge los datos del lote actual
+            $validator = Validator::make($batchRequest->all(), $batchRequest->rules());
 
-    if ($result) {
-        return response()->json(['success' => 'Lotes guardados correctamente.'], 200);
-    } else {
-        return response()->json(['error' => 'Hubo un error al guardar los lotes.'], 500);
+            if ($validator->fails()) {
+                return response()->json(['error' => 'Validación fallida para uno de los lotes.', 'details' => $validator->errors()], 422);
+            }
+        }
+
+        // Si todas las validaciones pasan, guarda los lotes
+        $data = [
+            'batches' => $batches,
+            'purchase_entries_id' => $purchaseEntriesId,
+        ];
+
+        // Llamar al método del repository para guardar los datos
+        $result = $this->batchRepository->createBatches($data);
+
+        if ($result) {
+            return response()->json(['success' => 'Lotes guardados correctamente.'], 200);
+        } else {
+            return response()->json(['error' => 'Hubo un error al guardar los lotes.'], 500);
+        }
     }
-}
 }

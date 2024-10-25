@@ -59,9 +59,9 @@
     <div data-repeater-list="purchase_entries">
       @foreach ($purchaseOrderItems as $index => $purchaseOrderItem)
       @php
-          $totalReceived = $purchaseEntriesSum[$purchaseOrderItem->id] ?? 0;
-          $remainingQuantity = max($purchaseOrderItem->quantity - $totalReceived, 0);
-          @endphp
+      $totalReceived = $purchaseEntriesSum[$purchaseOrderItem->id] ?? 0;
+      $remainingQuantity = max($purchaseOrderItem->quantity - $totalReceived, 0);
+      @endphp
       @if ($remainingQuantity > 0)
       <div data-repeater-item class="row mb-3">
         <div class="col-4">
@@ -90,7 +90,7 @@
         </div>
 
         <div class="col-1 d-flex align-items-end">
-          <button type="button" class="btn btn-danger" data-repeater-delete>Eliminar</button>
+          <button class="btn bg-danger text-white bx bx-trash" data-repeater-delete=""></button>
         </div>
       </div>
       @endif
@@ -110,27 +110,29 @@
 <!-- LISTADO DE LOTEADO -->
 <div class="row row-cols-1 row-cols-md-2 g-4">
   @foreach ($purchaseEntries as $entry)
-    <div class="col">
-      <div class="card h-100 d-flex flex-row justify-content-between">
-        <div class="card-body">
-          <h5 class="card-title">ID Entrada: {{ $entry->id }}</h5>
-          <p class="card-text">ID Item de Orden: {{ $entry->purchase_order_items_id }}</p>
-          <p class="card-text">Cantidad: {{ $entry->quantity }}</p>
-          <p class="card-text">Fecha de Entrada: {{ \Carbon\Carbon::parse($entry->entry_date)->format('d-m-y') }}</p>
-        </div>
-        <div class="card-actions d-flex align-items-center justify-content-end">
-          @if($entry->has_batches)
-            <span class="badge bg-success">¡Lote(s) ingresados!</span>
-          @else
-            <button class="btn btn-primary open-lot-modal" 
-                    data-entry-id="{{ $entry->id }}" 
-                    data-entry-quantity="{{ $entry->quantity }}">
-              Ingresar lote(s)
-            </button>
-          @endif
-        </div>
+  <div class="col">
+    <div class="card h-100 d-flex flex-row justify-content-between">
+      <div class="card-body">
+        <h5 class="card-title">
+          Entrada: {{ $entry->item_name ?? 'N/A' }}
+        </h5>
+        <p class="card-text">ID Item de Orden: {{ $entry->purchase_order_items_id }}</p>
+        <p class="card-text">Cantidad: {{ $entry->quantity }}</p>
+        <p class="card-text">Fecha de Entrada: {{ \Carbon\Carbon::parse($entry->entry_date)->format('d-m-y') }}</p>
+      </div>
+      <div class="card-actions d-flex align-items-center justify-content-end">
+        @if($entry->has_batches)
+        <span class="badge bg-success">¡Lote(s) ingresados!</span>
+        @else
+        <button class="btn btn-primary open-lot-modal"
+          data-entry-id="{{ $entry->id }}"
+          data-entry-quantity="{{ $entry->quantity }}">
+          Ingresar lote(s)
+        </button>
+        @endif
       </div>
     </div>
+  </div>
   @endforeach
 </div>
 
@@ -148,7 +150,7 @@
         <form id="batches-form">
           <div id="repeater">
             <div data-repeater-list="batches">
-              <div data-repeater-item class="card mb-3"> 
+              <div data-repeater-item class="card mb-3">
                 <div class="card-body row">
                   <div class="col-3">
                     <label for="batch_number" class="form-label">Número de Lote</label>
@@ -188,79 +190,79 @@
 @endsection
 
 <style>
-.card {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  border: none;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: row;
-  padding: 20px;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.card-title {
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-}
-
-.card-text {
-  margin-bottom: 4px;
-  font-size: 1rem;
-  color: #6c757d;
-}
-
-.card-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: auto;
-}
-
-.text-end.mt-3 {
-  display: flex;
-  justify-content: flex-end;
-  margin-right: 20px; 
-}
-
-@media (max-width: 576px) {
-  .text-end.mt-3 {
-    flex-direction: column;
-    align-items: center;
-    margin-right: 0; 
-  }
-
-  #submit-all-entries {
-    width: 100%;
-    margin-top: 15px;
-  }
-
-  .modal-body form {
+  .card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
+    flex-direction: row;
+    padding: 20px;
   }
-}
 
-.btn-primary {
-  background-color: #007bff;
-  border: none;
-  transition: background-color 0.2s ease;
-}
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
 
-.btn-primary:hover {
-  background-color: #0056b3;
-}
+  .card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
 
-.badge.bg-success {
-  padding: 8px 12px;
-  font-size: 0.9rem;
-}
+  .card-text {
+    margin-bottom: 4px;
+    font-size: 1rem;
+    color: #6c757d;
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .text-end.mt-3 {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 20px;
+  }
+
+  @media (max-width: 576px) {
+    .text-end.mt-3 {
+      flex-direction: column;
+      align-items: center;
+      margin-right: 0;
+    }
+
+    #submit-all-entries {
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .modal-body form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+
+  .badge.bg-success {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
 </style>

@@ -75,4 +75,19 @@ class PackageController extends Controller
             return response()->json(['message' => 'No se pudo encontrar el package que se deseó borrar.'], 404);
         }    
     }
+
+    public function updatePackageStock(Request $request, $id)
+    {
+        $request->validate([
+            'stockToAdd' => 'required|integer|min:1',
+        ]);
+
+        $component = $this->packageRepository->updatePackageStock($id, $request->stockToAdd);
+
+        if ($component) {
+            return response()->json(['success' => true, 'message' => 'Stock updated successfully']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Error updating stock'], 400);
+        }
+    }
 }

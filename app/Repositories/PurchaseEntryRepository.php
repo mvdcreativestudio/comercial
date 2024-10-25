@@ -12,13 +12,26 @@ class PurchaseEntryRepository
         return PurchaseEntry::whereIn('purchase_order_items_id', $purchaseOrderItemIds)
             ->with(['batches' => function ($query) {
                 $query->select('purchase_entries_id'); // Solo necesitamos el ID para verificar la existencia de lotes
+            }, 'purchaseOrderItem' => function ($query) {
+                $query->with(['rawMaterial', 'product']); // Cargar las relaciones de raw_materials y products
             }])
             ->get()
             ->map(function ($entry) {
-                $entry->has_batches = $entry->batches->isNotEmpty(); // Indicador de si tiene lotes
+                $purchaseOrderItem = $entry->purchaseOrderItem;
+
+                // Verificamos si raw_material_id o product_id es nulo y obtenemos el nombre correspondiente
+                if (!is_null($purchaseOrderItem->raw_material_id)) {
+                    $entry->item_name = $purchaseOrderItem->rawMaterial->name; // Nombre del material
+                } elseif (!is_null($purchaseOrderItem->product_id)) {
+                    $entry->item_name = $purchaseOrderItem->product->name; // Nombre del producto
+                }
+
+                $entry->has_batches = $entry->batches->isNotEmpty();
                 return $entry;
             });
     }
+
+
 
 
     public function getAll()

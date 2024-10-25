@@ -13,20 +13,27 @@ class PurchaseOrderItem extends Model
     protected $fillable = [
         'purchase_orders_id',
         'raw_material_id',
+        'product_id',
         'quantity',
         'currency',
         'unit_price',
     ];
 
-    public function purchaseOrder(): BelongsTo
+    public function purchaseOrder()
     {
         return $this->belongsTo(PurchaseOrder::class, 'purchase_orders_id');
     }
 
-    public function rawMaterial(): BelongsTo
+    public function rawMaterial()
     {
         return $this->belongsTo(RawMaterial::class, 'raw_material_id');
     }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
 
     public function purchaseEntries()
     {

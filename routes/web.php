@@ -105,18 +105,20 @@ Route::middleware([
     Route::get('purchase-orders/{id}/edit', [PurchaseOrderController::class, 'edit'])->name('purchase-orders.edit');
     Route::delete('purchase-orders/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase-orders.destroy');
     Route::get('/suppliers-all', [SupplierController::class, 'getAll']);
+    Route::post('purchase-orders/pdf', [PurchaseOrderController::class, 'generatePdf']);
 
     Route::get('purchase-orders-items', [PurchaseOrderItemController::class, 'index'])->name('purchase-orders-items.index');
     Route::get('purchase-orders-items-raw-materials', [PurchaseOrderItemController::class, 'getRawMaterials']);
     Route::get('purchase-orders-items-products', [PurchaseOrderItemController::class, 'getProducts']);
     Route::post('store-purchase-order-item-id', [PurchaseOrderItemController::class, 'storePurchaseOrderId'])->name('store.purchase-order-item-id');
     Route::post('purchase-order-items', [PurchaseOrderItemController::class, 'store'])->name('purchase-orders-items.store');
-    Route::delete('purchase-order-items/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase-orders.destroy');
+    Route::delete('purchase-order-items/{id}', [PurchaseOrderItemController::class, 'destroy'])->name('purchase-orders.destroy');
     Route::post('purchase-order-entry-id', [PurchaseOrderItemController::class, 'storePurchasedItemId']);
 
     Route::get('formulas', [FormulaController::class, 'index'])->name('formulas.index');
     Route::get('formulas-list', [FormulaController::class, 'getAll']);
     Route::post('formulas', [FormulaController::class, 'store'])->name('formulas.store');
+    Route::delete('formulas/{id}', [FormulaController::class, 'destroy']);
 
 
     Route::get('raw-material-prices/{id}', [RawMaterialPriceController::class, 'getById']);
@@ -124,6 +126,7 @@ Route::middleware([
 
     Route::post('store-formula-step-id', [FormulaRawMaterialController::class, 'storeFormulaId']);
     Route::get('formula-steps', [FormulaRawMaterialController::class, 'index']);
+    Route::delete('formula-steps/{id}', [FormulaRawMaterialController::class, 'destroy']);
     Route::post('formula-steps', [FormulaRawMaterialController::class, 'store']);
     Route::post('formula-steps-csv', [FormulaRawMaterialController::class, 'storeCSV']);
     Route::post('formula-steps-production', [FormulaRawMaterialController::class, 'getFormulaStepsById']);
@@ -149,14 +152,17 @@ Route::middleware([
     Route::get('packages', [PackageController::class, 'index']);
     Route::post('packages', [PackageController::class, 'store']);
     Route::delete('packages/{id}', [PackageController::class, 'destroy']);
-
     Route::get('start-production', [PackagingController::class, 'startProduction']);
     Route::get('packages-all', [PackageController::class, 'getAll']);
+    Route::put('packages/{id}', [PackageController::class, 'updatePackageStock']);
+
 
     Route::get('package-components', [PackageComponentController::class, 'index']);
     Route::post('package-components', [PackageComponentController::class, 'store']);
     Route::delete('package-components/{id}', [PackageComponentController::class, 'destroy']);
     Route::get('package-components-select', [PackageComponentController::class, 'getComponents']);
+    Route::put('package-components/{id}', [PackageComponentController::class, 'updatePackageComponentStock']);
+
 
     /*
     |

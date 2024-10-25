@@ -45,6 +45,7 @@ class BulkProductionController extends Controller
 
         try {
             $result = $this->bulkProductionRepository->startProduction(
+                $request->input('batch_number'),
                 $request->input('formula_id'),
                 $request->input('quantity')
             );

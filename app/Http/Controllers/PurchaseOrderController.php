@@ -6,6 +6,7 @@ use App\Http\Requests\StorePurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Repositories\PurchaseOrderRepository;
 use Illuminate\Http\Request;
+use PDF;
 
 class PurchaseOrderController extends Controller
 {
@@ -70,5 +71,17 @@ class PurchaseOrderController extends Controller
         } else {
             return response()->json(['message' => 'No se pudo encontrar el log de la orden de compra que se deseó borrar.'], 404);
         }    
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $purchaseOrderId = $request->input('purchase_order_id');
+        $pdfData = $this->purchaseOrderRepository->getPdfData($purchaseOrderId);
+
+        $pdf = PDF::loadView('purchase-orders.pdf', $pdfData);
+
+        $filename = 'purchase_order_' . $purchaseOrderId . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

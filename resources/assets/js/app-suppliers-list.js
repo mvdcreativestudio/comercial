@@ -79,9 +79,13 @@ document.addEventListener('DOMContentLoaded', function () {
       responsivePriority: 7,
       orderable: true,
       render: function (data, type, row, meta) {
+        if (data === 'DNI') {
+          data = 'CI';  
+        }
         return '<span>' + data + '</span>';
       }
     },
+    
     {
       targets: 7,
       searchable: true,

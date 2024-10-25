@@ -8,7 +8,7 @@ class FormulaRepository
 {
     public function getAll()
     {
-        return Formula::all();
+        return Formula::with('product:id,name')->get();
     }
 
     public function find($id)

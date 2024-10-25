@@ -94,10 +94,15 @@
         </div>
         <div class="card">
           <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-              <h5 class="card-title mb-0">Pasos de la fórmula</h5>
-              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#csvModal">Cargar CSV</button>
-              <button class="addStepsModal btn btn-primary">Agregar Pasos</button>
+            <div class="container">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Pasos de la fórmula</h5>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary" id="downloadTemplateBtn">Descargar plantilla</button>
+                  <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#csvModal">Cargar CSV</button>
+                  <button class="addStepsModal btn btn-primary">Agregar Pasos</button>
+                </div>
+              </div>
             </div>
             <div class="d-flex">
               <p class="text-muted small">
@@ -169,9 +174,7 @@
           </div>
         </div>
 
-
         <!-- REPEATER -->
-
         <div class="modal fade" id="stepsModal" tabindex="-1" aria-labelledby="stepsModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -187,8 +190,8 @@
                         <div class="card-body row">
                           <div class="col-3">
                             <label for="raw-material" class="form-label">Materia prima</label>
-                            <select name="raw-material" id="raw-material" class="form-select" required>
-                              <option value="">Seleccionar materia prima</option>
+                            <select name="raw-material" id="raw-material" class="form-select raw-material" required>
+                              <option value="">No utiliza materia prima</option>
                             </select>
                           </div>
                           <div class="col-2">

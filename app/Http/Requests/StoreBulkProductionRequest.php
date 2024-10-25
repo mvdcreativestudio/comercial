@@ -14,6 +14,7 @@ class StoreBulkProductionRequest extends FormRequest
     public function rules()
     {
         return [
+            'batch_number' => 'required|string|max:255',
             'formula_id' => 'required|integer|exists:formulas,id',
             'quantity_produced' => 'required|integer|min:1',
             'batch_id' => 'required|integer|exists:batches,id',

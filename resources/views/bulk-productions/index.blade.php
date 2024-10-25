@@ -111,7 +111,7 @@
     <h5 class="card-title">Elaboraciones</h5>
     <div class="d-flex justify-content-end">
       <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasProduction" aria-controls="offcanvasProduction">
-        Iniciar Producción
+        Iniciar Elaboración
       </button>
     </div>
     <div class="d-flex">
@@ -157,11 +157,19 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasProduction" aria-labelledby="offcanvasProductionLabel">
   <div class="offcanvas-header">
-    <h5 id="offcanvasProductionLabel">Iniciar Producción</h5>
+    <h5 id="offcanvasProductionLabel">Iniciar Elaboración</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
     <form id="productionForm">
+
+      <!-- Nombre -->
+      <div class="mb-3">
+        <label for="name" class="form-label">Número de lote</label>
+        <input type="text" id="name" name="name" class="form-control" required>
+      </div>
+
+
       <!-- Selector de Fórmula -->
       <div class="mb-3">
         <label for="formula" class="form-label">Seleccionar Fórmula</label>
@@ -191,15 +199,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="productionDetailsModalLabel">Detalles de la Producción</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- Aquí se insertarán dinámicamente los detalles de los pasos y lotes -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -213,7 +216,7 @@
       <div class="modal-header justify-content-center">
         <h5 class="modal-title" id="modalBatchesLabel">Batches Utilizados</h5>
       </div>
-      
+
       <div class="modal-body d-flex align-items-stretch">
         <!-- Sección para los detalles de los batches -->
         <div class="batch-details flex-grow-1 pe-3">
@@ -245,23 +248,29 @@
     border-bottom: none;
     padding-bottom: 0;
   }
+
   #modalBatches .modal-body {
     min-height: 300px;
-  
+
   }
+
   #modalBatches .batch-details {
     max-width: 70%;
     overflow-y: auto;
   }
+
   #modalBatches .modal-qr {
     min-width: 30%;
   }
+
   #modalBatches .divider-container {
     padding: 10px 0;
   }
+
   #modalBatches .vr {
     margin: 0 15px;
-    min-height: 250px; /* Ajusta este valor según sea necesario */
+    min-height: 250px;
+    /* Ajusta este valor según sea necesario */
   }
 </style>
 

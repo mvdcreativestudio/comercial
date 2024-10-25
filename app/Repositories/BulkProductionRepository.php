@@ -54,9 +54,23 @@ class BulkProductionRepository
         return $bulkProduction->delete();
     }
 
-    public function startProduction(int $formulaId, float $quantity): array
+
+    /*
+    *   Método para crear la producción de una fórmula.
+    *
+    */
+    public function startProduction($batchNumber, int $formulaId, float $quantity): array
     {
-        return DB::transaction(function () use ($formulaId, $quantity) {
+        return DB::transaction(function () use ($batchNumber, $formulaId, $quantity) {
+
+            $existingProduction = BulkProduction::where('batch_number', $batchNumber)->first();
+            if ($existingProduction) {
+                return [
+                    'success' => false,
+                    'message' => "Ya existe una producción con el número de lote {$batchNumber}."
+                ];
+            }
+
             // 1. Se toman todas las materias primas de la fórmula.
             $formulaRawMaterials = FormulaRawMaterial::where('formula_id', $formulaId)->get();
 
@@ -79,6 +93,7 @@ class BulkProductionRepository
 
             // 3. Crea el elemento de la producción en la tabla.
             $bulkProduction = BulkProduction::create([
+                'batch_number' => $batchNumber,
                 'formula_id' => $formulaId,
                 'quantity_produced' => $quantity,
                 'production_date' => Carbon::now(),
@@ -120,7 +135,10 @@ class BulkProductionRepository
     }
 
 
-
+    /*
+    * Registro de lote de materia prima utilizada.
+    *
+    */
     private function processMaterial(array $material, int $bulkProductionId): array
     {
         $remainingQuantity = $material['required_quantity'];
@@ -187,6 +205,12 @@ class BulkProductionRepository
             ->first();
     }
 
+
+    /*
+    * Las producciones utilizan los lotes más viejos de las materias primas necesarias.
+    *
+    *
+    */
     private function getOldestBatch(int $rawMaterialId)
     {
         return Batch::join('purchase_entries', 'batches.purchase_entries_id', '=', 'purchase_entries.id')
@@ -220,25 +244,19 @@ class BulkProductionRepository
         ]);
     }
 
-    public function getBatchInfoByIdentifier($encryptedIdentifier)
+    /*
+    *
+    * Método utilizado en el "Ver Lotes" que despliega un QR. 
+    *
+    */
+    public function getBatchInfoByIdentifier($identifier)
     {
-        // Desencriptar el identificador
-        $id = $this->decryptId($encryptedIdentifier);
-
-        // Buscar la producción con el ID desencriptado
+        $idParts = explode('-', $identifier);
+        $id = $idParts[0];
         $bulkProduction = BulkProduction::with('batches')->findOrFail($id);
-
-        if ($bulkProduction->getUniqueIdentifier() !== $encryptedIdentifier) {
+        if ($bulkProduction->getUniqueIdentifier() !== $identifier) {
             abort(404, 'Información de lote no encontrada');
         }
-
         return $bulkProduction->batches;
-    }
-
-    public function decryptId($encryptedIdentifier)
-    {
-        // Desencriptar los 2 bytes para obtener el ID original (ejemplo simple usando base64)
-        $decoded = base64_decode($encryptedIdentifier);
-        return intval($decoded);  // Convertirlo de nuevo a un número si es necesario
     }
 }

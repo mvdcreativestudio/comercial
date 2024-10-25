@@ -28,6 +28,8 @@
     window.csrfToken = "{{ csrf_token() }}";
     var rawMaterials = @if (isset($rawMaterials)) @json($rawMaterials) @else [] @endif;
     window.hasViewAllRawMaterialsPermission = @json(auth()->user()->can('view_all_raw-materials'));
+    window.canEditRawMaterials = @json(auth()->user()->hasPermissionTo('access_raw-materials-edit'));
+
 </script>
 @vite(['resources/assets/js/app-raw-materials-list.js'])
 @endsection
@@ -179,16 +181,6 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Status</span>
-          </label>
-        </div>
-        <div class="mx-3">
-          <label class="switch switch-square">
-            <input type="checkbox" class="toggle-column switch-input" data-column="6" checked>
-            <span class="switch-toggle-slider">
-              <span class="switch-on"><i class="bx bx-check"></i></span>
-              <span class="switch-off"><i class="bx bx-x"></i></span>
-            </span>
             <span class="switch-label">Acciones</span>
           </label>
         </div>
@@ -210,7 +202,6 @@
           <th>Nombre</th>
           <th>Descripción</th>
           <th>Unidad de Medida</th>
-          <th>Status</th>
           <th>Stock</th>
           <th>Acciones</th>
         </tr>

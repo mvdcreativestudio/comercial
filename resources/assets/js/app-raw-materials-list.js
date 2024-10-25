@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var baseUrlAsset = window.baseUrlAsset;
   var originUrlAsset = window.originUrlAsset;
   var hasViewAllRawMaterialsPermission = window.hasViewAllRawMaterialsPermission;
-
+  var canEditRawMaterials = window.canEditRawMaterials;
+  
   var columns = [
     { data: 'image_url' },
     { data: 'name' },
     { data: 'description' },
     { data: 'unit_of_measure' },
-    {data: 'status'},
     { data: 'stock' }
   ];
 
@@ -57,29 +57,26 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     },
     {
-      targets: 4,
-      searchable: true,
-      responsivePriority: 5,
-      orderable: true,
-      render: function (data, type, row, meta) {
-        return '<span>' + data + '</span>';
-      }
-    },
-    {
-      targets: hasViewAllRawMaterialsPermission ? 6 : 5,
+      targets: hasViewAllRawMaterialsPermission ? 5 : 4,
       searchable: false,
-      responsivePriority: 6,
+      responsivePriority: 5,
       orderable: false,
       render: function (data, type, row, meta) {
+        let editButton = '';
+        if (canEditRawMaterials) {
+          editButton = `
+            <a class="dropdown-item" href="${rawMaterialEdit.replace(':id', row.id)}">
+              <i class="bx bx-pencil"></i> Editar
+            </a>`;
+        }
+
         return `
             <div class="dropdown">
               <button class="btn btn-icon btn-icon-only" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="bx bx-dots-horizontal-rounded"></i>
               </button>
               <div class="dropdown-menu dropdown-menu-end">
-                <a class="dropdown-item" href="${rawMaterialEdit.replace(':id', row.id)}">
-                  <i class="bx bx-pencil"></i> Editar
-                </a>
+                ${editButton}
                 <form class="delete-form-${row.id}" action="${rawMaterialDelete.replace(':id', row.id)}" method="POST">
                   <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
                   <input type="hidden" name="_method" value="DELETE">

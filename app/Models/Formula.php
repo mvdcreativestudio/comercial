@@ -28,7 +28,7 @@ class Formula extends Model
         return $this->hasMany(BulkProduction::class);
     }
 
-    public function finalProduct()
+    public function product()
     {
         return $this->belongsTo(Product::class, 'final_product_id');
     }
