@@ -54,11 +54,11 @@
             </div>
           </div>
         </div>
-        @if(isset($posDevice))
-    <p>POS Device: {{ $posDevice->identifier }} (User: {{ $posDevice->user }})</p>
-@else
-    <p>No POS device is associated with the open cash register.</p>
-@endif
+        {{-- @if(isset($posDevice))
+          <p>POS Device: {{ $posDevice->identifier }} (User: {{ $posDevice->user }})</p>
+        @else
+          <p>No POS device is associated with the open cash register.</p>
+        @endif --}}
 
         <div class="col-12 mb-3">
           <div id="client-info" class="card shadow-sm p-4 mb-3 rounded-lg border-0 client-info-card" style="display: block;">
@@ -298,6 +298,17 @@
       <div class="mb-3">
         <label for="emailCliente" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
         <input type="email" class="form-control" id="emailCliente" placeholder="Ingrese el correo electrónico" required>
+      </div>
+
+      <!-- Selección de lista de precios -->
+      <div class="mb-3 mt-3">
+        <label class="form-label" for="price_list_id">Lista de Precios</label>
+        <select id="price_list_id" class="form-select form-select" name="price_list_id">
+            <option value="" selected>Seleccionar Lista de Precios</option>
+            @foreach($priceLists as $priceList)
+                <option value="{{ $priceList->id }}">{{ $priceList->name }}</option>
+            @endforeach
+        </select>
       </div>
 
       <button type="button" class="btn btn-primary" id="guardarCliente">Guardar</button>

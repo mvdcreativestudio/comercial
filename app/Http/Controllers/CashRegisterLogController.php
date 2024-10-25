@@ -14,6 +14,8 @@ use App\Http\Requests\StoreClientRequest;
 use App\Models\Product;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
+use App\Models\PriceList;
+use Illuminate\Support\Facades\DB;
 
 class CashRegisterLogController extends Controller
 {
@@ -42,7 +44,8 @@ class CashRegisterLogController extends Controller
 
     public function front2()
     {
-      return view('pdv.front2');
+      $priceLists = PriceList::all();
+      return view('pdv.front2', compact('priceLists'));
     }
 
     /**
@@ -210,45 +213,58 @@ class CashRegisterLogController extends Controller
     }
 
 
+
     /**
-   * Almacena un nuevo cliente en la base de datos.
-   *
-   * @param StoreClientRequest $request
-   * @return JsonResponse
-  */
-  public function storeClient(StoreClientRequest $request): JsonResponse
-  {
-    try {
-      $validatedData = $request->validated();
+     * Almacena un nuevo cliente en la base de datos.
+     *
+     * @param StoreClientRequest $request
+     * @return JsonResponse
+     */
+    public function storeClient(StoreClientRequest $request): JsonResponse
+    {
+        try {
+            $validatedData = $request->validated();
 
-      // Establecer valores predeterminados si no están presentes en la solicitud
-      $validatedData['address'] = $validatedData['address'] ?? '-';
-      $validatedData['city'] = $validatedData['city'] ?? '-';
-      $validatedData['state'] = $validatedData['state'] ?? '-';
-      $validatedData['country'] = $validatedData['country'] ?? '-';
-      $validatedData['phone'] = $validatedData['phone'] ?? '-';
+            // Establecer valores predeterminados si no están presentes en la solicitud
+            $validatedData['address'] = $validatedData['address'] ?? '-';
+            $validatedData['city'] = $validatedData['city'] ?? '-';
+            $validatedData['state'] = $validatedData['state'] ?? '-';
+            $validatedData['country'] = $validatedData['country'] ?? '-';
+            $validatedData['phone'] = $validatedData['phone'] ?? '-';
 
-      // Crear el nuevo cliente
-      $newClient = $this->cashRegisterLogRepository->createClient($validatedData);
+            // Crear el nuevo cliente
+            $newClient = $this->cashRegisterLogRepository->createClient($validatedData);
 
-      // Agregar log
-      Log::info('Nuevo cliente creado desde PDV', [
-          'client_id' => $newClient->id,
-          'name' => $newClient->name,
-          'email' => $newClient->email,
-          'type' => $newClient->type
-      ]);
+            // Verificar si se ha proporcionado una lista de precios y guardarla en la tabla `client_price_lists`
+            if (isset($validatedData['price_list_id'])) {
+                DB::table('client_price_lists')->insert([
+                    'client_id' => $newClient->id,
+                    'price_list_id' => $validatedData['price_list_id'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
-      return response()->json([
-        'success' => true,
-        'message' => 'Cliente creado correctamente.',
-        'client' => $newClient  // Devuelve los datos completos del cliente
-    ]);
-    } catch (\Exception $e) {
-        Log::error('Error al crear cliente desde PDV: ' . $e->getMessage());
-        return response()->json(['success' => false, 'message' => 'Ocurrió un error al crear el cliente.']);
+            // Agregar log
+            Log::info('Nuevo cliente creado desde PDV', [
+                'client_id' => $newClient->id,
+                'name' => $newClient->name,
+                'email' => $newClient->email,
+                'type' => $newClient->type
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente creado correctamente.',
+                'client' => $newClient  // Devuelve los datos completos del cliente
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al crear cliente desde PDV: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Ocurrió un error al crear el cliente.']);
+        }
     }
-  }
+
+  
 
     /**
      * Busca el id del cashregister log y el store_id dado un id de caja registradora.

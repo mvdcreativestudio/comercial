@@ -631,4 +631,11 @@ class ProductRepository
       }
   }
 
+  /**
+   * Obtiene todas las listas de precios
+   * 
+   * @return array
+   */
+  
+
 }

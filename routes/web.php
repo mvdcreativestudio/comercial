@@ -46,6 +46,7 @@ use App\Http\Controllers\SupplierOrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\PosDeviceController;
+use App\Http\Controllers\PriceListController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -88,7 +89,7 @@ Route::middleware([
     Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
     Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
     Route::get('/composite-products/datatable', [CompositeProductController::class, 'datatable'])->name('composites.datatable');
-
+    Route::get('/price-lists/datatable', [PriceListController::class, 'datatable'])->name('price-lists.datatable');
     Route::get('/receipts/datatable', [AccountingController::class, 'getReceiptsData'])->name('receipts.datatable');
     Route::get('/expenses/datatable', [ExpenseController::class, 'datatable'])->name('expenses.datatable');
     Route::get('/expense-payment-methods/datatable/{id}', [ExpensePaymentMethodController::class, 'datatable'])->name('expense-payment-methods.datatable');
@@ -209,12 +210,23 @@ Route::middleware([
     Route::get('products/{id}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::post('products/{id}/switchStatus', [ProductController::class, 'switchStatus'])->name('products.switchStatus');
 
+    // Gestión de Listas de Precios
+    Route::get('/price-lists', [PriceListController::class, 'index'])->name('price-lists');
+    Route::get('/price-lists/create', [PriceListController::class, 'create'])->name('price-lists.create');
+    Route::post('/price-lists/store', [PriceListController::class, 'store'])->name('price-lists.store');
+    Route::get('/price-lists/{priceList}/edit', [PriceListController::class, 'edit'])->name('price-lists.edit');
+    Route::put('/price-lists/{priceList}/update', [PriceListController::class, 'update'])->name('price-lists.update');
+    Route::post('/price-lists/{priceList}/delete', [PriceListController::class, 'deletePriceList'])->name('price-lists.delete');
+    Route::get('/price-lists/{show}', [PriceListController::class, 'show'])->name('price-lists.show');
+    Route::get('/price-lists/{storeId}/{priceListId}/products', [PriceListController::class, 'getProducts'])->name('price-lists.products');
     // Gestión de Clientes
     Route::put('/admin/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
     // Obtener los productos con los precios personalizados según la lista de precios asignada al cliente
     Route::get('/price-list/{priceListId}/products', [ClientController::class, 'getProductsByPriceList']);
     Route::get('/client-price-list/{clientId}', [ClientController::class, 'getClientPriceList']);
     Route::get('/price-lists/{clientId}', [ClientController::class, 'getPriceLists']);
+    Route::post('/clients/{clientId}/assign-price-list', [ClientController::class, 'assignPriceList'])->name('clients.assignPriceList');
+
 
     // Gestión de Empresas
     Route::prefix('stores/{store}')->name('stores.')->group(function () {

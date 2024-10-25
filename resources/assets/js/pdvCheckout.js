@@ -84,14 +84,12 @@ $(document).ready(function () {
   }
 
   function enviarTransaccionPos(token) {
-    console.log('Token POS:', token);
 
     // Obtener el ID del dispositivo POS desde el cashRegisterId
     $.ajax({
         url: `${baseUrl}api/pos/get-device-info/${cashRegisterId}`,
         type: 'GET',
         success: function (device) {
-            console.log('Dispositivo POS:', device);
 
             const posID = device.data.identifier;
             const empresa = device.data.company;
@@ -137,7 +135,6 @@ $(document).ready(function () {
                 NeedToReadCard: needToReadCard
             };
 
-            console.log('Datos de la transacción POS:', transactionData); // Log para ver la estructura de datos que se envía
 
             showTransactionStatus(10, false, true); // Mostrar mensaje de transacción en progreso
 
@@ -150,13 +147,10 @@ $(document).ready(function () {
                 },
                 data: JSON.stringify(transactionData),
                 success: function (response) {
-                    console.log('Respuesta de la transacción:', response); // Verificar la respuesta del servidor
-
                     const transactionId = response.TransactionId;
                     const sTransactionId = response.STransactionId;
 
                     if (transactionId && sTransactionId) {
-                        console.log('Transaction ID:', transactionId, 'STransaction ID:', sTransactionId); // Verificar los IDs recibidos
 
                         sessionStorage.setItem('TransactionId', transactionId);
                         sessionStorage.setItem('STransactionId', sTransactionId);
@@ -168,14 +162,12 @@ $(document).ready(function () {
                 },
                 error: function (xhr, status, error) {
                     console.error('Error en la transacción POS:', error); // Error detallado del servidor
-                    console.log('Respuesta del servidor:', xhr.responseText); // Log para ver la respuesta del servidor
                     showTransactionStatus(999); // Mostrar error
                 }
             });
         },
         error: function (xhr, status, error) {
             console.error('Error al obtener la información del dispositivo POS:', error); // Log en caso de error al obtener el dispositivo
-            console.log('Respuesta del servidor al intentar obtener POS Device:', xhr.responseText); // Respuesta del servidor
         }
     });
   }
@@ -372,10 +364,15 @@ $(document).ready(function () {
       dataType: 'json',
       success: function (response) {
         client = response.client;
-
+  
         if (client && client.id) {
           showClientInfo(client);
           $('#client-selection-container').hide();
+  
+          // Si el cliente tiene una lista de precios, cargar los precios desde la lista
+          if (client.price_list_id) {
+            updateCartPricesWithPriceList(client.price_list_id);
+          }
         }
       },
       error: function (xhr) {
@@ -383,6 +380,7 @@ $(document).ready(function () {
       }
     });
   }
+  
 
   function loadStoreIdFromSession() {
     $.ajax({
@@ -418,41 +416,17 @@ $(document).ready(function () {
         $('#client-company').hide();
     }
 
-// Si el cliente tiene un price_list_id, buscar el nombre de la lista de precios
-if (client.price_list_id) {
-  console.log('Cliente tiene price_list_id:', client.price_list_id); // Verificar si el cliente tiene lista de precios
-  console.log('ID del cliente:', client.id); // Verificar el ID del cliente
-  console.log('URL a utilizar:', `${baseUrl}admin/client-price-list/${client.id}`); // Verificar la URL a utilizar
-  $.ajax({
-      url: `${baseUrl}admin/client-price-list/${client.id}`, // Ahora pasamos el ID del cliente
-      type: 'GET',
-      success: function (response) {
-          console.log('Respuesta recibida de la API:', response); // Verificar la respuesta del servidor
-          if (response && response.price_list) {
-              console.log('Nombre de la lista de precios:', response.price_list.name); // Verificar el nombre de la lista de precios
-              $('#client-price-list').text(response.price_list.name); // Mostrar el nombre de la lista de precios
-          } else {
-              console.log('No se encontró lista de precios para el cliente');
-              $('#client-price-list').text('Sin lista de precios');
-          }
-      },
-      error: function (xhr, status, error) {
-          console.error('Error en la solicitud AJAX:', error); // Mostrar el error en la consola
-          console.log('Estado:', status); // Verificar el estado de la solicitud
-          console.log('Respuesta del servidor:', xhr.responseText); // Mostrar la respuesta del servidor
-          $('#client-price-list').text('Sin lista de precios');
-      }
-  });
-} else {
-  console.log('El cliente no tiene price_list_id');
-  $('#client-price-list').text('Sin lista de precios');
-}
-
+    // Si el cliente tiene un price_list_id, mostrar el nombre de la lista de precios
+    if (client.price_list_id) {
+      $('#client-price-list').text(client.price_list_name); // Mostrar el nombre de la lista de precios
+    } else {
+      $('#client-price-list').text('Sin lista de precios');
+    }
 
     // Muestra la tarjeta de información del cliente y oculta la sección de selección
     $('#client-info').show();
     $('#client-selection-container').hide();
-  }
+    }
 
 
 
@@ -599,35 +573,31 @@ if (client.price_list_id) {
     let cartHtml = '';
     let subtotal = 0;
 
-    if (!Array.isArray(cart)) {
-      mostrarError('El carrito no es un array.');
-      return;
-    }
-
     cart.forEach(item => {
-      const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
+        const itemPrice = item.price && !isNaN(item.price) ? item.price : 0;  // Asegurar que el precio es válido
+        const itemTotal = itemPrice * item.quantity;
+        subtotal += itemTotal;
 
-      // Redondear el precio del producto y el total del ítem a dos decimales
-      const formattedItemPrice = (Math.round(item.price * 100) / 100).toLocaleString('es-ES', {
-        minimumFractionDigits: 2
-      });
-      const formattedItemTotal = (Math.round(itemTotal * 100) / 100).toLocaleString('es-ES', {
-        minimumFractionDigits: 2
-      });
+        // Redondear el precio del producto y el total del ítem a dos decimales
+        const formattedItemPrice = (Math.round(itemPrice * 100) / 100).toLocaleString('es-ES', {
+            minimumFractionDigits: 2
+        });
+        const formattedItemTotal = (Math.round(itemTotal * 100) / 100).toLocaleString('es-ES', {
+            minimumFractionDigits: 2
+        });
 
-      cartHtml += `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center">
-              <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail me-2" style="width: 50px;">
-              <div>
-                  <h6 class="mb-0">${item.name}</h6>
-                  <small class="text-muted">Cantidad: ${item.quantity} x ${currencySymbol}${formattedItemPrice}</small>
-              </div>
-          </div>
-          <span>${currencySymbol}${formattedItemTotal}</span>
-      </li>
-      `;
+        cartHtml += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <img src="${baseUrl}${item.image}" alt="${item.name}" class="img-thumbnail me-2" style="width: 50px;">
+                <div>
+                    <h6 class="mb-0">${item.name}</h6>
+                    <small class="text-muted">Cantidad: ${item.quantity} x ${currencySymbol}${formattedItemPrice}</small>
+                </div>
+            </div>
+            <span>${currencySymbol}${formattedItemTotal}</span>
+        </li>
+        `;
     });
 
     let total = subtotal - discount;
@@ -643,6 +613,7 @@ if (client.price_list_id) {
     $('.list-group-flush').html(cartHtml);
     $('.subtotal').text(`${currencySymbol}${formattedSubtotal}`);
     $('.total').text(`${currencySymbol}${formattedTotal}`);
+
     calcularTotal();
   }
 
@@ -703,16 +674,12 @@ if (client.price_list_id) {
         `;
 
         clientList.append(clientCard);
-        console.log(clientList);
     });
 
     // Event listener para el botón "Seleccionar"
     $('.btn-select-client').on('click', function () {
       const selectedClient = $(this).data('client'); // Obtenemos el cliente seleccionado
       const clientId = selectedClient.id;
-    
-      console.log('Cliente seleccionado:', selectedClient); // Debug para verificar el cliente seleccionado
-      console.log('ID del cliente:', clientId); // Debug para asegurarnos que el ID es correcto
     
       // Guardar el cliente en la sesión
       saveClientToSession(selectedClient)
@@ -738,9 +705,7 @@ if (client.price_list_id) {
   }
 
   function loadClientAndPriceList(clientId) {
-    console.log('Client ID pasado a loadClientAndPriceList:', clientId); // Debug para ver qué ID se está pasando
-  
-    $.ajax({
+     $.ajax({
       url: `${baseUrl}admin/client-price-list/${clientId}`, // Aquí se usa el ID del cliente
       type: 'GET',
       success: function (response) {
@@ -874,6 +839,7 @@ if (client.price_list_id) {
     const rut = document.getElementById('rutCliente');
     const direccion = document.getElementById('direccionCliente');
     const razonSocial = document.getElementById('razonSocialCliente');
+    const priceList = document.getElementById('price_list_id');
 
     let hasError = false;
     clearErrors();
@@ -938,7 +904,8 @@ if (client.price_list_id) {
         lastname: apellido.value.trim(),
         type: tipo.value,
         email: email.value.trim(),
-        address: direccion.value.trim()
+        address: direccion.value.trim(),
+        price_list_id: priceList.value
     };
 
     if (tipo.value === 'individual') {
@@ -1005,17 +972,48 @@ if (client.price_list_id) {
     deselectClient();
   });
 
+  // Función para deseleccionar al cliente
   function deselectClient() {
-    client = [];
-    saveClientToSession(client);
-
-    $('#client-id').text('');
-    $('#client-name').text('');
-    $('#client-ci').text('');
-    $('#client-rut').text('');
-    $('#client-info').hide();
-    $('#client-selection-container').show();
+    client = [];  // Limpiar los datos del cliente
+    saveClientToSession(client)
+      .done(function () {
+        // Volver a cargar el carrito desde la sesión y restaurar los precios originales
+        loadCartFromSessionWithNormalPrices();
+        
+        // Actualizar la UI para deseleccionar al cliente
+        $('#client-id').text('');
+        $('#client-name').text('');
+        $('#client-type').text('');
+        $('#client-doc').text('');
+        $('#client-company').hide();  // Ocultar razón social si había un cliente empresa seleccionado
+        $('#client-info').hide();
+        $('#client-selection-container').show();
+      })
+      .fail(function (xhr) {
+        mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+      });
   }
+
+
+  // Función para cargar el carrito desde la sesión con precios normales
+  function loadCartFromSessionWithNormalPrices() {
+    cart = cart.map(item => {
+        // Asegurar que original_price está presente y tiene un valor numérico
+        if (typeof item.original_price !== 'undefined' && !isNaN(item.original_price)) {
+            item.price = parseFloat(item.original_price);  // Restaurar el precio original
+        } else {
+            console.error(`Producto con ID ${item.id} no tiene original_price definido correctamente`);
+            item.price = 0; // Establecer un valor predeterminado de $0 en caso de error
+        }
+        return item;
+    });
+
+    // Refrescar la vista del carrito con los precios normales
+    updateCheckoutCart();
+  }
+
+
+
 
   loadCartFromSession();
   loadClientFromSession();
@@ -1027,7 +1025,6 @@ if (client.price_list_id) {
 
     const paymentMethod = $('input[name="paymentMethod"]:checked').attr('id');
     const shippingStatus = $('#shippingStatus').val(); // Obtener el estado de entrega seleccionado
-    console.log(shippingStatus);
     let cashSales = 0;
     let posSales = 0;
 
@@ -1071,9 +1068,6 @@ if (client.price_list_id) {
       docType = 3; // Por defecto, asumir CI para 'individual'
       doc = '00000000';
     }
-
-    // console.log para ver los productos que se enviarán a orderData
-    console.log(cart);
 
     const orderData = {
       date: new Date().toISOString().split('T')[0],
@@ -1186,7 +1180,6 @@ $.ajax({
               });
             } else {
               clearCartAndClient().then(() => {
-                console.log('Redirigiendo a la ruta de inicio, se borró todo');
                 window.location.href = frontRoute;
               }).catch(error => {
                 console.error('Error al limpiar carrito y cliente:', error);

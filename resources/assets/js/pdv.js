@@ -170,27 +170,32 @@ $(document).ready(function() {
 
     // Función para cargar productos
     function loadProducts() {
-      $.ajax({
-          url: `products/${cashRegisterId}`,
-          type: 'GET',
-          dataType: 'json',
-          success: function(response) {
-              if (response && response.products) {
-                  products = response.products;
-                  if (isListView) {
-                      displayProductsList(products); // Mostrar la vista de lista por defecto
-                  } else {
-                      displayProducts(products);
-                  }
-              } else {
-                  alert('No se encontraron productos.');
-              }
-          },
-          error: function(xhr, status, error) {
-              console.error('Error al obtener los productos:', error);
-          }
-      });
+        $.ajax({
+            url: `products/${cashRegisterId}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response && response.products) {
+                    products = response.products.map(product => {
+                        // Establecer original_price en cada producto basado en el precio actual
+                        product.original_price = product.price ? product.price : product.old_price;
+                        return product;
+                    });
+                    if (isListView) {
+                        displayProductsList(products); // Mostrar la vista de lista por defecto
+                    } else {
+                        displayProducts(products);
+                    }
+                } else {
+                    alert('No se encontraron productos.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al obtener los productos:', error);
+            }
+        });
     }
+      
 
     // Cargar variaciones desde el backend
   function cargarVariaciones() {
@@ -367,10 +372,10 @@ $(document).ready(function() {
                   name: product.name,
                   image: product.image,
                   price: priceToUse,
+                  original_price: priceToUse, // Guardar el precio original
                   flavors: selectedFlavors,
                   quantity: quantity, // Usar la cantidad deseada
                   category_id: category_id,
-
               });
 
               updateCart();
@@ -400,6 +405,7 @@ $(document).ready(function() {
                   name: product.name,
                   image: product.image,
                   price: priceToUse,
+                  original_price: priceToUse, // Guardar el precio original
                   flavors: [],
                   quantity: quantity, // Usar la cantidad deseada
                   category_id: category_id,

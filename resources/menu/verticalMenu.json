@@ -58,6 +58,13 @@
           "url": "/admin/products"
         },
         {
+          "id": "tour-listas-de-precios",
+          "name": "Listas de Precios",
+          "icon": "menu-icon tf-icons bx bx-dollar",
+          "slug": "price-lists",
+          "url": "/admin/price-lists"
+        },
+        {
           "id": "stock",
           "name": "Stock",
           "icon": "menu-icon tf-icons bx bx-border-all",
@@ -66,7 +73,7 @@
         },
         {
           "id": "tour-productos-compuestos",
-          "name": "Productos Compuestos",
+          "name": "Compuestos",
           "icon": "menu-icon tf-icons bx bx-box",
           "slug": "composite-products",
           "url": "/admin/composite-products"

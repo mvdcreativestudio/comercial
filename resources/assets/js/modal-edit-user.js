@@ -33,8 +33,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
         phone: formData.get('phone'),
         address: formData.get('address'),
         city: formData.get('city'),
-        country: formData.get('country')
+        country: formData.get('country'),
+        price_list_id: formData.get('price_list_id'),
       };
+    
+    
 
       // Enviar la solicitud AJAX
       fetch(url, {
