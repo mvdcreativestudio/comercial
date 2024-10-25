@@ -1,36 +1,38 @@
 $(document).ready(function () {
-  // Abrir modal para editar categoría de ingreso
-  $('.datatables-income-categories tbody').on('click', '.edit-record', function () {
+  // Abrir modal para editar moneda
+  $('.datatables-currencies tbody').on('click', '.edit-record', function () {
     var recordId = $(this).data('id');
     prepareEditModal(recordId);
   });
 
   // Manejar el evento submit del formulario para evitar el comportamiento predeterminado
-  $('#editIncomeCategoryForm').on('submit', function (e) {
+  $('#editCurrencyForm').on('submit', function (e) {
     e.preventDefault();
-    var recordId = $('#updateIncomeCategoryBtn').data('id');
-    submitEditIncomeCategory(recordId);
+    var recordId = $('#updateCurrencyBtn').data('id');
+    submitEditCurrency(recordId);
   });
 
   // Enviar formulario de edición al hacer clic en el botón de guardar cambios
-  $('#editIncomeCategoryModal').on('click', '#updateIncomeCategoryBtn', function (e) {
+  $('#editCurrencyModal').on('click', '#updateCurrencyBtn', function (e) {
     e.preventDefault();
-    $('#editIncomeCategoryForm').submit();
+    $('#editCurrencyForm').submit();
   });
 
   function prepareEditModal(recordId) {
     // Función para preparar el modal de edición
     $.ajax({
-      url: `income-categories/${recordId}/edit`,
+      url: `currencies/${recordId}/edit`,
       type: 'GET',
       success: function (data) {
         // Rellenar los campos del formulario con los datos obtenidos
-        $('#income_name_edit').val(data.income_name);
-        $('#income_description_edit').val(data.income_description);
+        $('#currency_code_edit').val(data.code);
+        $('#currency_symbol_edit').val(data.symbol);
+        $('#currency_name_edit').val(data.name);
+        $('#exchange_rate_edit').val(data.exchange_rate);
 
         // Mostrar el modal
-        $('#editIncomeCategoryModal').modal('show');
-        $('#updateIncomeCategoryBtn').data('id', recordId); // Asigna el ID del registro al botón de actualización
+        $('#editCurrencyModal').modal('show');
+        $('#updateCurrencyBtn').data('id', recordId); // Asigna el ID del registro al botón de actualización
       },
       error: function () {
         Swal.fire('Error', 'No se pudo cargar el formulario de edición. Por favor, intenta de nuevo.', 'error');
@@ -38,25 +40,26 @@ $(document).ready(function () {
     });
   }
 
-  function submitEditIncomeCategory(recordId) {
+  function submitEditCurrency(recordId) {
     var formData = {
-      income_name: $('#income_name_edit').val(),
-      income_description: $('#income_description_edit').val(),
+      code: $('#currency_code_edit').val(),
+      symbol: $('#currency_symbol_edit').val(),
+      name: $('#currency_name_edit').val(),
+      exchange_rate: $('#exchange_rate_edit').val(),
       '_token': $('meta[name="csrf-token"]').attr('content')
     };
 
     $.ajax({
-      url: `income-categories/${recordId}`,
+      url: `currencies/${recordId}`,
       type: 'PUT',
       data: formData,
       success: function () {
-        $('#editIncomeCategoryModal').modal('hide');
-        // $('.datatables-income-categories').DataTable().ajax.reload();
-        location.reload();
-        Swal.fire('¡Actualizado!', 'La categoría de ingreso ha sido actualizada con éxito.', 'success');
+        $('#editCurrencyModal').modal('hide');
+        $('.datatables-currencies').DataTable().ajax.reload();
+        Swal.fire('¡Actualizado!', 'La moneda ha sido actualizada con éxito.', 'success');
       },
       error: function (xhr) {
-        $('#editIncomeCategoryModal').modal('hide');
+        $('#editCurrencyModal').modal('hide');
 
         var errorMessage =
           xhr.responseJSON && xhr.responseJSON.errors
@@ -77,7 +80,7 @@ $(document).ready(function () {
           title: 'Error al guardar',
           html: messageFormatted
         }).then(result => {
-          $('#editIncomeCategoryModal').modal('show');
+          $('#editCurrencyModal').modal('show');
         });
       }
     });

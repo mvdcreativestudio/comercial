@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Ingresos')
+@section('title', 'Monedas')
 
 @section('vendor-style')
 @vite([
@@ -19,22 +19,22 @@
 ])
 <script>
   window.baseUrl = "{{ url('/') }}";
-  window.detailUrl = "{{ route('incomes.show', ':id') }}";
+  window.detailUrl = "{{ route('currencies.show', ':id') }}";
 </script>
 @endsection
 
 @section('page-script')
 @vite([
-'resources/assets/js/incomes/incomes/app-incomes-list.js',
-'resources/assets/js/incomes/incomes/app-incomes-add.js',
-'resources/assets/js/incomes/incomes/app-incomes-edit.js',
-'resources/assets/js/incomes/incomes/app-incomes-delete.js',
+'resources/assets/js/currencies/app-currencies-list.js',
+'resources/assets/js/currencies/app-currencies-add.js',
+'resources/assets/js/currencies/app-currencies-edit.js',
+'resources/assets/js/currencies/app-currencies-delete.js',
 ])
 @endsection
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Contabilidad /</span> Ingresos
+  <span class="text-muted fw-light">Contabilidad /</span> Monedas
 </h4>
 
 @if (Auth::user()->can('access_datacenter'))
@@ -44,25 +44,12 @@
       <div class="col-sm-6 col-lg-3">
         <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
           <div>
-            <h6 class="mb-2">Cantidad Total Ingreso</h6>
-            <h4 class="mb-2">{{ $totalIncomes }}</h4>
+            <h6 class="mb-2">Total Monedas</h6>
+            <h4 class="mb-2">{{ $totalCurrencies }}</h4>
           </div>
           <div class="avatar me-lg-4">
             <span class="avatar-initial rounded bg-label-secondary">
-              <i class="bx bx-dollar bx-sm"></i>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <h6 class="mb-2">Ingresos Totales Clientes</h6>
-            <h4 class="mb-2">{{ $totalIncomeAmount }}</h4>
-          </div>
-          <div class="avatar">
-            <span class="avatar-initial rounded bg-label-secondary">
-              <i class="bx bx-check bx-sm"></i>
+              <i class="bx bx-money bx-sm"></i>
             </span>
           </div>
         </div>
@@ -72,13 +59,13 @@
 </div>
 @endif
 
-<!-- Incomes List Table -->
+<!-- Currencies List Table -->
 <div class="card">
   <div class="card pb-3">
     <h5 class="card-header pb-0">
-      Ingresos
-      <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addIncomeModal">
-        Agregar Ingreso
+      Monedas
+      <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addCurrencyModal">
+        Agregar Moneda
       </button>
       <div class="d-flex">
         <p class="text-muted small">
@@ -88,7 +75,7 @@
       </div>
       <div class="collapse" id="columnSwitches">
         <div class="mt-0 d-flex flex-wrap">
-          <!-- Column Switches -->
+          <!-- Selectores de columnas -->
           <div class="mx-3">
             <label class="switch switch-square">
               <input type="checkbox" class="toggle-column switch-input" data-column="2" checked>
@@ -96,7 +83,7 @@
                 <span class="switch-on"><i class="bx bx-check"></i></span>
                 <span class="switch-off"><i class="bx bx-x"></i></span>
               </span>
-              <span class="switch-label">Fecha</span>
+              <span class="switch-label">Código</span>
             </label>
           </div>
           <div class="mx-3">
@@ -106,7 +93,7 @@
                 <span class="switch-on"><i class="bx bx-check"></i></span>
                 <span class="switch-off"><i class="bx bx-x"></i></span>
               </span>
-              <span class="switch-label">Cliente</span>
+              <span class="switch-label">Símbolo</span>
             </label>
           </div>
           <div class="mx-3">
@@ -116,7 +103,7 @@
                 <span class="switch-on"><i class="bx bx-check"></i></span>
                 <span class="switch-off"><i class="bx bx-x"></i></span>
               </span>
-              <span class="switch-label">Método de Pago</span>
+              <span class="switch-label">Nombre</span>
             </label>
           </div>
           <div class="mx-3">
@@ -126,7 +113,7 @@
                 <span class="switch-on"><i class="bx bx-check"></i></span>
                 <span class="switch-off"><i class="bx bx-x"></i></span>
               </span>
-              <span class="switch-label">Importe</span>
+              <span class="switch-label">Tipo de Cambio</span>
             </label>
           </div>
           <div class="mx-3">
@@ -136,7 +123,7 @@
                 <span class="switch-on"><i class="bx bx-check"></i></span>
                 <span class="switch-off"><i class="bx bx-x"></i></span>
               </span>
-              <span class="switch-label">Categoría</span>
+              <span class="switch-label">Fecha de Creación</span>
             </label>
           </div>
           <div class="mx-3">
@@ -160,44 +147,12 @@
           </ul>
         </div>
       </div>
-
-      <!-- Filter for incomes -->
-      <div class="d-flex justify-content-start align-items-center row py-3 gap-3 mb-0 pb-0 gap-md-0">
-        <div class="col-md-2 entity_type">
-          <label for="entityType">Entidad</label>
-        </div>
-
-        <div class="col-md-2 category_filter">
-          <label for="category">Categoría</label>
-        </div>
-        {{-- filter for date --}}
-        <div class="col-md-2">
-          <label for="startDate">Fecha Desde</label>
-          <input type="date" class="form-control date-range-filter" id="startDate" placeholder="Fecha de inicio">
-        </div>
-        <div class="col-md-2">
-          <label for="endDate">Fecha Hasta</label>
-          <input type="date" class="form-control date-range-filter" id="endDate" placeholder="Fecha de fin">
-        </div>
-        {{-- button for clear filters --}}
-        <div class="col-md-2 mt-2">
-          <button class="btn btn-outline-danger btn-sm clear-filters" id="clear-filters">
-              <i class="fas fa-eraser"></i>
-          </button>
-          <button class="btn btn-outline-success btn-sm export-excel" id="export-excel">
-              <i class="fas fa-file-excel"></i>
-          </button>
-          <button class="btn btn-outline-primary btn-sm export-pdf" id="export-pdf">
-              <i class="fas fa-file-pdf"></i>
-          </button>
-      </div>
-      </div>
     </h5>
   </div>
 
   <div class="card-datatable table-responsive pt-0">
-    @if($incomes->count() > 0)
-    <table class="table datatables-incomes" data-symbol="{{ $settings->currency_symbol }}">
+    @if($currencies->count() > 0)
+    <table class="table datatables-currencies">
       <thead>
         <tr>
           <th>
@@ -206,13 +161,11 @@
             </div>
           </th>
           <th>N°</th>
-          <th>Fecha</th>
-          <th>Entidad</th>
-          <th>Descripción</th>
-          <th>Método de Pago</th>
-          <th>Importe</th>
-          <th>Categoría</th>
-          <th>Moneda</th>
+          <th>Código</th>
+          <th>Símbolo</th>
+          <th>Nombre</th>
+          <th>Tipo de Cambio</th>
+          <th>Fecha de Creación</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -222,13 +175,14 @@
     </table>
     @else
     <div class="text-center py-5">
-      <h4>No hay ingresos</h4>
-      <p class="text-muted">Agrega un nuevo ingreso para comenzar</p>
+      <h4>No hay monedas</h4>
+      <p class="text-muted">Agrega una nueva moneda para comenzar</p>
     </div>
     @endif
   </div>
 </div>
 
-@include('content.accounting.incomes.income.add-income')
-@include('content.accounting.incomes.income.edit-income')
+@include('content.accounting.currencies.add-currencies')
+@include('content.accounting.currencies.edit-currencies')
+
 @endsection

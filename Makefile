@@ -38,6 +38,12 @@ dev_migrate:
 dev_clear:
 	docker compose -f docker-compose.dev.yml down
 
+dev_create_migration:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan make:migration $(name)
+
+dev_permissions:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan create:modules-permissions
+
 # Producción
 
 prod_install:

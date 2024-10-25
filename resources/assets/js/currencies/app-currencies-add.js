@@ -1,15 +1,17 @@
 $(document).ready(function() {
-  // Evento para agregar nueva categoría de ingresos
-  $('#addIncomeCategoryModal').on('click', '#submitIncomeCategoryBtn', function () {
-    submitNewIncomeCategory();
+  // Evento para agregar nueva moneda
+  $('#addCurrencyModal').on('click', '#submitCurrencyBtn', function () {
+    submitNewCurrency();
   });
 
-  // Función para enviar el formulario de nueva categoría de ingresos
-  function submitNewIncomeCategory() {
-    var route = $('#submitIncomeCategoryBtn').data('route');
+  // Función para enviar el formulario de nueva moneda
+  function submitNewCurrency() {
+    var route = $('#submitCurrencyBtn').data('route');
     var formData = {
-      income_name: $('#income_name').val(),
-      income_description: $('#income_description').val(),
+      code: $('#currency_code').val(),
+      symbol: $('#currency_symbol').val(),
+      name: $('#currency_name').val(),
+      exchange_rate: $('#exchange_rate').val(),
     };
     
     $.ajax({
@@ -20,19 +22,18 @@ $(document).ready(function() {
       },
       data: formData,
       success: function (response) {
-        $('#addIncomeCategoryModal').modal('hide');
+        $('#addCurrencyModal').modal('hide');
         Swal.fire({
           icon: 'success',
-          title: 'Categoría de Ingreso Agregada',
+          title: 'Moneda Agregada',
           text: response.message
         }).then(result => {
-          // Recargar la tabla de categorías de ingresos si es necesario
-          // $('.datatables-income-categories').DataTable().ajax.reload();
-          location.reload();
+          // Recargar la tabla de monedas si es necesario
+          $('.datatables-currencies').DataTable().ajax.reload();
         });
       },
       error: function (xhr) {
-        $('#addIncomeCategoryModal').modal('hide');
+        $('#addCurrencyModal').modal('hide');
 
         var errorMessage =
           xhr.responseJSON && xhr.responseJSON.errors
@@ -51,7 +52,7 @@ $(document).ready(function() {
           title: 'Error al guardar',
           html: messageFormatted
         }).then(result => {
-          $('#addIncomeCategoryModal').modal('show');
+          $('#addCurrencyModal').modal('show');
         });
       }
     });

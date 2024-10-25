@@ -36,6 +36,9 @@ $statusClass = [
   "Partial" => "text-warning" // Yellow color for partial
 ];
 $status = $currentAccount->status->value;
+
+// Inicializamos el saldo con 0 o un valor predefinido si es necesario
+$balance = 0;
 @endphp
 
 <div class="row">
@@ -92,6 +95,7 @@ $status = $currentAccount->status->value;
             <th class="font-white">Concepto</th>
             <th class="font-white">Ventas</th>
             <th class="font-white">Pagos</th>
+            <th class="font-white">Saldo</th> <!-- Nueva columna para el saldo -->
             <th class="font-white">Moneda</th>
             <th class="font-white">Fecha</th>
             <th>Acciones</th>
@@ -100,19 +104,29 @@ $status = $currentAccount->status->value;
         <tbody class="text-center">
           @foreach($combinedEntries as $entry)
           @if($entry['type'] === 'credit')
+          @php
+            // Aumentar el saldo con el valor del crédito
+            $balance += $entry['entry']->total_debit;
+          @endphp
           <tr>
             <th>{!! $entry['entry']->description ?? 'Crédito Inicial' !!}</th>
             <th>{{ number_format($entry['entry']->total_debit, 2) }}</th>
             <th class="bg-gray2"></th>
+            <th>{{ number_format($balance, 2) }}</th> <!-- Mostrar el saldo -->
             <th>{{ $currentAccount->currency->name ?? 'N/A' }}</th>
             <th>{{ $entry['entry']->created_at->format('d/m/y') }}</th>
             <th></th>
           </tr>
           @elseif($entry['type'] === 'payment')
+          @php
+            // Disminuir el saldo con el valor del pago
+            $balance -= $entry['entry']->payment_amount;
+          @endphp
           <tr>
             <th>{{ $entry['entry']->paymentMethod->description ?? 'N/A' }}</th>
             <th class="bg-gray2"></th>
             <th>{{ number_format($entry['entry']->payment_amount, 2) }}</th>
+            <th>{{ number_format($balance, 2) }}</th> <!-- Mostrar el saldo -->
             <th>{{ $currentAccount->currency->name ?? 'N/A' }}</th>
             <th>{{ $entry['entry']->payment_date->format('d/m/y') }}</th>
             <th>
@@ -133,7 +147,9 @@ $status = $currentAccount->status->value;
             <th class="font-white">Totales</th>
             <th class="font-white">{{ number_format($totalDebit, 2) }}</th>
             <th class="font-white">{{ number_format($totalAmount, 2) }}</th>
-            <th colspan="3"></th>
+            <th class="font-white">{{ number_format($balance, 2) }}</th> <!-- Mostrar saldo total -->
+            <th colspan="2"></th>
+            <th></th>
           </tr>
         </tfoot>
       </table>

@@ -10,6 +10,7 @@ use App\Http\Controllers\CompanySettingsController;
 use App\Http\Controllers\CompositeProductController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CrmController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\CurrentAccountController;
 use App\Http\Controllers\CurrentAccountPaymentController;
 use App\Http\Controllers\CurrentAccountSettingsController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\ExpensePaymentMethodController;
 use App\Http\Controllers\IncomeClientController;
 use App\Http\Controllers\IncomeSupplierController;
 use App\Http\Controllers\IncomeCategoryController;
+use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\MercadoPagoController;
@@ -105,6 +107,7 @@ Route::middleware([
     // suppliers
     Route::get('/incomes/datatable', [IncomeController::class, 'datatable'])->name('income.datatable');
     Route::get('/income-categories/datatable', [IncomeCategoryController::class, 'datatable'])->name('income-categories.datatable');
+    Route::get('/currencies/datatable', [CurrencyController::class, 'datatable'])->name('currencies.datatable');
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
@@ -128,6 +131,20 @@ Route::middleware([
     // exportar excel
     Route::get('/incomes-export-excel', [IncomeController::class, 'exportExcel'])->name('income.export.excel');
     Route::get('/incomes-export-pdf', [IncomeController::class, 'exportPdf'])->name('income.pdf');
+
+
+    // exportar excel entries
+    Route::get('/entries-export-excel', [EntryController::class, 'exportExcel'])->name('entries.export.excel');
+    Route::get('/entries-export-pdf', [EntryController::class, 'exportPdf'])->name('entries.pdf');
+
+    // exportar excel entries details
+    Route::get('/entry-details-export-excel/{id}', [EntryDetailController::class, 'exportExcel'])->name('entry-details.export.excel');
+    Route::get('/entry-details-export-pdf/{id}', [EntryDetailController::class, 'exportPdf'])->name('entry-details.pdf');
+
+
+    // exportar excel expenses
+    Route::get('/expenses-export-excel', [ExpenseController::class, 'exportExcel'])->name('expenses.export.excel');
+    Route::get('/expenses-export-pdf', [ExpenseController::class, 'exportPdf'])->name('expenses.pdf');
 
     Route::get('/products/edit', [ProductController::class, 'editBulk'])->name('products.editBulk');
     Route::post('/products/edit', [ProductController::class, 'updateBulk'])->name('products.updateBulk');
@@ -166,6 +183,7 @@ Route::middleware([
         'current-account-settings' => CurrentAccountSettingsController::class,
         'incomes' => IncomeController::class,
         'income-categories' => IncomeCategoryController::class,
+        'currencies' => CurrencyController::class,
     ]);
 
     // Puntos de venta
@@ -413,6 +431,10 @@ Route::middleware([
     Route::post('/pos/devices/store', [PosDeviceController::class, 'store'])->name('pos.devices.store');
     Route::put('/pos/devices/update/{id}', [PosDeviceController::class, 'update'])->name('pos.devices.update');
 
+
+    Route::group(['prefix' => 'currencies'], function () {
+        Route::post('/delete-multiple', [CurrencyController::class, 'deleteMultiple'])->name('currencies.deleteMultiple');
+    });
 });
 
 // Recursos con acceso público
