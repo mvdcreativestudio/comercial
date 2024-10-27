@@ -678,30 +678,17 @@ $(document).ready(function () {
 
     // Event listener para el botón "Seleccionar"
     $('.btn-select-client').on('click', function () {
-      const selectedClient = $(this).data('client'); // Obtenemos el cliente seleccionado
-      const clientId = selectedClient.id;
-    
-      // Guardar el cliente en la sesión
-      saveClientToSession(selectedClient)
+      const client = $(this).data('client');
+      showClientInfo(client);
+
+      saveClientToSession(client)
         .done(function () {
-          // Actualizamos la variable `client`
-          client = selectedClient;
-    
-          // Muestra la información del cliente
-          showClientInfo(client);
-    
-          // Ahora que el cliente está guardado, cargamos su lista de precios
-          loadClientAndPriceList(clientId); // Verificar si aquí se pasa el ID correcto
+          loadClientFromSession();
         })
         .fail(function (xhr) {
           mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
         });
     });
-    
-  
-  
-
-  
   }
 
   function loadClientAndPriceList(clientId) {
@@ -1033,7 +1020,7 @@ $(document).ready(function () {
     const subtotal = parseFloat($('.subtotal').text().replace(/[^\d.-]/g, '')) || 0;
 
     // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
-    if (total > 600 && (!client || !client.id)) {
+    if (total > 12000 && (!client || !client.id)) {
       mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado a la venta. Puede seleccionar uno existente o crear uno nuevo.');
       return;
     }

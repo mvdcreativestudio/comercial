@@ -101,6 +101,7 @@ return [
 
     // CRM y Clientes
     'access_clients' => 'Acceder a Clientes',
+    'access_client-sensitive-data' => 'Acceder a Datos Sensibles de Clientes (RUT o CI)',
     'access_crm' => 'Acceder a CRM',
 
     // Marketing y Omnicanalidad

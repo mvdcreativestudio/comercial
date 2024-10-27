@@ -87,8 +87,6 @@ class ClientController extends Controller
                         'client_id' => $client->id,
                         'price_list_id' => $priceListId
                     ]);
-                } else {
-                    return redirect()->route('clients.index')->with('error', 'La lista de precios seleccionada no existe.');
                 }
             }
     
@@ -109,20 +107,21 @@ class ClientController extends Controller
     {
         // Obtén el cliente con sus listas de precios asociadas
         $client = $this->clientRepository->getClientById($id);
-        
-        if(Auth::user()->can('view_all_price-lists')) {
+    
+        if (Auth::user()->can('view_all_price-lists')) {
             $priceLists = PriceList::all();
         } else {
             $priceLists = PriceList::where('store_id', Auth::user()->store_id)->get();
         }
-
-        // Si el cliente tiene listas de precios, únelas en una cadena separada por comas
-        $priceListNames = $client->priceLists->isNotEmpty()
-        ? $client->priceLists->pluck('name')->implode(', ')
-        : 'Sin lista de precios asignada';
-
-        return view('content.clients.show', compact('client', 'priceLists', 'priceListNames'));
+    
+        // Obtener la primera lista de precios asignada al cliente, o mostrar un mensaje si no hay lista asignada
+        $priceListName = $client->priceLists->isNotEmpty()
+            ? $client->priceLists->first()->name
+            : 'Sin lista de precios asignada';
+    
+        return view('content.clients.show', compact('client', 'priceLists', 'priceListName'));
     }
+    
 
     /**
      * Muestra el formulario para editar un cliente existente.
@@ -208,23 +207,39 @@ class ClientController extends Controller
         return $this->clientRepository->getClientsForDatatable();
     }
     
+    public function getProductsByPriceList($priceListId)
+    {
+        // Obtener los productos y el precio específico de la lista de precios desde la tabla price_list_products
+        $products = Product::select('products.id', 'products.name', 'price_list_products.price')
+            ->join('price_list_products', 'products.id', '=', 'price_list_products.product_id')
+            ->where('price_list_products.price_list_id', $priceListId)
+            ->get();
+    
+        return response()->json(['products' => $products]);
+    }
 
     public function getClientPriceList($clientId)
     {
         // Buscar el cliente por ID
         $client = Client::with('priceLists')->find($clientId);
-
+    
         if (!$client) {
             return response()->json(['error' => 'Cliente no encontrado'], 404);
         }
-
-        // Verificar si el cliente tiene una lista de precios asociada
+    
+        // Inicializamos $priceListName como 'Sin lista de precios asignada'
         $priceListId = null;
+        $priceListName = 'Sin lista de precios asignada';
+    
+        // Verificar si el cliente tiene una lista de precios asociada
         if ($client->priceLists->isNotEmpty()) {
             $priceListId = $client->priceLists->first()->id; // Obtenemos el primer ID de lista de precios
             $priceListName = $client->priceLists->first()->name; // Obtenemos el nombre de la lista de precios
         }
 
+        $rut = $client->rut;
+        $ci = $client->ci;
+    
         return response()->json([
             'client' => [
                 'id' => $client->id,
@@ -233,11 +248,13 @@ class ClientController extends Controller
                 'type' => $client->type,
                 'company_name' => $client->company_name,
                 'price_list_id' => $priceListId,
-                'price_list_name' => $priceListName
+                'price_list_name' => $priceListName,
+                'ci' => $ci,
+                'rut' => $rut
             ]
         ]);
     }
-
+    
     public function getPriceLists($clientId)
     {
         try {

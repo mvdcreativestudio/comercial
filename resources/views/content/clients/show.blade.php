@@ -179,21 +179,23 @@
               @endif
             </span>
           </li>
-          @if($client->type == 'individual')
-            <li class="mb-3">
-              <span class="fw-medium me-2">CI:</span>
-              <span>{{ $client->ci }}</span>
-            </li>
-          @endif
-          @if($client->type == 'company')
-            <li class="mb-3">
-              <span class="fw-medium me-2">Razón Social:</span>
-              <span>{{ $client->company_name }}</span>
-            </li>
-            <li class="mb-3">
-              <span class="fw-medium me-2">RUT:</span>
-              <span>{{ $client->rut }}</span>
-            </li>
+          @if(Auth::user()->can('access_client-sensitive-data'))
+            @if($client->type == 'individual')
+              <li class="mb-3">
+                <span class="fw-medium me-2">CI:</span>
+                <span>{{ $client->ci }}</span>
+              </li>
+            @endif
+            @if($client->type == 'company')
+              <li class="mb-3">
+                <span class="fw-medium me-2">Razón Social:</span>
+                <span>{{ $client->company_name }}</span>
+              </li>
+              <li class="mb-3">
+                <span class="fw-medium me-2">RUT:</span>
+                <span>{{ $client->rut }}</span>
+              </li>
+            @endif
           @endif
           <li class="mb-3">
             <span class="fw-medium me-2">Email:</span>
@@ -220,7 +222,7 @@
           </li>
           <li class="mb-3">
             <span class="fw-medium me-2">Listas de Precios:</span>
-            <span>{{ $priceListNames }}</span>
+            <span>{{ $priceListName }}</span>
           </li>
           
         </ul>
