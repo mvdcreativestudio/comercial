@@ -85,7 +85,7 @@
                   <p class="mb-1"><strong id="client-doc-label" class="text-muted">CI:</strong> <span id="client-doc" class="text-body fw-bold">-</span></p>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <p class="mb-1"><strong class="text-muted">Lista de Precios:</strong> <span id="client-price-list" class="text-body fw-bold">-</span></p>
+                  <p class="mb-1"><strong class="text-muted">Lista de Precios Predefinida:</strong> <span id="client-price-list" class="text-body fw-bold">-</span></p>
                 </div>
               </div>
             </div>
@@ -158,12 +158,27 @@
         </div>
       </div>
 
-      <div class="card shadow-sm p-4 bg-light">
-        <h5 class="card-title mb-4 text-primary">Método de pago</h5>
+      <div class="discount-section mt-3">
+        <div class="card shadow-sm p-3 mb-3 border-0">
+            <h5 class="mb-3 font-weight-bold">Lista de Precios</h5>
+            <div class="mb-3 mt-1">
+              <label class="form-label" for="manual_price_list_id">Lista de Precios</label>
+              <select id="manual_price_list_id" class="form-select form-select">
+                  <option value="" selected>Seleccionar Lista de Precios (Opcional)</option>
+                  @foreach($priceLists as $priceList)
+                      <option value="{{ $priceList->id }}">{{ $priceList->name }}</option>
+                  @endforeach
+              </select>
+            </div>
+        </div>
+      </div>
 
+      <div class="card shadow-sm p-4 bg-light">
+        <h5 class="mb-3 font-weight-bold">Pago y Envío</h5>
+      
         <div class="payment-options">
           <div class="payment-option mb-3">
-            <input class="btn-check" type="radio" name="paymentMethod" id="cash" autocomplete="off" checked>
+            <input class="btn-check" type="radio" name="paymentMethod" id="cash" autocomplete="off">
             <label class="btn btn-outline-primary w-100 text-start" for="cash">
               <i class="bx bx-money me-2"></i> Efectivo
             </label>
@@ -274,7 +289,7 @@
       <!-- Campo CI para Persona -->
       <div class="mb-3" id="ciField">
         <label for="ciCliente" class="form-label">CI <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" id="ciCliente" placeholder="Ingrese el CI">
+        <input type="text" class="form-control" id="ciCliente" placeholder="Ingrese el documento sin puntos ni guiones">
       </div>
 
       <!-- Campo RUT y Razón Social para Empresa -->

@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\OrderStatusChange;
 use App\Models\Product;
+use App\Models\CFE;
 use App\Repositories\AccountingRepository;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
+
 
 class OrderRepository
 {
@@ -75,22 +77,34 @@ class OrderRepository
     {
         Log::info('Iniciando el proceso de creación de orden', ['request' => $request->all()]);
 
-        $clientData = $this->extractClientData($request->validated());
+        // Extraer datos del cliente solo si client_id está presente
+        $clientData = $request->client_id ? $this->extractClientData($request->validated()) : [];
         $orderData = $this->prepareOrderData($request->payment_method, $request);
 
         DB::beginTransaction();
 
         try {
-            // Depurar la información del cliente y los datos de la orden antes de guardar
-            Log::info('Datos del cliente extraídos', ['clientData' => $clientData]);
-            Log::info('Datos de la orden preparados', ['orderData' => $orderData]);
-
-            $client = Client::firstOrCreate(['email' => $clientData['email']], $clientData);
-            Log::info('Cliente creado o encontrado', ['client_id' => $client->id]);
+            $client = null;
+            if ($request->client_id) {
+                // Si `client_id` está presente, intenta asociar el cliente existente
+                $client = Client::find($request->client_id);
+                if (!$client) {
+                    Log::warning('Client ID proporcionado no encontrado en la base de datos', ['client_id' => $request->client_id]);
+                }
+            } elseif (!empty($clientData)) {
+                // Si hay datos válidos de cliente, crea uno nuevo
+                $client = Client::firstOrCreate(['email' => $clientData['email']], $clientData);
+                Log::info('Cliente creado o encontrado', ['client_id' => $client->id]);
+            } else {
+                Log::info('No se recibió client_id ni datos de cliente; la orden se procesará sin cliente.');
+            }
+            
 
             $order = new Order($orderData);
-            $order->client()->associate($client);
-            Log::info('Orden creada, asociada al cliente', ['order' => $order]);
+            if ($client) {
+                $order->client()->associate($client);
+            }
+            Log::info('Orden creada, asociada al cliente si corresponde', ['order' => $order]);
 
             $order->save();
             Log::info('Orden guardada en la base de datos', ['order_id' => $order->id]);
@@ -102,8 +116,7 @@ class OrderRepository
             $order->save();
             Log::info('Orden actualizada con los productos');
 
-            // if payment_method is internalCredit
-            if ($request->payment_method === 'internalCredit') {
+            if ($request->payment_method === 'internalCredit' && $client) {
                 $this->createInternalCredit($order);
             }
 
@@ -115,8 +128,7 @@ class OrderRepository
             $store = $order->store;
             Log::info('Información de la tienda recuperada', ['store' => $store]);
 
-            // Verificar si se debe emitir una factura electrónica (CFE)
-            if ($store->automatic_billing) {
+            if ($store->automatic_billing && $client) {
                 $this->accountingRepository->emitCFE($order);
                 Log::info('Factura electrónica emitida', ['order_id' => $order->id]);
                 $order->update(['is_billed' => true]);
@@ -124,6 +136,7 @@ class OrderRepository
                 Log::info('No se emite factura electrónica para esta orden');
                 $order->update(['is_billed' => false]);
             }
+
             return $order;
         } catch (\Exception $e) {
             Log::error('Error durante la creación de la orden', ['exception' => $e->getMessage()]);
@@ -131,6 +144,9 @@ class OrderRepository
             throw $e;
         }
     }
+
+
+
 
     /**
      * Prepar los datos del cliente para ser almacenados en la base de datos.
@@ -142,21 +158,23 @@ class OrderRepository
     {
         Log::info('Extrayendo datos del cliente', ['validatedData' => $validatedData]);
 
-        $clientData = [
-            'name' => $validatedData['name'],
-            'lastname' => $validatedData['lastname'],
-            'type' => 'individual',
-            'state' => 'Montevideo',
-            'country' => 'Uruguay',
-            'address' => $validatedData['address'],
-            'phone' => $validatedData['phone'],
-            'email' => $validatedData['email'],
-        ];
+        if (isset($validatedData['name'], $validatedData['lastname'], $validatedData['email'])) {
+            return [
+                'name' => $validatedData['name'],
+                'lastname' => $validatedData['lastname'],
+                'type' => $validatedData['type'] ?? 'individual',
+                'state' => 'Montevideo',
+                'country' => 'Uruguay',
+                'address' => $validatedData['address'] ?? '-',
+                'phone' => $validatedData['phone'] ?? '123456789',
+                'email' => $validatedData['email'],
+            ];
+        }
 
-        Log::info('Datos del cliente procesados', ['clientData' => $clientData]);
-
-        return $clientData;
+        Log::info('No se encontró información completa para el cliente; omitiendo los datos de cliente');
+        return [];
     }
+
 
     /**
      * Prepara los datos del pedido para ser almacenados en la base de datos.
@@ -210,15 +228,31 @@ class OrderRepository
      */
     public function loadOrderRelations(Order $order)
     {
-        // Cargar las relaciones necesarias
+        // Cargar las relaciones necesarias, incluyendo 'invoices'
         return $order->load([
             'client',
             'statusChanges.user',
             'store',
             'coupon',
             'cashRegisterLog.cashRegister.user',
+            'invoices'
         ]);
     }
+    
+    /**
+     * Obtiene la factura específica asociada a un pedido.
+     * 
+     * @param int $orderId
+     * @return CFE|null
+     */
+    public function getSpecificInvoiceForOrder($orderId)
+    {
+        // Buscar la factura asociada al order_id con type 101 o 111
+        return CFE::where('order_id', $orderId)
+                ->whereIn('type', [101, 111])
+                ->first(); // Solo obtendrá la primera que coincida con el criterio
+    }
+
 
     /**
      * Elimina un pedido específico y reintegra el stock de los productos.
@@ -232,8 +266,14 @@ class OrderRepository
         DB::beginTransaction();
         try {
             $order = Order::findOrFail($orderId);
+    
+            // Verificar si hay CFEs asociados
+            if ($order->invoices()->exists()) {
+                throw new Exception("La orden no se puede eliminar porque tiene CFEs asociados.");
+            }
+    
+            // Procede con la eliminación si no hay CFEs
             if ($order->payment_status === 'paid' && $order->shipping_status === 'delivered') {
-                // Reintegrar el stock de los productos
                 $products = json_decode($order->products, true);
                 foreach ($products as $product) {
                     $productModel = Product::find($product['id']);
@@ -243,52 +283,68 @@ class OrderRepository
                     }
                 }
             }
+    
             // Eliminar la orden
             $order->delete();
-
+    
             DB::commit();
             Log::info("Orden {$orderId} eliminada y stock reintegrado correctamente.");
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error al eliminar la orden {$orderId}: " . $e->getMessage());
-            throw $e;
+    
+            // Log detallado del error
+            Log::error("Error al eliminar la orden {$orderId}: " . $e->getMessage(), [
+                'order_id' => $orderId,
+                'trace' => $e->getTraceAsString() // Añadir la traza del error para más detalles
+            ]);
+    
+            // Lanza la excepción con un mensaje personalizado
+            throw new Exception("No se pudo eliminar la orden debido a un error. Detalles: " . $e->getMessage());
         }
     }
+    
+
 
     /**
      * Obtiene los pedidos para la DataTable.
      *
+     * @param Request $request
      * @return mixed
      */
     public function getOrdersForDataTable(Request $request): mixed
     {
         $query = Order::select([
-            'orders.id',
-            'orders.uuid',
-            'orders.date',
-            'orders.time',
-            'orders.client_id',
-            'orders.store_id',
-            'orders.subtotal',
-            'orders.tax',
-            'orders.is_billed',
-            'orders.shipping',
-            'orders.coupon_id',
-            'orders.coupon_amount',
-            'orders.discount',
-            'orders.total',
-            'orders.products',
-            'orders.payment_status',
-            'orders.shipping_status',
-            'orders.payment_method',
-            'orders.shipping_method',
-            'orders.shipping_tracking',
-            'clients.email as client_email',
-            'stores.name as store_name',
-            DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name"),
-        ])
-        ->join('clients', 'orders.client_id', '=', 'clients.id')
-        ->join('stores', 'orders.store_id', '=', 'stores.id');
+                'orders.id',
+                'orders.uuid',
+                'orders.date',
+                'orders.time',
+                'orders.client_id',
+                'orders.store_id',
+                'orders.subtotal',
+                'orders.tax',
+                'orders.is_billed',
+                'orders.shipping',
+                'orders.coupon_id',
+                'orders.coupon_amount',
+                'orders.discount',
+                'orders.total',
+                'orders.products',
+                'orders.payment_status',
+                'orders.shipping_status',
+                'orders.payment_method',
+                'orders.shipping_method',
+                'orders.shipping_tracking',
+                DB::raw("
+                    CASE 
+                        WHEN clients.type = 'company' THEN COALESCE(clients.company_name, 'Empresa sin nombre')
+                        ELSE COALESCE(CONCAT(clients.name, ' ', clients.lastname), 'Consumidor Final')
+                    END as client_name
+                "),
+                'clients.email as client_email',
+                'stores.name as store_name',
+            ])
+            ->leftJoin('clients', 'orders.client_id', '=', 'clients.id') // Usar leftJoin para permitir client_id null
+            ->join('stores', 'orders.store_id', '=', 'stores.id');
 
         // Verificar permisos del usuario
         if (!Auth::user()->can('view_all_ecommerce')) {
@@ -302,14 +358,14 @@ class OrderRepository
             $query->whereBetween('orders.date', [$startDate, $endDate]);
         }
 
-        // Aplicar siempre el orden descendente por fecha y hora
+        // Orden descendente por fecha y hora
         $query->orderBy('orders.date', 'desc')
-              ->orderBy('orders.time', 'desc'); // Orden adicional por hora si las fechas son iguales
+            ->orderBy('orders.time', 'desc');
 
-        $dataTable = DataTables::of($query)->make(true);
-
-        return $dataTable;
+        return DataTables::of($query)->make(true);
     }
+
+
 
 
     /**
@@ -350,13 +406,17 @@ class OrderRepository
     /**
      * Obtiene el conteo de ordenes del cliente.
      *
-     * @param int $clientId
+     * @param int|null $clientId
      * @return int
      */
-    public function getClientOrdersCount(int $clientId): int
+    public function getClientOrdersCount(?int $clientId): int
     {
+        if (is_null($clientId)) {
+            return 0;
+        }
         return Order::where('client_id', $clientId)->count();
     }
+
 
     /**
      * Actualiza el estado del pago de un pedido.

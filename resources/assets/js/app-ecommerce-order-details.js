@@ -66,3 +66,55 @@ $(function () {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Inicializar tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+
+  // Configurar evento de eliminación solo en botones habilitados
+  document.querySelectorAll('.delete-order:not([disabled])').forEach(button => {
+    button.addEventListener('click', function () {
+      const orderId = this.getAttribute('data-order-id');
+      const deleteUrl = `${baseUrl}admin/orders/${orderId}`;
+
+      Swal.fire({
+        title: '¿Eliminar venta?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire('Eliminado', data.message, 'success').then(() => {
+                window.location.href = `${baseUrl}admin/orders`; // Redirige al índice de órdenes
+              });
+            } else {
+              Swal.fire('Error', data.message, 'error');
+            }
+          })
+          .catch(() => {
+            Swal.fire('Error', 'No se pudo eliminar la venta. Intente nuevamente.', 'error');
+          });
+        }
+      });
+    });
+  });
+});
+
+
+

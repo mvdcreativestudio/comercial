@@ -149,7 +149,6 @@
       <thead>
         <tr>
           <th>Nombre del Rol</th>
-          <th>Guard Name</th>
           <th>Miembros</th>
           <th>Acciones</th>
         </tr>

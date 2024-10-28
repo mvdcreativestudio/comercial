@@ -201,11 +201,11 @@
         <label for="billed">Facturado</label>
       </div>
       <div class="col-md-2">
-        <label for="startDate">Fecha Desde</label>
+        <label for="startDate">Desde:</label>
         <input type="date" class="form-control date-range-filter" id="startDate" placeholder="Fecha de inicio">
       </div>
       <div class="col-md-2">
-        <label for="endDate">Fecha Hasta</label>
+        <label for="endDate">Hasta:</label>
         <input type="date" class="form-control date-range-filter" id="endDate" placeholder="Fecha de fin">
       </div>
       <div class="col-md-2 d-flex flex-column mt-2">

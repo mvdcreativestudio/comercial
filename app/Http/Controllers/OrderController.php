@@ -121,9 +121,15 @@ class OrderController extends Controller
         $order = $this->orderRepository->loadOrderRelations($order);
         $products = json_decode($order->products, true);
         $store = $order->store;
-        $clientOrdersCount = $this->orderRepository->getClientOrdersCount($order->client_id);
+        $invoice = $this->orderRepository->getSpecificInvoiceForOrder($order->id);
 
-        return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount'));
+
+        // Verificar si existe un client_id antes de llamar a getClientOrdersCount
+        $clientOrdersCount = $order->client_id 
+            ? $this->orderRepository->getClientOrdersCount($order->client_id)
+            : 0; // O cualquier valor predeterminado si no hay cliente
+
+        return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount', 'invoice'));
     }
 
     /**
@@ -135,14 +141,23 @@ class OrderController extends Controller
     public function destroy(int $id): JsonResponse
     {
         try {
+            $order = Order::findOrFail($id);
+    
+            // Verificar si la orden tiene CFE's asociados
+            if ($order->invoices()->exists()) {
+                return response()->json(['success' => false, 'message' => 'No se puede eliminar la venta porque tiene CFE\'s asociados.'], 400);
+            }
+    
+            // Proceder con la eliminación de la orden
             $this->orderRepository->destroyOrder($id);
-            return response()->json(['success' => true, 'message' => 'Pedido eliminado correctamente.']);
+    
+            return response()->json(['success' => true, 'message' => 'Venta eliminada correctamente.']);
         } catch (\Exception $e) {
             Log::info($e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Error al eliminar el pedido.'], 400);
+            return response()->json(['success' => false, 'message' => 'Error al eliminar la venta.'], 400);
         }
     }
-
+    
     /**
      * Obtiene los ventas para la DataTable.
      *
