@@ -20,8 +20,10 @@ class OrdersExport implements FromCollection, WithHeadings
         return collect($this->orders)->map(function ($order) {
             $products = json_decode($order['products'], true);
             $totalUtility = 0;
-
             foreach ($products as $product) {
+                if(!isset($product['id'])) {
+                    continue;
+                }
                 $productBuildPrice = Product::find($product['id'])->build_price;
                 $buildPrice = $productBuildPrice ?? 0;
                 if (isset($product['price'])) {

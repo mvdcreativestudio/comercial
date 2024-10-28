@@ -923,12 +923,12 @@ $(document).ready(function () {
         data.rut = rut.value.trim();
         data.company_name = razonSocial.value.trim();
     }
-
     // Realizar la petición para crear el cliente
-    fetch('client', {
+    fetch(`${baseUrl}admin/clients`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
         body: JSON.stringify(data)

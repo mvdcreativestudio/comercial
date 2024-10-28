@@ -68,25 +68,25 @@ class ClientController extends Controller
      * @param StoreClientRequest $request
      * @return RedirectResponse
      */
-    public function store(StoreClientRequest $request): RedirectResponse
+    public function store(StoreClientRequest $request)
     {
         try {
             // Validar los datos del cliente
             $validatedData = $request->validated();
-    
+
             // Obtener la configuración de la tienda si se requiere
             $companySettings = CompanySettings::first();
             if ($companySettings->clients_has_store == 1) {
                 $validatedData['store_id'] = Auth::user()->store_id;
             }
-    
+
             // Crear el cliente en la base de datos
             $client = $this->clientRepository->createClient($validatedData);
-    
+
             // Si se ha proporcionado una lista de precios, vincularla con el cliente
             if ($request->has('price_list_id')) {
                 $priceListId = $request->input('price_list_id');
-    
+
                 // Asegurarse de que la lista de precios existe
                 $priceListExists = DB::table('price_lists')->where('id', $priceListId)->exists();
                 if ($priceListExists) {
@@ -97,10 +97,29 @@ class ClientController extends Controller
                     ]);
                 }
             }
-    
+
+            // Check if the request expects a JSON response
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cliente creado correctamente.',
+                    'client' => $client
+                ]);
+            }
+
             return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente.');
         } catch (\Throwable $th) {
             Log::error('Error al crear cliente: ' . $th->getMessage(), ['trace' => $th->getTraceAsString()]);
+
+            // Check if the request expects a JSON response
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al crear el cliente.',
+                    'error' => $th->getMessage()
+                ], 500);
+            }
+
             return redirect()->route('clients.index')->with('error', 'Error al crear el cliente.');
         }
     }

@@ -7,6 +7,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Repositories\AccountingRepository;
 use App\Repositories\OrderRepository;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -224,7 +225,6 @@ class OrderController extends Controller
     public function exportExcel(Request $request)
     {
         try {
-            // Obtener los filtros de la solicitud
             $client = $request->input('client');
             $company = $request->input('company');
             $payment = $request->input('payment');
@@ -232,12 +232,29 @@ class OrderController extends Controller
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
 
-            // Llamar al método del repositorio que obtiene los datos filtrados
             $orders = $this->orderRepository->getOrdersForExport($client, $company, $payment, $billed, $startDate, $endDate);
-
-            // Exportar a Excel utilizando Maatwebsite\Excel
             return Excel::download(new OrdersExport($orders), 'orders-'.date('Y-m-d_H-i-s').'.xlsx');
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->back()->with('error', 'Error al exportar las ventas. Por favor, intente nuevamente.');
+        }
+    }
+
+    public function exportPdf(Request $request)
+    {
+        try {
+            $client = $request->input('client');
+            $company = $request->input('company');
+            $payment = $request->input('payment');
+            $billed = $request->input('billed');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            $orders = $this->orderRepository->getOrdersForExport($client, $company, $payment, $billed, $startDate, $endDate);
+            $pdf = Pdf::loadView('content.e-commerce.backoffice.orders.order-pdf', compact('orders'));
+            return $pdf->download('orders-'.date('Y-m-d_H-i-s').'.pdf');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
             Log::error($e->getMessage());
             return redirect()->back()->with('error', 'Error al exportar las ventas. Por favor, intente nuevamente.');
         }

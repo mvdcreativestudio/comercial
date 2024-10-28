@@ -206,7 +206,7 @@ Route::middleware([
     Route::get('/pdv/products/{id}', [CashRegisterLogController::class, 'getProductsByCashRegister']);
     Route::get('/pdv/flavors', [CashRegisterLogController::class, 'getFlavorsForCashRegister']);
     Route::get('/pdv/categories', [CashRegisterLogController::class, 'getFathersCategories']);
-    Route::post('/pdv/client', [CashRegisterLogController::class, 'storeClient']);
+    // Route::post('/pdv/client', [CashRegisterLogController::class, 'storeClient']);
     Route::get('/pdv/log/{id}', [CashRegisterLogController::class, 'getCashRegisterLog']);
 
     Route::get('/pdv/product-categories', [CashRegisterLogController::class, 'getCategories']);
@@ -307,6 +307,7 @@ Route::middleware([
 
     // EXCEL ORDERS
     Route::get('/orders-export-excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
+    Route::get('/orders-export-pdf', [OrderController::class, 'exportPdf'])->name('orders.pdf');
     // Gestión de Ordenes
     Route::get('/orders/{order}/show', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
