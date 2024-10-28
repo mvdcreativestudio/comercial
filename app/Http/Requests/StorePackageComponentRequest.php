@@ -19,7 +19,7 @@ class StorePackageComponentRequest extends FormRequest
             'type' => 'required|in:cap,label',
             'stock' => 'required|integer|min:0',
             'cost' => 'required|numeric|min:0',
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
         ];
     }
 }

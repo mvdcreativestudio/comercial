@@ -118,7 +118,7 @@
         <!-- Botón para abrir el offcanvas alineado a la derecha -->
         <div class="d-flex justify-content-end mb-4">
             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTapLabel" aria-controls="offcanvasTapLabel">
-                Crear 
+                Crear
             </button>
         </div>
 
@@ -193,6 +193,13 @@
             <div class="mb-3">
                 <label for="stock" class="form-label">Stock</label>
                 <input type="number" class="form-control" id="stock" name="stock" required>
+            </div>
+            <div class="mb-3">
+                <label for="is_sellable" class="form-label">Es vendible</label>
+                <select class="form-control" id="is_sellable" name="is_sellable" required>
+                    <option value="1">Sí</option>
+                    <option value="0">No</option>
+                </select>
             </div>
             <div class="mb-3">
                 <label for="cost" class="form-label">Costo</label>

@@ -85,4 +85,24 @@ $(document).ready(function () {
             alert('Error updating stock');
         });
     });
+
+    const isSellableSelect = document.getElementById('is_sellable');
+    const priceContainer = document.getElementById('price').closest('.mb-3'); // Get the entire price div container
+
+    updatePriceVisibility(isSellableSelect.value);
+
+    isSellableSelect.addEventListener('change', function() {
+        updatePriceVisibility(this.value);
+    });
+
+    function updatePriceVisibility(value) {
+        if (value === "0") { 
+            priceContainer.style.display = 'none'; 
+            document.getElementById('price').value = '';
+            document.getElementById('price').required = false; 
+        } else {
+            priceContainer.style.display = 'block';
+            document.getElementById('price').required = true; 
+        }
+    }
 });
