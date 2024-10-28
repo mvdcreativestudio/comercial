@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\Product;
 use App\Models\Client;
 use App\Models\PriceList;
+use App\Models\Store;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -46,11 +47,18 @@ class ClientController extends Controller
         // Cargar las configuraciones de la empresa
         $companySettings = CompanySettings::first();
         $store = Auth::user()->store_id;
+
+        // Verificar si el usuario tiene permiso para acceder a todas las tiendas o solo a las suyas
+        if (Auth::user()->can('view_all_stores') && Auth::user()->can('view_all_price-lists')) {
+            $stores = Store::select('id', 'name')->get();
+        } else {
+            $stores = Store::select('id', 'name')->where('id', Auth::user()->store_id)->get();
+        }
     
         // Obtener todas las listas de precios disponibles
         $priceLists = PriceList::all();
     
-        return view('content.clients.clients', compact('companySettings', 'store', 'priceLists'));
+        return view('content.clients.clients', compact('companySettings', 'store', 'priceLists', 'stores'));
     }
     
 
@@ -117,7 +125,7 @@ class ClientController extends Controller
         // Obtener la primera lista de precios asignada al cliente, o mostrar un mensaje si no hay lista asignada
         $priceListName = $client->priceLists->isNotEmpty()
             ? $client->priceLists->first()->name
-            : 'Sin lista de precios asignada';
+            : 'Sin lista de precios';
     
         return view('content.clients.show', compact('client', 'priceLists', 'priceListName'));
     }
@@ -227,9 +235,9 @@ class ClientController extends Controller
             return response()->json(['error' => 'Cliente no encontrado'], 404);
         }
     
-        // Inicializamos $priceListName como 'Sin lista de precios asignada'
+        // Inicializamos $priceListName como 'Sin lista de precios '
         $priceListId = null;
-        $priceListName = 'Sin lista de precios asignada';
+        $priceListName = 'Sin lista de precios';
     
         // Verificar si el cliente tiene una lista de precios asociada
         if ($client->priceLists->isNotEmpty()) {

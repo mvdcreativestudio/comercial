@@ -28,6 +28,11 @@
 
 @section('page-script')
 @vite('resources/assets/js/clients-list.js')
+<script>
+  // Definir si el usuario tiene permiso
+  window.hasSensitiveDataAccess = @json(Auth::user()->can('access_client-sensitive-data'));
+</script>
+
 @endsection
 
 @section('content')
@@ -114,7 +119,7 @@
         <!-- Campo CI para Persona -->
         <div class="mb-3" id="ciField">
             <label class="form-label" for="ci">CI <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="ci" placeholder="Ingrese el CI" name="ci" required />
+            <input type="text" class="form-control" id="ci" placeholder="Ingrese el documento sin puntos ni guiones" name="ci" required />
         </div>
     
         <!-- Campo Razón Social y RUT para Empresa -->
@@ -169,14 +174,16 @@
       
       <!-- Selección de lista de precios -->
       <div class="mb-3 mt-3">
-          <label class="form-label" for="price_list_id">Lista de Precios</label>
-          <select id="price_list_id" class="form-select form-select" name="price_list_id">
-              <option value="" selected>Seleccionar Lista de Precios</option>
-              @foreach($priceLists as $priceList)
-                  <option value="{{ $priceList->id }}">{{ $priceList->name }}</option>
-              @endforeach
-          </select>
+        <label class="form-label" for="price_list_id">Lista de Precios</label>
+        <select id="price_list_id" class="form-select form-select" name="price_list_id">
+            <option value="" selected>Seleccionar Lista de Precios</option>
+            @foreach($priceLists as $priceList)
+                <option value="{{ $priceList->id }}">{{ $priceList->name }}</option>
+            @endforeach
+        </select>
+        <small class="text-primary mt-2" id="createNewPriceListLink" style="cursor: pointer;">Crear nueva lista de precios</small>
       </div>
+
       
 
       <div class="pt-3">
@@ -187,7 +194,44 @@
   </div>
 </div>
 
-<style>
+<!-- Modal para Crear Lista de Precios -->
+<div class="modal fade" id="createPriceListModal" tabindex="-1" aria-labelledby="createPriceListModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="createPriceListForm" action="{{ route('price-lists.store') }}" method="POST">
+        @csrf
+        <input type="hidden" name="source" value="clients"> <!-- Campo oculto para la vista de origen -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="createPriceListModalLabel">Crear Lista de Precios</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Campos del formulario -->
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre de la Lista</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Descripción (Opcional)</label>
+            <textarea class="form-control" id="description" name="description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="store_id" class="form-label">Tienda</label>
+            <select id="store_id" name="store_id" class="form-select" required>
+              <option value="">Seleccionar Tienda</option>
+              @foreach($stores as $store)
+                <option value="{{ $store->id }}">{{ $store->name }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-primary">Crear Lista de Precios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-</style>
 @endsection

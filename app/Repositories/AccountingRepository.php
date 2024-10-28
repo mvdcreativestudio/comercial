@@ -124,12 +124,12 @@ class AccountingRepository
           return [
               'id' => $invoice->id,
               'store_name' => $invoice->order->store->name ?? 'N/A',
-              'client_name' => $invoice->order->client->name ?? 'N/A',
-              'client_email' => $invoice->order->client->email ?? 'N/A',
-              'client_lastname' => $invoice->order->client->lastname ?? 'N/A',
+              'client_name' => $invoice->order->client->name ?? 'Consumidor Final',
+              'client_email' => $invoice->order->client->email ?? '',
+              'client_lastname' => $invoice->order->client->lastname ?? '',
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
-              'type' => $typeCFEs[$invoice->type] ?? 'N/A',
+              'type' => $typeCFEs[$invoice->type] ?? '',
               'currency' => 'UYU',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
@@ -147,7 +147,7 @@ class AccountingRepository
               'associated_id' => $invoice->main_cfe_id,
               'is_receipt' => $invoice->is_receipt,
               'hide_emit' => $invoice->hide_emit,
-              'status' => $invoice->status ?? 'N/A',
+              'status' => $invoice->status ?? '',
           ];
       });
     }
@@ -190,12 +190,12 @@ class AccountingRepository
           return [
               'id' => $invoice->id,
               'store_name' => $invoice->order->store->name ?? 'N/A',
-              'client_name' => $invoice->order->client->name ?? 'N/A',
-              'client_email' => $invoice->order->client->email ?? 'N/A',
-              'client_lastname' => $invoice->order->client->lastname ?? 'N/A',
+              'client_name' => $invoice->order->client->name ?? 'Consumidor Final',
+              'client_email' => $invoice->order->client->email ?? '',
+              'client_lastname' => $invoice->order->client->lastname ?? '',
               'date' => $invoice->emitionDate,
               'order_id' => $invoice->order->id,
-              'type' => $typeCFEs[$invoice->type] ?? 'N/A',
+              'type' => $typeCFEs[$invoice->type] ?? '',
               'currency' => 'UYU',
               'total' => $invoice->total,
               'qrUrl' => $invoice->qrUrl,
@@ -213,7 +213,7 @@ class AccountingRepository
               'associated_id' => $invoice->main_cfe_id,
               'is_receipt' => $invoice->is_receipt,
               'hide_emit' => $invoice->hide_emit,
-              'status' => $invoice->status ?? 'N/A'
+              'status' => $invoice->status ?? ''
           ];
       });
     }
@@ -526,8 +526,8 @@ class AccountingRepository
             'Items' => $items,
         ];
 
-        // Verificar que el cliente no es de tipo 'no-client' y tiene datos válidos
-        if ($client && $client->type !== 'no-client') {
+        // Verificar que el cliente tiene datos válidos
+        if ($client) {
             $cfeData['Receptor'] = [
                 'TipoDocRecep' => $client->type === 'company' ? 2 : 3,
                 'CodPaisRecep' => 'UY',
@@ -779,8 +779,8 @@ class AccountingRepository
         ]
       ];
 
-      // Comprobar si existe un cliente y no es de tipo 'no-client'
-      if ($order->client && $order->client->type !== 'no-client') {
+      // Comprobar si existe un cliente
+      if ($order->client) {
         $notaData['Receptor'] = [
             'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
             'CodPaisRecep' => 'UY',
@@ -1029,8 +1029,8 @@ class AccountingRepository
             ]
         ];
 
-        // Comprobar si existe un cliente y no es de tipo 'no-client'
-        if ($invoice->order->client && $invoice->order->client->type !== 'no-client') {
+        // Comprobar si existe un cliente
+        if ($invoice->order->client) {
             $data['Receptor'] = [
                 'TipoDocRecep' => $invoice->type == 111 ? 2 : 3, // 2 para RUC si es una eFactura, 3 para CI si es un eTicket
                 'CodPaisRecep' => 'UY',

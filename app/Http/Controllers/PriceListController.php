@@ -76,10 +76,20 @@ class PriceListController extends Controller
     {
         // Guardar la nueva lista de precios
         $priceList = $this->priceListRepo->createPriceList($request->validated());
-    
-        // Redirigir a la página de edición para asignar precios
-        return redirect()->route('price-lists.edit', $priceList->id)->with('success', 'Lista de precios creada correctamente.');
+        
+        // Verificar el origen de la solicitud
+        $source = $request->input('source');
+
+        // Redirigir dependiendo de la vista de origen
+        if ($source === 'clients') {
+            // Redirigir a la vista de clientes si el origen es la vista de clientes
+            return redirect()->route('clients.index')->with('success', 'Lista de precios creada correctamente.');
+        } else {
+            // Si el origen es otra vista, redirigir a la edición de la lista de precios
+            return redirect()->route('price-lists.edit', $priceList->id)->with('success', 'Lista de precios creada correctamente.');
+        }
     }
+
     
 
     /**

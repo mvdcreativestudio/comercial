@@ -368,11 +368,15 @@ $(document).ready(function () {
         if (client && client.id) {
           showClientInfo(client);
           $('#client-selection-container').hide();
+          console.log('Cliente en loadClientFromSession:', client);
   
           // Si el cliente tiene una lista de precios, cargar los precios desde la lista
           if (client.price_list_id) {
             updateCartPricesWithPriceList(client.price_list_id);
+          } else {
+            $('#client-price-list').text('Sin lista de precios');
           }
+
         }
       },
       error: function (xhr) {
@@ -380,6 +384,24 @@ $(document).ready(function () {
       }
     });
   }
+  
+  function updateCartPrices() {
+    const selectedPriceListId = $('#manual_price_list_id').val();
+    const clientPriceListId = client && client.price_list_id;
+
+    // Usa la lista de precios seleccionada manualmente si existe, de lo contrario la del cliente
+    const priceListIdToUse = selectedPriceListId || clientPriceListId;
+
+    if (priceListIdToUse) {
+        updateCartPricesWithPriceList(priceListIdToUse);
+    } else {
+        loadCartFromSessionWithNormalPrices(); // Si no hay lista de precios seleccionada, usar precios normales
+    }
+  }
+
+  // Escucha cambios en el selector manual de listas de precios
+  $('#manual_price_list_id').on('change', updateCartPrices);
+
   
 
   function loadStoreIdFromSession() {
@@ -401,34 +423,28 @@ $(document).ready(function () {
     const clientDocLabel = client.type === 'company' ? 'RUT' : 'CI';
     const clientDoc = client.type === 'company' ? client.rut : client.ci;
     const fullName = `${client.name || '-'} ${client.lastname || ''}`.trim();
-
-    // Actualiza los elementos de la tarjeta de información del cliente
+    const clientPriceList = client.price_list_name;
+  
     $('#client-id').text(client.id || '-');
     $('#client-name').text(fullName);
     $('#client-type').text(clientType);
     $('#client-doc-label').text(clientDocLabel);
     $('#client-doc').text(clientDoc || 'No disponible');
-
+    $('#client-price-list').text(clientPriceList);
+  
     if (client.type === 'company') {
-        $('#client-company').html(`<strong class="text-muted">Razón Social:</strong> <span class="text-body fw-bold">${client.company_name || '-'}</span>`);
-        $('#client-company').show();
+      $('#client-company').html(`<strong class="text-muted">Razón Social:</strong> <span class="text-body fw-bold">${client.company_name || '-'}</span>`);
+      $('#client-company').show();
     } else {
-        $('#client-company').hide();
+      $('#client-company').hide();
     }
 
-    // Si el cliente tiene un price_list_id, mostrar el nombre de la lista de precios
-    if (client.price_list_id) {
-      $('#client-price-list').text(client.price_list_name); // Mostrar el nombre de la lista de precios
-    } else {
-      $('#client-price-list').text('Sin lista de precios');
-    }
-
-    // Muestra la tarjeta de información del cliente y oculta la sección de selección
+    console.log('Cliente en showClientInfo:', client);
+  
     $('#client-info').show();
     $('#client-selection-container').hide();
-    }
-
-
+  }
+  
 
 
   function saveCartToSession() {
@@ -684,6 +700,7 @@ $(document).ready(function () {
       saveClientToSession(client)
         .done(function () {
           loadClientFromSession();
+          loadClientAndPriceList(client.id);
         })
         .fail(function (xhr) {
           mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
@@ -706,6 +723,10 @@ $(document).ready(function () {
           // Si el cliente tiene una lista de precios, actualizamos los precios del carrito
           if (client.price_list_id) {
             updateCartPricesWithPriceList(client.price_list_id); // Esto debería funcionar si el ID es correcto
+            $('#client-price-list').text(client.price_list_name || 'No se pudo obtener el nombre de la lista de precios');
+
+          } else {
+            loadCartFromSessionWithNormalPrices();
           }
         }
       },
@@ -715,8 +736,6 @@ $(document).ready(function () {
     });
   }
   
-
-
   function updateCartPricesWithPriceList(priceListId) {
     $.ajax({
         url: `${baseUrl}admin/price-list/${priceListId}/products`,
@@ -733,6 +752,9 @@ $(document).ready(function () {
                     // Actualizamos el precio del producto en el carrito
                     item.price = productInPriceList.price;
                     cartUpdated = true;
+                } else {
+                  loadCartFromSessionWithNormalPrices();
+
                 }
             });
 
@@ -1011,197 +1033,157 @@ $(document).ready(function () {
     ocultarError();
 
     const paymentMethod = $('input[name="paymentMethod"]:checked').attr('id');
-    const shippingStatus = $('#shippingStatus').val(); // Obtener el estado de entrega seleccionado
+    const shippingStatus = $('#shippingStatus').val();
     let cashSales = 0;
     let posSales = 0;
 
-    // Convertir los valores de texto formateados a números enteros
     const total = parseFloat($('.total').text().replace(/[^\d.-]/g, '')) || 0;
     const subtotal = parseFloat($('.subtotal').text().replace(/[^\d.-]/g, '')) || 0;
 
-    // Validación: Verificar si el total es mayor a 600 y si hay un cliente vinculado
+    // Validación para ventas mayores a 12000
     if (total > 12000 && (!client || !client.id)) {
-      mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado a la venta. Puede seleccionar uno existente o crear uno nuevo.');
-      return;
+        mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado a la venta. Puede seleccionar uno existente o crear uno nuevo.');
+        return;
     }
-
 
     if (paymentMethod === 'cash') {
-      cashSales = total;
+        cashSales = total;
     } else {
-      posSales = total;
+        posSales = total;
     }
 
-    if (paymentMethod === 'internalCredit') {
-      // validar si se selecciono un cliente
-      if (!client || !client.id) {
+    if (paymentMethod === 'internalCredit' && (!client || !client.id)) {
         mostrarError('Para ventas con crédito interno, es necesario tener un cliente asignado al pedido. Puede seleccionar uno existente o crear uno nuevo.');
         return;
-      }
-    }
-
-    // Definir docType y doc en función del tipo de cliente
-    let docType = null;
-    let doc = null;
-    if (client) {
-      if (client.type === 'company') {
-        docType = 2; // RUC para empresas
-        doc = client.rut;
-      } else {
-        docType = 3; // CI para individuos
-        doc = client.ci ? client.ci : '00000000'; // Usar '12345678' si no hay CI
-      }
-    } else {
-      docType = 3; // Por defecto, asumir CI para 'individual'
-      doc = '00000000';
     }
 
     const orderData = {
-      date: new Date().toISOString().split('T')[0],
-      hour: new Date().toLocaleTimeString('it-IT'),
-      cash_register_log_id: cashRegisterLogId,
-      cash_sales: cashSales,
-      pos_sales: posSales,
-      discount: discount,
-      client_id: client && client.id ? client.id : null,
-      client_type: client && client.type ? client.type : 'no-client',
-      products: JSON.stringify(cart.map(item => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        is_composite: item.isComposite || false  // Identificar si es un producto compuesto
-      }))),
-      subtotal: subtotal,
-      total: total - discount,
-      notes: $('textarea').val() || '',
-      store_id: sessionStoreId,
-      shipping_status: shippingStatus, // Agregar el estado de entrega
+        date: new Date().toISOString().split('T')[0],
+        hour: new Date().toLocaleTimeString('it-IT'),
+        cash_register_log_id: cashRegisterLogId,
+        cash_sales: cashSales,
+        pos_sales: posSales,
+        discount: discount,
+        products: JSON.stringify(cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            is_composite: item.isComposite || false
+        }))),
+        subtotal: subtotal,
+        total: total - discount,
+        notes: $('textarea').val() || '',
+        store_id: sessionStoreId,
+        shipping_status: shippingStatus
     };
 
-    // Primero, hacer el POST a pos-orders
-$.ajax({
-  url: `${baseUrl}admin/pos-orders`,
-  type: 'POST',
-  data: {
-    _token: $('meta[name="csrf-token"]').attr('content'),
-    ...orderData
-  },
-  success: function (response) {
-
-    // Validación más robusta para los datos del cliente
-    const isClientValid = client && Object.keys(client).length > 0;
-    const ordersData = {
-      date: orderData.date,
-      time: orderData.hour,
-      origin: 'physical',
-      client_id: orderData.client_id,
-      store_id: sessionStoreId,
-      products: orderData.products,
-      subtotal: orderData.subtotal,
-      tax: 0,
-      shipping: 0,
-      coupon_id: coupon ? coupon.coupon.id : null,
-      coupon_amount: coupon ? coupon.coupon.amount : 0,
-      discount: orderData.discount,
-      total: orderData.total,
-      estimate_id: null,
-      shipping_id: null,
-      payment_status: 'paid',
-      shipping_status: orderData.shipping_status,
-      payment_method: paymentMethod,
-      shipping_method: 'standard',
-      preference_id: null,
-      shipping_tracking: null,
-      is_billed: 0,
-      doc_type: docType,
-      document: doc,
-      name: isClientValid && client.name ? client.name : 'N/A',
-      lastname: isClientValid && client.lastname ? client.lastname : 'N/A',
-      address: isClientValid && client.address ? client.address : '-',
-      phone: isClientValid && client.phone ? client.phone : '123456789',
-      email: isClientValid && client.email ? client.email : 'no@email.com',
-      cash_register_log_id: cashRegisterLogId
-    };
-
-    // Hacer POST a orders
-    $.ajax({
-      url: `${baseUrl}admin/orders`,
-      type: 'POST',
-      data: {
-        _token: $('meta[name="csrf-token"]').attr('content'),
-        ...ordersData
-      },
-      success: function (response) {
-        clearCartAndClient()
-          .then(() => {
-            return Swal.fire({
-              customClass: {
-                popup: 'swal-popup',
-                title: 'swal-title',
-                content: 'swal-content',
-                confirmButton: 'btn btn-outline-primary',
-                cancelButton: 'btn btn-outline-danger'
-              },
-              title: 'Venta Realizada con Éxito',
-              text: 'La venta se ha realizado exitosamente.',
-              icon: 'success',
-              showCancelButton: userHasPermission('access_orders'),
-              confirmButtonText: userHasPermission('access_orders') ? 'Ver Venta' : 'Cerrar',
-              cancelButtonText: 'Cerrar',
-              timer: 5000,
-              timerProgressBar: true,
-              didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-              }
-            });
-          })
-          .then(result => {
-            if (result.isConfirmed && userHasPermission('access_orders')) {
-              clearCartAndClient().then(() => {
-                window.location.href = `${baseUrl}admin/orders/${response.order_uuid}/show`;
-              }).catch(error => {
-                console.error('Error al limpiar carrito y cliente:', error);
-                mostrarError(error);
-              });
-            } else {
-              clearCartAndClient().then(() => {
-                window.location.href = frontRoute;
-              }).catch(error => {
-                console.error('Error al limpiar carrito y cliente:', error);
-                mostrarError(error);
-              });
-            }
-          })
-          .catch(error => {
-            console.error('Error al limpiar carrito y cliente:', error);  // Capturar errores en el proceso de limpiar carrito
-            mostrarError(error);
-          });
-      },
-      error: function (xhr) {
-        console.error('Error al guardar la orden en /admin/orders:', xhr.responseText);  // Capturar errores en la creación de la orden
-        mostrarError('Error al guardar la orden en /admin/orders: ' + xhr.responseText);
-      }
-    });
-
-  },
-  error: function (xhr) {
-    console.error('Error al guardar en /admin/pos-orders:', xhr);  // Capturar error de pos-orders
-    if (xhr.responseJSON && xhr.responseJSON.errors) {
-      const errores = xhr.responseJSON.errors;
-      let mensajes = '';
-      for (const campo in errores) {
-        mensajes += `${errores[campo].join(', ')}<br>`;
-      }
-      mostrarError(mensajes);
-    } else {
-      mostrarError(xhr.responseJSON ? xhr.responseJSON.error : 'Error desconocido');
+    // Agregar datos de cliente solo si hay uno asociado
+    if (client && client.id) {
+        orderData.client_id = client.id;
     }
-  }
-});
 
-  }
+    // POST a pos-orders
+    $.ajax({
+        url: `${baseUrl}admin/pos-orders`,
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            ...orderData
+        },
+        success: function (response) {
+            const ordersData = {
+                ...orderData,
+                origin: 'physical',
+                payment_status: 'paid',
+                payment_method: paymentMethod,
+                shipping_method: 'standard',
+                coupon_id: coupon ? coupon.coupon.id : null,
+                coupon_amount: coupon ? coupon.coupon.amount : 0,
+                estimate_id: null,
+                shipping_id: null,
+                preference_id: null,
+                shipping_tracking: null,
+                is_billed: 0
+            };
+
+            $.ajax({
+                url: `${baseUrl}admin/orders`,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    ...ordersData
+                },
+                success: function (response) {
+                    clearCartAndClient()
+                        .then(() => {
+                            return Swal.fire({
+                                customClass: {
+                                    popup: 'swal-popup',
+                                    title: 'swal-title',
+                                    content: 'swal-content',
+                                    confirmButton: 'btn btn-outline-primary',
+                                    cancelButton: 'btn btn-outline-danger'
+                                },
+                                title: 'Venta Realizada con Éxito',
+                                text: 'La venta se ha realizado exitosamente.',
+                                icon: 'success',
+                                showCancelButton: userHasPermission('access_orders'),
+                                confirmButtonText: userHasPermission('access_orders') ? 'Ver Venta' : 'Cerrar',
+                                cancelButtonText: 'Cerrar',
+                                timer: 5000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                                }
+                            });
+                        })
+                        .then(result => {
+                            if (result.isConfirmed && userHasPermission('access_orders')) {
+                                clearCartAndClient().then(() => {
+                                    window.location.href = `${baseUrl}admin/orders/${response.order_uuid}/show`;
+                                }).catch(error => {
+                                    console.error('Error al limpiar carrito y cliente:', error);
+                                    mostrarError(error);
+                                });
+                            } else {
+                                clearCartAndClient().then(() => {
+                                    window.location.href = frontRoute;
+                                }).catch(error => {
+                                    console.error('Error al limpiar carrito y cliente:', error);
+                                    mostrarError(error);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al limpiar carrito y cliente:', error);
+                            mostrarError(error);
+                        });
+                },
+                error: function (xhr) {
+                    console.error('Error al guardar la orden en /admin/orders:', xhr.responseText);
+                    mostrarError('Error al guardar la orden en /admin/orders: ' + xhr.responseText);
+                }
+            });
+        },
+        error: function (xhr) {
+            console.error('Error al guardar en /admin/pos-orders:', xhr);
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                const errores = xhr.responseJSON.errors;
+                let mensajes = '';
+                for (const campo in errores) {
+                    mensajes += `${errores[campo].join(', ')}<br>`;
+                }
+                mostrarError(mensajes);
+            } else {
+                mostrarError(xhr.responseJSON ? xhr.responseJSON.error : 'Error desconocido');
+            }
+        }
+    });
+}
+
+
 
   function clearCartAndClient() {
     return new Promise((resolve, reject) => {
@@ -1243,12 +1225,12 @@ $.ajax({
       mostrarError('Por favor, seleccione un método de pago.');
       return;
     }
-    if (paymentMethod === 'cash') {
+    if (paymentMethod !== 'debit' || paymentMethod !== 'credit') {
       postOrder();
     } else {
       // postOrder();
-      /** Descomentar para usar el POS */
 
+      /** Descomentar para usar el POS */
       obtenerTokenPos().done(function (response) {
         const token = response.access_token;
         enviarTransaccionPos(token);

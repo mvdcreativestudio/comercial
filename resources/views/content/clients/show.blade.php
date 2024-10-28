@@ -35,7 +35,7 @@
     <div class="card">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
-          <a href="{{ route('clients.index') }}" class="btn btn-primary">
+          <a href="{{ route('clients.index') }}" class="btn btn-sm btn-primary">
             <i class="bx bx-arrow-back me-1"></i>Volver a Clientes
           </a>
           <h2 class="card-title mb-0">

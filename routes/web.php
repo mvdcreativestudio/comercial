@@ -104,10 +104,12 @@ Route::middleware([
     Route::get('/invoices/received/datatable', [AccountingController::class, 'getReceivedCfesData'])->name('accounting.receivedCfesData');
     Route::get('/current-accounts/datatable', [CurrentAccountController::class, 'datatable'])->name('current-accounts.datatable');
     Route::get('/current-account-settings/datatable', [CurrentAccountSettingsController::class, 'datatable'])->name('current-account-settings.datatable');
-    // suppliers
+
+    // Suppliers
     Route::get('/incomes/datatable', [IncomeController::class, 'datatable'])->name('income.datatable');
     Route::get('/income-categories/datatable', [IncomeCategoryController::class, 'datatable'])->name('income-categories.datatable');
     Route::get('/currencies/datatable', [CurrencyController::class, 'datatable'])->name('currencies.datatable');
+
     // Stock de productos
     Route::get('/products/stock', [ProductController::class, 'stock'])->name('products.stock');
 
