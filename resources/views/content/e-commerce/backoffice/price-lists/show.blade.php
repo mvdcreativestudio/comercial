@@ -25,7 +25,7 @@
 @endsection
 
 @section('content')
-<div class="container-fluid">
+<div>
     <div class="d-flex align-items-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light">
         <div class="d-flex flex-column justify-content-center">
             <h4 class="mb-0 page-title">

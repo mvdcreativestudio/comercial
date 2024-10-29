@@ -12,6 +12,16 @@ $(document).ready(function () {
   let posResponsesConfig = {};
   $('#client-info').hide();
 
+  document.querySelectorAll('.card-header').forEach(header => {
+    header.addEventListener('click', function () {
+        const icon = this.querySelector('i');
+        icon.classList.toggle('bx-chevron-down');
+        icon.classList.toggle('bx-chevron-up');
+    });
+  });
+
+
+
   function limitTwoDecimals(event) {
     const input = event.target;
     let value = input.value;
@@ -694,17 +704,27 @@ $(document).ready(function () {
 
     // Event listener para el botón "Seleccionar"
     $('.btn-select-client').on('click', function () {
-      const client = $(this).data('client');
-      showClientInfo(client);
+      const selectedClient = $(this).data('client');
+      
+      showClientInfo(selectedClient);
 
-      saveClientToSession(client)
-        .done(function () {
-          loadClientFromSession();
-          loadClientAndPriceList(client.id);
-        })
-        .fail(function (xhr) {
-          mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
-        });
+      // Cerrar el offcanvas después de seleccionar el cliente
+      let offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasEnd'));
+      offcanvas.hide();
+
+      saveClientToSession(selectedClient)
+          .done(function () {
+              client = selectedClient; // Actualizamos la variable global 'client' al nuevo cliente
+              if(client.price_list_id) {
+                updateCartPricesWithPriceList(client.price_list_id); // Actualizar precios con la lista del nuevo cliente seleccionado
+              } else {
+                loadCartFromSessionWithNormalPrices(); // Si no hay lista de precios, cargar precios normales
+              }
+              console.log('Cliente seleccionado y lista de precios aplicada:', client);
+          })
+          .fail(function (xhr) {
+              mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
+          });
     });
   }
 
@@ -744,23 +764,24 @@ $(document).ready(function () {
             const priceListProducts = response.products;
             let cartUpdated = false;
 
-            // Iteramos sobre los productos del carrito y actualizamos sus precios
+            // Itera sobre los productos del carrito y actualiza sus precios
             cart.forEach(item => {
                 const productInPriceList = priceListProducts.find(p => p.id === item.id);
-
+                
                 if (productInPriceList) {
-                    // Actualizamos el precio del producto en el carrito
+                    // Si el producto está en la lista, aplica el precio de la lista
                     item.price = productInPriceList.price;
-                    cartUpdated = true;
                 } else {
-                  loadCartFromSessionWithNormalPrices();
-
+                    // Si el producto no está en la lista, restaura el precio original
+                    item.price = item.original_price;
                 }
+
+                cartUpdated = true;
             });
 
-            // Si el carrito fue actualizado, refrescamos la vista
+            // Actualiza la vista del carrito si se ha modificado
             if (cartUpdated) {
-                updateCheckoutCart(); // Refrescar la vista del carrito con los nuevos precios
+                updateCheckoutCart();
             }
         },
         error: function (xhr) {
@@ -768,8 +789,6 @@ $(document).ready(function () {
         }
     });
   }
-
-
 
 
   $('#search-client').on('input', function () {
@@ -997,6 +1016,9 @@ $(document).ready(function () {
         $('#client-company').hide();  // Ocultar razón social si había un cliente empresa seleccionado
         $('#client-info').hide();
         $('#client-selection-container').show();
+
+        // Forzar la actualización del carrito al precio normal
+        updateCheckoutCart();
       })
       .fail(function (xhr) {
         mostrarError('Error al guardar el cliente en la sesión: ' + xhr.responseText);
@@ -1007,21 +1029,20 @@ $(document).ready(function () {
   // Función para cargar el carrito desde la sesión con precios normales
   function loadCartFromSessionWithNormalPrices() {
     cart = cart.map(item => {
-        // Asegurar que original_price está presente y tiene un valor numérico
-        if (typeof item.original_price !== 'undefined' && !isNaN(item.original_price)) {
-            item.price = parseFloat(item.original_price);  // Restaurar el precio original
+        // Verifica si original_price es un número
+        if (typeof item.original_price === 'number' && !isNaN(item.original_price)) {
+            item.price = parseFloat(item.original_price); // Redondeamos a dos decimales
+            console.log(`Producto con Nombre ${item.name} restaurado a precio original: ${item.price}`);
         } else {
-            console.error(`Producto con ID ${item.id} no tiene original_price definido correctamente`);
-            item.price = 0; // Establecer un valor predeterminado de $0 en caso de error
+            console.error(`Producto con ID ${item.id} no tiene original_price definido correctamente o no es un número`);
+            item.price = 0; // Valor predeterminado en caso de error
         }
         return item;
     });
 
-    // Refrescar la vista del carrito con los precios normales
-    updateCheckoutCart();
+    // Actualizamos la vista para reflejar los cambios
+    updateCheckoutCart(); // Refresca la interfaz gráfica con el carrito actualizado
   }
-
-
 
 
   loadCartFromSession();
