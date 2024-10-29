@@ -70,13 +70,13 @@ class OrderRepository
 
         // Calcular el mejor cliente (mayor suma de ventas pagas)
         $bestClient = $ordersQuery->where('payment_status', 'paid')
+            ->whereNotNull('client_id')
             ->with('client')
             ->selectRaw('client_id, COUNT(*) as purchase_count, SUM(total) as total_spent')
             ->groupBy('client_id')
             ->orderBy('total_spent', 'desc')
-            ->with('client')
             ->first();
-        
+    
         return compact(
             'orders',
             'totalOrders',

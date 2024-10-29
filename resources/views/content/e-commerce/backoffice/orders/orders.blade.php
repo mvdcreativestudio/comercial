@@ -91,23 +91,32 @@ $currencySymbol = $settings->currency_symbol;
   <!-- Mejor Cliente -->
   @if($bestClient)
   <div class="col-sm-6 col-lg-3 mb-4">
-    <div class="card animated-card card-border-shadow-primary h-100">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2 pb-1">
-          <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-user"></i></span>
+    <a href="{{ route('clients.show', ['client' => $bestClient->client->id]) }}" class="text-decoration-none">
+      <div class="card animated-card card-border-shadow-primary h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2 pb-1">
+            <div class="avatar me-2">
+              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-user"></i></span>
+            </div>
+            <h4 class="ms-1 mb-0">Mejor Cliente</h4>
           </div>
-          <h4 class="ms-1 mb-0">Mejor Cliente: {{ $bestClient->client->name ?? 'N/A' }}
+          @if($bestClient->client->type == 'individual')
+            <p class="mb-1 fw-medium me-1">
+              {{ $bestClient->client->name ?? 'N/A' }} {{ $bestClient->client->lastname }}
+            </p>
+          @elseif($bestClient->client->type == 'company')
+            <p class="mb-1 fw-medium me-1">
+              {{ $bestClient->client->company_name }}
+            </p>    
+          @endif
+          <p class="mb-1 fw-medium me-1">Total Comprado: {{ $settings->currency_symbol }}{{ number_format($bestClient->total_spent, 2) }}</p>
+          <p class="mb-1 fw-medium me-1">Compras Realizadas: {{ $bestClient->purchase_count }}</p>
         </div>
-        <p class="mb-1 fw-medium me-1">Total Comprado: {{ $settings->currency_symbol }}{{ number_format($bestClient->total_spent, 2) }}</p>
-        <p class="mb-1 fw-medium me-1">Compras Realizadas: {{ $bestClient->purchase_count }}</p>
-        <p class="mb-0">
-          {{-- <span class="fw-medium me-1 text-success">+4.3%</span> --}}
-        </p>
       </div>
-    </div>
+    </a>
   </div>
 @endif
+
 </div>
 @endif
 
