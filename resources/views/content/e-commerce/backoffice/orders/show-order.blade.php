@@ -435,6 +435,7 @@ $changeTypeTranslations = [
 
 <!-- Modals -->
 @include('content/e-commerce/backoffice/orders/bill-order')
-@include('content/e-commerce/backoffice/orders/modal-send-email')
-
+@if($order->is_billed && isset($invoice))
+  @include('content/e-commerce/backoffice/orders/modal-send-email')
+@endif
 @endsection
