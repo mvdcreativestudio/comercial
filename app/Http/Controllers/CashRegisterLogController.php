@@ -45,7 +45,8 @@ class CashRegisterLogController extends Controller
         $storeId = $this->cashRegisterRepository->findStoreByCashRegisterId($openCashRegisterId);
         Session::put('open_cash_register_id', $openCashRegisterId);
         Session::put('store_id', $storeId);
-        return view('pdv.front', compact('products'));
+        $priceLists = PriceList::all();
+        return view('pdv.front', compact('products', 'priceLists'));
     }
 
     public function front2()
