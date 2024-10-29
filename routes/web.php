@@ -289,6 +289,8 @@ Route::middleware([
     Route::post('invoices/{invoice}/emit-receipt', [AccountingController::class, 'emitReceipt'])->name('invoices.emitReceipt');
     Route::post('invoices/update-cfes', [AccountingController::class, 'updateAllCfesStatus'])->name('invoices.updateCfes');
     Route::post('invoices/update-all-cfes', [AccountingController::class, 'updateAllCfesStatusForAllStores'])->name('invoices.updateAllStoresCfes');
+    // send email
+    Route::post('invoices/send-email', [AccountingController::class, 'sendEmail'])->name('invoices.sendEmail');
 
     Route::get('received-cfes', [AccountingController::class, 'receivedCfes'])->name('accounting.received_cfes');
 

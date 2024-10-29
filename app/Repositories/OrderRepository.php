@@ -76,7 +76,7 @@ class OrderRepository
             ->groupBy('client_id')
             ->orderBy('total_spent', 'desc')
             ->first();
-    
+
         return compact(
             'orders',
             'totalOrders',
@@ -369,18 +369,30 @@ class OrderRepository
         if ($request->input('search')) {
             $query->where(function ($query) use ($request) {
                 $query->where('orders.uuid', 'like', "%{$request->input('search')}%")
-                    ->orWhere('orders.id', 'like', "%{$request->input('search')}%");
-                // ->orWhere('clients.name', 'like', "%{$request->input('search')}%")
-                // ->orWhere('clients.lastname', 'like', "%{$request->input('search')}%")
+                    ->orWhere('orders.id', 'like', "%{$request->input('search')}%")
+                    ->orWhere('clients.name', 'like', "%{$request->input('search')}%")
+                    ->orWhere('clients.lastname', 'like', "%{$request->input('search')}%");
                 // ->orWhere('stores.name', 'like', "%{$request->input('search')}%");
             });
         }
 
         // filtrar por cliente
         if ($request->input('client')) {
-            $query->where(function ($query) use ($request) {
-                $query->where('clients.name', 'like', "%{$request->input('client')}%")
-                    ->orWhere('clients.lastname', 'like', "%{$request->input('client')}%");
+            $client = $request->input('client');
+            $clientParts = explode(' ', $client, 2); // Dividir en nombre y apellido
+
+            $query->where(function ($query) use ($clientParts) {
+                if (count($clientParts) == 2) {
+                    $query->where(function ($query) use ($clientParts) {
+                        $query->where('clients.name', 'like', "%{$clientParts[0]}%")
+                            ->where('clients.lastname', 'like', "%{$clientParts[1]}%")
+                            ->orWhere('clients.company_name', 'like', "%{$clientParts[0]}%");
+                    });
+                } else {
+                    $query->where('clients.name', 'like', "%{$clientParts[0]}%")
+                        ->orWhere('clients.lastname', 'like', "%{$clientParts[0]}%")
+                        ->orWhere('clients.company_name', 'like', "%{$clientParts[0]}%");
+                }
             });
         }
 

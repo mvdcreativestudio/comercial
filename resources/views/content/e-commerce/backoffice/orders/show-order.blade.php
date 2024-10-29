@@ -147,6 +147,10 @@ $changeTypeTranslations = [
     <a href="{{ route('invoices.download', ['id' => $invoice->id]) }}" class="btn btn-sm btn-label-info">
         PDF Factura
     </a>
+    {{-- send email --}}
+    <button type="button" class="btn btn-sm btn-label-info" data-bs-toggle="modal" data-bs-target="#sendEmailModal">
+      Enviar Factura por Correo
+    </button>
     @endif
     <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=download" class="btn btn-sm btn-label-primary">PDF Venta</a>
 
@@ -431,5 +435,6 @@ $changeTypeTranslations = [
 
 <!-- Modals -->
 @include('content/e-commerce/backoffice/orders/bill-order')
+@include('content/e-commerce/backoffice/orders/modal-send-email')
 
 @endsection

@@ -1,6 +1,5 @@
 'use strict';
 
-
 $(function () {
   let currencySymbol = window.currencySymbol;
   let uniqueClients = new Set();
@@ -90,10 +89,10 @@ $(function () {
           }
         } else {
           rows.forEach(function (orderData) {
-            if (orderData.client_name){
+            if (orderData.client_name) {
               uniqueClients.add(orderData.client_name);
             }
-            if (orderData.store_name){
+            if (orderData.store_name) {
               uniqueStore.add(orderData.store_name);
             }
             const paymentStatusText =
@@ -121,13 +120,13 @@ $(function () {
                   ? 'bg-warning'
                   : 'bg-danger';
 
-                  var titleCard = 'Orden #'
-                  if (orderData.client_name) {
-                    titleCard += `<h5 class="order-title">${orderData.client_name} ${orderData.client_last_name}</h5>`;
-                  }else{
-                    titleCard += `<h5 class="order-title">${orderData.company_name}</h5>`;
-                  }
-                  const card = `
+            var titleCard = 'Orden #';
+            if (orderData.client_name) {
+              titleCard += `<h5 class="order-title">${orderData.client_name} ${orderData.client_last_name}</h5>`;
+            } else {
+              titleCard += `<h5 class="order-title">${orderData.company_name}</h5>`;
+            }
+            const card = `
                   <div class="col-md-6 col-lg-4 col-12 mb-4">
                     <div class="order-card position-relative">
                       <div class="order-card-body">
@@ -216,25 +215,47 @@ $(function () {
     });
   });
   $('#exportExcel').on('click', function () {
-    var searchQuery = searchInput.val();
-    var paymentStatus = paymentStatusFilter.val();
-    var shippingStatus = shippingStatusFilter.val();
-    var client = clientFilter.val();
-    var store = storeFilter.val();
-    var startDate = startDateFilter.val();
-    var endDate = endDateFilter.val();
-    var params = {
-      search: searchQuery,
-      payment_status: paymentStatus,
-      shipping_status: shippingStatus,
-      client: client,
-      store: store,
-      start_date: startDate,
-      end_date: endDate
-    };
+    // Capture filter values
+    let searchQuery = searchInput.val();
+    let paymentStatus = paymentStatusFilter.val();
+    let shippingStatus = shippingStatusFilter.val();
+    let client = clientFilter.val();
+    let store = storeFilter.val();
+    let startDate = startDateFilter.val();
+    let endDate = endDateFilter.val();
 
-    var queryString = $.param(params);
-    window.location.href = exportUrl + '?' + queryString;
+    // Build the URL with valid parameters
+    let url = '/admin/orders-export-excel?';
+    let params = [];
+
+    // Verify and add parameters to the URL
+    if (searchQuery) {
+      params.push(`search=${encodeURIComponent(searchQuery)}`);
+    }
+    if (paymentStatus) {
+      params.push(`payment_status=${encodeURIComponent(paymentStatus)}`);
+    }
+    if (shippingStatus) {
+      params.push(`shipping_status=${encodeURIComponent(shippingStatus)}`);
+    }
+    if (client) {
+      params.push(`client=${encodeURIComponent(client)}`);
+    }
+    if (store) {
+      params.push(`store=${encodeURIComponent(store)}`);
+    }
+    if (startDate) {
+      params.push(`start_date=${encodeURIComponent(startDate)}`);
+    }
+    if (endDate) {
+      params.push(`end_date=${encodeURIComponent(endDate)}`);
+    }
+
+    // Join the parameters to the URL
+    url += params.join('&');
+
+    // Redirect to the export route, opening in a new tab
+    window.open(url, '_blank');
   });
 
   searchInput.on('input', function () {

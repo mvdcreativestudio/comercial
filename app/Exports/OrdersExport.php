@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Product;
+use DateTime;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -44,7 +45,7 @@ class OrdersExport implements FromCollection, WithHeadings
                 'id' => $order['id'],
                 'client_name' => $order['client_name'],
                 'store_name' => $order['store_name'],
-                'date' => $order['date'],
+                'date' => (new DateTime($order['date']))->format('d/m/Y'),
                 'total' => $order['total'],
                 'payment_status' => $paymenStatus,
                 'is_billed' => $order['is_billed'] ? 'Facturado' : 'No Facturado',
@@ -58,12 +59,12 @@ class OrdersExport implements FromCollection, WithHeadings
         return [
             'ID',
             'Cliente',
-            'Empresa',
+            'Tienda',
             'Fecha',
             'Total',
             'Estado de Pago',
             'Facturado',
-            'Utilidad',
+            'Ganancia',
         ];
     }
 }

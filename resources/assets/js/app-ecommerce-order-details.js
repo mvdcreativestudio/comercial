@@ -12,7 +12,7 @@ $(function () {
         {
           // Imagen del producto
           data: 'image',
-          render: function(data, type, full, meta) {
+          render: function (data, type, full, meta) {
             var imagePath = `${baseUrl}${data}`;
             return `
               <img src="${imagePath}"
@@ -24,15 +24,15 @@ $(function () {
         {
           // Nombre del producto con variaciones
           data: 'name',
-          render: function(data, type, row, meta) {
-              var flavors = row.flavors ? '<br><small>' + row.flavors + '</small>' : '';
-              return '<span>' + data + flavors + '</span>';
+          render: function (data, type, row, meta) {
+            var flavors = row.flavors ? '<br><small>' + row.flavors + '</small>' : '';
+            return '<span>' + data + flavors + '</span>';
           }
         },
         {
           // Precio del producto
           data: 'price',
-          render: function(data, type, full, meta) {
+          render: function (data, type, full, meta) {
             return `${currencySymbol}${parseFloat(data).toFixed(2)}`;
           }
         },
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
-      }).then((result) => {
+      }).then(result => {
         if (result.isConfirmed) {
           fetch(deleteUrl, {
             method: 'DELETE',
@@ -97,24 +97,81 @@ document.addEventListener('DOMContentLoaded', function () {
               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             }
           })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire('Eliminado', data.message, 'success').then(() => {
-                window.location.href = `${baseUrl}admin/orders`; // Redirige al índice de órdenes
-              });
-            } else {
-              Swal.fire('Error', data.message, 'error');
-            }
-          })
-          .catch(() => {
-            Swal.fire('Error', 'No se pudo eliminar la venta. Intente nuevamente.', 'error');
-          });
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Eliminado', data.message, 'success').then(() => {
+                  window.location.href = `${baseUrl}admin/orders`; // Redirige al índice de órdenes
+                });
+              } else {
+                Swal.fire('Error', data.message, 'error');
+              }
+            })
+            .catch(() => {
+              Swal.fire('Error', 'No se pudo eliminar la venta. Intente nuevamente.', 'error');
+            });
         }
       });
     });
   });
+
+  document.getElementById('sendEmailForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const invoiceId = document.getElementById('invoice_id').value;
+    const email = document.getElementById('email').value;
+    const formAction = this.getAttribute('action');
+
+    // Mostrar Swal de "Enviando..."
+    Swal.fire({
+      title: 'Enviando...',
+      text: 'Por favor, espera mientras enviamos la factura.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    fetch(formAction, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ email: email, invoice_id: invoiceId })
+    })
+      .then(response => response.json())
+      .then(data => {
+        Swal.close(); // Cerrar Swal de "Enviando..."
+
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Correo enviado correctamente',
+            showConfirmButton: false,
+            timer: 2000
+          });
+          // Cerrar el modal tras un envío exitoso
+          const modal = bootstrap.Modal.getInstance(document.getElementById('sendEmailModal'));
+          modal.hide();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al enviar el correo',
+            text: data.message || 'Ocurrió un error. Inténtalo nuevamente.',
+            showConfirmButton: true
+          });
+        }
+      })
+      .catch(error => {
+        Swal.close(); // Cerrar Swal de "Enviando..." en caso de error
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al enviar el correo',
+          text: 'Ocurrió un error. Inténtalo nuevamente.',
+          showConfirmButton: true
+        });
+      });
+  });
 });
-
-
-
