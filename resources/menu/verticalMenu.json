@@ -72,25 +72,11 @@
       "slug": "manufacturing",
       "submenu": [
         {
-          "id": "tour-sabores",
-          "name": "Sabores",
-          "icon": "menu-icon tf-icons bx bx-lemon",
-          "slug": "product-flavors",
-          "url": "/admin/product-flavors"
-        },
-        {
           "id": "tour-materias-primas",
           "name": "Materias Primas",
           "icon": "menu-icon tf-icons bx bx-box",
           "slug": "raw-materials",
           "url": "/admin/raw-materials"
-        },
-        {
-          "id": "productions",
-          "name": "Elaboraciones",
-          "icon": "menu-icon tf-icons bx bx-bowl-rice",
-          "slug": "productions",
-          "url": "/admin/productions"
         },
         {
           "id": "tour-proveedores",
@@ -103,8 +89,36 @@
           "id": "tour-ordenes-de-compra",
           "name": "Ordenes de Compra",
           "icon": "menu-icon tf-icons bx bx-receipt",
-          "slug": "supplier-orders",
-          "url": "/admin/supplier-orders"
+          "slug": "purchase-orders",
+          "url": "/admin/purchase-orders"
+        },
+        {
+          "id": "batches",
+          "name": "Lotes",
+          "icon": "menu-icon tf-icons bx bx-package",
+          "slug": "batches",
+          "url": "/admin/batches"
+        },
+        {
+          "id": "formulas",
+          "name": "Fórmulas",
+          "icon": "menu-icon tf-icons bx bx-test-tube",
+          "slug": "formulas",
+          "url": "/admin/formulas"
+        },
+        {
+          "id": "bulk-productions",
+          "name": "Elaboraciones",
+          "icon": "menu-icon tf-icons bx bx-atom",
+          "slug": "bulk-productions",
+          "url": "/admin/bulk-productions"
+        },
+        {
+          "id": "tour-packagings",
+          "name": "Envasados",
+          "icon": "menu-icon tf-icons bx bx-droplet",
+          "slug": "packagings",
+          "url": "/admin/packagings"
         }
       ]
     },

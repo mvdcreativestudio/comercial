@@ -15,121 +15,72 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
+
   var dt_product_table = $('.datatables-products');
 
   if (dt_product_table.length) {
     var dt_products = dt_product_table.DataTable({
       ajax: dt_product_table.data('ajax-url'),
       columns: [
-        { data: 'image' },
-        { data: 'name' },
-        { data: 'sku' },
+        { data: 'image' },       
+        { data: 'name' },        
+        { data: 'sku' },         
         {
-          data: 'description',
+          data: 'description',    
           render: function (data, type, row) {
             var div = document.createElement('div');
             div.innerHTML = data;
             return div.textContent || div.innerText || '';
           }
         },
-        { data: 'type' },
-        { data: 'old_price' },
-        { data: 'price' },
-        { data: 'category' },
-        { data: 'store_name' },
-        { data: 'status' },
-        { data: 'stock' },
-        { data: '' }
+        { data: 'type' },         
+        { data: 'category' },     
+        { data: 'stock' },       
+        { data: 'status' },      
+        { data: '' }              
       ],
       columnDefs: [
         {
-          targets: -1,
+          targets: -1, 
           title: 'Acciones',
           searchable: false,
           orderable: false,
           render: function (data, type, full, meta) {
             return (
               '<div class="d-inline-block text-nowrap">' +
-              '<a href="' +
-              baseUrl +
-              'admin/products/' +
-              full['id'] +
-              '/edit" class="btn btn-sm btn-icon edit-button"><i class="bx bx-edit"></i></a>' +
+              '<a href="' + baseUrl + 'admin/products/' + full['id'] + '/edit" class="btn btn-sm btn-icon edit-button"><i class="bx bx-edit"></i></a>' +
               '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded me-2"></i></button>' +
               '<div class="dropdown-menu dropdown-menu-end m-0">' +
-              '<a href="javascript:void(0);" class="dropdown-item switch-status" data-id="' +
-              full['id'] +
-              '">' +
+              '<a href="javascript:void(0);" class="dropdown-item switch-status" data-id="' + full['id'] + '">' +
               (full['status'] === 1 ? 'Desactivar' : 'Activar') +
               '</a>' +
-              '<a href="javascript:void(0);" class="dropdown-item text-danger delete-button" data-id="' +
-              full['id'] +
-              '">Eliminar</a>' +
+              '<a href="javascript:void(0);" class="dropdown-item text-danger delete-button" data-id="' + full['id'] + '">Eliminar</a>' +
               '</div>' +
               '</div>'
             );
-        }
-        },
-        {
-          targets: 9,
-          searchable: true,
-          orderable: true,
-          render: function (data, type, full, meta) {
-            if (data === 1) {
-              return '<span class="badge pill bg-success">Activo</span>';
-            } else {
-              return '<span class="badge pill bg-danger">Inactivo</span>';
-            }
           }
         },
         {
-          targets: 0,
+          targets: 7,  // Columna "Estado"
+          render: function (data, type, full, meta) {
+            return data === 1
+              ? '<span class="badge pill bg-success">Activo</span>'
+              : '<span class="badge pill bg-danger">Inactivo</span>';
+          }
+        },
+        {
+          targets: 0,  // Columna "Imagen"
           title: 'Imagen',
           render: function (data, type, full, meta) {
             return (
-              '<img src="' +
-              baseUrl +
-              data +
-              '" alt="Imagen del producto" style="max-width: 100px; max-height: 100px;">'
+              '<img src="' + baseUrl + data + '" alt="Imagen del producto" style="max-width: 100px; max-height: 100px;">'
             );
           }
         },
         {
-          targets: 5,
+          targets: 4,  // Columna "Tipo"
           render: function (data, type, full, meta) {
-            return currencySymbol + parseFloat(data).toFixed(0);
-          }
-        },
-        {
-          targets: 6,
-          render: function (data, type, full, meta) {
-            if (data !== null) {
-              return currencySymbol + parseFloat(data).toFixed(0);
-            } else {
-              return '-';
-            }
-          }
-        },
-        {
-          targets: 4,
-          render: function (data, type, full, meta) {
-            if (data.toLowerCase() === 'configurable') {
-              return 'Variable';
-            } else {
-              return data.charAt(0).toUpperCase() + data.slice(1);
-            }
-          }
-        },
-        {
-          targets: 10,
-          render: function (data, type, full, meta) {
-            if (full.stock === 0) {
-              return `<span class="badge bg-danger">${full.stock}</span>`;
-            } else if (full.stock < 10) {
-              return `<span class="badge bg-warning">${full.stock}</span>`;
-            } else {
-              return `<span class="badge bg-success">${full.stock}</span>`;
-            }
+            return data.toLowerCase() === 'configurable' ? 'Variable' : data.charAt(0).toUpperCase() + data.slice(1);
           }
         }
       ],
@@ -208,28 +159,6 @@ $(function () {
               .sort()
               .each(function (d, j) {
                 select.append('<option value="' + d + '">' + d + '</option>');
-              });
-          });
-
-        this.api()
-          .columns(8)
-          .every(function () {
-            var column = this;
-            var select = $(
-              '<select id="ProductStore" class="form-select"><option value="">Todos los locales</option></select>'
-            )
-              .appendTo('.product_store')
-              .on('change', function () {
-                var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                column.search(val ? '^' + val + '$' : '', true, false).draw();
-              });
-
-            column
-              .data()
-              .unique()
-              .sort()
-              .each(function (d, j) {
-                select.append('<option value="' + d + '</option>');
               });
           });
       }

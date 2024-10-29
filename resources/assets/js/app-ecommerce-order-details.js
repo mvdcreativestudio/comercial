@@ -12,7 +12,7 @@ $(function () {
           // Image
           data: 'image',
           render: function(data, type, full, meta) {
-            var imagePath = '/chelatoapp/public/' + data;
+            var imagePath = '/daliapp/public/' + data;
             return '<img src="' + imagePath + '" style="width: 70px; height: 70px; object-fit: cover; border-radius: 10px;" />';
           }
         },

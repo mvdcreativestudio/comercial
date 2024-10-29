@@ -59,7 +59,7 @@
               <label class="form-label" for="supplier-doc_type">Tipo de Documento</label>
               <select class="form-select" id="supplier-doc_type" name="doc_type" required>
                 <option value="">Seleccione un tipo de documento</option>
-                <option value="DNI">DNI</option>
+                <option value="DNI">CI</option>
                 <option value="PASSPORT">Pasaporte</option>
                 <option value="RUT">RUT</option>
                 <option value="OTHER">Otro</option>

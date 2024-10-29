@@ -11,45 +11,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class RawMaterialRepository
 {
     /**
- * Devuelve todas las Materias Primas.
- *
- * @return array
- */
-public function getAll(): array
-{
-    if (auth()->user() && auth()->user()->can('view_all_raw-materials')) {
-        // Obtiene todas las materias primas con sus relaciones de tiendas
-        $rawMaterials = RawMaterial::with('stores')->get();
-    } else {
-        // Obtiene las materias primas asociadas a la tienda del usuario autenticado
-        $storeId = auth()->user()->store_id;
-        $rawMaterials = RawMaterial::whereHas('stores', function ($query) use ($storeId) {
-            $query->where('store_id', $storeId);
-        })->with(['stores' => function ($query) use ($storeId) {
-            $query->where('store_id', $storeId);
-        }])->get();
+     * Devuelve todas las Materias Primas.
+     *
+     */
+    public function getAll()
+    {
+        if (auth()->user() && auth()->user()->can('view_all_raw-materials')) {
+            return $rawMaterials = RawMaterial::all();
+        } 
+        return collect([]);  // Retorna una colección vacía si no hay permiso
+        
     }
-
-    // Calcular el stock total para cada materia prima
-    $rawMaterials->each(function ($material) {
-        $totalStock = $material->stores->sum('pivot.stock');
-        $material->total_stock = $totalStock; // Añadimos el total_stock al objeto de materia prima
-
-        // Opcional: Agregar stock por tienda
-        $material->stores->each(function ($store) use ($material) {
-            $store->store_stock = $store->pivot->stock;
-        });
-    });
-
-    return $rawMaterials->toArray();
-}
-
-
-
-
-
-
-
 
     /**
      * Busca Materia Primas por el store_id
@@ -97,7 +69,6 @@ public function getAll(): array
         // Asociar la materia prima con la tienda y establecer el stock inicial
         $storeId = auth()->user()->store_id ?? throw new ModelNotFoundException('No se puede crear una materia prima sin una tienda asignada.');
         $initialStock = $data['initial_stock'] ?? 0;
-        $rawMaterial->stores()->attach($storeId, ['stock' => $initialStock]);
 
         return $rawMaterial;
     }
@@ -122,12 +93,6 @@ public function getAll(): array
 
         // Actualizar la materia prima
         $rawMaterial->update($data);
-
-        // Si se proporciona un stock nuevo, actualiza el stock en la tienda
-        if (isset($data['stock'])) {
-            $storeId = auth()->user()->store_id;
-            $rawMaterial->stores()->updateExistingPivot($storeId, ['stock' => $data['stock']]);
-        }
 
         return $rawMaterial;
     }

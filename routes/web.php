@@ -33,7 +33,18 @@ use App\Http\Controllers\{
     CashRegisterLogController,
     PosOrderController,
     UserController,
-
+    PurchaseOrderController,
+    PurchaseOrderItemController,
+    FormulaController,
+    RawMaterialPriceController,
+    FormulaRawMaterialController,
+    PurchaseEntryController,
+    BatchController,
+    BulkProductionController,
+    BulkProductionBatchController,
+    PackagingController,
+    PackageController,
+    PackageComponentController,
 };
 
 // Middleware de autenticación y verificación de email
@@ -79,6 +90,88 @@ Route::middleware([
         'pos-orders' => PosOrderController::class,
     ]);
 
+
+    /*
+    |
+    |
+    |   DALI
+    |   APP
+    |
+    |
+    */
+
+    Route::get('purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
+    Route::post('purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+    Route::get('purchase-orders/{id}/edit', [PurchaseOrderController::class, 'edit'])->name('purchase-orders.edit');
+    Route::delete('purchase-orders/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase-orders.destroy');
+    Route::get('/suppliers-all', [SupplierController::class, 'getAll']);
+    Route::post('purchase-orders/pdf', [PurchaseOrderController::class, 'generatePdf']);
+
+    Route::get('purchase-orders-items', [PurchaseOrderItemController::class, 'index'])->name('purchase-orders-items.index');
+    Route::get('purchase-orders-items-raw-materials', [PurchaseOrderItemController::class, 'getRawMaterials']);
+    Route::get('purchase-orders-items-products', [PurchaseOrderItemController::class, 'getProducts']);
+    Route::post('store-purchase-order-item-id', [PurchaseOrderItemController::class, 'storePurchaseOrderId'])->name('store.purchase-order-item-id');
+    Route::post('purchase-order-items', [PurchaseOrderItemController::class, 'store'])->name('purchase-orders-items.store');
+    Route::delete('purchase-order-items/{id}', [PurchaseOrderItemController::class, 'destroy'])->name('purchase-orders.destroy');
+    Route::post('purchase-order-entry-id', [PurchaseOrderItemController::class, 'storePurchasedItemId']);
+
+    Route::get('formulas', [FormulaController::class, 'index'])->name('formulas.index');
+    Route::get('formulas-list', [FormulaController::class, 'getAll']);
+    Route::post('formulas', [FormulaController::class, 'store'])->name('formulas.store');
+    Route::delete('formulas/{id}', [FormulaController::class, 'destroy']);
+
+
+    Route::get('raw-material-prices/{id}', [RawMaterialPriceController::class, 'getById']);
+    Route::post('raw-material-prices', [RawMaterialPriceController::class, 'store']);
+
+    Route::post('store-formula-step-id', [FormulaRawMaterialController::class, 'storeFormulaId']);
+    Route::get('formula-steps', [FormulaRawMaterialController::class, 'index']);
+    Route::delete('formula-steps/{id}', [FormulaRawMaterialController::class, 'destroy']);
+    Route::post('formula-steps', [FormulaRawMaterialController::class, 'store']);
+    Route::post('formula-steps-csv', [FormulaRawMaterialController::class, 'storeCSV']);
+    Route::post('formula-steps-production', [FormulaRawMaterialController::class, 'getFormulaStepsById']);
+    Route::post('formula-steps-multiple', [FormulaRawMaterialController::class, 'storeMultiple']);
+
+    Route::get('purchase-entries', [PurchaseEntryController::class, 'index']);
+    Route::post('purchase-entries-multiple', [PurchaseEntryController::class, 'storeMultiple']);
+
+    Route::get('batches', [BatchController::class, 'index']);
+    Route::post('batches-multiple', [BatchController::class, 'storeBatches']);
+
+    Route::get('bulk-productions', [BulkProductionController::class, 'index']);
+    Route::delete('bulk-productions/{id}', [BulkProductionController::class, 'destroy']);
+    Route::post('start-production', [BulkProductionController::class, 'startProduction']);
+    Route::get('get-batches/{id}', [BulkProductionController::class, 'getBatches']);
+    Route::get('bulk-productions/{identifier}', [BulkProductionController::class, 'showBatchInfo'])->name('bulk-productions.show');
+
+    Route::get('packagings', [PackagingController::class, 'index']);
+    Route::post('packagings', [PackagingController::class, 'store']);
+    Route::delete('packagings/{id}', [PackagingController::class, 'destroy']);
+
+
+    Route::get('packages', [PackageController::class, 'index']);
+    Route::post('packages', [PackageController::class, 'store']);
+    Route::delete('packages/{id}', [PackageController::class, 'destroy']);
+    Route::get('start-production', [PackagingController::class, 'startProduction']);
+    Route::get('packages-all', [PackageController::class, 'getAll']);
+    Route::put('packages/{id}', [PackageController::class, 'updatePackageStock']);
+
+
+    Route::get('package-components', [PackageComponentController::class, 'index']);
+    Route::post('package-components', [PackageComponentController::class, 'store']);
+    Route::delete('package-components/{id}', [PackageComponentController::class, 'destroy']);
+    Route::get('package-components-select', [PackageComponentController::class, 'getComponents']);
+    Route::put('package-components/{id}', [PackageComponentController::class, 'updatePackageComponentStock']);
+
+
+    /*
+    |
+    |
+    |   DALI
+    |   APP
+    |
+    |
+    */
 
 
     // Puntos de venta
@@ -131,7 +224,7 @@ Route::middleware([
         Route::post('toggle-store-status', [StoreController::class, 'toggleStoreStatus'])->name('toggle-status');
         Route::post('toggle-store-status-closed', [StoreController::class, 'toggleStoreStatusClosed'])->name('toggleStoreStatusClosed');
         Route::post('toggle-billing', [StoreController::class, 'toggleAutomaticBilling'])->name('toggleAutomaticBilling');
-      });
+    });
 
     // Gestión de Roles
     Route::prefix('roles/{role}')->name('roles.')->group(function () {
@@ -182,9 +275,9 @@ Route::middleware([
     Route::get('coupons/{id}', [CouponController::class, 'show'])->name('coupons.show');
 
     // Gestión de categorías
-    Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class,'deleteSelected'])-> name('categories.deleteSelected');
-    Route::post('product-categories/{id}/update-selected',[ProductCategoryController::class,'updateSelected'])-> name('categories.updateSelected');
-    Route::get('product-categories/{id}/get-selected',[ProductCategoryController::class,'getSelected'])-> name('categories.getSelected');
+    Route::delete('product-categories/{id}/delete-selected', [ProductCategoryController::class, 'deleteSelected'])->name('categories.deleteSelected');
+    Route::post('product-categories/{id}/update-selected', [ProductCategoryController::class, 'updateSelected'])->name('categories.updateSelected');
+    Route::get('product-categories/{id}/get-selected', [ProductCategoryController::class, 'getSelected'])->name('categories.getSelected');
 
     // Edición de Sabores
     Route::get('/flavors/{id}', [ProductController::class, 'editFlavor'])->name('flavors.edit');
@@ -215,8 +308,8 @@ Route::middleware([
 
     // Producciones
     Route::group(['prefix' => 'productions'], function () {
-      Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
-      Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
+        Route::post('/activate/{production}', [ProductionController::class, 'activate'])->name('productions.activate');
+        Route::post('/deactivate/{production}', [ProductionController::class, 'destroy'])->name('productions.deactivate');
     });
 });
 
@@ -241,8 +334,8 @@ Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('
 
 // Rutas de autenticación de Tienda Abierta
 Route::middleware(['check.store.open'])->group(function () {
-  Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
-  // Otras rutas que deben estar protegidas
+    Route::post('/cart/add/{productId}', [CartController::class, 'addToCart'])->name('cart.add');
+    // Otras rutas que deben estar protegidas
 });
 
 // MercadoPago WebHooks

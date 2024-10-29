@@ -1,8 +1,8 @@
 // vite.config.mjs
-import { defineConfig } from "file:///C:/laragon/www/chelatoapp/node_modules/vite/dist/node/index.js";
-import laravel from "file:///C:/laragon/www/chelatoapp/node_modules/laravel-vite-plugin/dist/index.js";
-import html from "file:///C:/laragon/www/chelatoapp/node_modules/@rollup/plugin-html/dist/es/index.js";
-import { glob } from "file:///C:/laragon/www/chelatoapp/node_modules/glob/dist/esm/index.js";
+import { defineConfig } from "file:///C:/laragon/www/daliapp/node_modules/vite/dist/node/index.js";
+import laravel from "file:///C:/laragon/www/daliapp/node_modules/laravel-vite-plugin/dist/index.js";
+import html from "file:///C:/laragon/www/daliapp/node_modules/@rollup/plugin-html/dist/es/index.js";
+import { glob } from "file:///C:/laragon/www/daliapp/node_modules/glob/dist/esm/index.js";
 function GetFilesArray(query) {
   return glob.sync(query);
 }

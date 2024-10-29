@@ -7,7 +7,7 @@ $configData = Helper::appClasses();
   <div class="app-brand demo">
     <a href="{{ url('/') }}" class="app-brand-link">
       <div class="container">
-        <img src="{{ asset('assets\img\branding\chelato-black.png') }}" alt="" class="" style="max-width: 150px;">
+        <img src="{{ asset('assets\img\branding\dali-colour.png') }}" alt="" class="" style="max-width: 120px;">
       </div>
     </a>
     {{-- Colapsa el menú --}}

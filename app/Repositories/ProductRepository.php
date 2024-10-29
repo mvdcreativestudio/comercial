@@ -16,6 +16,7 @@ use App\Http\Requests\StoreFlavorRequest;
 use App\Http\Requests\StoreMultipleFlavorsRequest;
 use App\Http\Requests\UpdateFlavorRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 
 
@@ -42,60 +43,30 @@ class ProductRepository
    * @param  StoreProductRequest  $request
    * @return Product
    */
-  public function createProduct(StoreProductRequest $request): Product
+  public function createProduct(StoreProductRequest $validated)
   {
-      // Se crea una nueva instancia del modelo Product.
-      $product = new Product();
-      // Se rellenan los campos del producto con los datos del formulario.
-      $product->fill($request->only([
-          'name', 'sku', 'description', 'type', 'max_flavors', 'old_price',
-          'price', 'discount', 'store_id', 'status',
-      ]));
 
-      // Manejo de la imagen si se ha subido un archivo
-      if ($request->hasFile('image')) {
+      $product = new Product();
+      $product->name = $validated['name'];
+      $product->sku = $validated['sku'];
+      $product->description = isset($validated['description']) ? strip_tags($validated['description']) : null;
+      $product->type = $validated['type'];
+      $product->status = $validated['status'];
+      $product->category_id = $validated['categories'][0]; // Asegura que el category_id se esté guardando correctamente
+      $product->draft = $validated->action === 'save_draft' ? 1 : 0;
+
+      if ($validated->hasFile('image')) {
           $file = $request->file('image');
           $filename = time() . '.' . $file->getClientOriginalExtension();
           $path = $file->move(public_path('assets/img/ecommerce-images'), $filename);
           $product->image = 'assets/img/ecommerce-images/' . $filename;
       }
-
-      // Se establece el estado de borrador del producto.
-      $product->draft = $request->action === 'save_draft' ? 1 : 0;
-      // Se guarda el producto en la base de datos.
+      Log::info($product);
       $product->save();
 
-      // Se sincronizan las categorías del producto.
-      $product->categories()->sync($request->input('categories', []));
-
-      // Se sincronizan los sabores del producto si se han seleccionado sabores.
-      if ($request->filled('flavors')) {
-          $product->flavors()->sync($request->flavors);
-      }
-
-      // Manejar recetas para productos simples
-      if ($request->input('type') === 'simple') {
-          $recipes = $request->input('recipes', []);
-          foreach ($recipes as $recipe) {
-              if (isset($recipe['raw_material_id']) && isset($recipe['quantity'])) {
-                  Recipe::create([
-                      'product_id' => $product->id,
-                      'raw_material_id' => $recipe['raw_material_id'],
-                      'quantity' => $recipe['quantity'],
-                  ]);
-              }
-              if (isset($recipe['used_flavor_id']) && isset($recipe['units_per_bucket'])) {
-                  Recipe::create([
-                      'product_id' => $product->id,
-                      'used_flavor_id' => $recipe['used_flavor_id'],
-                      'quantity' => (1 / $recipe['units_per_bucket']),
-                  ]);
-              }
-          }
-      }
-
-      return $product;
+      return redirect()->route('products.index')->with('success', 'Product created successfully.');
   }
+
 
   /**
    * Obtiene los datos de los productos para DataTables.
@@ -103,27 +74,19 @@ class ProductRepository
    * @return mixed
   */
   public function getProductsForDataTable(): mixed
-  {
-    $query = Product::with(['categories:id,name', 'store:id,name'])
-        ->select(['id', 'name', 'sku', 'description', 'type', 'old_price', 'price', 'discount', 'image', 'store_id', 'status', 'draft', 'stock'])
+{
+    $query = Product::with(['categories:id,name'])
+        ->select(['id', 'name', 'sku', 'description', 'type', 'image', 'status', 'stock', 'draft', 'is_trash'])
         ->where('is_trash', '!=', 1);
-
-    // Filtrar por rol del usuario
-    if (!Auth::user()->hasRole('Administrador')) {
-        $query->where('store_id', Auth::user()->store_id);
-    }
 
     $dataTable = DataTables::of($query)
       ->addColumn('category', function ($product) {
         return $product->categories->implode('name', ', ');
       })
-      ->addColumn('store_name', function ($product) {
-        return $product->store->name;
-      })
       ->make(true);
 
     return $dataTable;
-  }
+}
 
   /**
    * Devuelve un producto específico.
@@ -423,5 +386,14 @@ class ProductRepository
   {
     $flavor = Flavor::findOrFail($id);
     return $flavor->delete();
+  }
+
+  /**
+   * Devuelve todos los productos de la base de datos.
+   *
+  */
+  public function getAll()
+  {
+    return Product::all();
   }
 }

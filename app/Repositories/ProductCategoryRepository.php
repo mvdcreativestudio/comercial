@@ -31,10 +31,7 @@ class ProductCategoryRepository
   {
     $category = new ProductCategory();
     $category->name = $request->name;
-    $category->slug = $request->slug;
     $category->description = $request->description;
-    $category->parent_id = $request->parent_id;
-    $category->status = $request->status;
 
     if ($request->hasFile('image')) {
         $file = $request->file('image');
@@ -58,10 +55,7 @@ class ProductCategoryRepository
   public function update(Request $request, ProductCategory $category): ProductCategory
   {
     $category->name = $request->name;
-    $category->slug = $request->slug;
     $category->description = $request->description;
-    $category->parent_id = $request->parent_id;
-    $category->status = $request->status;
 
     if ($request->hasFile('image')) {
         $file = $request->file('image');
@@ -88,10 +82,7 @@ class ProductCategoryRepository
     $category = ProductCategory::find($id);
 
     $category->name = $request->name;
-    $category->slug = $request->slug;
     $category->description = $request->description;
-    $category->parent_id = $request->parent_id;
-    $category->status = $request->status;
 
     if ($request->hasFile('image')) {
         $file = $request->file('image');
@@ -161,7 +152,7 @@ class ProductCategoryRepository
   */
   public function datatable(): mixed
   {
-    $query = ProductCategory::select(['id', 'name', 'slug', 'description', 'image_url', 'parent_id', 'status']);
+    $query = ProductCategory::select(['id', 'name', 'description', 'image_url']);
     return DataTables::of($query)
             ->make(true);
   }
