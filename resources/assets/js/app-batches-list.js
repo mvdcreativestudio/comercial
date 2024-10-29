@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
             { data: 'quantity', title: 'Cantidad' },
             { data: 'production_date', title: 'Fecha producción' },
             { data: 'expiration_date', title: 'Fecha expiración' },
+            { data: 'created_at', visible: false },
         ],
+        order: [[5, 'desc']],
         responsive: true,
         language: {
             url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/es_es.json'

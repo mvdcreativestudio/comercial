@@ -31,6 +31,7 @@ class FormulaRawMaterialController extends Controller
     {
         $id = session('formula_id');
         $formulaRawMaterials = $this->formulaRawMaterialRepository->getAll($id);
+        Log::info($formulaRawMaterials);
         return view('formula-steps.index', compact('formulaRawMaterials', 'id'));
     }
 
@@ -191,7 +192,7 @@ class FormulaRawMaterialController extends Controller
         foreach ($validatedData['steps'] as $step) {
             // Formatear los datos para que coincidan con lo que espera el método del repositorio
             $steps[] = [
-                'raw_material_id' => $step['raw-material'], // Asegúrate de que coincida con el nombre del campo en el formulario
+                'raw_material_id' => $step['raw-material'] ?? null, 
                 'quantity_required' => isset($step['quantity']) && $step['quantity'] !== '' 
                 ? str_replace(',', '.', $step['quantity'])  // Convertir coma a punto
                 : 0.00, // Si no se ingresa cantidad, establecer en 0.00                
@@ -199,6 +200,7 @@ class FormulaRawMaterialController extends Controller
                 'clarification' => $step['clarification'] ?? null,
             ];
         }
+        Log::info($steps);
 
         $this->formulaRawMaterialRepository->bulkInsert($steps, $formulaId);
 

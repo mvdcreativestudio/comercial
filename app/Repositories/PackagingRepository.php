@@ -81,13 +81,11 @@ class PackagingRepository
         try {
             $packaging = Packaging::create($data);
 
-            $bulkProduction = BulkProduction::with('formula.finalProduct')->find($data['bulk_production_id']);
+            $bulkProduction = BulkProduction::with('formula.product')->find($data['bulk_production_id']);
 
             if (!$bulkProduction) {
                 throw new \Exception('Bulk production not found');
             }
-
-            Log::info('Quantity used:', ['quantity_used' => $data['quantity_used']]);
 
             $bulkProduction->quantity_used += $data['quantity_used'];
 
@@ -102,7 +100,7 @@ class PackagingRepository
                 throw new \Exception('Failed to update package stock.');
             }
 
-            $finalProduct = $bulkProduction->formula->finalProduct;
+            $finalProduct = $bulkProduction->formula->product;
             if ($finalProduct) {
                 $finalProduct->stock += $data['quantity_packaged'];
                 if (!$finalProduct->save()) {

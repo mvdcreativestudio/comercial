@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><button class="dropdown-item btn-entries" data-id="${row.id}">Ingresar entrada</button></li>
+                            <li><button class="dropdown-item btn-entries" data-id="${row.id}">Confirmar recepción</button></li>
                             <li><button class="dropdown-item btn-pdf" data-id="${row.id}">Generar PDF</button></li>
                             <li><button class="dropdown-item btn-edit" data-id="${row.id}">Editar</button></li>
                             <li><button class="dropdown-item btn-delete" data-id="${row.id}">Eliminar</button></li>

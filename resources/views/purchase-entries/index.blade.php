@@ -64,9 +64,9 @@
       @endphp
       @if ($remainingQuantity > 0)
       <div data-repeater-item class="row mb-3">
-        <div class="col-4">
+        <div class="col-3">
           <label class="form-label" for="item">Producto/Materia Prima</label>
-          <select class="form-select item-select" name="purchase_entries[{{ $index }}][purchase_order_items_id]" disabled>
+          <select class="form-select item-select" name="purchase_entries[{{ $index }}][purchase_order_items_id]" disabled >
             @if ($purchaseOrderItem->raw_material_id)
             <option value="{{ $purchaseOrderItem->id }}">{{ $purchaseOrderItem->rawMaterial->name }}</option>
             @else
@@ -74,6 +74,12 @@
             @endif
           </select>
         </div>
+
+        <div class="col-2">
+          <label class="form-label" for="total_quantity">Cantidad Total</label>
+          <input type="number" class="form-control" name="purchase_entries[{{ $index }}][total_quantity]" value="{{ $purchaseOrderItem->quantity }}" disabled readonly>
+        </div>
+
         <div class="col-2">
           <label class="form-label" for="remaining_quantity">Cantidad Restante</label>
           <input type="number" class="form-control" name="purchase_entries[{{ $index }}][remaining_quantity]" value="{{ $remainingQuantity }}" readonly>
@@ -84,7 +90,7 @@
           <input type="number" class="form-control" name="purchase_entries[{{ $index }}][received_quantity]" placeholder="Cantidad Recibida" required>
         </div>
 
-        <div class="col-3">
+        <div class="col-3" style="width: 13%;">
           <label class="form-label" for="entry_date">Fecha de Entrada</label>
           <input type="date" class="form-control" name="purchase_entries[{{ $index }}][entry_date]" required>
         </div>
@@ -103,10 +109,11 @@
   </div>
 </div>
 
+@if($purchaseEntries->count() > 0 )
 <h4 class="py-3 mb-4">
   <span class="text-muted fw-light">Adjudicación de Lotes /</span> Loteado de entradas
 </h4>
-
+@endif
 <!-- LISTADO DE LOTEADO -->
 <div class="row row-cols-1 row-cols-md-2 g-4">
   @foreach ($purchaseEntries as $entry)

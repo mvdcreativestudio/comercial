@@ -21,6 +21,7 @@ class BatchRepository
                 'batches.quantity',        // Cantidad
                 'batches.production_date', // Fecha de producción
                 'batches.expiration_date', // Fecha de expiración
+                'batches.created_at',      
                 'purchase_entries.id as purchase_entries_id', // ID de entrada
                 DB::raw('COALESCE(raw_materials.name, products.name) as item_name'),
                 'suppliers.name as suppliers_name'

@@ -3,16 +3,18 @@
 namespace App\Repositories;
 
 use App\Models\FormulaRawMaterial;
+use Illuminate\Support\Facades\Log;
 
 class FormulaRawMaterialRepository
 {
     public function getAll($id)
     {
         return FormulaRawMaterial::where('formula_id', $id)
-            ->join('raw_materials', 'formula_raw_materials.raw_material_id', '=', 'raw_materials.id')
-            ->select('formula_raw_materials.*', 'raw_materials.name') 
+            ->leftJoin('raw_materials', 'formula_raw_materials.raw_material_id', '=', 'raw_materials.id')
+            ->select('formula_raw_materials.*', 'raw_materials.name')
             ->get();
     }
+
 
 
     public function find($id)
@@ -41,13 +43,17 @@ class FormulaRawMaterialRepository
     public function bulkInsert(array $rows, $formulaId)
     {
         foreach ($rows as $row) {
-            FormulaRawMaterial::create([
-                'formula_id' => $formulaId,
-                'raw_material_id' => $row['raw_material_id'],
-                'quantity_required' => $row['quantity_required'],
-                'step' => $row['step'],
-                'clarification' => $row['clarification'] ?? null,
-            ]);
+            try {
+                FormulaRawMaterial::create([
+                    'formula_id' => $formulaId,
+                    'raw_material_id' => $row['raw_material_id'],
+                    'quantity_required' => $row['quantity_required'],
+                    'step' => $row['step'],
+                    'clarification' => $row['clarification'] ?? null,
+                ]);
+            } catch (\Exception $e) {
+                Log::error("Error al insertar registro: " . $e->getMessage());
+            }
         }
     }
 }
