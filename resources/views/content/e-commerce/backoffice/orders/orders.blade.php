@@ -28,6 +28,7 @@ $currencySymbol = $settings->currency_symbol;
 @section('page-script')
 @vite([
 'resources/assets/js/app-orders-list.js'
+'resources/assets/js/app-orders-list.js'
 ])
 @endsection
 

@@ -17,42 +17,39 @@ class Product extends Model
         'sku',
         'description',
         'type',
-        'max_flavors',
-        'old_price',
-        'price',
-        'discount',
-        'categories',
-        'tags',
-        'atributtes',
-        'variations',
         'image',
-        'store_id',
         'status',
         'stock',
         'safety_margin',
         'bar_code',
         'build_price'
+        'draft',
+        'is_trash',
+        'category_id',
+        'bulk_production_id'
       ];
 
 
-    /**
-     * Obtiene la tienda a la que pertenece el producto.
-     *
-     * @return BelongsTo
-    */
-    public function store(): BelongsTo
+    public function categories()
     {
-        return $this->belongsTo(Store::class);
+        return $this->belongsToMany(Category::class);
     }
 
-    /**
-      * Obtiene las categorías asociadas al producto.
-      *
-      * @return BelongsToMany
-    */
-    public function categories(): BelongsToMany
+      
+
+    public function productPrices(): HasMany
     {
-        return $this->belongsToMany(ProductCategory::class, 'category_product', 'product_id', 'category_id');
+        return $this->hasMany(ProductPrice::class);
+    }
+
+    public function packaging(): HasMany
+    {
+        return $this->hasMany(Packaging::class, 'final_product_id');
+    }
+
+    public function BulkProduction(): HasMany
+    {
+        return $this->hasMany(BulkProduction::class, 'bulk_production_id');
     }
 
     /**
@@ -162,5 +159,10 @@ class Product extends Model
         return $this->belongsToMany(PriceList::class, 'price_list_products')
                     ->withPivot('price')
                     ->withTimestamps();
+    }
+    
+    public function batch(): HasMany
+    {
+        return $this->hasMany(Batch::class);
     }
 }

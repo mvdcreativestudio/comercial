@@ -90,7 +90,6 @@ class RawMaterialRepository
         // Asociar la materia prima con la tienda y establecer el stock inicial
         $storeId = auth()->user()->store_id ?? throw new ModelNotFoundException('No se puede crear una materia prima sin una tienda asignada.');
         $initialStock = $data['initial_stock'] ?? 0;
-        $rawMaterial->stores()->attach($storeId, ['stock' => $initialStock]);
 
         return $rawMaterial;
     }
@@ -115,12 +114,6 @@ class RawMaterialRepository
 
         // Actualizar la materia prima
         $rawMaterial->update($data);
-
-        // Si se proporciona un stock nuevo, actualiza el stock en la tienda
-        if (isset($data['stock'])) {
-            $storeId = auth()->user()->store_id;
-            $rawMaterial->stores()->updateExistingPivot($storeId, ['stock' => $data['stock']]);
-        }
 
         return $rawMaterial;
     }

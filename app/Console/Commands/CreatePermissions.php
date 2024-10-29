@@ -32,22 +32,101 @@ class CreatePermissions extends Command
      */
     public function handle()
     {
-        $modulesJson = [
-            'menu' => [
-                [
-                    'slug' => 'dashboard',
-                    'module' => 'general',
-                    'view_all' => false,
+      $modulesJson = [
+        'menu' => [
+            [
+                'slug' => 'dashboard',
+                'module' => 'general',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'manufacturing',
+                'module' => 'manufacturing',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'raw-materials',
+                'module' => 'stock',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'formulas',
+                'module' => 'manufacturing',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'batches',
+                'module' => 'manufacturing',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'suppliers',
+                'module' => 'stock',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'purchase-orders',
+                'module' => 'stock',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'stock',
+                'module' => 'stock',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'accounting',
+                'module' => 'accounting',
+                'submenus' => [
+                    'invoices',
+                    'receipts',
+                    'entries',
+                    'accounting-settings'
                 ],
-                [
-                    'slug' => 'manufacturing',
-                    'module' => 'manufacturing',
-                    'view_all' => false,
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'clients',
+                'module' => 'crm',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'ecommerce',
+                'module' => 'ecommerce',
+                'submenus' => [
+                    'orders',
+                    'products',
+                    'product-categories',
+                    'settings'
                 ],
-                [
-                    'slug' => 'raw-materials',
-                    'module' => 'stock',
-                    'view_all' => true,
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'packagings',
+                'module' => 'ecommerce',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'global_products',
+                'module' => 'ecommerce',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'bulk-productions',
+                'module' => 'manufacturing',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'bypass_raw_material_check',
+                'module' => 'manufacturing',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'marketing',
+                'module' => 'marketing',
+                'submenus' => [
+                    'coupons',
+                    'settings'
                 ],
                 [
                     'slug' => 'suppliers',
@@ -328,7 +407,63 @@ class CreatePermissions extends Command
                     ],
                 ]
             ],
-        ];
+            [
+                'slug' => 'datacenter',
+                'module' => 'datacenter',
+                'view_all' => true,
+            ],
+            [
+                'slug' => 'crm',
+                'module' => 'crm',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'stores',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'roles',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'company_settings',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'open_close_stores',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'point-of-sale',
+                'module' => 'point-of-sale',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'sales-commerce',
+                'module' => 'ecommerce',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'users',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'user-accounts',
+                'module' => 'management',
+                'view_all' => false,
+            ],
+            [
+                'slug' => 'raw-materials-edit',
+                'module' => 'manufacturing',
+                'view_all' => false,
+            ],
+        ]
+      ];
 
         // Asegurar que el rol de superadmin existe
         $superAdminRole = Role::firstOrCreate(['name' => 'Superadmin']);

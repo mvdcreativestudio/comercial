@@ -36,6 +36,7 @@ class ProductCategoryRepository
     $category = new ProductCategory();
     $category->name = $request->name;
 
+
     // Generar y validar slug único
     $baseSlug = empty($request->slug) ? \Str::slug($request->name) : $request->slug;
     $slug = $baseSlug;
@@ -49,8 +50,6 @@ class ProductCategoryRepository
     $category->slug = $slug;
     $category->store_id = $request->store_id;
     $category->description = $request->description;
-    $category->parent_id = $request->parent_id;
-    $category->status = $request->status;
 
     if ($request->hasFile('image')) {
         $file = $request->file('image');
@@ -74,10 +73,7 @@ class ProductCategoryRepository
   public function update(Request $request, ProductCategory $category): ProductCategory
   {
     $category->name = $request->name;
-    $category->slug = $request->slug;
     $category->description = $request->description;
-    $category->parent_id = $request->parent_id;
-    $category->status = $request->status;
 
     if ($request->hasFile('image')) {
         $file = $request->file('image');
@@ -104,10 +100,7 @@ class ProductCategoryRepository
     $category = ProductCategory::find($id);
 
     $category->name = $request->name;
-    $category->slug = $request->slug;
     $category->description = $request->description;
-    $category->parent_id = $request->parent_id;
-    $category->status = $request->status;
 
     if ($request->hasFile('image')) {
         $file = $request->file('image');
@@ -170,6 +163,7 @@ class ProductCategoryRepository
 
 
 
+    /*** Chequear en caso de romperse la datatable - Migracion dali */
   /**
    * Obtiene los datos de las categorías de productos para DataTables.
    *
@@ -263,7 +257,4 @@ class ProductCategoryRepository
           ]
       ];
   }
-
-
-
 }

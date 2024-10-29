@@ -12,13 +12,14 @@ class ProductCategory extends Model
 
     protected $fillable = [
         'name',
-        'slug',
         'description',
+
         'image_url',
         'parent_id',
         //'isFather',
         'status',
         'store_id'
+        'image_url'
       ];
 
     /**
@@ -30,4 +31,12 @@ class ProductCategory extends Model
     {
         return $this->belongsToMany(Product::class, 'category_product', 'category_id', 'product_id');
     }
+
+    /*
+    CHEQUEAR SI DESPUÉS NO FUNCIONA EL BELONGSTOMANY.
+     public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+    */
 }

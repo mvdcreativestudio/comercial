@@ -84,6 +84,7 @@ class ProductController extends Controller
     return view('content.e-commerce.backoffice.products.products', compact('stores', 'categories'));
   }
 
+
   /**
    * Muestra un producto específico.
    *
