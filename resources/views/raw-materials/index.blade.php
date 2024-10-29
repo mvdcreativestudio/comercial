@@ -47,7 +47,9 @@
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Materias Primas</h6>
+              @if($rawMaterials->count() > 0)
               <h4 class="mb-2">{{ $rawMaterials->count() }}</h4> 
+              @endif
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
             <div class="avatar me-sm-4">

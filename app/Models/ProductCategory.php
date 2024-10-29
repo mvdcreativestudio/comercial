@@ -13,13 +13,11 @@ class ProductCategory extends Model
     protected $fillable = [
         'name',
         'description',
-
         'image_url',
         'parent_id',
         //'isFather',
         'status',
         'store_id'
-        'image_url'
       ];
 
     /**
