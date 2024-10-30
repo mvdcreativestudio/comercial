@@ -305,40 +305,38 @@ document.addEventListener('DOMContentLoaded', function () {
   $(document).on('click', '.btn-VerLotes', function () {
     const productionId = $(this).data('id');
     $.ajax({
-      url: `get-batches/${productionId}`,
-      type: 'GET',
-      dataType: 'json',
-      success: function (response) {
-        if (response.batches && response.batches.length > 0) {
-          let modalBody = '';
-          response.batches.forEach(batch => {
-            const batchInfo = `Batch ID: ${batch.batch_id} - Cantidad utilizada: ${batch.quantity_used}`;
-            modalBody += `<p><strong>${batchInfo}</strong></p>`;
-          });
-          // Insertar detalles de batches en la batch-details
-          $('#modalBatches .batch-details').html(modalBody);
+        url: `get-batches/${productionId}`,
+        type: 'GET',
+        dataType: 'json',
+        success: function (response) {
+            if (response.batches && response.batches.length > 0) {
+                let modalBody = '';
+                response.batches.forEach(batch => {
+                    const batchInfo = `<p><strong>Número de lote:</strong> ${batch.batch_name} <strong>Cantidad utilizada:</strong> ${batch.quantity_used} ${batch.unit_of_measure}`;
+                    modalBody += `${batchInfo}`;
+                });
+                $('#modalBatches .batch-details').html(modalBody);
 
-          // Generar y añadir el QR code en la modal-qr
-          $('#modalBatches .modal-qr').html('<div id="qrcode"></div>');
-          new QRCode(document.getElementById("qrcode"), {
-            text: response.qr_url,
-            width: 128,
-            height: 128
-          });
+                $('#modalBatches .modal-qr').html('<div id="qrcode"></div>');
+                new QRCode(document.getElementById("qrcode"), {
+                    text: response.qr_url,
+                    width: 128,
+                    height: 128
+                });
 
-          // Mostrar el modal
-          $('#modalBatches').modal('show');
-        } else {
-          $('#modalBatches .batch-details').html('<p>No se encontraron lotes.</p>');
-          $('#modalBatches').modal('show');
+                $('#modalBatches').modal('show');
+            } else {
+                $('#modalBatches .batch-details').html('<p>No se encontraron lotes.</p>');
+                $('#modalBatches').modal('show');
+            }
+        },
+        error: function (xhr, status, error) {
+            $('#modalBatches .modal-body').html('<p>Error al cargar los lotes.</p>');
+            $('#modalBatches').modal('show');
         }
-      },
-      error: function (xhr, status, error) {
-        $('#modalBatches .modal-body').html('<p>Error al cargar los lotes.</p>');
-        $('#modalBatches').modal('show');
-      }
     });
-  });
+});
+
 
   // Add event listener for the download button
   $(document).on('click', '#downloadQR', function () {

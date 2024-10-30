@@ -233,16 +233,21 @@ class BulkProductionRepository
 
     public function getById($id)
     {
-        $bulkProduction = BulkProduction::with('batches')->findOrFail($id);
+        $batches = $this->getBatchInformation($id);
+        $bulkProduction = BulkProduction::findOrFail($id);
         $uniqueIdentifier = $bulkProduction->getUniqueIdentifier();
         $url = route('bulk-productions.show', ['identifier' => $uniqueIdentifier]);
 
+        Log::info($batches);
+
         return response()->json([
-            'batches' => $bulkProduction->batches,
+            'batches' => $batches,
             'qr_url' => $url,
             'message' => 'Lotes encontrados exitosamente.'
         ]);
     }
+
+
 
     /*
     *
@@ -253,10 +258,28 @@ class BulkProductionRepository
     {
         $idParts = explode('-', $identifier);
         $id = $idParts[0];
-        $bulkProduction = BulkProduction::with('batches')->findOrFail($id);
-        if ($bulkProduction->getUniqueIdentifier() !== $identifier) {
-            abort(404, 'Información de lote no encontrada');
-        }
-        return $bulkProduction->batches;
+        $batches = $this->getBatchInformation($id);
+        return $batches;
+    }
+
+    /*
+    *
+    * Devuelve nombre de lote, cantidades y unidad de medida. 
+    *
+    */
+    private function getBatchInformation($id)
+    {
+        return DB::table('bulk_production_batches')
+        ->where('bulk_production_batches.bulk_productions_id', $id)
+        ->join('batches', 'bulk_production_batches.batch_id', '=', 'batches.id')
+        ->join('purchase_entries', 'batches.purchase_entries_id', '=', 'purchase_entries.id')
+        ->join('purchase_order_items', 'purchase_entries.purchase_order_items_id', '=', 'purchase_order_items.id')
+        ->join('raw_materials', 'purchase_order_items.raw_material_id', '=', 'raw_materials.id')
+        ->select(
+            'batches.batch_number as batch_name',
+            'bulk_production_batches.quantity_used',
+            'raw_materials.unit_of_measure'
+        )
+        ->get();
     }
 }

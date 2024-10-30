@@ -160,15 +160,19 @@
         <textarea class="form-control" id="description" name="description"></textarea>
       </div>
 
-      <div class="mb-3">
+       <div class="mb-3">
         <label for="unit_of_measure" class="form-label">Unidad de Medida</label>
-        <input type="text" class="form-control" id="unit_of_measure" name="unit_of_measure" value="L" readonly required>
+        <select class="form-control" id="unit_of_measure" name="unit_of_measure" required>
+          <option value="L">Litro (L)</option>
+          <option value="ml">Mililitro (ml)</option>
+        </select>
       </div>
 
       <div class="mb-3">
         <label for="quantity" class="form-label">Cantidad</label>
-        <input type="number" step="0.01" class="form-control" id="quantity" name="quantity" value="100" readonly required>
+        <input type="number" step="0.01" class="form-control" id="quantity" name="quantity" required>
       </div>
+
 
 
       <button type="submit" class="btn btn-success">Guardar</button>

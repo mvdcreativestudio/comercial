@@ -65,6 +65,11 @@ class CreatePermissions extends Command
                     'view_all' => true,
                 ],
                 [
+                    'slug' => 'packagings',
+                    'module' => 'manufacturing',
+                    'view_all' => false,
+                ],
+                [
                     'slug' => 'suppliers',
                     'module' => 'stock',
                     'view_all' => true,

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batch Information Dashboard</title>
+    <title>Lotes utilizados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -73,7 +73,7 @@
 <body>
     <header class="dashboard-header text-center">
         <div class="container">
-            <h1 class="dashboard-title">Batch Information Dashboard</h1>
+            <h1 class="dashboard-title">Información de Lotes utilizados</h1>
         </div>
     </header>
 
@@ -84,9 +84,9 @@
                 <div class="card batch-card h-100">
                     <div class="card-body text-center">
                         <i class="fas fa-box card-icon"></i>
-                        <h5 class="card-title batch-id">Batch ID: {{ $batch->batch_id }}</h5>
+                        <h5 class="card-title batch-id">Número de lote: {{ $batch->batch_name }}</h5>
                         <p class="card-text quantity-used">
-                            Cantidad utilizada: {{ $batch->quantity_used }} 
+                            Cantidad utilizada: {{ $batch->quantity_used }} {{ $batch->unit_of_measure }} 
                         </p>
                     </div>
                 </div>
