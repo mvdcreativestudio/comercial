@@ -66,9 +66,9 @@ class ProductRepository
    * @param  StoreProductRequest  $request
    * @return Product
    */
-  public function createProduct(StoreProductRequest $request)
+  public function createProduct(StoreProductRequest $request): Product
   {
-
+      // Se crea una nueva instancia del modelo Product.
       $product = new Product();
       // Se rellenan los campos del producto con los datos del formulario.
       $product->fill($request->only([
@@ -86,7 +86,10 @@ class ProductRepository
           // Si no se carga una imagen, asignar la imagen por defecto
           $product->image = 'assets/img/ecommerce-images/placeholder.png';
       }
-      Log::info($product);
+
+      // Se establece el estado de borrador del producto.
+      $product->draft = $request->action === 'save_draft' ? 1 : 0;
+      // Se guarda el producto en la base de datos.
       $product->save();
 
       // Se sincronizan las categorías del producto.
