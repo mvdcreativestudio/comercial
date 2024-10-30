@@ -84,6 +84,8 @@ class BatchController extends Controller
     public function storeBatches(Request $request)
     {
         $batches = $request->input('batches');
+        Log::info($request);
+
         $purchaseEntriesId = $request->input('purchase_entries_id');
         $errors = [];
     

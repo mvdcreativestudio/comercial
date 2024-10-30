@@ -17,7 +17,7 @@ use App\Http\Requests\StoreMultipleFlavorsRequest;
 use App\Http\Requests\UpdateFlavorRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 
 
 class ProductRepository
@@ -66,7 +66,7 @@ class ProductRepository
    * @param  StoreProductRequest  $request
    * @return Product
    */
-  public function createProduct(StoreProductRequest $validated)
+  public function createProduct(StoreProductRequest $request)
   {
 
       $product = new Product();

@@ -15,7 +15,7 @@ class ProductCategory extends Model
         'description',
         'image_url',
         'parent_id',
-        //'isFather',
+        'slug',
         'status',
         'store_id'
       ];
