@@ -12,7 +12,6 @@ return new class extends Migration {
             $table->string('batch_number');
             $table->integer('quantity');
             $table->dateTime('production_date');
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->foreignId('raw_material_id')->constrained('raw_materials')->onDelete('cascade');
             $table->foreignId('purchase_order_items_id')->constrained('purchase_order_items')->onDelete('cascade');
             $table->dateTime('expiration_date');

@@ -33,7 +33,6 @@ class PurchaseEntryController extends Controller
 
         $purchaseOrderItemIds = $purchaseOrderItems->pluck('id')->toArray();
         $purchaseEntries = $this->purchaseEntryRepository->getAllByPurchaseOrderItems($purchaseOrderItemIds);
-        Log::info($purchaseEntries);
         $purchaseEntriesSum = $purchaseEntries->groupBy('purchase_order_items_id')
             ->mapWithKeys(function ($entries, $itemId) {
                 return [$itemId => $entries->sum('quantity')];

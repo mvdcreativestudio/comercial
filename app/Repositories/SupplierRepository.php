@@ -15,12 +15,9 @@ class SupplierRepository
      */
     public function getAllWithOrders(): array
     {
-        if (auth()->user()->can('view_all_suppliers')) {
-          $suppliers = Supplier::with('store')->get();
-        } else {
-          $storeId = auth()->user()->store_id;
-          $suppliers = Supplier::where('store_id', $storeId)->get();
-        }
+        if (auth()->user() && auth()->user()->can('view_all_suppliers')) {
+          $suppliers = Supplier::all();
+        } 
 
         $recentOrders = $suppliers->map(function ($supplier) {
             return $supplier->orders->sortByDesc('created_at')->first();

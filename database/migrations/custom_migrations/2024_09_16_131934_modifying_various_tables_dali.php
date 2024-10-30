@@ -41,9 +41,6 @@ class ModifyingVariousTablesDali  extends Migration
                   ->on('purchase_entries')
                   ->onDelete('set null');
 
-            // Quitar la FK y luego eliminar la columna 'raw_material_id'
-            $table->dropForeign(['raw_material_id']);
-            $table->dropColumn('raw_material_id');
 
             // Quitar la FK y luego eliminar la columna 'purchase_order_items_id'
             $table->dropForeign(['purchase_order_items_id']);
@@ -98,12 +95,6 @@ class ModifyingVariousTablesDali  extends Migration
             $table->dropForeign(['purchase_entries_id']);
             $table->dropColumn('purchase_entries_id');
 
-            // Revertir la FK y la columna 'raw_material_id'
-            $table->unsignedBigInteger('raw_material_id')->nullable();
-            $table->foreign('raw_material_id')
-                  ->references('id')
-                  ->on('raw_materials')
-                  ->onDelete('set null');
 
             // Revertir la FK y la columna 'purchase_order_items_id'
             $table->unsignedBigInteger('purchase_order_items_id')->nullable();

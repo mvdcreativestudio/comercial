@@ -18,11 +18,6 @@ class RemoveForeignKeysFromPurchaseEntries extends Migration
             $table->dropForeign(['raw_material_id']);
             // Eliminar la columna raw_material_id
             $table->dropColumn('raw_material_id');
-            
-            // Eliminar la foreign key de product_id
-            $table->dropForeign(['product_id']);
-            // Eliminar la columna product_id
-            $table->dropColumn('product_id');
         });
     }
 

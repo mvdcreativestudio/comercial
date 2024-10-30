@@ -22,7 +22,7 @@ class Product extends Model
         'stock',
         'safety_margin',
         'bar_code',
-        'build_price'
+        'build_price',
         'draft',
         'is_trash',
         'category_id',
@@ -30,9 +30,24 @@ class Product extends Model
       ];
 
 
-    public function categories()
+    /**
+     * Obtiene la tienda a la que pertenece el producto.
+     *
+     * @return BelongsTo
+    */
+    public function store(): BelongsTo
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsTo(Store::class);
+    }
+
+    /**
+      * Obtiene las categorías asociadas al producto.
+      *
+      * @return BelongsToMany
+    */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(ProductCategory::class, 'category_product', 'product_id', 'category_id');
     }
 
       

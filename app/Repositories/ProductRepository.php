@@ -629,10 +629,13 @@ class ProductRepository
   }
 
   /**
-   * Obtiene todas las listas de precios
-   * 
-   * @return array
-   */
+   * Devuelve todos los productos de la base de datos.
+   *
+  */
+  public function getAll()
+  {
+    return Product::all();
+  }
   
 
 }

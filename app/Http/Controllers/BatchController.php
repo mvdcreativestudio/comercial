@@ -85,31 +85,57 @@ class BatchController extends Controller
     {
         $batches = $request->input('batches');
         $purchaseEntriesId = $request->input('purchase_entries_id');
-
+        $errors = [];
+    
+        // Validación de purchase_entries_id
+        if (empty($purchaseEntriesId)) {
+            return response()->json(['error' => 'El ID de entrada de compra es requerido.'], 422);
+        }
+    
         // Validar cada lote individualmente
         foreach ($batches as $batch) {
             $batchRequest = new StoreBatchRequest();
-            $batchRequest->merge($batch); // Merge los datos del lote actual
+            $batchRequest->merge($batch); // Mezcla los datos del lote actual
             $validator = Validator::make($batchRequest->all(), $batchRequest->rules());
-
+    
             if ($validator->fails()) {
-                return response()->json(['error' => 'Validación fallida para uno de los lotes.', 'details' => $validator->errors()], 422);
+                $errors[] = [
+                    'batch_number' => $batch['batch_number'],
+                    'validation_errors' => $validator->errors(),
+                ];
             }
         }
-
-        // Si todas las validaciones pasan, guarda los lotes
+    
+        if (!empty($errors)) {
+            return response()->json([
+                'error' => 'Validación fallida para algunos lotes.',
+                'details' => $errors
+            ], 422);
+        }
+    
+        // Si todas las validaciones de datos pasan, guarda los lotes
         $data = [
             'batches' => $batches,
             'purchase_entries_id' => $purchaseEntriesId,
         ];
-
-        // Llamar al método del repository para guardar los datos
+    
+        // Llamar al método del repositorio para guardar los datos
         $result = $this->batchRepository->createBatches($data);
-
-        if ($result) {
-            return response()->json(['success' => 'Lotes guardados correctamente.'], 200);
+    
+        // Manejo de errores o advertencias devueltas por el repositorio
+        if (is_array($result) && !empty($result)) {
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Algunos lotes no pudieron ser guardados debido a la falta de Producto o Materia Prima',
+                'errors' => $result
+            ], 200);
+        }
+    
+        if ($result === true) {
+            return response()->json(['status' => 'success', 'message' => 'Lotes guardados correctamente.'], 200);
         } else {
             return response()->json(['error' => 'Hubo un error al guardar los lotes.'], 500);
         }
     }
+    
 }
