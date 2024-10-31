@@ -329,14 +329,10 @@ class AccountingController extends Controller
             $email = $request->email;
             $factura = $this->downloadCfePdf($invoiceId);
             $tempPdfPath = tempnam(sys_get_temp_dir(), 'pdf_');
-            $variables = [
-                'subject' => 'Factura de compra',
-                'reply_to' => 'soporte@mi-tienda.com',
-            ];
+            $subject = 'Factura de compra';
             file_put_contents($tempPdfPath, $factura);
             $attachmentName = "Factura.pdf"; // Asigna el nombre del archivo
-
-            Helpers::emailService()->sendMail($email, $variables['subject'], 'content.accounting.invoices.email', $variables, $tempPdfPath, $attachmentName);
+            Helpers::emailService()->sendMail($email, $subject, 'content.accounting.invoices.email', $tempPdfPath, $attachmentName);
             return response()->json(['success' => 'Correo enviado correctamente.']);
         } catch (\Exception $e) {
             dd($e);

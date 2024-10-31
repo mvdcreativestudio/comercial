@@ -44,8 +44,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(EmailService::class, function ($app) {
             return new EmailService(
                 $app->make(MailProviderInterface::class),
-                'default@example.com', // valor por defecto de 'from', puedes cambiarlo
-                'noreply@example.com', // valor por defecto de 'replyTo', puedes cambiarlo
                 $app->make(StoresEmailConfigRepository::class)
             );
         });

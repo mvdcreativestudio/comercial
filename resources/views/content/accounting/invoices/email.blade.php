@@ -15,12 +15,12 @@
                 <p style="color: #666;">Para cualquier consulta, no dudes en responder a este correo.</p>
             </td>
         </tr>
-        {{-- <tr>
+        <tr>
             <td style="text-align: center; padding-top: 20px; color: #888;">
-                <p>Si tienes alguna duda, contacta con nosotros en: <a href="mailto:soporte@mi-tienda.com">soporte@mi-tienda.com</a></p>
+                <p>Si tienes alguna duda, contacta con nosotros en: <a href="mailto:{{ $data['replyTo'] }}">{{ $data['replyTo'] }}</a></p>
                 <p style="font-size: 12px;">{{ config('app.name') }} | {{ date('Y') }}</p>
             </td>
-        </tr> --}}
+        </tr>
     </table>
 </body>
 </html>
