@@ -7,6 +7,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Repositories\AccountingRepository;
 use App\Repositories\OrderRepository;
+use App\Repositories\StoresEmailConfigRepository;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,13 +32,15 @@ class OrderController extends Controller
      */
     protected $accountingRepository;
 
+    protected $storesEmailConfigRepository;
+
     /**
      * Inyecta el repositorio en el controlador y los middleware.
      *
      * @param  OrderRepository  $orderRepository
      * @param  AccountingRepository  $accountingRepository
      */
-    public function __construct(OrderRepository $orderRepository, AccountingRepository $accountingRepository)
+    public function __construct(OrderRepository $orderRepository, AccountingRepository $accountingRepository, StoresEmailConfigRepository $storesEmailConfigRepository)
     {
         $this->middleware(['check_permission:access_orders', 'user_has_store'])->only(
             [
@@ -52,6 +55,7 @@ class OrderController extends Controller
 
         $this->orderRepository = $orderRepository;
         $this->accountingRepository = $accountingRepository;
+        $this->storesEmailConfigRepository = $storesEmailConfigRepository;
     }
 
     /**
@@ -123,14 +127,13 @@ class OrderController extends Controller
         $products = json_decode($order->products, true);
         $store = $order->store;
         $invoice = $this->orderRepository->getSpecificInvoiceForOrder($order->id);
-
-
+        $isStoreConfigEmailEnabled = $this->storesEmailConfigRepository->getConfigByStoreId(auth()->user()->store_id);
         // Verificar si existe un client_id antes de llamar a getClientOrdersCount
         $clientOrdersCount = $order->client_id 
             ? $this->orderRepository->getClientOrdersCount($order->client_id)
             : 0; // O cualquier valor predeterminado si no hay cliente
 
-        return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount', 'invoice'));
+        return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount', 'invoice', 'isStoreConfigEmailEnabled'));
     }
 
     /**

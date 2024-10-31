@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Repositories\EmailNotificationsRepository;
+use App\Repositories\StoresEmailConfigRepository;
 use App\Services\Mail\EmailService;
 use App\Services\Mail\BrevoMailer;
 use App\Services\Mail\MailgunMailer;
@@ -41,7 +42,12 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(EmailService::class, function ($app) {
-            return new EmailService($app->make(MailProviderInterface::class));
+            return new EmailService(
+                $app->make(MailProviderInterface::class),
+                'default@example.com', // valor por defecto de 'from', puedes cambiarlo
+                'noreply@example.com', // valor por defecto de 'replyTo', puedes cambiarlo
+                $app->make(StoresEmailConfigRepository::class)
+            );
         });
     }
 
