@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         $.ajax({
-            url: 'purchase-order-items/',
+            url: 'purchase-order-items',
             method: 'POST',
             data: $('#addItemForm').serialize(),
             headers: {

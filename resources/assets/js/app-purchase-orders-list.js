@@ -104,8 +104,9 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#addOrderForm').on('submit', function (event) {
         event.preventDefault();
 
+        console.log('Enviando formulario...');
         $.ajax({
-            url: 'purchase-orders/',
+            url: 'purchase-orders',
             method: 'POST',
             data: $(this).serialize(),
             headers: {
@@ -124,8 +125,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                 }
+                console.log('Formulario enviado');
             },
             error: function (xhr, status, error) {
+                console.error('Error, url utilizada:', this.url);
                 console.error('Error:', error);
                 console.error('Detalles:', xhr.responseText);
             }
