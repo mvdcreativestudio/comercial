@@ -134,7 +134,7 @@ $currencySymbol = $settings->currency_symbol;
       <span class="input-group-text bg-white">
         <i class="bx bx-search"></i>
       </span>
-      <input type="text" id="searchOrder" class="form-control" placeholder="Buscar orden por ID..."
+      <input type="text" id="searchOrder" class="form-control" placeholder="Buscar orden por ID o nombre del cliente..."
         aria-label="Buscar Orden">
     </div>
   </div>
