@@ -50,12 +50,32 @@ class CreatePermissions extends Command
                     'view_all' => true,
                 ],
                 [
+                    'slug' => 'raw-materials-edit',
+                    'module' => 'manufacturing',
+                    'view_all' => false,
+                ],
+                [
+                    'slug' => 'formulas',
+                    'module' => 'manufacturing',
+                    'view_all' => true,
+                ],
+                [
+                    'slug' => 'batches',
+                    'module' => 'manufacturing',
+                    'view_all' => true,
+                ],
+                [
+                    'slug' => 'packagings',
+                    'module' => 'manufacturing',
+                    'view_all' => false,
+                ],
+                [
                     'slug' => 'suppliers',
                     'module' => 'stock',
                     'view_all' => true,
                 ],
                 [
-                    'slug' => 'supplier-orders',
+                    'slug' => 'purchase-orders',
                     'module' => 'stock',
                     'view_all' => true,
                 ],
@@ -69,14 +89,9 @@ class CreatePermissions extends Command
                     'module' => 'accounting',
                     'submenus' => [
                         'invoices',
-                        'update_all_invoices',
                         'receipts',
                         'entries',
-                        'accounting-settings',
-                        'received-documents',
-                        'expenses',
-                        'current-accounts',
-                        'currencies'
+                        'accounting-settings'
                     ],
                     'view_all' => false,
                 ],
@@ -121,7 +136,7 @@ class CreatePermissions extends Command
                     'view_all' => false,
                 ],
                 [
-                    'slug' => 'productions',
+                    'slug' => 'bulk-productions',
                     'module' => 'manufacturing',
                     'view_all' => true,
                 ],
@@ -152,11 +167,6 @@ class CreatePermissions extends Command
                     'slug' => 'datacenter',
                     'module' => 'datacenter',
                     'view_all' => true,
-                ],
-                [
-                    'slug' => 'crm',
-                    'module' => 'crm',
-                    'view_all' => false,
                 ],
                 [
                     'slug' => 'stores',
@@ -234,8 +244,6 @@ class CreatePermissions extends Command
                         'entry-details',
                         'entry-types',
                         'entry-accounts',
-                        // 'entry-currencies',
-                        // 'entry-settings',
                     ],
                 ],
                 [
@@ -274,15 +282,6 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'current-accounts',
                         'current-account-settings',
-                    ],
-                ],
-                [
-                    'slug' => 'current-accounts',
-                    'module' => 'current-accounts',
-                    'view_all' => true,
-                    'submenus' => [
-                        'current-account-payments',
-                        'delete_current-accounts',
                     ],
                 ],
                 [

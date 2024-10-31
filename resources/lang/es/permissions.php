@@ -9,6 +9,8 @@ return [
     'access_productions' => 'Acceder a Producciones',
     'view_all_productions' => 'Ver todas las Producciones',
     'access_bypass_raw_material_check' => 'Saltar verificación de materia prima para producciones',
+    'view_all_packagings' => 'Ver envasados.',
+
 
     // Stock y Materias Primas
     'access_raw-materials' => 'Acceder a Materias Primas',
