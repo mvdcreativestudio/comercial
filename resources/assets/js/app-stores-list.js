@@ -46,8 +46,12 @@ document.addEventListener('DOMContentLoaded', function () {
           render: function (data, type, row, meta) {
             let actionButton =
               row.status === 1
-                ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Desactivar</div>"
-                : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Activar</div>";
+                ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Desactivar Empresa</div>"
+                : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-loader-circle'></i> Activar Empresa</div>";
+
+            let automaticBillingButton = row.automatic_billing
+              ? "<div class='dropdown-item text-danger delete-button' style='cursor: pointer;'><i class='bx bx-file'></i> Desactivar F. Automática</div>"
+              : "<div class='dropdown-item text-success delete-button' style='cursor: pointer;'><i class='bx bx-file'></i> Activar F. Automática</div>";
             return `
             <div class="dropdown">
                 <button class="btn btn-icon btn-icon-only" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -76,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
       language: {
         searchPlaceholder: 'Buscar...',
         sLengthMenu: '_MENU_',
-        info: 'Mostrando _START_ a _END_ de _TOTAL_ tiendas',
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ empresas',
         paginate: {
           first: 'Primero',
           last: 'Último',
@@ -93,8 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingRecords: 'Cargando...',
         processing: 'Procesando...',
         search: '',
-        infoFiltered: '(filtrado de un total de _MAX_ tiendas)',
-        infoEmpty: 'Mostrando 0 a 0 de 0 tiendas'
+        infoFiltered: '(filtrado de un total de _MAX_ empresas)',
+        infoEmpty: 'Mostrando 0 a 0 de 0 empresas'
       },
       dom:
         '<"card-header d-flex border-top rounded-0 flex-wrap py-md-0"' +
@@ -115,10 +119,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       ]
     });
-    $('.toggle-column').on('change', function() {
+    $('.toggle-column').on('change', function () {
       var column = table.column($(this).attr('data-column'));
       column.visible(!column.visible());
-  });
+    });
   }
 
   $('.dataTables_length').addClass('mt-0 mt-md-3 me-3');
@@ -128,32 +132,27 @@ document.addEventListener('DOMContentLoaded', function () {
   $('div.dataTables_filter input').addClass('form-control');
   $('div.dataTables_length select').addClass('form-select');
 
-  $('.delete-button').click(function() {
+  $('.delete-button').click(function () {
     var form = $(this).closest('form');
     Swal.fire({
-        title: '¿Seguro?',
-        text: "Estás a punto de cambiar el estado de la tienda",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, cambiarlo!',
-        cancelButtonText: 'No, cancelar!',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            form.submit();
-        } else if (
-            /* Read more about handling dismissals below */
-            result.dismiss === Swal.DismissReason.cancel
-        ) {
-            Swal.fire(
-                'Cancelado',
-                'El estado de la tienda está seguro :)',
-                'error'
-            )
-        }
+      title: '¿Seguro?',
+      text: 'Estás a punto de cambiar el estado de la empresa',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, cambiarlo!',
+      cancelButtonText: 'No, cancelar!',
+      reverseButtons: true
+    }).then(result => {
+      if (result.isConfirmed) {
+        form.submit();
+      } else if (
+        /* Read more about handling dismissals below */
+        result.dismiss === Swal.DismissReason.cancel
+      ) {
+        Swal.fire('Cancelado', 'El estado de la empresa está seguro :)', 'error');
+      }
     });
-});
-
+  });
 });

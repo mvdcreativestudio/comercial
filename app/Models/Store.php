@@ -23,7 +23,26 @@ class Store extends Model
         'slug',
         'closed',
         'manual_override_at',
+        'automatic_billing',
+        'invoices_enabled',
+        'pymo_user',
+        'pymo_password',
+        'pymo_branch_office',
+        'accepts_peya_envios',
+        'peya_envios_key',
     ];
+
+    /**
+     * Obtiene las materias primas asociadas a la tienda.
+     *
+     * @return BelongsToMany
+     */
+    public function rawMaterials()
+    {
+        return $this->belongsToMany(RawMaterial::class, 'raw_material_store', 'store_id', 'raw_material_id')
+                    ->withPivot('stock');
+    }
+
 
     /**
      * Obtiene los usuarios asociados a la tienda.
@@ -86,4 +105,58 @@ class Store extends Model
     {
         return $this->hasMany(StoreHours::class);
     }
+
+
+    /**
+     * Obtiene las cajas registradoras asociadas a la tienda.
+     *
+     * @return HasMany
+     */
+    public function cashRegisters(): HasMany
+    {
+        return $this->hasMany(CashRegister::class);
+    }
+
+    /**
+     * Obtiene los recibos asociados a la tienda.
+     *
+     * @return HasMany
+    */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(CFE::class);
+    }
+
+    /**
+     * Obtiene los POS vinculados a la tienda.
+     * 
+     * @return BelongsTo
+     */
+    public function posProvider()
+    {
+        return $this->belongsTo(PosProvider::class, 'pos_provider_id');
+    }
+
+    /**
+     * Obtiene la información de integración con el POS.
+     * 
+     * @return HasOne
+     */
+    public function posIntegrationInfo()
+    {
+        return $this->hasOne(PosIntegrationStoreInfo::class, 'store_id');
+    }
+    
+
+    /**
+     * Obtiene los dispositivos POS asociados a la tienda.
+     * 
+     * @return HasMany
+     */
+    public function posDevices()
+    {
+        // Primero obtenemos la integración POS de la tienda, luego los dispositivos asociados
+        return $this->hasManyThrough(PosDevice::class, PosIntegrationStoreInfo::class, 'store_id', 'pos_provider_id', 'id', 'pos_provider_id');
+    }
+    
 }

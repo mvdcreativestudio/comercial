@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if ($.fn.DataTable.isDataTable('.datatables-productions')) {
       dt_productions_table.DataTable().destroy();
     }
+
     dt_productions_table.DataTable({
       data: productions,
       columns: columns,
@@ -152,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
           text: '<i class="bx bx-plus me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Crear</span>',
           className: 'btn btn-primary ml-3',
           action: function () {
-            window.location.href = '/admin/productions/create';
+            window.location.href = 'http://localhost:8000/admin/productions/create';
           }
         }
       ]

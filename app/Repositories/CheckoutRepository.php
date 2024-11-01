@@ -7,8 +7,6 @@ use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\MercadoPagoAccount;
 use App\Models\EcommerceSetting;
-use App\Models\Notification;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -18,7 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\CheckoutStoreOrderRequest;
 use Illuminate\Http\RedirectResponse;
 use App\Events\OrderCreatedEvent;
-
+use Exception;
 
 class CheckoutRepository
 {
@@ -26,24 +24,33 @@ class CheckoutRepository
      * Repositorio de notificaciones de correo electrónico.
      *
      * @var EmailNotificationsRepository
-     */
+    */
     protected $emailNotificationsRepository;
+
+    /**
+     * Repositorio de contabilidad.
+     *
+     * @var AccountingRepository
+    */
+    protected $accountingRepository;
 
     /**
      * Inicializa el repositorio de notificaciones de correo electrónico.
      *
      * @param EmailNotificationsRepository $emailNotificationsRepository
-     */
-    public function __construct(EmailNotificationsRepository $emailNotificationsRepository)
+     * @param AccountingRepository $accountingRepository
+    */
+    public function __construct(EmailNotificationsRepository $emailNotificationsRepository, AccountingRepository $accountingRepository)
     {
         $this->emailNotificationsRepository = $emailNotificationsRepository;
+        $this->accountingRepository = $accountingRepository;
     }
 
     /**
      * Obtiene los datos para mostrar en la página de checkout.
      *
      * @return array
-     */
+    */
     public function index(): array
     {
         $order = null;
@@ -71,7 +78,7 @@ class CheckoutRepository
      *
      * @param string $uuid
      * @return array
-     */
+    */
     public function success(string $uuid): array
     {
         $order = Order::with('client')->where('uuid', $uuid)->firstOrFail();
@@ -83,7 +90,7 @@ class CheckoutRepository
      *
      * @param string $uuid
      * @return array
-     */
+    */
     public function failure(string $uuid): array
     {
         $order = Order::with('client')->where('uuid', $uuid)->firstOrFail();
@@ -96,57 +103,86 @@ class CheckoutRepository
      * @param CheckoutStoreOrderRequest $request
      * @param MercadoPagoService $mercadoPagoService
      * @return RedirectResponse
-     */
+    */
     public function processOrder(CheckoutStoreOrderRequest $request, MercadoPagoService $mercadoPagoService): RedirectResponse
     {
         try {
             DB::beginTransaction();
 
+            // Obtener el ID de la tienda desde la sesión
             $storeId = session('store.id');
+            Log::info('ID de tienda obtenido:', ['store_id' => $storeId]);
+
+            // Obtener los datos del cliente
             $clientData = $this->getClientData($request);
+
+            // Obtener los datos de la orden
             $orderData = $this->getOrderData($request);
 
-            // Guardar la orden y los datos del cliente
             $order = $this->createOrder($clientData, $orderData);
 
+            $store = $order->store;
+
+            if ($store->automatic_billing) {
+                $this->accountingRepository->emitCFE($order);
+                $order->update(['is_billed' => true]);
+            } else {
+                $order->update(['is_billed' => false]);
+            }
+
+            // Verificar si el método de pago es 'card' (tarjeta)
             if ($request->payment_method === 'card') {
+                // Obtener las credenciales de MercadoPago para la tienda
+                $mercadoPagoAccount = MercadoPagoAccount::where('store_id', $storeId)->first();
+
+                if (!$mercadoPagoAccount) {
+                    throw new \Exception('No se encontraron las credenciales de MercadoPago para la tienda asociada al pedido.');
+                }
+
+                // Configurar el SDK de MercadoPago con las credenciales de la tienda
+                $mercadoPagoService->setCredentials($mercadoPagoAccount->public_key, $mercadoPagoAccount->access_token);
+
+                // Procesar el pago con tarjeta
                 $redirectUrl = $this->processCardPayment($request, $order, $mercadoPagoService, $storeId);
                 DB::commit();
-                session()->forget('cart'); // Limpiar el carrito de compras
+                session()->forget('cart');
                 return Redirect::away($redirectUrl);
             } else {
-                // Lógica para pago en efectivo
                 DB::commit();
-                session()->forget('cart'); // Limpiar el carrito de compras
+                session()->forget('cart');
 
                 Log::info('Pedido procesado correctamente.');
 
                 // Enviar correos
-                Log::info('Método de pago es efectivo. Intentando enviar correos...');
-                $variables = [
-                    'order_id' => $order->id,
-                    'client_name' => $order->client->name,
-                    'client_lastname' => $order->client->lastname,
-                    'client_email' => $order->client->email,
-                    'client_phone' => $order->client->phone,
-                    'client_address' => $order->client->address,
-                    'client_city' => $order->client->city,
-                    'client_state' => $order->client->state,
-                    'client_country' => $order->client->country,
-                    'order_subtotal' => $order->subtotal,
-                    'order_shipping' => $order->shipping,
-                    'coupon_amount' => $order->coupon_amount,
-                    'order_total' => $order->total,
-                    'order_date' => $order->date,
-                    'order_items' => $order->products,
-                    'order_shipping_method' => $order->shipping_method,
-                    'order_payment_method' => $order->payment_method,
-                    'order_payment_status' => $order->payment_status,
-                    'store_name' => $order->store->name,
-                ];
+                try {
+                    Log::info('Método de pago es efectivo. Intentando enviar correos...');
+                    $variables = [
+                        'order_id' => $order->id,
+                        'client_name' => $order->client->name,
+                        'client_lastname' => $order->client->lastname,
+                        'client_email' => $order->client->email,
+                        'client_phone' => $order->client->phone,
+                        'client_address' => $order->client->address,
+                        'client_city' => $order->client->city,
+                        'client_state' => $order->client->state,
+                        'client_country' => $order->client->country,
+                        'order_subtotal' => $order->subtotal,
+                        'order_shipping' => $order->shipping,
+                        'coupon_amount' => $order->coupon_amount,
+                        'order_total' => $order->total,
+                        'order_date' => $order->date,
+                        'order_items' => $order->products,
+                        'order_shipping_method' => $order->shipping_method,
+                        'order_payment_method' => $order->payment_method,
+                        'order_payment_status' => $order->payment_status,
+                        'store_name' => $order->store->name,
+                    ];
 
-                $this->emailNotificationsRepository->sendNewOrderEmail($variables);
-                $this->emailNotificationsRepository->sendNewOrderClientEmail($variables);
+                    $this->emailNotificationsRepository->sendNewOrderEmail($variables);
+                    $this->emailNotificationsRepository->sendNewOrderClientEmail($variables);
+                } catch (\Exception $e) {
+                    Log::error("Error al enviar correos: {$e->getMessage()} en {$e->getFile()}:{$e->getLine()}");
+                }
 
                 // Redirigir al usuario a la página de éxito usando el UUID
                 return redirect()->route('checkout.success', $order->uuid);
@@ -158,6 +194,9 @@ class CheckoutRepository
         }
     }
 
+
+
+
     /**
      * Crea una orden y un cliente en la base de datos.
      *
@@ -167,6 +206,16 @@ class CheckoutRepository
      */
     private function createOrder(array $clientData, array $orderData): Order
     {
+        // Obtener la configuración de companySettings
+        $companySettings = app('companySettings');
+
+        // Asignar store_id o null dependiendo del valor de clients_has_store
+        if ($companySettings && $companySettings->clients_has_store == 1) {
+            $clientData['store_id'] = session('store.id');
+        } else {
+            $clientData['store_id'] = null;
+        }
+
         // Crear y guardar el cliente
         $client = Client::updateOrCreate(
             ['email' => $clientData['email']],
@@ -186,7 +235,6 @@ class CheckoutRepository
         return $order;
     }
 
-
     /**
      * Procesa el pago con tarjeta utilizando MercadoPago.
      *
@@ -195,7 +243,7 @@ class CheckoutRepository
      * @param MercadoPagoService $mercadoPagoService
      * @param int $storeId
      * @return string
-     */
+    */
     private function processCardPayment(Request $request, Order $order, MercadoPagoService $mercadoPagoService, int $storeId): string
     {
         $cartItems = session('cart', []);
@@ -214,8 +262,6 @@ class CheckoutRepository
             throw new \Exception('No se encontraron las credenciales de MercadoPago para la tienda asociada al pedido.');
         }
 
-        Log::info('Credenciales de MercadoPago obtenidas:', $mercadoPagoAccount->toArray());
-
         // Configurar el SDK de MercadoPago con las credenciales de la tienda
         $mercadoPagoService->setCredentials($mercadoPagoAccount->public_key, $mercadoPagoAccount->access_token);
 
@@ -229,13 +275,10 @@ class CheckoutRepository
           ]
         ];
 
-        Log::info('Creando preferencia de pago con los siguientes datos:', $preferenceData);
 
         $preference = $mercadoPagoService->createPreference($preferenceData, $order);
         $order->preference_id = $preference->id;
         $order->save();
-
-        Log::info('Preferencia de pago creada:', $preference->toArray());
 
         return "https://www.mercadopago.com.uy/checkout/v1/payment/redirect/?preference-id={$preference->id}";
     }
@@ -246,7 +289,7 @@ class CheckoutRepository
      * @param string $couponCode
      * @return array
      * @throws \Exception
-     */
+    */
     public function applyCoupon(string $couponCode): array
     {
         $subtotal = session('subtotal', 0);
@@ -263,19 +306,21 @@ class CheckoutRepository
      *
      * @param Request $request
      * @return array
-     */
+    */
     private function getClientData(Request $request): array
     {
         return [
             'name' => $request->name,
             'lastname' => $request->lastname,
             'type' => 'individual',
-            'state' => 'Montevideo',
-            'city' => 'Montevideo',
+            'state' => $request->department ?? 'Montevideo',
+            'city' => $request->city ?? 'Montevideo',
             'country' => 'Uruguay',
             'address' => $request->address ?? 'N/A',
             'phone' => $request->phone,
             'email' => $request->email,
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
     }
 
@@ -284,7 +329,7 @@ class CheckoutRepository
      *
      * @param Request $request
      * @return array
-     */
+    */
     private function getOrderData(Request $request): array
     {
         $subtotal = 0;
@@ -302,12 +347,10 @@ class CheckoutRepository
                 }
             }
 
-            // Obtener el category_id de la tabla category_product
             $category = DB::table('category_product')
                 ->where('product_id', $item['id'])
                 ->first();
 
-            // Agregar log para depurar
             Log::info('Category data for product:', [
                 'product_id' => $item['id'],
                 'category' => $category
@@ -320,7 +363,7 @@ class CheckoutRepository
                 'quantity' => $item['quantity'],
                 'flavors' => implode(', ', $flavors),
                 'image' => $item['image'],
-                'category_id' => $category ? $category->category_id : null, // Añadir el category_id al JSON
+                'category_id' => $category ? $category->category_id : null,
             ];
         }
 
@@ -344,6 +387,8 @@ class CheckoutRepository
             'payment_method' => $request->payment_method,
             'shipping_method' => $request->shipping_method,
             'products' => json_encode($products),
+            'doc_type' => $request->doc_type,
+            'document' => $request->doc_recep,
         ];
 
         if ($request->filled('estimate_id')) {
@@ -353,7 +398,6 @@ class CheckoutRepository
         return $orderData;
     }
 
-
     /**
      * Aplica un cupón a la sesión.
      *
@@ -361,7 +405,7 @@ class CheckoutRepository
      * @param float $subtotal
      * @return array
      * @throws \Exception
-     */
+    */
     public function applyCouponToSession(string $couponCode, float $subtotal): array
     {
         $coupon = Coupon::where('code', $couponCode)->first();
@@ -395,5 +439,4 @@ class CheckoutRepository
 
         return ['code' => $coupon->code, 'discount' => $discount];
     }
-
 }

@@ -11,7 +11,25 @@ document.addEventListener('DOMContentLoaded', function () {
     { title: 'Proveedor', data: 'supplier.name' },
     { title: 'Fecha de Orden', data: 'order_date' },
     {
-      title: 'Estado de Envío',
+      title: 'Método',
+      data: 'payment_method',
+      render: function(data) {
+          switch(data) {
+              case 'credit':
+                  return 'Crédito';
+              case 'cash':
+                  return 'Efectivo';
+              case 'debit':
+                  return 'Débito';
+              case 'check':
+                  return 'Cheque';
+              default:
+                  return data; // En caso de que haya un valor inesperado
+          }
+      }
+    },
+    {
+      title: 'Envío',
       data: 'shipping_status',
       render: function (data) {
         return data === 'completed'
@@ -31,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
 
   if (hasViewAllSupplierOrdersPermission) {
-    columns.push({ title: 'Tienda', data: 'store.name' });
+    columns.push({ title: 'Empresa', data: 'store.name' });
   }
 
   columns.push({

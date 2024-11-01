@@ -45,7 +45,7 @@
           <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
             <div>
               <h6 class="mb-2">Materias Primas</h6>
-              <h4 class="mb-2">{{ isset($rawMaterials) ? $rawMaterials->count() : 0 }}</h4>
+              {{-- <h4 class="mb-2">{{ isset($rawMaterials) ? $rawMaterials->count() : 0 }}</h4> --}}
               <p class="mb-0"><span class="text-muted me-2">Total</span></p>
             </div>
             <div class="avatar me-sm-4">
@@ -179,7 +179,7 @@
               <span class="switch-on"><i class="bx bx-check"></i></span>
               <span class="switch-off"><i class="bx bx-x"></i></span>
             </span>
-            <span class="switch-label">Tienda</span>
+            <span class="switch-label">Empresa</span>
           </label>
         </div>
         <div class="mx-3">
@@ -195,7 +195,7 @@
       </div>
     </div>
   </div>
-  
+
   <div id="dataTableInit"
      data-base-url="{{ asset('storage/assets/img/raw_materials/') }}"
      data-raw-material-add="{{ route('raw-materials.create') }}"
@@ -212,7 +212,7 @@
           <th>Unidad de Medida</th>
           <th>Stock</th>
           @if(auth()->user()->can('view_all_raw-materials'))
-            <th>Tienda</th>
+            <th>Empresa</th>
           @endif
           <th>Acciones</th>
         </tr>

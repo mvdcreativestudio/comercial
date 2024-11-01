@@ -1,7 +1,3 @@
-@php
-$configData = Helper::appClasses();
-@endphp
-
 @extends('content.e-commerce.front.layouts.ecommerce-layout')
 
 @section('title', 'Finalizar compra')
@@ -26,6 +22,17 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('content')
+
+@php
+    // Recuperar el ID de la tienda desde la sesión
+    $store_id = session('store.id');
+@endphp
+
+<script>
+    // Define el store_id en JavaScript desde la sesión de Laravel
+    const storeId = "{{ session('store.id') }}";
+</script>
+
 <div class="video-container">
   <video autoplay muted loop id="myVideo" class="video-background">
     <source src="./assets/img/videos/back-chelato.mp4" type="video/mp4">
@@ -61,6 +68,15 @@ $configData = Helper::appClasses();
       <span id="alert-message-location">Aaaa</span>
     </div>
   </div>
+
+  <!-- New alert for RUC/CI validation -->
+  <div id="alert-container-doc" class="alert alert-danger d-none" role="alert">
+    <span class="badge badge-center rounded-pill bg-danger border-label-danger p-3 me-2"><i class="bx bx-error fs-6"></i></span>
+    <div class="d-flex flex-column ps-1">
+      <h6 class="alert-heading d-flex align-items-center fw-bold mb-1">¡Error en el Documento!</h6>
+      <span id="alert-message-doc"></span>
+    </div>
+  </div>
 </div>
 
 <section class="section-py bg-body first-section-pt mt-5 vh-100">
@@ -75,11 +91,15 @@ $configData = Helper::appClasses();
         </div>
       </form>
     @endif
+
     <form action="{{ route('checkout.store') }}" id="checkout-form" method="POST">
       @csrf
 
       <input type="hidden" name="shipping_cost" id="shippingCostInput" value="0">
       <input type="hidden" name="estimate_id" id="estimateIdInput" value="">
+      <input type="hidden" name="city" id="city" />
+      <input type="hidden" name="department" id="department" />
+      <input type="hidden" name="store_id" id="storeId" value="{{ $store_id }}" />
 
       <div class="card px-3">
         <div class="row">
@@ -148,7 +168,7 @@ $configData = Helper::appClasses();
 
                 <div class="col-12 mt-3" id="address-container">
                   <label class="form-label" for="address">Dirección</label>
-                  <input id="address" name="address" class="form-control" placeholder="Calle, esquina, número de puerta" onFocus="geolocate()" role="presentation" autocomplete="off" required>
+                  <input id="address" name="address" class="form-control" placeholder="Calle, esquina, número de puerta" onFocus="geolocate()" role="presentation" autocomplete="off">
                 </div>
 
                 <div class="col-12 col-md-6 mt-3">
@@ -158,6 +178,17 @@ $configData = Helper::appClasses();
                 <div class="col-12 col-md-6 mt-3">
                   <label class="form-label" for="email">Correo Electrónico</label>
                   <input type="text" id="email" name="email" class="form-control" placeholder="Introduzca su correo electrónico" required/>
+                </div>
+                <div class="col-12 col-md-6 mt-3">
+                  <label class="form-label" for="doc_type">Tipo de Documento</label>
+                  <select id="doc_type" name="doc_type" class="form-control" required>
+                    <option value="2">RUC</option>
+                    <option value="3">CI</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6 mt-3">
+                  <label class="form-label" for="doc_recep">Número de Documento</label>
+                  <input type="text" id="doc_recep" name="doc_recep" class="form-control" placeholder="Introduzca su RUC o CI" required />
                 </div>
               </div>
           </div>
@@ -175,7 +206,7 @@ $configData = Helper::appClasses();
                         <div class="flex-grow-1">
                           <div class="row">
                             <div class="col-md-8">
-                              <p class=" mb-0 bold"><a href="javascript:void(0)" class="text-body">{{ $details['name'] }}</a></p>
+                              <p class=" mb-0 bold"><span class="text-body">{{ $details['name'] }}</span></p>
                               @if (!empty($details['flavors']))
                               <small class="mt-0">
                                 @foreach($details['flavors'] as $flavorId => $flavorDetails)
@@ -185,13 +216,12 @@ $configData = Helper::appClasses();
                                   <p class="text-muted m-0 p-0">{{ $flavorDetails['name'] }}</p>
                                 @endif
                                 @endforeach
-
                               </small>
                               @endif
                               @if($details['quantity'] == 1)
-                                <p class=" mb-0"><a href="javascript:void(0)" class="text-body">{{ $details['quantity'] }} unidad</a></p>
+                                <p class=" mb-0"><span class="text-body">{{ $details['quantity'] }} unidad</span></p>
                               @else
-                                <p class=" mb-0"><a href="javascript:void(0)" class="text-body">{{ $details['quantity'] }} unidades</a></p>
+                                <p class=" mb-0"><span class="text-body">{{ $details['quantity'] }} unidades</span></p>
                               @endif
                             </div>
                             <div class="col-md-4">
@@ -269,15 +299,20 @@ $configData = Helper::appClasses();
 </section>
 
 <script>
-
 let autocomplete;
 
 function initAutocomplete() {
     autocomplete = new google.maps.places.Autocomplete(
-        (document.getElementById('address')), {
-            types: ['geocode'],
-        });
-    autocomplete.setFields(['address_component']);
+        document.getElementById('address'), { types: ['geocode'] }
+    );
+
+    autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        const addressComponents = getAddressComponents(place.address_components);
+
+        document.getElementById('city').value = addressComponents.city;
+        document.getElementById('department').value = addressComponents.department;
+    });
 }
 
 function geolocate() {
@@ -294,6 +329,21 @@ function geolocate() {
             autocomplete.setBounds(circle.getBounds());
         });
     }
+}
+
+function getAddressComponents(components) {
+    let city = '', department = '';
+
+    components.forEach(component => {
+        if (component.types.includes('locality')) {
+            city = component.long_name;
+        }
+        if (component.types.includes('administrative_area_level_1')) {
+            department = component.long_name;
+        }
+    });
+
+    return { city, department };
 }
 
 document.querySelectorAll('input[name="shipping_method"]').forEach((elem) => {
@@ -322,34 +372,49 @@ document.querySelectorAll('input[name="shipping_method"]').forEach((elem) => {
     });
 });
 
-// Si cambio entre efectivo y tarjeta, obligo al usuario a tener que volver a estimar el envío y vuelvo a bloquear el botón de confirmar pedido
 document.querySelectorAll('input[name="payment_method"]').forEach((elem) => {
     elem.addEventListener('change', function(event) {
         const orderConfirmButton = document.getElementById('orderConfirm');
         orderConfirmButton.setAttribute('disabled', 'disabled');
-        // Reseteo el costo de envío a calcular y el total a calcular
         document.getElementById('orderShippingCost').innerText = 'A calcular';
         document.getElementById('orderTotal').innerText = 'A calcular';
-        // Actualizo el valor de estimateId a vacío
         document.getElementById('estimateIdInput').value = '';
-        // Actualizo el valor de shippingCost a 0
         document.getElementById('shippingCostInput').value = '0';
     });
 });
+
+
+
+
+async function getPedidosYaApiKey(storeId) {
+    try {
+        const response = await fetch(`/api/get-pedidosya-key/${storeId}`);
+        const data = await response.json();
+        return data.api_key;
+    } catch (error) {
+        console.error('Error fetching API key:', error);
+        return null;
+    }
+}
 
 document.getElementById('validate-address').addEventListener('click', async function(event) {
   if (document.getElementById('customRadioPedidosYa').checked) {
     event.preventDefault();
 
+    // Utiliza la variable JavaScript storeId directamente
+    const apiKey = await getPedidosYaApiKey(storeId)
+    if (!apiKey) {
+        alert('Error al obtener la API Key de PedidosYa.');
+        return;
+    }
+
+
     const googleMapsApiKey = '{{ $googleMapsApiKey }}';
-
     const referenceId = 'Chelato_PeYa_REF-' + Date.now();
-
     const userAddress = document.getElementById('address').value;
     const storeAddress = '{{ session("store")["address"] }}';
 
     async function getAddressDetails(address) {
-
       if (!address) {
         alertDiv = document.getElementById('alert-container-location');
         alertDiv.classList.remove('d-none');
@@ -401,6 +466,7 @@ document.getElementById('validate-address').addEventListener('click', async func
     });
 
     var requestData = {
+      store_id: storeId, // Asegúrate de incluir store_id
       referenceId: referenceId,
       items: items,
       isTest: true,
@@ -413,47 +479,57 @@ document.getElementById('validate-address').addEventListener('click', async func
       }, {
         type: "DROP_OFF",
         ...userDetails,
-        // Le paso collectMoney si está seleccionado efectivo como método de pago
         collectMoney: document.getElementById('customRadioEfectivo').checked ? parseFloat(document.getElementById('orderTotal').innerText.replace('{{ $settings->currency_symbol }}', '')) : null,
         phone: document.getElementById('phone').value,
         name: document.getElementById('name').value + " " + document.getElementById('lastname').value
       }]
     };
 
-    fetch('api/pedidos-ya/estimate-order', {
+    fetch('/api/pedidos-ya/estimate-order', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestData)
-    }).then(response => response.json())
-      .then(data => {
-        if (data.status == 400) {
-          handleApiReturns(data.code, data.status);
-        } else {
-          if (data.estimateId) {
-            handleApiReturns('Tu envío fue calculado con exito.', 200);
+    })
+    .then(response => {
+      if (!response.ok) {
+        // Manejo del error
+        throw new Error('Network response was not ok: ' + response.statusText);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.status == 400) {
+        handleApiReturns(data.code, data.status);
+      } else {
+        if (data.estimateId) {
+          handleApiReturns('Tu envío fue calculado con éxito.', 200);
 
-            // Habilita el botón de confirmar pedido
-            document.getElementById('orderConfirm').removeAttribute('disabled');
+          // Habilita el botón de confirmar pedido
+          document.getElementById('orderConfirm').removeAttribute('disabled');
 
-            // Actualiza el costo de envío en el input hidden
-            document.getElementById('shippingCostInput').value = data.deliveryOffers[0].pricing.total;
+          // Actualiza el costo de envío en el input hidden
+          document.getElementById('shippingCostInput').value = data.deliveryOffers[0].pricing.total;
 
-            // Actualiza el id de la estimación
-            document.getElementById('estimateIdInput').value = data.estimateId;
+          // Actualiza el id de la estimación
+          document.getElementById('estimateIdInput').value = data.estimateId;
 
-            // Actualiza el costo de envío
-            document.getElementById('orderShippingCost').innerText = '{{ $settings->currency_symbol }}' + data.deliveryOffers[0].pricing.total;
+          // Actualiza el costo de envío
+          document.getElementById('orderShippingCost').innerText = '$' + data.deliveryOffers[0].pricing.total;
 
-            // Actualiza el total
-            document.getElementById('orderTotal').innerText = '{{ $settings->currency_symbol }}' + (parseFloat(data.deliveryOffers[0].pricing.total) + parseFloat('{{ $subtotal }}' - '{{ $discount }}'));
-          }
+          // Actualiza el total
+          document.getElementById('orderTotal').innerText = '$' + (parseFloat(data.deliveryOffers[0].pricing.total) + parseFloat('200' - '0'));
         }
-      })
-      .catch(error => {
-        console.log('Error:', error);
-      });
+        else {
+          handleApiReturns('Hubo un error al calcular el envío.');
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+
 
     function handleApiReturns(returnMessage, status = 400) {
       const alertDiv = document.getElementById('alert-container-location');
@@ -462,19 +538,15 @@ document.getElementById('validate-address').addEventListener('click', async func
       if (status === 200) {
         alertDiv.classList.remove('d-none');
         alertDiv.classList.add('d-flex');
-        // Cambiar color de alerta
         alertDiv.classList.remove('alert-danger');
         alertDiv.classList.add('alert-success');
 
-        // Cambiar color span badge
         alertDiv.querySelector('.badge').classList.remove('bg-danger');
         alertDiv.querySelector('.badge').classList.add('bg-success');
 
-        // Cambiar color borde span badge
         alertDiv.querySelector('.badge').classList.remove('border-label-danger');
         alertDiv.querySelector('.badge').classList.add('border-label-success');
 
-        // Cambiar H6
         alertDiv.querySelector('h6').innerText = '¡Correcto!';
         document.getElementById('alert-message-location').innerText = returnMessage;
         return;
@@ -525,6 +597,31 @@ document.getElementById('validate-address').addEventListener('click', async func
     }
 
   }
+});
+
+// Validación del RUC/CI antes de confirmar el pedido
+document.getElementById('orderConfirm').addEventListener('click', function(event) {
+    const docType = document.getElementById('doc_type').value;
+    const docRecep = document.getElementById('doc_recep').value;
+
+    let isValid = true;
+    let errorMessage = '';
+
+    if (docType === '2' && docRecep.length !== 12) { // RUC
+        isValid = false;
+        errorMessage = 'El RUC debe tener 12 caracteres.';
+    } else if (docType === '3' && docRecep.length !== 8) { // CI
+        isValid = false;
+        errorMessage = 'La CI debe tener 8 caracteres.';
+    }
+
+    if (!isValid) {
+        event.preventDefault();
+        const alertDiv = document.getElementById('alert-container-doc');
+        alertDiv.classList.remove('d-none');
+        alertDiv.classList.add('d-flex');
+        document.getElementById('alert-message-doc').innerText = errorMessage;
+    }
 });
 </script>
 

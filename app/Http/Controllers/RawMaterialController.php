@@ -49,8 +49,10 @@ class RawMaterialController extends Controller
     public function index(): View
     {
         $rawMaterials = $this->rawMaterialRepository->getAll();
-        return view('raw-materials.index', $rawMaterials);
+        return view('raw-materials.index', ['rawMaterials' => $rawMaterials]);
     }
+
+
 
     /**
      * Muestra el formulario para crear una nueva materia prima.
@@ -122,7 +124,7 @@ class RawMaterialController extends Controller
      *
      * @param  RawMaterial  $rawMaterial
      * @return RedirectResponse
-     */
+    */
     public function destroy(RawMaterial $rawMaterial): RedirectResponse
     {
         $this->rawMaterialRepository->delete($rawMaterial);

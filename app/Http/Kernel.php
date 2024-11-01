@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
       \App\Http\Middleware\VerifyCsrfToken::class,
       \Illuminate\Routing\Middleware\SubstituteBindings::class,
       \App\Http\Middleware\LocaleMiddleware::class,
+
     ],
 
     'api' => [
@@ -73,5 +74,7 @@ class Kernel extends HttpKernel
     'ensure_store_matches' => \App\Http\Middleware\EnsureStoreMatches::class,
     'ensure_cart_not_empty' => \App\Http\Middleware\EnsureCartNotEmpty::class,
     'check.store.open' => \App\Http\Middleware\CheckStoreOpen::class,
+    'check.open.cash.register' => \App\Http\Middleware\CheckOpenCashRegister::class,
+    'ensure_user_can_access_store' => \App\Http\Middleware\EnsureUserCanAccessStore::class,
   ];
 }

@@ -40,7 +40,7 @@
                 </div>
                 <div class="card-body">
                     <div id="elaborations-container">
-                        <p id="instruction-text">Empieza a agregar productos o sabores para continuar con la elaboración.</p>
+                        <p id="instruction-text">Empieza a agregar productos o variaciones para continuar con la elaboración.</p>
                     </div>
                     <button type="button" class="btn btn-primary" id="add-elaboration">Agregar Producto o Sabor</button>
                 </div>

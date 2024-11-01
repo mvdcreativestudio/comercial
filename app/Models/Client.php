@@ -9,7 +9,8 @@ class Client extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'lastname', 'type', 'rut', 'ci', 'passport', 'doc_ext', 'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo'];
+    protected $fillable = ['store_id', 'name', 'lastname', 'type', 'rut', 'ci', 'passport', 'doc_ext',
+    'address', 'city', 'state', 'country', 'phone', 'email', 'website', 'logo', 'doc_type', 'document', 'company_name'];
 
 
     /**
@@ -31,5 +32,36 @@ class Client extends Model
     {
         return $this->orders()->count();
     }
+
+    /**
+     * Obtiene las ordenes del cliente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function posorders()
+    {
+        return $this->hasMany(PosOrder::class);
+    }
+
+    /**
+     * Obtiene las ordenes del cliente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+
+    public function currentAccount()
+    {
+        return $this->hasOne(CurrentAccount::class);
+    }
+
+    /**
+     * Obtiene las listas de precios del cliente.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function priceLists()
+    {
+        return $this->belongsToMany(PriceList::class, 'client_price_lists');
+    }   
 
 }

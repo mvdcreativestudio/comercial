@@ -16,7 +16,11 @@ class StoreRepository
   */
   public function getAll(): Collection
   {
-      return Store::withCount('users')->with('phoneNumber')->get();
+      if (auth()->user()->can('view_all_stores')) {
+        return Store::withCount('users')->with('phoneNumber')->get();
+      } else {
+        return Store::where('id', auth()->user()->store_id)->withCount('users')->with('phoneNumber')->get();
+      }
   }
 
   /**
@@ -239,5 +243,22 @@ class StoreRepository
       }
 
       return $stores;
+  }
+
+  /**
+   * Cambia el estado de la facturación automática de la tienda.
+   *
+   * @param Store $store
+   * @return bool
+  */
+  public function toggleAutomaticBilling(Store $store): bool
+  {
+      try {
+          $store->automatic_billing = !$store->automatic_billing;
+          $store->save();
+          return true;
+      } catch (\Exception $e) {
+          return false;
+      }
   }
 }

@@ -25,6 +25,7 @@ class UpdateClientRequest extends FormRequest
     {
       return [
           'name' => 'required|string|max:255',
+          'lastname' => 'nullable|string|max:255',
           'type' => 'nullable|string|max:255',
           'rut' => 'nullable|string|max:255',
           'ci' => 'nullable|string|max:255',
@@ -36,6 +37,8 @@ class UpdateClientRequest extends FormRequest
           'email' => 'required|string|email|max:255|unique:clients,email,' . $this->route('client'),
           'website' => 'nullable|url|max:255',
           'logo' => 'nullable|string|max:255',
+          'price_list_id' => 'nullable|exists:price_lists,id',
+
       ];
     }
 

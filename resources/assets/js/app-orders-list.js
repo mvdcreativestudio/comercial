@@ -1,208 +1,269 @@
-$(function () {
-  let borderColor, bodyBg, headingColor;
-  let $currencySymbol = $('.datatables-order').data('symbol');
+'use strict';
 
-  if (isDarkStyle) {
-    borderColor = config.colors_dark.borderColor;
-    bodyBg = config.colors_dark.bodyBg;
-    headingColor = config.colors_dark.headingColor;
-  } else {
-    borderColor = config.colors.borderColor;
-    bodyBg = config.colors.bodyBg;
-    headingColor = config.colors.headingColor;
+
+$(function () {
+  let currencySymbol = window.currencySymbol;
+  let uniqueClients = new Set();
+  let uniqueStore = new Set();
+
+  var dt_order_list_container = $('#order-list-container');
+  var searchInput = $('#searchOrder');
+  var paymentStatusFilter = $('#paymentStatusFilter');
+  var shippingStatusFilter = $('#shippingStatusFilter');
+  var clientFilter = $('#clientFilter');
+  var storeFilter = $('#storeFilter');
+  var startDateFilter = $('#startDate');
+  var endDateFilter = $('#endDate');
+
+  function isFilterApplied() {
+    return (
+      searchInput.val().trim() !== '' ||
+      paymentStatusFilter.val() !== '' ||
+      shippingStatusFilter.val() !== '' ||
+      clientFilter.val() !== '' ||
+      storeFilter.val() !== '' ||
+      startDate.val().trim() !== '' ||
+      endDate.val().trim() !== ''
+    );
   }
 
-  var dt_order_table = $('.datatables-order');
+  function resetFilters() {
+    searchInput.val('');
+    paymentStatusFilter.val('');
+    shippingStatusFilter.val('');
+    clientFilter.val('');
+    storeFilter.val('');
+    startDateFilter.val('');
+    endDateFilter.val('');
+    fetchOrders();
+  }
 
-  if (dt_order_table.length) {
-    var dt_products = dt_order_table.DataTable({
-      ajax: {
-        url: 'orders/datatable',
-        data: function (d) {
-          d.store_id = $('select[name="store_id"]').val(); // Añadir store_id a la petición
+  $('#clearFilters').on('click', function () {
+    resetFilters();
+  });
+
+  function fetchOrders() {
+    var ajaxUrl = dt_order_list_container.data('ajax-url');
+    var searchQuery = searchInput.val();
+    var paymentStatus = paymentStatusFilter.val();
+    var shippingStatus = shippingStatusFilter.val();
+    var client = clientFilter.val();
+    var store = storeFilter.val();
+    var startDate = startDateFilter.val();
+    var endDate = endDateFilter.val();
+
+    $.ajax({
+      url: ajaxUrl,
+      method: 'GET',
+      data: {
+        search: searchQuery,
+        payment_status: paymentStatus,
+        shipping_status: shippingStatus,
+        client: client,
+        store: store,
+        start_date: startDate,
+        end_date: endDate
+      },
+      success: function (response) {
+        var rows = response.data;
+        var cardContainer = $('#order-list-container').html('');
+
+        // Reset unique filters for client and store
+        uniqueClients.clear();
+        uniqueStore.clear();
+
+        if (rows.length === 0) {
+          if (isFilterApplied()) {
+            cardContainer.html(`
+              <div class="alert alert-warning text-center w-100">
+                <i class="bx bx-filter-alt"></i> No hay órdenes que coincidan con los filtros.
+                <br>
+                <button id="clearFilters" class="btn btn-outline-danger mt-3">Borrar filtros</button>
+              </div>
+            `);
+          } else {
+            cardContainer.html(`
+              <div class="alert alert-info text-center w-100">
+                <i class="bx bx-info-circle"></i> No existen órdenes disponibles.
+              </div>
+            `);
+          }
+        } else {
+          rows.forEach(function (orderData) {
+            if (orderData.client_name){
+              uniqueClients.add(orderData.client_name);
+            }
+            if (orderData.store_name){
+              uniqueStore.add(orderData.store_name);
+            }
+            const paymentStatusText =
+              orderData.payment_status === 'paid'
+                ? 'Pagado'
+                : orderData.payment_status === 'pending'
+                  ? 'Pago Pendiente'
+                  : 'Pago Fallido';
+            const paymentStatusClass =
+              orderData.payment_status === 'paid'
+                ? 'bg-success'
+                : orderData.payment_status === 'pending'
+                  ? 'bg-warning'
+                  : 'bg-danger';
+            const shippingStatusText =
+              orderData.shipping_status === 'delivered'
+                ? 'Entregado'
+                : orderData.shipping_status === 'shipped'
+                  ? 'Enviado'
+                  : 'No enviado';
+            const shippingStatusClass =
+              orderData.shipping_status === 'delivered'
+                ? 'bg-success'
+                : orderData.shipping_status === 'shipped'
+                  ? 'bg-warning'
+                  : 'bg-danger';
+
+                  var titleCard = 'Orden #'
+                  if (orderData.client_name) {
+                    titleCard += `<h5 class="order-title">${orderData.client_name} ${orderData.client_last_name}</h5>`;
+                  }else{
+                    titleCard += `<h5 class="order-title">${orderData.company_name}</h5>`;
+                  }
+                  const card = `
+                  <div class="col-md-6 col-lg-4 col-12 mb-4">
+                    <div class="order-card position-relative">
+                      <div class="order-card-body">
+                        <h5 class="order-title">#${orderData.id}-${orderData.client_name}</h5>
+                        <p class="order-date text-muted small">${moment(orderData.date).format('DD/MM/YYYY')}</p>
+                        <p class="order-payment-status"><span class="badge ${paymentStatusClass}">${paymentStatusText}</span></p>
+                        <p class="order-shipping-status"><span class="badge ${shippingStatusClass}">${shippingStatusText}</span></p>
+                        <h6 class="order-total">${currencySymbol}${parseFloat(orderData.total).toFixed(2)}</h6>
+                        <div class="d-inline-flex justify-content-end mt-auto mb-2 gap-1">
+                          <a href="${baseUrl}admin/orders/${orderData.uuid}" class="btn view-order p-1"><i class="far fa-eye"></i></a>
+                          <button data-id="${orderData.id}" class="btn delete-order p-1 delete-record"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `;
+            cardContainer.append(card);
+          });
+
+          // Populate filters with unique values
+          populateFilterOptions(clientFilter, uniqueClients, 'Todos los clientes');
+          populateFilterOptions(storeFilter, uniqueStore, 'Todas las tiendas');
         }
       },
-      columns: [
-        { data: 'id' },
-        { data: 'date' },
-        { data: 'client_name' },
-        { data: 'store_name' },
-        { data: 'total' },
-        { data: 'payment_status' },
-        { data: 'shipping_status' },
-        { data: 'uuid' }, // Add uuid column to the data
-        { data: '' }
-      ],
-      columnDefs: [
-        {
-          targets: 0,
-          render: function (data, type, full, meta) {
-            var uuid = full['uuid'];
-            return '<a href="' + baseUrl + 'admin/orders/' + uuid + '/show" class="text-body">' + '#' + data + '</a>';
-          }
-        },
-        {
-          targets: 1,
-          render: function (data, type, full, meta) {
-            var date = moment(data).locale('es').format('DD/MM/YY');
-            var time = moment(full['time'], 'HH:mm:ss').format('hh:mm a');
-            return date + ' - ' + time;
-          }
-        },
-        {
-          targets: 2,
-          render: function (data, type, full, meta) {
-            var $name = full['client_name'],
-              $email = full['client_email'],
-              $initials = $name.replace(/[^A-Z]/g, '').substring(0, 2),
-              stateNum = Math.floor(Math.random() * 6),
-              states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'],
-              $state = states[stateNum];
-
-            return (
-              '<div class="d-flex justify-content-start align-items-center">' +
-              '<div class="avatar me-2"><span class="avatar-initial rounded-circle bg-label-' +
-              $state +
-              '">' +
-              $initials +
-              '</span></div>' +
-              '<div class="d-flex flex-column">' +
-              '<a href="' +
-              baseUrl +
-              'admin/orders/' +
-              full['uuid'] +
-              '/show" class="text-body"><h6 class="mb-0">' +
-              $name +
-              '</h6></a>' +
-              '<small class="text-muted">' +
-              $email +
-              '</small>' +
-              '</div>' +
-              '</div>'
-            );
-          }
-        },
-        {
-          targets: 4,
-          render: function (data, type, full, meta) {
-            return $currencySymbol + data;
-          }
-        },
-        {
-          targets: 5,
-          render: function (data, type, full, meta) {
-            let badgeClass = data === 'pending' ? 'bg-warning' : data === 'paid' ? 'bg-success' : 'bg-danger';
-            let text = data === 'pending' ? 'PENDIENTE' : data === 'paid' ? 'PAGO' : 'FALLIDO';
-            return '<span class="badge pill ' + badgeClass + '">' + text + '</span>';
-          }
-        },
-        {
-          targets: 6,
-          render: function (data, type, full, meta) {
-            let badgeClass = data === 'pending' ? 'bg-warning' : data === 'shipped' ? 'bg-info' : 'bg-success';
-            let text = data === 'pending' ? 'PENDIENTE' : data === 'shipped' ? 'ENVIADO' : 'ENTREGADO';
-            return '<span class="badge pill ' + badgeClass + '">' + text + '</span>';
-          }
-        },
-        {
-          targets: 7, // Hide uuid column
-          visible: false,
-          searchable: false
-        },
-        {
-          targets: -1,
-          title: 'Acciones',
-          orderable: false,
-          searchable: false,
-          render: function (data, type, full, meta) {
-            var uuid = full['uuid'];
-            return (
-              '<div class="d-flex justify-content-center align-items-center">' +
-              '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>' +
-              '<div class="dropdown-menu dropdown-menu-end m-0">' +
-              '<a href="' +
-              baseUrl +
-              'admin/orders/' +
-              uuid +
-              '/show" class="dropdown-item">Ver pedido</a>' +
-              '<a href="javascript:void(0);" class="dropdown-item delete-record" data-id="' +
-              full['id'] +
-              '">Eliminar</a>' +
-              '</div>' +
-              '</div>'
-            );
-          }
-        }
-      ],
-      order: [0, 'desc'],
-      dom:
-        '<"card-header d-flex flex-column flex-md-row align-items-start align-items-md-center"<"ms-n2"f><"d-flex align-items-md-center justify-content-md-end mt-2 mt-md-0"l<"dt-action-buttons"B>>' +
-        '>t' +
-        '<"row mx-2"' +
-        '<"col-sm-12 col-md-6"i>' +
-        '<"col-sm-12 col-md-6"p>' +
-        '>',
-      lengthMenu: [10, 25, 50, 100],
-      language: {
-        search: '',
-        searchPlaceholder: 'Buscar...',
-        sLengthMenu: '_MENU_',
-        info: 'Mostrando _START_ a _END_ de _TOTAL_ pedidos',
-        infoFiltered: 'filtrados de _MAX_ pedidos',
-        paginate: {
-          first: '<<',
-          last: '>>',
-          next: '>',
-          previous: '<'
-        },
-        pagingType: 'full_numbers',
-        emptyTable: 'No hay pedidos disponibles',
-        dom: 'Bfrtip',
-        renderer: 'bootstrap'
+      error: function (xhr, status, error) {
+        console.error('Error al obtener los datos:', error);
       }
     });
-
-    $('.toggle-column').on('change', function() {
-      var column = dt_products.column($(this).attr('data-column'));
-      column.visible(!column.visible());
-  });
-    // Estilos buscador y paginación
-    $('.dataTables_length label select').addClass('form-select form-select-sm');
-    $('.dataTables_filter label input').addClass('form-control');
-
-    $('.datatables-order tbody').on('click', '.delete-record', function () {
-      var recordId = $(this).data('id');
-      Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción eliminará completamente el pedido, perdiendo definitivamente sus datos',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar!',
-        cancelButtonText: 'Cancelar'
-      }).then(result => {
-        if (result.isConfirmed) {
-          $.ajax({
-            url: baseUrl + 'admin/orders/' + recordId,
-            type: 'DELETE',
-            headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (result) {
-              if (result.success) {
-                Swal.fire('Eliminado!', 'El pedido ha sido eliminado.', 'success');
-                dt_products.ajax.reload(null, false); // Recarga la tabla sin resetear la paginación
-              } else {
-                Swal.fire('Error!', 'No se pudo eliminar el pedido. Intente de nuevo.', 'error');
-              }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-              Swal.fire('Error!', 'No se pudo eliminar el pedido: ' + xhr.responseJSON.message, 'error');
-            }
-          });
-        }
-      });
-    });
   }
+
+  // Helper function to populate filter options
+  function populateFilterOptions(filter, items, defaultOptionText) {
+    const currentValue = filter.val();
+    filter.empty(); // Clear existing options
+    filter.append(`<option value="">${defaultOptionText}</option>`); // Add default option
+    items.forEach(item => {
+      filter.append(`<option value="${item}">${item}</option>`);
+    });
+    filter.val(currentValue); // Set the selected value
+  }
+
+  $('#openFilters').on('click', function () {
+    $('#filterModal').addClass('open');
+  });
+
+  $('#closeFilterModal').on('click', function () {
+    $('#filterModal').removeClass('open');
+  });
+
+  $(document).on('click', '.delete-record', function () {
+    var recordId = $(this).data('id');
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará completamente el pedido, perdiendo definitivamente sus datos',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar!',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: baseUrl + 'admin/orders/' + recordId,
+          type: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          success: function (result) {
+            if (result.success) {
+              Swal.fire(
+                'Eliminado!',
+                'El pedido ha sido eliminado y el stock de los productos ha sido reintegrado.',
+                'success'
+              );
+              fetchOrders(); // Recarga la lista de órdenes
+            } else {
+              Swal.fire('Error!', 'No se pudo eliminar el pedido. Intente de nuevo.', 'error');
+            }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            Swal.fire('Error!', 'No se pudo eliminar el pedido: ' + xhr.responseJSON.message, 'error');
+          }
+        });
+      }
+    });
+  });
+  $('#exportExcel').on('click', function () {
+    var searchQuery = searchInput.val();
+    var paymentStatus = paymentStatusFilter.val();
+    var shippingStatus = shippingStatusFilter.val();
+    var client = clientFilter.val();
+    var store = storeFilter.val();
+    var startDate = startDateFilter.val();
+    var endDate = endDateFilter.val();
+    var params = {
+      search: searchQuery,
+      payment_status: paymentStatus,
+      shipping_status: shippingStatus,
+      client: client,
+      store: store,
+      start_date: startDate,
+      end_date: endDate
+    };
+
+    var queryString = $.param(params);
+    window.location.href = exportUrl + '?' + queryString;
+  });
+
+  searchInput.on('input', function () {
+    fetchOrders();
+  });
+
+  paymentStatusFilter.on('change', function () {
+    fetchOrders();
+  });
+
+  shippingStatusFilter.on('change', function () {
+    fetchOrders();
+  });
+
+  clientFilter.on('change', function () {
+    fetchOrders();
+  });
+
+  storeFilter.on('change', function () {
+    fetchOrders();
+  });
+
+  startDateFilter.on('change', function () {
+    fetchOrders();
+  });
+
+  endDateFilter.on('change', function () {
+    fetchOrders();
+  });
+
+  fetchOrders();
 });
