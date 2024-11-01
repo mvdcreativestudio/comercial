@@ -43,6 +43,7 @@ class CreatePermissions extends Command
                     'slug' => 'manufacturing',
                     'module' => 'manufacturing',
                     'view_all' => false,
+
                 ],
                 [
                     'slug' => 'raw-materials',
@@ -326,8 +327,8 @@ class CreatePermissions extends Command
                     'submenus' => [
                         'delete_currencies',
                     ],
-                ]
-            ],
+                ],
+            ]
         ];
 
         // Asegurar que el rol de superadmin existe
