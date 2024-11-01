@@ -329,7 +329,7 @@ class CurrentAccountRepository
         }
     }
 
-    public function getClients(): Collection
+    public function getSuppliers(): Collection
     {
         if(Auth::user()->can('view_all_clients')) {
             return Supplier::all();
