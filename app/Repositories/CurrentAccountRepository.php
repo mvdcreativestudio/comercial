@@ -16,6 +16,7 @@ use App\Models\Supplier;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class CurrentAccountRepository
 {
@@ -321,12 +322,20 @@ class CurrentAccountRepository
 
     public function getClients(): Collection
     {
-        return Client::all();
+        if(Auth::user()->can('view_all_clients')) {
+            return Client::all();
+        } else {
+            return Client::where('store_id', Auth::user()->store_id)->get();
+        }
     }
 
-    public function getSuppliers()
+    public function getSuppliers(): Collection
     {
-        return Supplier::all();
+        if(Auth::user()->can('view_all_clients')) {
+            return Supplier::all();
+        } else {
+            return Supplier::where('store_id', Auth::user()->store_id)->get();
+        }
     }
 
     public function getCurrentAccountSettings()

@@ -84,7 +84,7 @@ class CreatePermissions extends Command
                 [
                     'slug' => 'clients',
                     'module' => 'crm',
-                    'view_all' => false,
+                    'view_all' => true,
                 ],
                 [
                     'slug' => 'client-sensitive-data',

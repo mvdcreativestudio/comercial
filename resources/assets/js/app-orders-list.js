@@ -15,6 +15,7 @@ $(function () {
   var startDateFilter = $('#startDate');
   var endDateFilter = $('#endDate');
 
+  // Función para verificar si algún filtro está aplicado
   function isFilterApplied() {
     return (
       searchInput.val().trim() !== '' ||
@@ -22,11 +23,12 @@ $(function () {
       shippingStatusFilter.val() !== '' ||
       clientFilter.val() !== '' ||
       storeFilter.val() !== '' ||
-      startDate.val().trim() !== '' ||
-      endDate.val().trim() !== ''
+      startDateFilter.val().trim() !== '' ||
+      endDateFilter.val().trim() !== ''
     );
   }
 
+  // Función para resetear los filtros
   function resetFilters() {
     searchInput.val('');
     paymentStatusFilter.val('');
@@ -42,6 +44,7 @@ $(function () {
     resetFilters();
   });
 
+  // Función para obtener las órdenes
   function fetchOrders() {
     var ajaxUrl = dt_order_list_container.data('ajax-url');
     var searchQuery = searchInput.val();
@@ -68,7 +71,7 @@ $(function () {
         var rows = response.data;
         var cardContainer = $('#order-list-container').html('');
 
-        // Reset unique filters for client and store
+        // Limpiar los filtros únicos para cliente y tienda
         uniqueClients.clear();
         uniqueStore.clear();
 
@@ -168,6 +171,23 @@ $(function () {
     });
     filter.val(currentValue); // Set the selected value
   }
+
+  // Click en la tarjeta de Total de Ventas para resetear todos los filtros
+  $('.card-border-shadow-primary').on('click', function () {
+    resetFilters();
+  });
+
+  // Click en la tarjeta de Ventas Pagas para aplicar filtro
+  $('.card-border-shadow-success').on('click', function () {
+    paymentStatusFilter.val('paid');
+    fetchOrders();
+  });
+
+  // Click en la tarjeta de Ventas Impagas para aplicar filtro
+  $('.card-border-shadow-warning').on('click', function () {
+    paymentStatusFilter.val('pending');
+    fetchOrders();
+  });
 
   $('#openFilters').on('click', function () {
     $('#filterModal').addClass('open');
