@@ -14,6 +14,7 @@ $(function () {
   var startDateFilter = $('#startDate');
   var endDateFilter = $('#endDate');
 
+  // Función para verificar si algún filtro está aplicado
   function isFilterApplied() {
     return (
       searchInput.val().trim() !== '' ||
@@ -21,11 +22,12 @@ $(function () {
       shippingStatusFilter.val() !== '' ||
       clientFilter.val() !== '' ||
       storeFilter.val() !== '' ||
-      startDate.val().trim() !== '' ||
-      endDate.val().trim() !== ''
+      startDateFilter.val().trim() !== '' ||
+      endDateFilter.val().trim() !== ''
     );
   }
 
+  // Función para resetear los filtros
   function resetFilters() {
     searchInput.val('');
     paymentStatusFilter.val('');
@@ -41,6 +43,7 @@ $(function () {
     resetFilters();
   });
 
+  // Función para obtener las órdenes
   function fetchOrders() {
     var ajaxUrl = dt_order_list_container.data('ajax-url');
     var searchQuery = searchInput.val();
@@ -67,7 +70,7 @@ $(function () {
         var rows = response.data;
         var cardContainer = $('#order-list-container').html('');
 
-        // Reset unique filters for client and store
+        // Limpiar los filtros únicos para cliente y tienda
         uniqueClients.clear();
         uniqueStore.clear();
 
@@ -120,12 +123,6 @@ $(function () {
                   ? 'bg-warning'
                   : 'bg-danger';
 
-            var titleCard = 'Orden #';
-            if (orderData.client_name) {
-              titleCard += `<h5 class="order-title">${orderData.client_name} ${orderData.client_last_name}</h5>`;
-            } else {
-              titleCard += `<h5 class="order-title">${orderData.company_name}</h5>`;
-            }
             const card = `
                   <div class="col-md-6 col-lg-4 col-12 mb-4">
                     <div class="order-card position-relative">
@@ -167,6 +164,23 @@ $(function () {
     });
     filter.val(currentValue); // Set the selected value
   }
+
+  // Click en la tarjeta de Total de Ventas para resetear todos los filtros
+  $('.card-border-shadow-primary').on('click', function () {
+    resetFilters();
+  });
+
+  // Click en la tarjeta de Ventas Pagas para aplicar filtro
+  $('.card-border-shadow-success').on('click', function () {
+    paymentStatusFilter.val('paid');
+    fetchOrders();
+  });
+
+  // Click en la tarjeta de Ventas Impagas para aplicar filtro
+  $('.card-border-shadow-warning').on('click', function () {
+    paymentStatusFilter.val('pending');
+    fetchOrders();
+  });
 
   $('#openFilters').on('click', function () {
     $('#filterModal').addClass('open');
@@ -213,49 +227,6 @@ $(function () {
         });
       }
     });
-  });
-  $('#exportExcel').on('click', function () {
-    // Capture filter values
-    let searchQuery = searchInput.val();
-    let paymentStatus = paymentStatusFilter.val();
-    let shippingStatus = shippingStatusFilter.val();
-    let client = clientFilter.val();
-    let store = storeFilter.val();
-    let startDate = startDateFilter.val();
-    let endDate = endDateFilter.val();
-
-    // Build the URL with valid parameters
-    let url = '/admin/orders-export-excel?';
-    let params = [];
-
-    // Verify and add parameters to the URL
-    if (searchQuery) {
-      params.push(`search=${encodeURIComponent(searchQuery)}`);
-    }
-    if (paymentStatus) {
-      params.push(`payment_status=${encodeURIComponent(paymentStatus)}`);
-    }
-    if (shippingStatus) {
-      params.push(`shipping_status=${encodeURIComponent(shippingStatus)}`);
-    }
-    if (client) {
-      params.push(`client=${encodeURIComponent(client)}`);
-    }
-    if (store) {
-      params.push(`store=${encodeURIComponent(store)}`);
-    }
-    if (startDate) {
-      params.push(`start_date=${encodeURIComponent(startDate)}`);
-    }
-    if (endDate) {
-      params.push(`end_date=${encodeURIComponent(endDate)}`);
-    }
-
-    // Join the parameters to the URL
-    url += params.join('&');
-
-    // Redirect to the export route, opening in a new tab
-    window.open(url, '_blank');
   });
 
   searchInput.on('input', function () {

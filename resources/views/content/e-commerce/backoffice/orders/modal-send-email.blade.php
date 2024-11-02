@@ -12,7 +12,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label for="email" class="form-label">Correo electrónico del cliente</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ $order->client->email }}" required>
+            <input type="email" class="form-control" id="email" name="email" value="{{ $order->client->email ?? '' }}" required>
           </div>
         </div>
         <div class="modal-footer">
