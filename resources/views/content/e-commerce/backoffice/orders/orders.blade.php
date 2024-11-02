@@ -36,7 +36,7 @@ $currencySymbol = $settings->currency_symbol;
 <div class="row">
   <!-- Total de Ventas -->
   <div class="col-sm-6 col-lg-3 mb-4">
-    <div class="card animated-card card-border-shadow-primary h-100">
+    <div class="card animated-card card-border-shadow-primary h-100 cursor-pointer">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
@@ -45,16 +45,13 @@ $currencySymbol = $settings->currency_symbol;
           <h4 class="ms-1 mb-0">{{ $totalOrders }}</h4>
         </div>
         <p class="mb-1 fw-medium me-1">Total de Ventas</p>
-        <p class="mb-0">
-          {{-- <span class="fw-medium me-1 text-success">+18.2%</span> --}}
-        </p>
       </div>
     </div>
   </div>
 
   <!-- Ventas Pagas -->
   <div class="col-sm-6 col-lg-3 mb-4">
-    <div class="card animated-card card-border-shadow-success h-100">
+    <div class="card animated-card card-border-shadow-success h-100 cursor-pointer">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
@@ -63,16 +60,13 @@ $currencySymbol = $settings->currency_symbol;
           <h4 class="ms-1 mb-0">{{ $paidOrders }}</h4>
         </div>
         <p class="mb-1 fw-medium me-1">Ventas Pagas</p>
-        <p class="mb-0">
-          {{-- <span class="fw-medium me-1 text-success">+18.2%</span> --}}
-        </p>
       </div>
     </div>
   </div>
 
   <!-- Ventas Impagas -->
   <div class="col-sm-6 col-lg-3 mb-4">
-    <div class="card animated-card card-border-shadow-warning h-100">
+    <div class="card animated-card card-border-shadow-warning h-100 cursor-pointer">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
@@ -81,40 +75,49 @@ $currencySymbol = $settings->currency_symbol;
           <h4 class="ms-1 mb-0">{{ $unpaidOrders }}</h4>
         </div>
         <p class="mb-1 fw-medium me-1">Ventas Impagas</p>
-        <p class="mb-0">
-          {{-- <span class="fw-medium me-1 text-danger">-8.7%</span> --}}
-        </p>
       </div>
     </div>
   </div>
 
-  <!-- Mejor Cliente -->
   @if($bestClient)
-  <div class="col-sm-6 col-lg-3 mb-4">
-    <a href="{{ route('clients.show', ['client' => $bestClient->client->id]) }}" class="text-decoration-none">
-      <div class="card animated-card card-border-shadow-primary h-100">
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-2 pb-1">
-            <div class="avatar me-2">
-              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-user"></i></span>
-            </div>
-            <h4 class="ms-1 mb-0">Mejor Cliente</h4>
+<div class="col-sm-6 col-lg-3 mb-4">
+  <a href="{{ route('clients.show', ['client' => $bestClient->client->id]) }}" class="text-decoration-none">
+    <div class="card animated-card card-border-shadow-primary h-100">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <!-- Encabezado con Icono y Título -->
+        <div class="d-flex align-items-center mb-3">
+          <div class="avatar me-2">
+            <span class="avatar-initial rounded bg-label-primary">
+              <i class="bx bx-user"></i>
+            </span>
           </div>
-          @if($bestClient->client->type == 'individual')
-            <p class="mb-1 fw-medium me-1">
-              {{ $bestClient->client->name ?? 'N/A' }} {{ $bestClient->client->lastname }}
-            </p>
-          @elseif($bestClient->client->type == 'company')
-            <p class="mb-1 fw-medium me-1">
-              {{ $bestClient->client->company_name }}
-            </p>    
-          @endif
-          <p class="mb-1 fw-medium me-1">Total Comprado: {{ $settings->currency_symbol }}{{ number_format($bestClient->total_spent, 2) }}</p>
-          <p class="mb-1 fw-medium me-1">Compras Realizadas: {{ $bestClient->purchase_count }}</p>
+          <div>
+            <h6 class="mb-0">Mejor Cliente</h6>
+            <small class="text-muted">
+              @if($bestClient->client->type == 'individual')
+                {{ $bestClient->client->name ?? 'N/A' }} {{ $bestClient->client->lastname }}
+              @elseif($bestClient->client->type == 'company')
+                {{ $bestClient->client->company_name }}
+              @endif
+            </small>
+          </div>
+        </div>
+
+        <!-- Datos de Total Comprado y Compras Realizadas -->
+        <div class="d-flex justify-content-between">
+          <div class="text-center">
+            <h5 class="mb-0">{{ $settings->currency_symbol }}{{ number_format($bestClient->total_spent, 2) }}</h5>
+            <small class="text-muted">Total Comprado</small>
+          </div>
+          <div class="text-center">
+            <h5 class="mb-0">{{ $bestClient->purchase_count }}</h5>
+            <small class="text-muted">Compras</small>
+          </div>
         </div>
       </div>
-    </a>
-  </div>
+    </div>
+  </a>
+</div>
 @endif
 
 </div>
