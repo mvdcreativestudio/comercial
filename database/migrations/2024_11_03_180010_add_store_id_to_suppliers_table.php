@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('store_id')
                   ->nullable() // Hacemos que el campo sea nullable
                   ->constrained('stores')
-                  ->onDelete('cascade')
+                  ->onDelete('cascade');
         });
 
         // Luego, asignamos null a los registros existentes en la columna store_id
