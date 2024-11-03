@@ -22,6 +22,7 @@ class Supplier extends Model
       'doc_type', 
       'doc_number', 
       'default_payment_method',
+      'store_id'
     ];
 
     /**
@@ -53,6 +54,16 @@ class Supplier extends Model
     {
       return $this->hasMany(PurchaseOrder::class);
 
+    }
+
+    /**
+     * Obtiene la tienda a la que pertenece el proveedor.
+     * 
+     * @return BelongsTo
+     */
+    public function store(): BelongsTo
+    {
+      return $this->belongsTo(Store::class);
     }
 }
 

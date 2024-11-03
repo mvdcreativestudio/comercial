@@ -17,7 +17,9 @@ class SupplierRepository
     {
         if (auth()->user() && auth()->user()->can('view_all_suppliers')) {
           $suppliers = Supplier::all();
-        } 
+        } else {
+          $suppliers = Supplier::where('store_id', auth()->user()->store_id)->get();
+        }
 
         $recentOrders = $suppliers->map(function ($supplier) {
             return $supplier->orders->sortByDesc('created_at')->first();
@@ -33,7 +35,11 @@ class SupplierRepository
      */
     public function getAll()
     {
-        return Supplier::all();
+        if (Auth::user()->can('view_all_suppliers')) {
+            return Supplier::all();
+        } else {
+            return Supplier::where('store_id', Auth::user()->store_id)->get();
+        }
     }
 
     /**
