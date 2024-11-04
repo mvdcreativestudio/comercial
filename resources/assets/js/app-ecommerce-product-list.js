@@ -14,6 +14,7 @@ $(function () {
     headingColor = config.colors.headingColor;
   }
 
+
   var dt_product_list_container = $('#product-list-container');
   var searchInput = $('#searchProduct');
   var storeFilter = $('#storeFilter');

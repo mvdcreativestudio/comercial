@@ -9,6 +9,8 @@ return [
     'access_productions' => 'Acceder a Producciones',
     'view_all_productions' => 'Ver todas las Producciones',
     'access_bypass_raw_material_check' => 'Saltar verificación de materia prima para producciones',
+    'view_all_packagings' => 'Ver envasados.',
+
 
     // Stock y Materias Primas
     'access_raw-materials' => 'Acceder a Materias Primas',
@@ -101,6 +103,7 @@ return [
 
     // CRM y Clientes
     'access_clients' => 'Acceder a Clientes',
+    'view_all_clients' => 'Ver todos los Clientes',
     'access_client-sensitive-data' => 'Acceder a Datos Sensibles de Clientes (RUT o CI)',
     'access_crm' => 'Acceder a CRM',
 

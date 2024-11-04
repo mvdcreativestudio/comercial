@@ -34,6 +34,7 @@ class StoreSupplierRequest extends FormRequest
             'doc_type' => 'required|in:DNI,PASSPORT,RUT,OTHER',
             'doc_number' => 'required|numeric',
             'default_payment_method' => 'required|string|max:255',
+            'store_id' => 'nullable|numeric|exists:stores,id',
         ];
     }
 }

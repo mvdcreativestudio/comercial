@@ -17,7 +17,7 @@ use App\Http\Requests\StoreMultipleFlavorsRequest;
 use App\Http\Requests\UpdateFlavorRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 
 
 class ProductRepository
@@ -632,10 +632,13 @@ class ProductRepository
   }
 
   /**
-   * Obtiene todas las listas de precios
-   * 
-   * @return array
-   */
+   * Devuelve todos los productos de la base de datos.
+   *
+  */
+  public function getAll()
+  {
+    return Product::all();
+  }
   
 
 }
