@@ -1062,7 +1062,7 @@ $(document).ready(function () {
     const subtotal = parseFloat($('.subtotal').text().replace(/[^\d.-]/g, '')) || 0;
 
     // Validación para ventas mayores a 12000
-    if (total > 12000 && (!client || !client.id)) {
+    if (total > 600 && (!client || !client.id)) {
         mostrarError('Para ventas mayores a USD600, es necesario tener un cliente asignado a la venta. Puede seleccionar uno existente o crear uno nuevo.');
         return;
     }
