@@ -135,9 +135,6 @@ Route::middleware([
     // Exportaciones
     Route::get('/products/export', [ProductController::class, 'exportToExcel'])->name('products.export');
 
-    // Importaciones Bulk
-    Route::post('/admin/products/import', [ProductController::class, 'import'])->name('products.import');
-
     // exportar excel
     Route::get('/current-accounts-export-excel', [CurrentAccountController::class, 'exportExcel'])->name('current-account.export.excel');
     Route::get('/current-accounts-export-pdf', [CurrentAccountController::class, 'exportPdf'])->name('current-account.pdf');

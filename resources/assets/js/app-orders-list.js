@@ -39,9 +39,10 @@ $(function () {
     fetchOrders();
   }
 
-  $('#clearFilters').on('click', function () {
+  $(document).on('click', '#clearFilters', function () {
     resetFilters();
   });
+  
 
   // Función para obtener las órdenes
   function fetchOrders() {
