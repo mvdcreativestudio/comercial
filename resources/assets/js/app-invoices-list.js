@@ -234,6 +234,7 @@ $(function () {
               // Ahora si el invoice tiene hide_emit se oculta el botón de emitir nota
               var hideEmit = full['hide_emit'] ? 'd-none' : '';
 
+
               return (
                 '<div class="d-flex justify-content-center align-items-center">' +
                 '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>' +

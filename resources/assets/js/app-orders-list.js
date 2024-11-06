@@ -43,7 +43,7 @@ $(function () {
     resetFilters();
   });
   
-
+  
   // Función para obtener las órdenes
   function fetchOrders() {
     var ajaxUrl = dt_order_list_container.data('ajax-url');
@@ -54,6 +54,7 @@ $(function () {
     var store = storeFilter.val();
     var startDate = startDateFilter.val();
     var endDate = endDateFilter.val();
+
 
     $.ajax({
       url: ajaxUrl,
