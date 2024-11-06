@@ -1249,15 +1249,15 @@ $(document).ready(function () {
     if (paymentMethod !== 'debit' || paymentMethod !== 'credit') {
       postOrder();
     } else {
-      // postOrder();
+      postOrder();
 
-      /** Descomentar para usar el POS */
-      obtenerTokenPos().done(function (response) {
-        const token = response.access_token;
-        enviarTransaccionPos(token);
-      }).fail(function (error) {
-        console.error('Error al obtener el token del POS:', error);
-      });
+      // /** Descomentar para usar el POS */
+      // obtenerTokenPos().done(function (response) {
+      //   const token = response.access_token;
+      //   enviarTransaccionPos(token);
+      // }).fail(function (error) {
+      //   console.error('Error al obtener el token del POS:', error);
+      // });
     }
   });
 

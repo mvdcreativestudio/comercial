@@ -33,6 +33,8 @@
 @endsection
 
 @section('content')
+<form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+  @csrf
 <div class="d-flex align-items-center justify-content-between bg-white p-4 mb-3 rounded shadow-lg sticky-top border-bottom border-light">
 
   <!-- Título del formulario alineado a la izquierda -->
@@ -64,8 +66,7 @@
 <div class="app-ecommerce" data-raw-materials='@json($rawMaterials)' data-flavors='@json($flavors)'>
 
   <!-- Add Product -->
-<form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
-@csrf
+
   <div class="row">
 
     <!-- First column-->
