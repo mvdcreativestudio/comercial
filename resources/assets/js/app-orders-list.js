@@ -178,6 +178,12 @@ $(function () {
     fetchOrders();
   });
 
+  // Click en la tarjeta de Ventas Fallidas para aplicar filtro
+  $('.card-border-shadow-danger').on('click', function () {
+    paymentStatusFilter.val('failed');
+    fetchOrders();
+  });
+
   // Click en la tarjeta de Ventas Impagas para aplicar filtro
   $('.card-border-shadow-warning').on('click', function () {
     paymentStatusFilter.val('pending');
