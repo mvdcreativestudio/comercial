@@ -46,6 +46,12 @@ dev_permissions:
 
 dev_events:
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan events:update
+
+dev_optimize:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan optimize:clear
+
+dev_queue:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan queue:work
 # Producción
 
 prod_install:

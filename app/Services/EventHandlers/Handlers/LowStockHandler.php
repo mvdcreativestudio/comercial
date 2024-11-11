@@ -1,25 +1,22 @@
 <?php
 namespace App\Services\EventHandlers\Handlers;
 
-use App\Helpers\Helpers;
+use App\Jobs\SendLowStockAlertJob;
 use App\Models\EventLogProduct;
 use App\Models\Product;
 use App\Repositories\StoreRepository;
 use App\Services\EventHandlers\Interface\EventHandlerInterface;
 use Illuminate\Support\Facades\Log;
 use Exception;
-use Carbon\Carbon;
 
 class LowStockHandler implements EventHandlerInterface
 {
-
     protected $storeRepository;
 
     public function __construct(StoreRepository $storeRepository)
     {
         $this->storeRepository = $storeRepository;
     }
-
 
     public function handle(int $storeId, array $data = [])
     {
@@ -57,24 +54,12 @@ class LowStockHandler implements EventHandlerInterface
                     continue;
                 }
 
-                // Enviar correo
-                $subject = "Alerta de bajo stock para el producto {$product->name}";
-
+                // Obtener el email de la tienda
                 $email = $this->storeRepository->getStoreByUserId(auth()->id())->email;
 
-                Helpers::emailService()->sendMail($email, $subject, 'events.low_stock', null, '', [
-                    'product' => $product,
-                    'currentStock' => $product->stock,
-                ]);
-                Log::info("Correo de alerta de bajo stock enviado para el producto {$productId} en la tienda {$storeId}");
-
-                // Registrar el envío en la tabla EventLogProduct
-                EventLogProduct::create([
-                    'store_id' => $storeId,
-                    'event_id' => $eventId,
-                    'product_id' => $productId,
-                    'alert_sent_at' => Carbon::now(),
-                ]);
+                // Despachar el trabajo para enviar el correo
+                SendLowStockAlertJob::dispatch($storeId, $product, $email, $eventId);
+                Log::info("Trabajo de alerta de bajo stock despachado para el producto {$productId} en la tienda {$storeId}");
             }
 
         } catch (Exception $e) {
