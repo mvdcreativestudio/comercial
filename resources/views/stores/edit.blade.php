@@ -496,6 +496,23 @@
                                                     name="mail_from_name" placeholder="Nombre remitente"
                                                     value="{{ $store->emailConfig->mail_from_name ?? '' }}">
                                             </div>
+
+                                            {{-- Reply-To --}}
+                                            <div class="mb-3">
+                                                <label class="form-label" for="mailReplyToAddress">Correo de
+                                                    Respuesta</label>
+                                                <input type="email" class="form-control" id="mailReplyToAddress"
+                                                    name="mail_reply_to_address" placeholder="Correo de respuesta"
+                                                    value="{{ $store->emailConfig->mail_reply_to_address ?? '' }}">
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label" for="mailReplyToName">Nombre de
+                                                    Respuesta</label>
+                                                <input type="text" class="form-control" id="mailReplyToName"
+                                                    name="mail_reply_to_name" placeholder="Nombre de respuesta"
+                                                    value="{{ $store->emailConfig->mail_reply_to_name ?? '' }}">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

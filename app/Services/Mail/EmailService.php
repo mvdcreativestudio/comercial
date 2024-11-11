@@ -47,12 +47,14 @@ class EmailService
         string $subject,
         string $template,
         string $pdfPath = null,
-        string $attachmentName = 'document.pdf' // Nombre por defecto del archivo adjunto
+        string $attachmentName = 'document.pdf',
+        array $data = []
     ): bool {
-        $data = [
+        $data = array_merge([
             'from' => $this->from,
             'replyTo' => $this->replyTo,
-        ];
+        ], $data);
+        // dd($data);
         $content = $this->renderTemplate($template, $data);
         return $this->mailer->send($to, $subject, $content, $this->from, $this->replyTo, $pdfPath, $attachmentName);
     }

@@ -44,6 +44,8 @@ dev_create_migration:
 dev_permissions:
 	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan create:modules-permissions
 
+dev_events:
+	docker compose -f docker-compose.dev.yml exec $(APP_NAME) php artisan events:update
 # Producción
 
 prod_install:

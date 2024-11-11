@@ -19,6 +19,8 @@ class StoresEmailConfig extends Model
         'mail_encryption',
         'mail_from_address',
         'mail_from_name',
+        'mail_reply_to_address',
+        'mail_reply_to_name',
     ];
 
     public function store()

@@ -293,6 +293,8 @@ class StoreController extends Controller
                     'mail_encryption' => $request->input('mail_encryption'),
                     'mail_from_address' => $request->input('mail_from_address'),
                     'mail_from_name' => $request->input('mail_from_name'),
+                    'mail_reply_to_address' => $request->input('mail_reply_to_address'),
+                    'mail_reply_to_name' => $request->input('mail_reply_to_name'),
                 ]
             );
         } else {
