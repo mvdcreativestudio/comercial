@@ -61,6 +61,7 @@ use App\Http\Controllers\BulkProductionBatchController;
 use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PackageComponentController;
+use App\Http\Controllers\ProductCatalogueController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -520,6 +521,12 @@ Route::middleware([
 Route::resources([
     'checkout' => CheckoutController::class,
 ]);
+
+// Catálogo de Productos
+Route::get('catalogue', [ProductCatalogueController::class, 'index'])->name('catalogue.index');
+Route::get('catalogue/search', [ProductCatalogueController::class, 'search'])->name('catalogue.search');
+Route::get('catalogue/{id}', [ProductCatalogueController::class, 'show'])->name('catalogue.show');
+
 
 // E-Commerce
 // Route::get('/', [EcommerceController::class, 'home'])->name('home');
