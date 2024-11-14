@@ -240,6 +240,7 @@ $(function () {
                   emailButtonHtml = '<a href="#" class="dropdown-item btn-send-email disabled" data-id="' + full['id'] + '" data-email="' + full['client_email'] + '" title="Debe asociarse a una tienda para enviar correos" data-bs-toggle="tooltip" data-bs-placement="top">Enviar factura por correo</a>';
               }
 
+
               return (
                 '<div class="d-flex justify-content-center align-items-center">' +
                 '<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>' +

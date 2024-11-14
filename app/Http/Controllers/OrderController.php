@@ -268,6 +268,7 @@ class OrderController extends Controller
             dd($e->getMessage());
             Log::error($e->getMessage());
             return redirect()->back()->with('error', 'Error al exportar las ventas. Por favor, intente nuevamente.');
+
         }
     }
 }

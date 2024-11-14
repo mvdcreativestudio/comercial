@@ -176,6 +176,31 @@ $(document).ready(function () {
         searchCategories(query);
     });
 
+    $('#search-client').on('input', function () {
+        const searchText = $(this).val().toLowerCase();
+    
+        // Seleccionar las tarjetas de cliente correctas
+        $('#client-list .client-card').each(function () {
+          const name = $(this).find('.card-title').text().toLowerCase(); // Obtener el nombre del cliente desde la tarjeta
+          const ci = $(this).find('.client-info:contains("CI")').text().toLowerCase(); // Obtener CI
+          const rut = $(this).find('.client-info:contains("RUT")').text().toLowerCase(); // Obtener RUT
+          const company_name = $(this).find('.client-info:contains("Razón Social")').text().toLowerCase(); // Obtener Razón Social
+    
+          // Comprobar si el texto de búsqueda coincide con nombre, CI o RUT
+          if (
+            name.includes(searchText) ||
+            ci.includes(searchText) ||
+            rut.includes(searchText) ||
+            company_name.includes(searchText)
+          ) {
+            $(this).removeClass('d-none'); // Mostrar tarjeta
+          } else {
+            $(this).addClass('d-none'); // Ocultar tarjeta
+          }
+        });
+    });
+    
+
     // Función para actualizar el menú desplegable de categorías en la vista
     function actualizarCategoriasEnVista(categoriesToDisplay = productCategory) {
         let categoryHtml = '';

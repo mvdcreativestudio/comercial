@@ -63,7 +63,8 @@ class OrderRepository
         $totalOrders = $orders->count();
         $totalIncome = $orders->where('payment_status', 'paid')->sum('total');
         $paidOrders = $orders->where('payment_status', 'paid')->count();
-        $unpaidOrders = $orders->where('payment_status', '!=', 'paid')->count();
+        $unpaidOrders = $orders->where('payment_status', 'pending')->count();
+        $failedOrders = $orders->where('payment_status', 'failed')->count();
         $pendingOrders = $orders->where('shipping_status', 'pending')->count();
         $shippedOrders = $orders->where('shipping_status', 'shipped')->count();
         $completedOrders = $orders->where('shipping_status', 'completed')->count();
@@ -83,6 +84,7 @@ class OrderRepository
             'totalIncome',
             'paidOrders',
             'unpaidOrders',
+            'failedOrders',
             'pendingOrders',
             'shippedOrders',
             'completedOrders',
