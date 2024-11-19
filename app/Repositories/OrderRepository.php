@@ -98,7 +98,7 @@ class OrderRepository
      * @param  StoreOrderRequest  $request
      * @return Order
      */
-    public function store($request)
+    public function store($request, bool $deductStockOnCreate = true)
     {
         Log::info('Iniciando el proceso de creación de orden', ['request' => $request->all()]);
 
@@ -111,17 +111,13 @@ class OrderRepository
         try {
             $client = null;
             if ($request->client_id) {
-                // Si `client_id` está presente, intenta asociar el cliente existente
                 $client = Client::find($request->client_id);
                 if (!$client) {
                     Log::warning('Client ID proporcionado no encontrado en la base de datos', ['client_id' => $request->client_id]);
                 }
             } elseif (!empty($clientData)) {
-                // Si hay datos válidos de cliente, crea uno nuevo
                 $client = Client::firstOrCreate(['email' => $clientData['email']], $clientData);
                 Log::info('Cliente creado o encontrado', ['client_id' => $client->id]);
-            } else {
-                Log::info('No se recibió client_id ni datos de cliente; la orden se procesará sin cliente.');
             }
 
             $order = new Order($orderData);
@@ -134,6 +130,16 @@ class OrderRepository
             Log::info('Orden guardada en la base de datos', ['order_id' => $order->id]);
 
             $products = json_decode($request['products'], true);
+
+            // Validar stock si $deductStockOnCreate es true
+            $stockValidation = $this->validateAndUpdateStock($products, $deductStockOnCreate);
+            if (!$deductStockOnCreate && !$stockValidation['success']) {
+                Log::warning("Stock insuficiente, pero se permite la creación de la orden con estado pending: {$stockValidation['error']}");
+            } elseif ($deductStockOnCreate && !$stockValidation['success']) {
+                throw new Exception($stockValidation['error']);
+            }
+
+            // Asignar los productos a la orden
             $order->products = $products;
             Log::info('Productos asociados a la orden', ['products' => $products]);
 
@@ -168,6 +174,55 @@ class OrderRepository
             throw $e;
         }
     }
+
+
+
+    /**
+     * Valida y actualiza el stock de los productos vendidos.
+     *
+     * @param array $products
+     * @param bool $deductStock
+     * @return array
+     */
+    public function validateAndUpdateStock(array $products, bool $deductStock = true): array
+    {
+        foreach ($products as $productData) {
+            // Buscar el producto en la base de datos
+            $product = Product::find($productData['id']);
+
+            // Verificar que el producto exista
+            if (!$product) {
+                return [
+                    'success' => false,
+                    'error' => "Producto no encontrado con ID: {$productData['id']}"
+                ];
+            }
+
+            // Si el stock es null, permite la operación sin validación
+            if ($product->stock === null) {
+                continue;
+            }
+
+            // Validar si el stock es suficiente
+            if ($product->stock < $productData['quantity']) {
+                return [
+                    'success' => false,
+                    'error' => "Stock insuficiente para el producto: {$product->name}. Stock disponible: {$product->stock}, cantidad solicitada: {$productData['quantity']}"
+                ];
+            }
+
+            // Descontar stock si es necesario
+            if ($deductStock) {
+                $product->stock -= $productData['quantity'];
+                $product->save();
+            }
+        }
+
+        return ['success' => true];
+    }
+
+
+
 
     /**
      * Prepar los datos del cliente para ser almacenados en la base de datos.
@@ -517,11 +572,19 @@ class OrderRepository
         $order = Order::findOrFail($orderId);
         $oldStatus = $order->shipping_status;
 
-        // Verificar si hay un cambio en el estado de envío
         if ($oldStatus !== $shippingStatus) {
+            // Validar stock al intentar marcar como delivered
+            if ($shippingStatus === 'delivered') {
+                $products = json_decode($order->products, true);
+                $stockValidation = $this->validateAndUpdateStock($products, true); // Validar y descontar stock
+                if (!$stockValidation['success']) {
+                    throw new Exception($stockValidation['error']);
+                }
+            }
+
             $order->shipping_status = $shippingStatus;
             $order->save();
-            // Registrar el cambio de estado
+
             OrderStatusChange::create([
                 'order_id' => $orderId,
                 'user_id' => Auth::id(),
@@ -533,6 +596,8 @@ class OrderRepository
 
         return $order;
     }
+
+
 
     /**
      * Emite un CFE para una orden.

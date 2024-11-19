@@ -406,7 +406,7 @@ $(document).ready(function () {
                           <input type="number" class="form-control quantity-input selector-cantidad-pdv" min="1" value="1" data-id="${product.id}">
                           <button class="btn btn-outline-secondary increment-quantity" type="button" data-id="${product.id}">+</button>
                       </div>
-                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ${product.stock !== null && product.stock <= 0 || product.status == 0 ? 'disabled' : ''}>
+                      <button class="btn btn-primary btn-sm add-to-cart" data-id="${product.id}" data-type="${product.type}" ? 'disabled' : ''}>
                           <i class="bx bx-cart-add"></i>
                       </button>
                   </div>
@@ -425,11 +425,12 @@ $(document).ready(function () {
         // Determinar el precio a usar
         const priceToUse = product.price ? product.price : product.old_price;
 
-        // Verificar si el producto tiene stock suficiente antes de agregar
-        if (product.stock !== null && product.stock <= 0) {
-            mostrarError('No hay suficiente stock de este producto.');
-            return;
-        }
+        // Descomentar para no permitir la venta de productos sin stock
+        // // Verificar si el producto tiene stock suficiente antes de agregar
+        // if (product.stock !== null && product.stock <= 0) {
+        //     mostrarError('No hay suficiente stock de este producto.');
+        //     return;
+        // }
 
         // Obtener la cantidad deseada del input
         const quantityInput = $(`.quantity-input[data-id="${productId}"]`);
@@ -479,11 +480,12 @@ $(document).ready(function () {
                 }
                 cartItem.quantity += quantity; // Incrementar por la cantidad deseada
             } else {
+                // Descomentar para no permitir la venta de productos sin stock
                 // Verificar si hay stock suficiente para agregar el producto por primera vez
-                if (product.stock !== null && product.stock < quantity) {
-                    mostrarError('No hay suficiente stock de este producto.');
-                    return;
-                }
+                // if (product.stock !== null && product.stock < quantity) {
+                //     mostrarError('No hay suficiente stock de este producto.');
+                //     return;
+                // }
                 cart.push({
                     id: product.id,
                     name: product.name,
