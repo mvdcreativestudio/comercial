@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Events\EventEnum;
 use App\Exports\OrdersExport;
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Repositories\AccountingRepository;
 use App\Repositories\OrderRepository;
+use App\Repositories\StoresEmailConfigRepository;
+use App\Services\EventHandlers\EventService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,13 +34,17 @@ class OrderController extends Controller
      */
     protected $accountingRepository;
 
+    protected $storesEmailConfigRepository;
+
+    protected $eventService;
+
     /**
      * Inyecta el repositorio en el controlador y los middleware.
      *
      * @param  OrderRepository  $orderRepository
      * @param  AccountingRepository  $accountingRepository
      */
-    public function __construct(OrderRepository $orderRepository, AccountingRepository $accountingRepository)
+    public function __construct(OrderRepository $orderRepository, AccountingRepository $accountingRepository, StoresEmailConfigRepository $storesEmailConfigRepository, EventService $eventService)
     {
         $this->middleware(['check_permission:access_orders', 'user_has_store'])->only(
             [
@@ -52,6 +59,8 @@ class OrderController extends Controller
 
         $this->orderRepository = $orderRepository;
         $this->accountingRepository = $accountingRepository;
+        $this->storesEmailConfigRepository = $storesEmailConfigRepository;
+        $this->eventService = $eventService;
     }
 
     /**
@@ -86,6 +95,8 @@ class OrderController extends Controller
         try {
             $order = $this->orderRepository->store($request);
 
+            $this->eventService->handleEvents(auth()->user()->store_id, [EventEnum::LOW_STOCK], ['order' => $order]);
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -97,6 +108,7 @@ class OrderController extends Controller
 
             return redirect()->route('pdv.index')->with('success', 'Pedido realizado con éxito. ID de orden: ' . $order->id);
         } catch (\Exception $e) {
+            dd($e->getMessage());
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -123,14 +135,13 @@ class OrderController extends Controller
         $products = json_decode($order->products, true);
         $store = $order->store;
         $invoice = $this->orderRepository->getSpecificInvoiceForOrder($order->id);
-
-
+        $isStoreConfigEmailEnabled = $this->storesEmailConfigRepository->getConfigByStoreId(auth()->user()->store_id);
         // Verificar si existe un client_id antes de llamar a getClientOrdersCount
         $clientOrdersCount = $order->client_id 
             ? $this->orderRepository->getClientOrdersCount($order->client_id)
             : 0; // O cualquier valor predeterminado si no hay cliente
 
-        return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount', 'invoice'));
+        return view('content.e-commerce.backoffice.orders.show-order', compact('order', 'store', 'products', 'clientOrdersCount', 'invoice', 'isStoreConfigEmailEnabled'));
     }
 
     /**

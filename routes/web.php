@@ -58,6 +58,7 @@ use App\Http\Controllers\PurchaseEntryController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\BulkProductionController;
 use App\Http\Controllers\BulkProductionBatchController;
+use App\Http\Controllers\EventStoreConfigurationController;
 use App\Http\Controllers\PackagingController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PackageComponentController;
@@ -332,6 +333,10 @@ Route::middleware([
         Route::post('toggle-store-status', [StoreController::class, 'toggleStoreStatus'])->name('toggle-status');
         Route::post('toggle-store-status-closed', [StoreController::class, 'toggleStoreStatusClosed'])->name('toggleStoreStatusClosed');
         Route::post('toggle-billing', [StoreController::class, 'toggleAutomaticBilling'])->name('toggleAutomaticBilling');
+        // events
+        Route::get('events', [EventStoreConfigurationController::class, 'show'])->name('events.show');
+        // post toggle event
+        Route::post('toggle-event', [EventStoreConfigurationController::class, 'toggleEvent'])->name('events.toggle-status');
     });
 
     // Gestión de Roles
