@@ -111,7 +111,7 @@
 
 @if($purchaseEntries->count() > 0 )
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Adjudicación de Lotes /</span> Loteado de entradas
+  Remitos de la Orden
 </h4>
 @endif
 <!-- LISTADO DE LOTEADO -->
@@ -129,12 +129,12 @@
       </div>
       <div class="card-actions d-flex align-items-center justify-content-end">
         @if($entry->has_batches)
-        <span class="badge bg-success">¡Lote(s) ingresados!</span>
+        <span class="badge bg-success">¡Remito(s) ingresados!</span>
         @else
         <button class="btn btn-primary open-lot-modal"
           data-entry-id="{{ $entry->id }}"
           data-entry-quantity="{{ $entry->quantity }}">
-          Ingresar lote(s)
+          Ingresar remito(s)
         </button>
         @endif
       </div>
@@ -150,7 +150,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="batchModalLabel">Ingresar Lotes</h5>
+        <h5 class="modal-title" id="batchModalLabel">Ingresar Número de Remito</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -160,7 +160,7 @@
               <div data-repeater-item class="card mb-3">
                 <div class="card-body row">
                   <div class="col-3">
-                    <label for="batch_number" class="form-label">Número de Lote</label>
+                    <label for="batch_number" class="form-label">Número de Remito</label>
                     <input type="text" name="batch_number" class="form-control" required>
                   </div>
                   <div class="col-2">
@@ -183,13 +183,13 @@
                 </div>
               </div>
             </div>
-            <button type="button" data-repeater-create class="btn btn-success">Agregar Lote</button>
+            <button type="button" data-repeater-create class="btn btn-success">Agregar Número de Remito</button>
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" id="save-lots">Guardar Lotes</button>
+        <button type="button" class="btn btn-primary" id="save-lots">Guardar Remitos</button>
       </div>
     </div>
   </div>

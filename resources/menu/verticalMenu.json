@@ -137,7 +137,7 @@
         },
         {
           "id": "batches",
-          "name": "Lotes",
+          "name": "Remitos",
           "icon": "menu-icon tf-icons bx bx-package",
           "slug": "batches",
           "url": "/admin/batches"
