@@ -93,10 +93,10 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request): JsonResponse
     {
         try {
-            $order = $this->orderRepository->store($request);
-
+            $order = $this->orderRepository->store($request, true);
+        
             $this->eventService->handleEvents(auth()->user()->store_id, [EventEnum::LOW_STOCK], ['order' => $order]);
-
+        
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -105,21 +105,19 @@ class OrderController extends Controller
                     'order_uuid' => $order->uuid,
                 ]);
             }
-
+        
             return redirect()->route('pdv.index')->with('success', 'Pedido realizado con éxito. ID de orden: ' . $order->id);
         } catch (\Exception $e) {
-            dd($e->getMessage());
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error al procesar el pedido. Por favor, intente nuevamente.',
-                    'error' => $e->getMessage(),
-                ], 500);
+                    'message' => $e->getMessage(),
+                ], 400);
             }
-
-            // Manejo de errores para solicitudes normales
-            return back()->withErrors('Error al procesar el pedido. Por favor, intente nuevamente.')->withInput();
+        
+            return back()->withErrors($e->getMessage())->withInput();
         }
+        
     }
 
     /**
