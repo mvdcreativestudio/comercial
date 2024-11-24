@@ -99,6 +99,8 @@ Route::middleware([
     Route::get('/product-categories/datatable', [ProductCategoryController::class, 'datatable'])->name('product-categories.datatable');
     Route::get('/orders/datatable', [OrderController::class, 'datatable'])->name('orders.datatable');
     Route::get('/orders/{order}/datatable', [OrderController::class, 'orderProductsDatatable'])->name('order-products.datatable');
+    Route::get('/orders/mercado-pago/{order}', [OrderController::class, 'getMercadoPagoOrderStatus'])->name('orders.getMercadoPagoOrderStatus');
+    Route::get('/orders/mercado-pago/qr-dinamico/{order}', [OrderController::class, 'getMercadoPagoQrDynamic'])->name('orders.getMercadoPagoQrDynamic');
     Route::get('/marketing/coupons/datatable', [CouponController::class, 'datatable'])->name('coupons.datatable');
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
@@ -269,6 +271,9 @@ Route::middleware([
     Route::get('/point-of-sale/details/{id}', [CashRegisterController::class, 'getDetails']);
     Route::get('/point-of-sale/details/sales/{id}', [CashRegisterController::class, 'getSales']);
     Route::get('/point-of-sale/details/sales/pdf/{id}', [CashRegisterController::class, 'getSalesPdf']);
+    Route::get('/point-of-sale/mercado-pago/edit-pos/{id}', [CashRegisterController::class, 'getPosMercadoPago']);
+    Route::post('/point-of-sale/mercado-pago/update-pos/{id}', [CashRegisterController::class, 'updatePosMercadoPago']);
+    Route::delete('/point-of-sale/mercado-pago/delete-pos/{id}', [CashRegisterController::class, 'deletePosMercadoPago']);
 
     Route::post('/pdv/open', [CashRegisterLogController::class, 'store']);
     Route::post('/pdv/close/{id}', [CashRegisterLogController::class, 'closeCashRegister']);

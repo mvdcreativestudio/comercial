@@ -33,7 +33,8 @@ class UpdateStoreRequest extends FormRequest
             'rut' => ['sometimes', 'string'],
             'ecommerce' => 'sometimes|boolean',
             'status' => 'sometimes|boolean',
-            'accepts_mercadopago' => 'required|boolean',
+            'accepts_mercadopago_online' => 'required|boolean',
+            'accepts_mercadopago_presencial' => 'required|boolean',
             'invoices_enabled' => 'boolean',
             'accepts_peya_envios' => 'sometimes|boolean',
         ];
@@ -53,10 +54,27 @@ class UpdateStoreRequest extends FormRequest
             ];
         }
 
-        if ($this->boolean('accepts_mercadopago')) {
+        if ($this->boolean('accepts_mercadopago_online')) {
             $rules += [
-                'mercadoPagoPublicKey' => 'required|string|max:255',
-                'mercadoPagoAccessToken' => 'required|string|max:255',
+                'mercadoPagoPublicKeyOnline' => 'required|string|max:255',
+                'mercadoPagoAccessTokenOnline' => 'required|string|max:255',
+                'mercadoPagoSecretKeyOnline' => 'required|string|max:255',
+            ];
+        }
+
+        if ($this->boolean('accepts_mercadopago_presencial')) {
+            $rules += [
+                'mercadoPagoPublicKeyPresencial' => 'required|string|max:255',
+                'mercadoPagoAccessTokenPresencial' => 'required|string|max:255',
+                'mercadoPagoSecretKeyPresencial' => 'required|string|max:255',
+                'mercadoPagoUserIdPresencial' => 'required|string|max:255',
+                'street_number' => 'required|string|max:255',
+                'street_name' => 'required|string|max:255',
+                'city_name' => 'required|string|max:255',
+                'state_name' => 'required|string|max:255',
+                'latitude' => 'required|string|max:255',
+                'longitude' => 'required|string|max:255',
+                'reference' => 'nullable|string|max:255',
             ];
         }
 
