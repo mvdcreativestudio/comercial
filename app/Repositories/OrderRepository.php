@@ -676,7 +676,7 @@ class OrderRepository
         $data = [
             "external_reference" => strval($order->id), // Identificador único de la orden
             "title" => "Orden de Compra", // Título general de la orden
-            "description" => "Compra realizada por {$client->name} {$client->lastname}.", // Descripción de la compra
+            "description" => "Orden de compra.", // Descripción de la compra
             "notification_url" => app()->environment('local') ? env('MERCADO_PAGO_WEBHOOK') : route('mpagohook'), // URL para notificaciones según entorno
             "total_amount" => $order->total, // Total de la orden
             "items" => [], // Ítems del pedido
@@ -735,7 +735,7 @@ class OrderRepository
         $data = [
             "external_reference" => strval($order->id), // Identificador único de la orden
             "title" => "Orden de Compra", // Título general de la orden
-            "description" => "Compra realizada por {$order->client->name} {$order->client->lastname}.", // Descripción de la compra
+            "description" => "Orden de compra.", // Descripción de la compra
             "notification_url" => app()->environment('local') ? env('MERCADO_PAGO_WEBHOOK') : route('mpagohook'), // URL para notificaciones según entorno
             "total_amount" => $order->total, // Total de la orden
             "items" => [], // Ítems del pedido
