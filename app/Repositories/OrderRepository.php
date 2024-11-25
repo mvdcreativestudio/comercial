@@ -12,6 +12,7 @@ use App\Models\Client;
 use App\Models\CurrentAccount;
 use App\Models\CurrentAccountInitialCredit;
 use App\Models\MercadoPagoAccount;
+use App\Models\MercadoPagoAccountOrder;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\OrderStatusChange;
@@ -159,14 +160,13 @@ class OrderRepository
             }
 
             // Mercado Pago
-            if ($request->payment_method === 'qr_attended' && $client) {
-                $this->createMercadoPagoQrAttend($order, $client);
+            if ($request->payment_method === 'qr_attended') {
+                $this->createMercadoPagoQrAttend($order);
                 $order->payment_status = 'pending';
                 $order->save();
             }
 
-            if ($request->payment_method === 'qr_dynamic' && $client) {
-                // $this->createMercadoPagoQrDynamic($order, $client);
+            if ($request->payment_method === 'qr_dynamic') {
                 $order->payment_status = 'pending';
                 $order->save();
             }
@@ -670,7 +670,7 @@ class OrderRepository
         }
     }
 
-    private function createMercadoPagoQrAttend(Order $order, Client $client)
+    private function createMercadoPagoQrAttend(Order $order)
     {
         // Preparar el cuerpo de la solicitud
         $data = [
@@ -796,6 +796,28 @@ class OrderRepository
             ];
         } catch (\Exception $e) {
             Log::error("Error al obtener el estado de la orden en Mercado Pago: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function refundMercadoPagoOrder($orderId)
+    {
+        try {
+            $order = Order::findOrFail($orderId);
+            $cashRegister = CashRegisterLog::with('cashRegister')->findOrFail($order->cash_register_log_id)->cashRegister;
+            $storeId = $cashRegister->store_id;
+
+            $paymentId = MercadoPagoAccountOrder::where('order_id', $orderId)->where('status', 'paid')->first();
+            if (!$paymentId) {
+                throw new Exception("No se encontró el ID de pago en Mercado Pago para la orden.");
+            }
+            $this->mercadoPagoService->setCredentials($storeId, MercadoPagoApplicationTypeEnum::PAID_PRESENCIAL->value);
+            $this->mercadoPagoService->refundOrder($paymentId->payment_id, [
+                "amount" => $order->total,
+            ]);
+            $paymentId->update(['status' => 'refunded']);
+        } catch (\Exception $e) {
+            Log::error("Error al realizar el reembolso de la orden en Mercado Pago: " . $e->getMessage());
             throw $e;
         }
     }

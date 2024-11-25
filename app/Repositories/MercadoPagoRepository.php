@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enums\MercadoPago\MercadoPagoApplicationTypeEnum;
 use App\Models\MercadoPagoAccount;
+use App\Models\MercadoPagoAccountOrder;
 use App\Models\Order;
 use App\Repositories\EmailNotificationsRepository;
 use App\Repositories\PedidosYaRepository;
@@ -72,7 +73,7 @@ class MercadoPagoRepository
             foreach ($secretKeys as $secretKey) {
                 if ($mpService->verifyHMAC($id, $request->header('x-request-id'), $ts, $receivedHash, $secretKey->secret_key)) {
                     Log::info('La verificación HMAC pasó correctamente');
-                    return $this->processNotification($topic, $id, $mpService, $secretKey);
+                    return $this->processNotification($topic, $id, $mpService, $secretKey, 1);
                 }
             }
             // if ($mpService->verifyHMAC($id, $request->header('x-request-id'), $ts, $receivedHash, $secretKey)) {
@@ -116,7 +117,6 @@ class MercadoPagoRepository
                     return ['message' => ['error' => 'Payment information not found'], 'status' => 400];
                 }
 
-            case 'merchant_order':
             case 'topic_merchant_order_wh':
                 // Implementar lógica similar para 'merchant_order'
                 $this->processStatusOrder($id, $mpService, $secretKey);
@@ -138,7 +138,7 @@ class MercadoPagoRepository
     public function updatePaymentStatus(int $orderId, string $status): bool
     {
         $order = Order::find($orderId);
-
+        $order->load('client', 'store');
         if ($order) {
             $order->payment_status = $status;
             $order->save();
@@ -170,14 +170,14 @@ class MercadoPagoRepository
     {
         $variables = [
             'order_id' => $order->id,
-            'client_name' => $order->client->name,
-            'client_lastname' => $order->client->lastname,
-            'client_email' => $order->client->email,
-            'client_phone' => $order->client->phone,
-            'client_address' => $order->client->address,
-            'client_city' => $order->client->city,
-            'client_state' => $order->client->state,
-            'client_country' => $order->client->country,
+            'client_name' => $order?->client?->name,
+            'client_lastname' => $order?->client?->lastname,
+            'client_email' => $order?->client?->email,
+            'client_phone' => $order?->client?->phone,
+            'client_address' => $order?->client?->address,
+            'client_city' => $order?->client?->city,
+            'client_state' => $order?->client?->state,
+            'client_country' => $order?->client?->country,
             'order_subtotal' => $order->subtotal,
             'order_shipping' => $order->shipping,
             'coupon_amount' => $order->coupon_amount,
@@ -187,7 +187,7 @@ class MercadoPagoRepository
             'order_shipping_method' => $order->shipping_method,
             'order_payment_method' => $order->payment_method,
             'order_payment_status' => $order->payment_status,
-            'store_name' => $order->store->name,
+            'store_name' => $order?->store->name,
         ];
         // Enviar correo al administrador
         $this->emailNotificationsRepository->sendNewOrderEmail($variables);
@@ -253,10 +253,19 @@ class MercadoPagoRepository
 
             if ($merchantOrderInfo['status'] === 'closed') {
                 Log::info("Información de la orden recibida:", $merchantOrderInfo);
-
                 $orderId = $merchantOrderInfo['external_reference']; // Obtiene el ID de la orden desde el external_reference
-                $this->updatePaymentStatus($orderId, 'paid'); // Método para actualizar el estado del pago
-
+                $order = Order::find($orderId);
+                $order->payment_status = 'paid';
+                $order->save();
+                Log::info("Id del payment: ", $merchantOrderInfo['payments']);
+                MercadoPagoAccountOrder::create(
+                    [
+                        "order_id" => $merchantOrderInfo['external_reference'],
+                        "payment_id" => $merchantOrderInfo['payments'][0]['id'],
+                        "status" => 'paid',
+                        "amount" => $merchantOrderInfo['total_amount'],
+                    ]
+                );
                 Log::info("Estado de la orden actualizado a 'paid' para la orden con ID: $orderId");
             }
         } catch (\Exception $e) {

@@ -72,6 +72,7 @@ $changeTypeTranslations = [
 'status' => 'Estado',
 ];
 @endphp
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <h4 class="py-3 mb-4">
   <span class="text-muted fw-light"></span> Detalles de la venta
@@ -164,6 +165,12 @@ $changeTypeTranslations = [
     <a href="{{ route('orders.pdf', ['order' => $order->uuid]) }}?action=download"
       class="btn btn-sm btn-label-primary">PDF Venta</a>
 
+    {{-- boton devolver dinero mercado pago --}}
+    @if($order->payment_method === 'qr_attended' || $order->payment_method === 'qr_dynamic')
+    <a href="javascript:void(0)" class="btn btn-sm btn-danger refund-payment" data-id="{{ $order->id }}">
+      Devolver Dinero
+    </a>
+    @endif
 
     @if($order->is_billed)
     <!-- Botón deshabilitado con tooltip en el contenedor -->

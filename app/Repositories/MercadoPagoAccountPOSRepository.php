@@ -72,7 +72,7 @@ class MercadoPagoAccountPOSRepository
             $this->mercadoPagoService->setCredentials($data['store_id'], MercadoPagoApplicationTypeEnum::PAID_PRESENCIAL->value);
             $resultPosMercadoPago = $this->mercadoPagoService->createPOS([
                 'name' => $data['name'],
-                'fixed_amount' => false,
+                'fixed_amount' => true,
                 'category' => null,
                 'external_id' => 'STORE' . $mercadoPagoAccountStore->id . 'POS' . $cashRegister->id,
                 'external_store_id' => $mercadoPagoAccountStore->external_id,
@@ -81,7 +81,7 @@ class MercadoPagoAccountPOSRepository
             $pos = MercadoPagoAccountPOS::create([
                 'id_pos' => $resultPosMercadoPago['id'],
                 'name' => $resultPosMercadoPago['name'],
-                'fixed_amount' => false,
+                'fixed_amount' => true,
                 'category' => null,
                 'qr_image' => $resultPosMercadoPago['qr']['image'],
                 'template_document' => $resultPosMercadoPago['qr']['template_document'],
@@ -115,12 +115,12 @@ class MercadoPagoAccountPOSRepository
             $this->mercadoPagoService->setCredentials($data['store_id'], MercadoPagoApplicationTypeEnum::PAID_PRESENCIAL->value);
             $this->mercadoPagoService->updatePOS($pos->id_pos, [
                 'name' => $data['name'],
-                'fixed_amount' => false,
+                'fixed_amount' => true,
                 'category' => null,
             ]);
             $pos->update([
                 'name' => $data['name'],
-                'fixed_amount' => false,
+                'fixed_amount' => true,
                 'category' => null,
             ]);
             DB::commit();

@@ -101,6 +101,7 @@ Route::middleware([
     Route::get('/orders/{order}/datatable', [OrderController::class, 'orderProductsDatatable'])->name('order-products.datatable');
     Route::get('/orders/mercado-pago/{order}', [OrderController::class, 'getMercadoPagoOrderStatus'])->name('orders.getMercadoPagoOrderStatus');
     Route::get('/orders/mercado-pago/qr-dinamico/{order}', [OrderController::class, 'getMercadoPagoQrDynamic'])->name('orders.getMercadoPagoQrDynamic');
+    Route::post('/orders/mercado-pago/refund/{order}', [OrderController::class, 'refundMercadoPagoOrder'])->name('orders.refundMercadoPago');
     Route::get('/marketing/coupons/datatable', [CouponController::class, 'datatable'])->name('coupons.datatable');
     Route::get('/products/flavors/datatable', [ProductController::class, 'flavorsDatatable'])->name('products.flavors.datatable');
     Route::get('/productions/datatable', [ProductionController::class, 'datatable'])->name('productions.datatable');
