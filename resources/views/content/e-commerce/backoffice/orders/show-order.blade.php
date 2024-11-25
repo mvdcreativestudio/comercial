@@ -88,6 +88,8 @@ $changeTypeTranslations = [
       <span class="badge bg-label-danger me-2 ms-2">Pago pendiente</span>
       @elseif($order->payment_status === 'failed')
       <span class="badge bg-label-danger me-2 ms-2">Pago fallido</span>
+      @elseif($order->payment_status === 'refunded')
+      <span class="badge bg-label-danger">Pago Devuelto</span>
       @endif
       @if($order->shipping_status === 'pending' && $order->shipping_method !== 'pickup')
       <span class="badge bg-label-warning">No enviado</span>
@@ -166,7 +168,7 @@ $changeTypeTranslations = [
       class="btn btn-sm btn-label-primary">PDF Venta</a>
 
     {{-- boton devolver dinero mercado pago --}}
-    @if($order->payment_method === 'qr_attended' || $order->payment_method === 'qr_dynamic')
+    @if($order->payment_method === 'qr_attended' || $order->payment_method === 'qr_dynamic' && $order->payment_status === 'paid')
     <a href="javascript:void(0)" class="btn btn-sm btn-danger refund-payment" data-id="{{ $order->id }}">
       Devolver Dinero
     </a>

@@ -60,9 +60,9 @@ class MercadoPagoRepository
         $ts = $xSignatureData['ts'] ?? '';
         $receivedHash = $xSignatureData['v1'] ?? '';
         $dataId = '';
-        if(array_key_exists('data', $payload) && array_key_exists('id', $payload['data'])){
+        if (array_key_exists('data', $payload) && array_key_exists('id', $payload['data'])) {
             $dataId = $payload['data']['id'] ?? null;
-        }else if(array_key_exists('data_id', $payload)){
+        } else if (array_key_exists('data_id', $payload)) {
             $dataId = $payload['data_id'] ?? null;
         }
         $resourceUrl = $payload['resource'] ?? null;
@@ -258,14 +258,18 @@ class MercadoPagoRepository
                 $order->payment_status = 'paid';
                 $order->save();
                 Log::info("Id del payment: ", $merchantOrderInfo['payments']);
-                MercadoPagoAccountOrder::create(
-                    [
+                $existingOrder = MercadoPagoAccountOrder::where('payment_id', $merchantOrderInfo['payments'][0]['id'])->first();
+
+                if (!$existingOrder) {
+                    MercadoPagoAccountOrder::create([
                         "order_id" => $merchantOrderInfo['external_reference'],
                         "payment_id" => $merchantOrderInfo['payments'][0]['id'],
                         "status" => 'paid',
                         "amount" => $merchantOrderInfo['total_amount'],
-                    ]
-                );
+                    ]);
+                } else {
+                    Log::info('Payment ID already exists: ' . $merchantOrderInfo['payments'][0]['id']);
+                }
                 Log::info("Estado de la orden actualizado a 'paid' para la orden con ID: $orderId");
             }
         } catch (\Exception $e) {
