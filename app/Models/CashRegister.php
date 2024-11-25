@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CashRegister extends Model
 {
@@ -79,5 +80,16 @@ class CashRegister extends Model
     public function posDevices(): BelongsToMany
     {
         return $this->belongsToMany(PosDevice::class, 'cash_register_pos_device');
+    }
+
+    /**
+     * Obtiene los POS de Mercado Pago asociados a la caja registradora.
+     * 
+     * @return BelongsToMany
+     */
+
+    public function mercadoPagoAccountPOS(): HasMany
+    {
+        return $this->hasMany(MercadoPagoAccountPOS::class);
     }
 }

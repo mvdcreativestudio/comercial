@@ -270,4 +270,21 @@ class OrderController extends Controller
 
         }
     }
+
+
+    public function getMercadoPagoQrDynamic(Request $request, int $id)
+    {
+        $qrTramma = $this->orderRepository->createMercadoPagoQrDynamic($id);
+        return response()->json([
+            'success' => true,
+            'qrTramma' => $qrTramma,
+        ]);
+    }
+
+
+    public function getMercadoPagoOrderStatus(Request $request, $id)
+    {
+        $order = $this->orderRepository->getMercadoPagoOrderStatus($id);
+        return response()->json($order);
+    }
 }

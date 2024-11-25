@@ -102,7 +102,7 @@ $changeTypeTranslations = [
       <span class="mb-1 me-2 ms-2">{{ $order->store->name }}</span>
     </h6>
     <h6 class="card-title mb-1 mt-1">Método de pago:
-      @if($order->payment_method === 'card')
+      @if($order->payment_method === 'card' || $order->payment_method === 'qr_attended' || $order->payment_method === 'qr_dynamic')
       <span class="badge bg-label-primary me-2 ms-2">MercadoPago</span>
       @elseif($order->payment_method === 'cash')
       <span class="me-2 ms-2">Efectivo</span>
