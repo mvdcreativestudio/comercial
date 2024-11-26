@@ -12,7 +12,7 @@
 */
 
 $app = new Illuminate\Foundation\Application(
-    $_ENV['APP_hormigonera_PATH'] ?? dirname(__DIR__)
+    $_ENV['APP_base_PATH'] ?? dirname(__DIR__)
 );
 
 /*
