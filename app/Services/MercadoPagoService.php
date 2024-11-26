@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use MercadoPago\Item;
 use MercadoPago\Preference;
 use MercadoPago\SDK;
+use Illuminate\Support\Str;
 use stdClass;
 
 class MercadoPagoService
@@ -374,6 +375,19 @@ class MercadoPagoService
     {
         $url = "https://api.mercadopago.com/instore/orders/qr/seller/collectors/{$collectorId}/pos/{$posId}/qrs";
         $headers = $this->getHeaders();
+        return $this->makeRequest('POST', $url, $headers, $data);
+    }
+
+    public function refundOrder(string $paymentId, array $data = []): array
+    {
+        $url = "https://api.mercadopago.com/v1/payments/{$paymentId}/refunds";
+        $headers = $this->getHeaders();
+        // Generar un UUID para el encabezado X-Idempotency-Key
+        $idempotencyKey = (string) Str::uuid();
+
+        $headers = array_merge($this->getHeaders(), [
+            'X-Idempotency-Key' => $idempotencyKey
+        ]);
         return $this->makeRequest('POST', $url, $headers, $data);
     }
 

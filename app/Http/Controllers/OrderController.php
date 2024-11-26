@@ -287,4 +287,10 @@ class OrderController extends Controller
         $order = $this->orderRepository->getMercadoPagoOrderStatus($id);
         return response()->json($order);
     }
+
+    public function refundMercadoPagoOrder(Request $request, $id)
+    {
+        $order = $this->orderRepository->refundMercadoPagoOrder($id);
+        return response()->json($order);
+    }
 }
