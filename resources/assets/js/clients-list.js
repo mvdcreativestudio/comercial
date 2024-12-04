@@ -22,7 +22,7 @@ $(function () {
           `);
         } else {
           clients.forEach(function (client) {
-            const fullName = `${client.name} ${client.lastname}`;
+            const fullName = client.lastname ? `${client.name} ${client.lastname}` : client.name;
             const truncatedName = fullName.length > 20 ? fullName.substring(0, 20) + '...' : fullName;
 
             // Capitalizar nombres y otros campos
